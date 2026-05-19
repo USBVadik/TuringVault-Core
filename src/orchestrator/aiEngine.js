@@ -1,12 +1,20 @@
 require("dotenv").config();
-const { OpenAI } = require("openai");
+const { BedrockRuntimeClient, ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
 const { validateDecision } = require("./validator");
 const config = require("./config");
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const client = new BedrockRuntimeClient({
+  region: process.env.AWS_REGION || "us-east-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  }
+});
+
+const MODEL_ID = "us.anthropic.claude-sonnet-4-6";
 
 const SYSTEM_PROMPT = `You are the quantitative routing engine for TuringVault on the Mantle network.
-Your ONLY output must be a valid, minified JSON object. No markdown, no greetings, no explanations.
+Your ONLY output must be a valid, minified JSON object. No markdown, no greetings, no explanations outside of JSON.
 
 You will receive:
 1. Market data (prices, smart money flows, sentiment)
@@ -19,21 +27,8 @@ Rules:
 3. NEVER exceed maxSingleSwapPct of portfolio.
 4. "confidence" must be a float between 0.0 and 1.0.
 
-Output Schema exactly like this:
-{
-  "action": "swap" | "hold",
-  "direction": "risk_on" | "risk_off" | "neutral",
-  "targetAsset": "mUSD" | "mETH",
-  "allocationPct": <number>,
-  "confidence": <float>,
-  "path": {
-    "pairBinSteps": [15],
-    "versions": [2],
-    "tokenPath": ["<address>", "<address>"]
-  },
-  "slippageTolerance": <number>,
-  "reasoning": "<short string>"
-}`;
+Output ONLY this JSON schema:
+{"action":"swap"|"hold","direction":"risk_on"|"risk_off"|"neutral","targetAsset":"mUSD"|"mETH","allocationPct":<number 0-100>,"confidence":<float 0-1>,"path":{"pairBinSteps":[15],"versions":[2],"tokenPath":["0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3","0xcDA86A272531e8640cD7F1a92c01839911B90bb0"]},"slippageTolerance":<number 10-500>,"reasoning":"<max 200 chars>"}`;
 
 async function getAIDecision(marketData, portfolioState) {
   const userPrompt = JSON.stringify({
@@ -43,18 +38,23 @@ async function getAIDecision(marketData, portfolioState) {
   });
 
   try {
-    const response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+    const command = new ConverseCommand({
+      modelId: MODEL_ID,
+      system: [{ text: SYSTEM_PROMPT }],
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userPrompt }
+        { role: "user", content: [{ text: userPrompt }] }
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.1,
-      max_tokens: 500
+      inferenceConfig: {
+        maxTokens: 500,
+        temperature: 0.1
+      }
     });
 
-    const rawResponse = response.choices[0].message.content;
+    const response = await client.send(command);
+    const rawResponse = response.output.message.content[0].text;
+
+    console.log("[AI RAW]:", rawResponse.substring(0, 200));
+
     const validation = validateDecision(rawResponse);
 
     if (!validation.success) {
@@ -64,8 +64,8 @@ async function getAIDecision(marketData, portfolioState) {
 
     return validation.data;
   } catch (error) {
-    console.error("OpenAI API Error:", error.message);
-    return { action: "hold", direction: "neutral", targetAsset: "mUSD", confidence: 0, reasoning: "api_error" };
+    console.error("Bedrock API Error:", error.message);
+    return { action: "hold", direction: "neutral", targetAsset: "mUSD", confidence: 0, reasoning: "api_error: " + error.message.substring(0, 100) };
   }
 }
 
