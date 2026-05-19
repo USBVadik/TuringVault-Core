@@ -40,7 +40,7 @@ const mantleMainnet = defineChain({
 
 const config = getDefaultConfig({
   appName: 'TuringVault',
-  projectId: 'b3d2e7f1a4c8d9e0f2a1b3c4d5e6f7a8', // placeholder — replace with real WalletConnect ID
+  projectId: '4bbc4a3e3e36d2e28cf769726eb36313',
   chains: [mantleSepolia, mantleMainnet],
   ssr: true,
 });
