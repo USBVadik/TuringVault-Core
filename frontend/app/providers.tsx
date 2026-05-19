@@ -1,0 +1,64 @@
+'use client';
+
+import * as React from 'react';
+import {
+  RainbowKitProvider,
+  getDefaultConfig,
+  darkTheme,
+} from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { WagmiProvider } from 'wagmi';
+import { defineChain } from 'viem';
+
+// Mantle Sepolia testnet
+const mantleSepolia = defineChain({
+  id: 5003,
+  name: 'Mantle Sepolia',
+  nativeCurrency: { name: 'Mantle', symbol: 'MNT', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://rpc.sepolia.mantle.xyz'] },
+  },
+  blockExplorers: {
+    default: { name: 'MantleScan', url: 'https://explorer.sepolia.mantle.xyz' },
+  },
+  testnet: true,
+});
+
+// Mantle Mainnet
+const mantleMainnet = defineChain({
+  id: 5000,
+  name: 'Mantle',
+  nativeCurrency: { name: 'Mantle', symbol: 'MNT', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://rpc.mantle.xyz'] },
+  },
+  blockExplorers: {
+    default: { name: 'MantleScan', url: 'https://mantlescan.xyz' },
+  },
+});
+
+const config = getDefaultConfig({
+  appName: 'TuringVault',
+  projectId: 'b3d2e7f1a4c8d9e0f2a1b3c4d5e6f7a8', // placeholder — replace with real WalletConnect ID
+  chains: [mantleSepolia, mantleMainnet],
+  ssr: true,
+});
+
+const queryClient = new QueryClient();
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider theme={darkTheme({
+          accentColor: '#00ff88',
+          accentColorForeground: '#000',
+          borderRadius: 'medium',
+        })}>
+          {children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}
