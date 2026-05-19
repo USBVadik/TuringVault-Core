@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TuringVault — AI RWA Router</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  background: #0a0a0f;
+  color: #e0e0e0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+/* Header */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; border-bottom: 1px solid #1a1a2e;
+}
+.logo { font-size: 24px; font-weight: 700; color: #00ff88; }
+.logo span { color: #666; }
+.status-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: #0d1f17; border: 1px solid #00ff8840;
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #00ff88;
+}
+.status-dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* Grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 24px; }
+.card {
+  background: #12121a; border: 1px solid #1e1e30; border-radius: 12px;
+  padding: 20px; transition: border-color 0.2s;
+}
+.card:hover { border-color: #00ff8840; }
+.card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 12px; }
+.card-value { font-size: 28px; font-weight: 700; color: #fff; }
+.card-sub { font-size: 12px; color: #888; margin-top: 4px; }
+
+/* Market */
+.market-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a1a2e; }
+.market-label { color: #888; font-size: 13px; }
+.market-value { font-size: 13px; font-weight: 600; }
+.positive { color: #00ff88; }
+.negative { color: #ff4444; }
+.neutral { color: #ffaa00; }
+
+/* Decision Log */
+.decisions-table { width: 100%; margin-top: 24px; }
+.decisions-header {
+  display: grid; grid-template-columns: 80px 80px 80px 100px 1fr;
+  gap: 12px; padding: 10px 16px; background: #1a1a2e; border-radius: 8px 8px 0 0;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #666;
+}
+.decision-row {
+  display: grid; grid-template-columns: 80px 80px 80px 100px 1fr;
+  gap: 12px; padding: 12px 16px; border-bottom: 1px solid #1a1a2e;
+  font-size: 13px; transition: background 0.2s;
+}
+.decision-row:hover { background: #1a1a2e40; }
+.action-swap { color: #00ff88; font-weight: 600; }
+.action-hold { color: #ffaa00; font-weight: 600; }
+
+/* Agent Card */
+.agent-card {
+  background: linear-gradient(135deg, #12121a 0%, #1a1a2e 100%);
+  border: 1px solid #00ff8830; border-radius: 12px; padding: 24px;
+  margin-top: 24px;
+}
+.agent-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.agent-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, #00ff88, #0088ff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.agent-name { font-size: 18px; font-weight: 700; }
+.agent-model { font-size: 12px; color: #00ff88; }
+
+/* Footer */
+.footer { margin-top: 40px; padding: 20px 0; border-top: 1px solid #1a1a2e; text-align: center; }
+.footer a { color: #00ff88; text-decoration: none; }
+.contracts { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.contract-link { font-size: 11px; color: #666; font-family: monospace; }
+
+/* Responsive */
+@media (max-width: 768px) { .decisions-header, .decision-row { font-size: 11px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">TuringVault<span>.ai</span></div>
+    <div class="status-badge"><div class="status-dot"></div>LIVE on Mantle</div>
+  </div>
+
+  <!-- Agent Identity -->
+  <div class="agent-card">
+    <div class="agent-header">
+      <div class="agent-avatar">🤖</div>
+      <div>
+        <div class="agent-name" id="agentName">TuringVault AI Agent</div>
+        <div class="agent-model">Claude Sonnet 4.6 · ERC-8004 Token #0</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+      <div><div class="card-title">Total Decisions</div><div class="card-value" id="totalDecisions">—</div></div>
+      <div><div class="card-title">Success Rate</div><div class="card-value" id="successRate">—</div></div>
+      <div><div class="card-title">Cumulative PnL</div><div class="card-value" id="totalPnl">—</div></div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">ETH Price</div>
+      <div class="card-value" id="ethPrice">—</div>
+      <div class="card-sub" id="ethChange">—</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Market Sentiment</div>
+      <div class="card-value" id="sentiment">—</div>
+      <div class="card-sub" id="fearGreed">—</div>
+    </div>
+    <div class="card">
+      <div class="card-title">mETH Yield</div>
+      <div class="card-value" id="methYield">—</div>
+      <div class="card-sub" id="methPool">—</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Mantle TVL</div>
+      <div class="card-value" id="mantleTvl">—</div>
+      <div class="card-sub" id="tvlChange">—</div>
+    </div>
+  </div>
+
+  <!-- Decision Log -->
+  <h2 style="margin-top:32px;font-size:16px;color:#888;">Recent AI Decisions (On-Chain)</h2>
+  <div class="decisions-header">
+    <span>Time</span><span>Action</span><span>Target</span><span>Confidence</span><span>Reasoning</span>
+  </div>
+  <div id="decisionsLog"></div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div style="color:#666;font-size:12px;">Mantle Turing Test Hackathon 2026 · <a href="https://github.com/USBVadik/TuringVault-Core" target="_blank">GitHub</a></div>
+    <div class="contracts" id="contracts"></div>
+  </div>
+</div>
+
+<script>
+async function fetchData() {
+  try {
+    const [statusRes, marketRes] = await Promise.all([
+      fetch('/api/status'),
+      fetch('/api/market')
+    ]);
+    const status = await statusRes.json();
+    const market = await marketRes.json();
+
+    // Agent stats
+    document.getElementById('totalDecisions').textContent = status.stats.totalDecisions;
+    const rate = status.stats.totalDecisions > 0 
+      ? Math.round((status.stats.successfulSwaps / status.stats.totalDecisions) * 100) + '%'
+      : 'N/A';
+    document.getElementById('successRate').textContent = rate;
+    document.getElementById('totalPnl').textContent = (status.stats.totalPnLBps / 100).toFixed(2) + '%';
+
+    // Market
+    document.getElementById('ethPrice').textContent = '$' + market.ethPrice.toLocaleString();
+    const ethChangeEl = document.getElementById('ethChange');
+    ethChangeEl.textContent = (market.ethChange24h >= 0 ? '+' : '') + market.ethChange24h.toFixed(2) + '% (24h)';
+    ethChangeEl.className = 'card-sub ' + (market.ethChange24h >= 0 ? 'positive' : 'negative');
+
+    const sentEl = document.getElementById('sentiment');
+    sentEl.textContent = market.sentiment.replace('_', ' ').toUpperCase();
+    sentEl.className = 'card-value ' + (market.sentiment.includes('bull') || market.sentiment.includes('greed') ? 'positive' : market.sentiment.includes('fear') || market.sentiment.includes('bear') ? 'negative' : 'neutral');
+    document.getElementById('fearGreed').textContent = 'Fear & Greed Index: ' + market.fearGreedValue;
+
+    document.getElementById('methYield').textContent = market.mETHYield.toFixed(2) + '%';
+    document.getElementById('methPool').textContent = market.mETHPool || '';
+
+    document.getElementById('mantleTvl').textContent = '$' + (market.mantleTVL / 1e6).toFixed(1) + 'M';
+    document.getElementById('tvlChange').textContent = '24h: ' + (market.mantleTVLChange1d >= 0 ? '+' : '') + (market.mantleTVLChange1d || 0).toFixed(2) + '%';
+
+    // Decisions
+    const logEl = document.getElementById('decisionsLog');
+    logEl.innerHTML = status.decisions.reverse().map(d => {
+      const time = new Date(d.timestamp).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
+      const actionClass = d.action === 'swap' ? 'action-swap' : 'action-hold';
+      const conf = (d.confidence / 100).toFixed(1) + '%';
+      let reasoning = '';
+      try { reasoning = JSON.parse(d.reasoning).decision?.action || d.reasoning; } catch { reasoning = d.reasoning.substring(0, 60); }
+      return `<div class="decision-row">
+        <span>${time}</span>
+        <span class="${actionClass}">${d.action.toUpperCase()}</span>
+        <span>${d.targetAsset}</span>
+        <span>${conf}</span>
+        <span style="color:#888;font-size:12px;">${reasoning}</span>
+      </div>`;
+    }).join('');
+
+    // Contracts
+    document.getElementById('contracts').innerHTML = Object.entries(status.contracts).map(([k,v]) =>
+      `<span class="contract-link">${k}: ${v.substring(0,10)}...${v.substring(38)}</span>`
+    ).join('');
+
+  } catch (err) {
+    console.error('Fetch error:', err);
+  }
+}
+
+fetchData();
+setInterval(fetchData, 15000); // Refresh every 15s
+</script>
+</body>
+</html>
