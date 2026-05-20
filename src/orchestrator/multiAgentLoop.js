@@ -36,10 +36,19 @@ const DECISION_LOG_ABI = [
 const REGISTRY_ADDR = "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6";
 const DECISION_LOG_ADDR = "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5";
 const REPUTATION_ADDR = "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a";
+const VALIDATION_ADDR = "0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705";
+const IDENTITY_ADDR = "0x6f862802e0d5463DF18d267e422347BeCacc28bD";
 
 const REPUTATION_ABI = [
   "function submitFeedback(uint256 agentId, int128 score, bytes32 reasoningHash, string context) external",
   "function recordPnL(uint256 agentId, int128 pnlBps, bytes32 reasoningHash) external"
+];
+
+const VALIDATION_ABI = [
+  "function validationRequest(address validatorAddress, uint256 agentId, string requestURI, bytes32 requestHash) external",
+  "function validationResponse(bytes32 requestHash, uint8 response, string responseURI, bytes32 responseHash, string tag) external",
+  "function isActionApproved(bytes32 requestHash) view returns (bool approved, uint8 score, bool expired)",
+  "function authorizedValidators(address) view returns (bool)"
 ];
 
 async function runMultiAgentCycle() {
@@ -48,6 +57,7 @@ async function runMultiAgentCycle() {
   const registry = new ethers.Contract(REGISTRY_ADDR, REGISTRY_ABI, wallet);
   const decisionLog = new ethers.Contract(DECISION_LOG_ADDR, DECISION_LOG_ABI, wallet);
   const reputation = new ethers.Contract(REPUTATION_ADDR, REPUTATION_ABI, wallet);
+  const validation = new ethers.Contract(VALIDATION_ADDR, VALIDATION_ABI, wallet);
 
   console.log("\n╔══════════════════════════════════════════════════════════╗");
   console.log("║  TURINGVAULT MULTI-AGENT CYCLE                          ║");
@@ -86,6 +96,39 @@ async function runMultiAgentCycle() {
   const { uploadReasoningProof } = require("../ipfs/storage");
   const ipfsResult = await uploadReasoningProof(decision, market);
   console.log(`   ✅ IPFS: ${ipfsResult.uri}`);
+
+  // Step 3.5: PRE-ACTION CHECK (ERC-8004 Validation Registry)
+  console.log("🛡️  [STEP 3.5] Pre-Action Validation Check...");
+  const intentPayload = JSON.stringify({
+    action: decision.analyst?.action,
+    asset: decision.analyst?.targetAsset,
+    confidence: decision.analyst?.confidence,
+    analystReasoning: decision.analyst?.reasoning?.substring(0, 200),
+    validatorApproved: decision.validator?.approved,
+    validatorConfidence: decision.validator?.validatorConfidence,
+    ipfsCID: ipfsResult.cid,
+    timestamp: Date.now()
+  });
+  const requestHash = ethers.keccak256(ethers.toUtf8Bytes(intentPayload));
+  
+  // Use a secondary address as validator (in production: separate validator service)
+  // For demo: owner submits request, then self-validates via authorizedValidators
+  const validatorAddr = "0x000000000000000000000000000000000000dEaD"; // placeholder for demo
+  // In real flow: validationRequest → external validator → validationResponse
+  // For hackathon demo: we simulate the full flow atomically
+  console.log(`   Request hash: ${requestHash.substring(0, 18)}...`);
+  console.log(`   Validator confidence: ${(decision.validator?.validatorConfidence * 100).toFixed(0)}%`);
+  
+  // Determine if action passes pre-action check
+  const preActionScore = decision.consensus 
+    ? Math.round((decision.validator?.validatorConfidence || 0) * 100) 
+    : 0;
+  const preActionPassed = preActionScore >= 60;
+  console.log(`   Pre-Action Score: ${preActionScore}/100 — ${preActionPassed ? "✅ APPROVED" : "❌ BLOCKED"}`);
+  
+  if (!preActionPassed) {
+    console.log("\n   ⛔ ACTION BLOCKED by Pre-Action Check. Recording rejection only.");
+  }
 
   // Step 4: Record on-chain
   console.log("⛓️  [STEP 4] Recording on-chain...");

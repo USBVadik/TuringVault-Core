@@ -25,10 +25,10 @@ describe("TuringVaultIdentity", function () {
       expect(await identity.tokenURI(1)).to.equal("ipfs://agent2");
     });
 
-    it("should emit AgentRegistered event", async () => {
+    it("should emit Registered event", async () => {
       await expect(identity.registerAgent("ipfs://test"))
-        .to.emit(identity, "AgentRegistered")
-        .withArgs(0, "ipfs://test");
+        .to.emit(identity, "Registered")
+        .withArgs(0, "ipfs://test", owner.address);
     });
 
     it("should reject non-owner registration", async () => {
@@ -48,19 +48,19 @@ describe("TuringVaultIdentity", function () {
     });
 
     it("should update agent URI", async () => {
-      await identity.updateAgentURI(0, "ipfs://updated");
+      await identity.setAgentURI(0, "ipfs://updated");
       expect(await identity.tokenURI(0)).to.equal("ipfs://updated");
     });
 
-    it("should emit AgentURIUpdated event", async () => {
-      await expect(identity.updateAgentURI(0, "ipfs://new"))
-        .to.emit(identity, "AgentURIUpdated")
-        .withArgs(0, "ipfs://new");
+    it("should emit URIUpdated event", async () => {
+      await expect(identity.setAgentURI(0, "ipfs://new"))
+        .to.emit(identity, "URIUpdated")
+        .withArgs(0, "ipfs://new", owner.address);
     });
 
     it("should reject non-owner URI update", async () => {
-      await expect(identity.connect(other).updateAgentURI(0, "ipfs://hack"))
-        .to.be.revertedWithCustomError(identity, "OwnableUnauthorizedAccount");
+      await expect(identity.connect(other).setAgentURI(0, "ipfs://hack"))
+        .to.be.revertedWith("Not authorized");
     });
   });
 
