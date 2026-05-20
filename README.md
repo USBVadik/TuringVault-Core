@@ -42,11 +42,12 @@ TuringVault is NOT a trading bot. It's a **cryptographically-verified AI cogniti
 │  [1] MARKET DATA          [2] MULTI-AGENT AI       [3] EXECUTION           │
 │  ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐    │
 │  │ CoinGecko       │      │ GLM-5 Analyst   │      │ VaR Calculator  │    │
-│  │ DeFiLlama       │─────▶│       ↓         │─────▶│ Merchant Moe LB │    │
-│  │ Fear & Greed    │      │ Claude Validator │      │ Tencent KMS HSM │    │
-│  │ Merchant Moe LB │      │       ↓         │      │ Intent → Sign   │    │
-│  │ USDY/RWA Yield  │      │ Zod Consensus   │      └─────────────────┘    │
-│  └─────────────────┘      └─────────────────┘              │               │
+│  │ DeFiLlama       │      │       ↓         │      │ Merchant Moe LB │    │
+│  │ Fear & Greed    │─────▶│ Claude Validator │─────▶│ Byreal Perps    │    │
+│  │ Nansen MCP      │      │       ↓         │      │ Tencent KMS HSM │    │
+│  │ Merchant Moe LB │      │ Zod Consensus   │      │ Intent → Sign   │    │
+│  │ USDY/RWA Yield  │      └─────────────────┘      └─────────────────┘    │
+│  └─────────────────┘                                        │               │
 │                                                              ▼               │
 │  [4] ON-CHAIN ATTESTATION                    [5] SELF-EVOLUTION             │
 │  ┌─────────────────────────────────────┐     ┌─────────────────────┐       │
