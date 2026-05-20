@@ -1,346 +1,411 @@
-# TuringVault — Project Vision & Technical Deep Dive
+# TuringVault — Project Vision & Concept Deep Dive
 
-## Executive Summary
-
-TuringVault is an autonomous AI investment agent operating on the Mantle Network that introduces a novel concept: **Proof of Reasoning** — permanent, verifiable on-chain records of every decision an AI system makes, including its full rationale.
-
-The system autonomously manages a portfolio of Real World Assets (mETH — liquid staked ETH, and mUSD — Mantle stablecoin) by analyzing real-time market data, making allocation decisions through Claude Sonnet 4.6, and executing swaps via Merchant Moe DEX — all while recording every step of its reasoning process immutably on-chain.
-
----
-
-## 1. Problem Statement
-
-### 1.1 The Black Box Problem in AI Finance
-
-Current AI trading systems suffer from three critical flaws:
-
-1. **Opacity**: Users cannot verify WHY an AI made a specific decision. Even if an AI manages $1B in assets, its reasoning process is hidden behind API calls and proprietary algorithms.
-
-2. **Accountability**: When an AI loses money, there's no audit trail. Did it follow its strategy? Did it hallucinate a data point? Was the model even called, or did a fallback trigger?
-
-3. **Trust**: Institutional adoption of AI asset management is blocked by the inability to prove fiduciary responsibility. Regulators need audit trails; currently none exist for AI systems.
-
-### 1.2 The RWA Accessibility Gap
-
-Real World Assets (tokenized bonds, staking yields, LSTs) offer attractive yields but require:
-- Constant monitoring of market conditions
-- Quick reaction to sentiment shifts
-- Understanding of complex DeFi routing
-- 24/7 attention that humans cannot sustain
-
-Most retail investors lack the expertise or time to actively manage RWA portfolios.
+## Table of Contents
+1. [The Problem We're Solving](#1-the-problem-were-solving)
+2. [The Core Insight](#2-the-core-insight)
+3. [What is Proof-of-Reasoning?](#3-what-is-proof-of-reasoning)
+4. [Technical Architecture](#4-technical-architecture)
+5. [The Multi-Agent Design](#5-the-multi-agent-design)
+6. [Why Mantle?](#6-why-mantle)
+7. [Partner Ecosystem Integration](#7-partner-ecosystem-integration)
+8. [What We've Built](#8-what-weve-built)
+9. [Roadmap & What's Next](#9-roadmap--whats-next)
+10. [Why This Wins](#10-why-this-wins)
 
 ---
 
-## 2. Solution: TuringVault
+## 1. The Problem We're Solving
 
-### 2.1 Core Thesis
+The DeFi ecosystem is rapidly moving toward AI-powered investment agents. These agents monitor markets, analyze data, and execute trades autonomously. But there's a fundamental trust crisis brewing:
 
-**"Every AI financial decision should be as auditable as a smart contract execution."**
+**When an AI agent executes a trade on-chain, you see the transaction. You don't see the reasoning.**
 
-TuringVault makes AI reasoning a first-class on-chain citizen. Just as Ethereum transactions are transparent and verifiable, TuringVault makes AI *thinking* transparent and verifiable.
+This creates cascading problems:
 
-### 2.2 How It Works
+### For Users
+- You deposit funds into an AI-managed vault
+- The AI loses money
+- You have no way to audit whether the loss was due to a market downturn (acceptable) or an AI hallucination (catastrophic, preventable)
+- You can't hold the agent accountable because there's no record of its "thinking"
 
-```
-Every 60 seconds:
+### For the Broader Ecosystem
+- AI agents are black boxes — institutional players won't trust them with serious capital
+- No reputation system exists for AI agents — a consistently good agent and a consistently bad one look identical on-chain
+- Multi-agent systems (which are the future) require trust between agents — impossible without verifiable track records
 
-1. OBSERVE  → Fetch real-time data from 4 sources
-2. REASON   → Claude Sonnet 4.6 analyzes data against rules
-3. VALIDATE → Zod schema enforces output structure  
-4. RECORD   → Decision + reasoning written to Mantle
-5. EXECUTE  → If confidence ≥ 85%, swap via Merchant Moe
-6. REPORT   → Dashboard updates in real-time
-```
+### The LLM Hallucination Problem
+Large Language Models hallucinate. An AI agent could convince itself of a bullish signal that doesn't exist in the data, execute a trade, lose money, and leave zero trace of the flawed reasoning. Without on-chain reasoning records, this vulnerability is systemic.
 
-### 2.3 What Makes It Different
-
-| Feature | Traditional Bot | TuringVault |
-|---------|----------------|-------------|
-| Decision logic | Hidden/compiled | On-chain, readable |
-| Reasoning | None recorded | Full text permanently stored |
-| Audit trail | Server logs (mutable) | Blockchain (immutable) |
-| Identity | Anonymous process | ERC-8004 NFT with verifiable history |
-| Accountability | None | Every decision traceable to model + inputs |
-| Confidence | Binary (trade/no-trade) | Granular (0-10000 bps) with threshold |
+**TuringVault is the answer to all of these problems.**
 
 ---
 
-## 3. Technical Architecture
+## 2. The Core Insight
 
-### 3.1 Smart Contracts (Solidity 0.8.28, Cancun EVM)
+The Turing Test (which this hackathon is named after) asks: can you tell if you're talking to a human or machine?
 
-#### TuringVaultIdentity.sol — ERC-8004 AI Agent Identity
-- Extends ERC-721 (NFT) with AI-specific metadata
-- Each AI agent gets a unique on-chain identity (Token #0)
-- Stores: model name, capabilities, performance history URI
-- Purpose: Verifiable agent identity that accumulates reputation over time
-- Anyone can verify which AI model is making decisions
+TuringVault flips this into a DeFi question: **can you verify that an AI agent reasoned correctly before trusting it with your money?**
 
-#### TuringVaultDecisionLog.sol — Proof of Reasoning
-- Append-only log of all AI decisions
-- Each entry stores: timestamp, action, target asset, amounts, confidence (basis points), full reasoning text, execution tx hash
-- Performance tracking: successful swaps counter, cumulative PnL
-- `getRecentDecisions(count)` — fetch last N decisions for dashboard
-- Events emitted for off-chain indexing and real-time UI updates
+Our answer: **Yes — if you put the reasoning on-chain.**
 
-#### TuringVaultRouter.sol — Execution Engine
-- Integrates with Merchant Moe Liquidity Book Router (v2)
-- Risk parameters enforced on-chain:
-  - `minConfidence`: minimum 8500 bps (85%) to execute swap
-  - `maxSlippageBps`: maximum 100 bps (1%) slippage
-  - `maxSingleSwapPct`: maximum 50% of portfolio per swap
-- `deposit()` / `withdraw()` for user funds management
-- `executeSwap()` — only callable by owner (the AI orchestrator)
-- On-chain validation prevents AI from exceeding risk parameters even if hallucinating
+The key insight is that blockchain's immutability makes it the perfect medium for AI accountability. A transaction on Mantle is permanent. So if we store not just the action but the complete reasoning chain — market data observed, conclusions drawn, risks identified, confidence level — we've created an auditable, unforgeable proof that the AI did its job correctly.
 
-### 3.2 AI Engine (Node.js + Claude Sonnet 4.6)
+We call this **Proof-of-Reasoning (PoR)**.
 
-#### Model Selection Rationale
-- **Claude Sonnet 4.6** via AWS Bedrock Converse API
-- Temperature: 0.1 (minimal creativity, maximum consistency)
-- Structured output enforced via system prompt + Zod validation
-- Tested: 100% valid JSON output across all market scenarios
+---
 
-#### Decision Framework (System Prompt Rules)
+## 3. What is Proof-of-Reasoning?
+
+Proof-of-Reasoning is a new primitive for AI agent accountability in Web3. It works like this:
+
+### Traditional DeFi Bot
 ```
-Rule 1: confidence < 0.85 OR sentiment == "extreme_fear"
-        → action: "swap", target: "mUSD" (risk-off)
+Market Data → Bot → TX (swap 1 ETH for USDC)
+```
+You see: one transaction. No reasoning. No accountability.
 
-Rule 2: confidence >= 0.85 AND sentiment == "bullish"  
-        → action: "swap", target: "mETH" (risk-on)
-
-Rule 3: NEVER exceed maxSingleSwapPct (50%) per swap
-
-Rule 4: Output MUST be valid JSON matching Zod schema
+### TuringVault with Proof-of-Reasoning
+```
+Market Data → Analyst Agent → Proposal (with full reasoning)
+                                     ↓
+                            Validator Agent → Consensus Score
+                                     ↓
+                            ValidationRegistry.submitProposal()  ← PERMANENT ON-CHAIN
+                            ValidationRegistry.validateProposal() ← PERMANENT ON-CHAIN
+                            DecisionLog.logDecision()             ← PERMANENT ON-CHAIN
+                                     ↓
+                              Execute (or block)
 ```
 
-#### Zod Schema Enforcement
-Every AI response passes through strict validation:
+What's stored on-chain:
+- The proposed action (`swap mUSD`, `swap mETH`, `hold`)
+- The target asset and allocation percentage
+- The Analyst's confidence score (basis points)
+- A hash of the Analyst's complete reasoning text
+- The Validator's independent confidence score
+- The Validator's risk score (0-100)
+- Whether consensus was reached
+- The final execution tx hash (when executed)
+
+This creates an immutable timeline of every decision the AI made, why it made it, and whether a second AI agreed with the logic.
+
+---
+
+## 4. Technical Architecture
+
+### Smart Contract Layer
+
+#### TuringVaultIdentity.sol
+An ERC-721 NFT contract inspired by the emerging ERC-8004 standard for AI agent identity. Each AI agent in TuringVault is represented as an NFT on Mantle Mainnet, giving it:
+- A permanent on-chain identity
+- A metadata URI (IPFS) describing its capabilities, model, and version
+- A verifiable reputation that accumulates over time
+
+Current deployed agent identity: Token #0, representing our Claude Sonnet 4.6 multi-agent system.
+
+#### TuringVaultDecisionLog.sol
+An append-only ledger of every AI decision. Once logged, decisions cannot be modified or deleted. Each entry records:
+- Action type (swap/hold)
+- Target asset
+- Amount in/out
+- Confidence (basis points, 0-10000)
+- Reasoning text hash
+- Execution tx hash
+- Block timestamp
+
+This contract is the core of Proof-of-Reasoning — the permanent, public, auditable record.
+
+#### TuringVaultRouter.sol
+Handles asset routing between mETH (yield-bearing liquid staked ETH on Mantle) and mUSD (Mantle stablecoin). Designed to interface with Merchant Moe's Liquidity Book pools. The owner (AI agent orchestrator wallet) can trigger rebalancing based on the consensus decisions.
+
+#### TuringVaultValidationRegistry.sol
+The most innovative contract in the system. This is where multi-agent consensus happens on-chain:
+
+```solidity
+struct Proposal {
+    string action;
+    string targetAsset;
+    uint256 amountIn;
+    uint256 confidence;         // Analyst confidence in bps
+    string reasoning;           // Analyst's reasoning
+    uint256 validatorConfidence; // Validator confidence in bps
+    uint256 riskScore;          // Validator risk assessment (0-10000 bps)
+    string validatorReasoning;
+    Status status;              // Pending → Approved/Rejected
+    bytes32 executionTxHash;
+    uint256 timestamp;
+}
+```
+
+Consensus requirements (configurable):
+- Analyst confidence ≥ 8500 bps (85%) — or 7500 bps with current settings
+- Validator confidence ≥ 7000 bps (70%)
+- Risk score ≤ 6500 bps (65/100)
+- Validator explicitly approves
+
+### AI Engine Layer
+
+#### Claude Sonnet 4.6 via AWS Bedrock
+Both agents use Claude Sonnet 4.6 accessed through AWS Bedrock's Converse API. This provides:
+- Reliable JSON output (critical for Zod validation)
+- Cross-region inference (us.anthropic.claude-sonnet-4-6)
+- Production-grade API with SLA
+
+#### Zod Validation Pipeline
+All AI outputs are validated against strict Zod schemas before being accepted:
+
 ```javascript
-DecisionSchema = z.object({
+// Analyst must output exactly this structure
+const AnalystSchema = z.object({
   action: z.enum(["swap", "hold"]),
   direction: z.enum(["risk_on", "risk_off", "neutral"]),
-  targetAsset: z.enum(["mUSD", "mETH"]),
+  targetAsset: z.enum(["mETH", "mUSD"]),
   allocationPct: z.number().min(0).max(100),
   confidence: z.number().min(0).max(1),
-  path: z.object({...}),  // DEX routing
-  slippageTolerance: z.number().min(10).max(500),
-  reasoning: z.string().max(200)
+  reasoning: z.string().min(50),
+  riskFactors: z.array(z.string()),
+  expectedYield: z.number()
 });
 ```
 
-If validation fails → automatic fallback to "hold" with confidence 0.
-**The AI cannot corrupt the system even if it hallucinates.**
-
-### 3.3 Market Data Pipeline
-
-Four real-time data sources (all free, no API keys required):
-
-| Source | Data | Update Frequency |
-|--------|------|-----------------|
-| CoinGecko | ETH price, 24h change, volume | 60s |
-| DeFiLlama | mETH yield, Mantle TVL, protocol data | 60s |
-| Fear & Greed Index | Market sentiment (0-100) | 300s |
-| DeFiLlama Yields | Best yield opportunities on Mantle | 60s |
-
-Derived signals:
-- `smartMoneyFlow` = TVL × daily change % (proxy for institutional activity)
-- `volatility` = |24h price change| / 10, capped at 1.0
-- `sentiment` = Fear&Greed mapped to enum: extreme_fear/bearish/neutral/bullish/extreme_greed
-
-### 3.4 Frontend (Next.js 15 + Web3)
-
-- **RainbowKit**: Multi-wallet support (Bybit, MetaMask, Rabby, WalletConnect)
-- **wagmi v2**: Type-safe contract interactions
-- **viem**: Low-level blockchain operations
-- **Real-time**: Auto-refresh market data every 30s, decisions every 15s
-- **Responsive**: Mobile-first design, dark theme
-
-User flow:
-1. Connect wallet → See AI agent status and history
-2. Deposit MNT → Funds enter AI-managed vault
-3. Watch decisions → Real-time feed of AI reasoning
-4. Withdraw → Exit at any time with proportional share
+If the AI outputs malformed JSON or fails schema validation, the system automatically falls back to "hold" — never executing a trade based on corrupted reasoning.
 
 ---
 
-## 4. Innovation & Novelty
+## 5. The Multi-Agent Design
 
-### 4.1 Proof of Reasoning (PoR)
+This is the architectural innovation that separates TuringVault from all other hackathon DeFi projects.
 
-This is our primary innovation. Current state of art:
+### Why Two Agents?
 
-- **Chainlink Proof of Reserve**: Proves assets EXIST, not WHY they were acquired
-- **Trading bot logs**: Stored off-chain, mutable, deletable
-- **AI explainability (SHAP/LIME)**: Post-hoc analysis, not real-time recording
+A single AI agent, no matter how capable, is vulnerable to:
+- **Overconfidence** — claiming 95% certainty when the data is ambiguous
+- **Confirmation bias** — finding evidence that supports its prior conclusion
+- **Hallucination** — generating plausible-sounding but false market data interpretations
+- **Anchoring** — being influenced by the format of the question more than the content
 
-TuringVault's PoR is:
-- **Pre-commitment**: Reasoning is recorded BEFORE execution, not after
-- **Immutable**: Once on-chain, cannot be altered or deleted
-- **Verifiable**: Anyone can read the full reasoning for any historical decision
-- **Auditable**: Regulators/investors can trace exact logic for each trade
+The solution from traditional finance: **independent review**. Every major trading desk has a Risk Manager who is specifically tasked with finding flaws in the Trader's reasoning.
 
-### 4.2 ERC-8004: AI Agent Identity Standard
+TuringVault implements this with two AI agents that have **fundamentally different system prompts and objectives:**
 
-We implement ERC-8004 (AI Agent Identity) to give our agent:
-- A unique, non-transferable on-chain identity
-- Accumulating reputation (decisions, PnL, accuracy)
-- Verifiable model provenance ("this agent runs Claude 4.6")
-- Foundation for multi-agent ecosystems where agents have verifiable track records
+### Analyst Agent System Prompt (simplified)
+```
+You are the ANALYST AGENT. Your job is to find the best trade opportunity.
+Analyze market data. Be decisive. Propose a specific action with confidence.
+```
 
-### 4.3 Defensive AI Architecture
+### Validator Agent System Prompt (simplified)
+```
+You are the VALIDATOR AGENT. Your job is to find flaws in the Analyst's proposal.
+Be skeptical. List every risk you can identify. Score risk 0-100.
+Approve only if the reasoning is numerically sound and risks are acceptable.
+```
 
-The system is designed to be safe even when the AI fails:
-1. **Zod validation** catches malformed outputs → fallback to "hold"
-2. **On-chain risk parameters** prevent exceeding limits even with valid-but-risky decisions
-3. **Confidence threshold** (85%) means most decisions result in "hold" — conservative by design
-4. **Structured output** — AI can only choose from predefined actions, not freeform commands
+### Real Example from Live System (May 20, 2026)
 
----
+**Market Context:**
+- ETH: $2,133
+- Fear&Greed: 27 (Fear)
+- mETH Yield: 0.34% APY
+- Nansen Smart Money: bullish ($134k inflow)
 
-## 5. Mantle Ecosystem Integration
+**Analyst proposes:**
+```json
+{
+  "action": "swap",
+  "targetAsset": "mUSD",
+  "confidence": 0.87,
+  "reasoning": "mETH yield (0.34%) is 416bps BELOW risk-free rate (4.5%), 
+  making mETH a negative carry position. Fear&Greed at 27 confirms bearish 
+  regime. Despite Nansen smart money showing bullish flows, the yield 
+  fundamentals override sentiment — hold stability in mUSD until yield 
+  spread normalizes."
+}
+```
 
-### 5.1 Why Mantle?
+**Validator responds:**
+```json
+{
+  "approved": true,
+  "validatorConfidence": 0.81,
+  "riskScore": 28,
+  "reasoning": "Analyst's yield spread calculation is numerically verified: 
+  0.34% - 4.5% = -4.16% (negative carry confirmed). Fear&Greed 27 aligns. 
+  Correctly identified Nansen signal as contradicting but overridden by 
+  fundamentals — this is sound risk management.",
+  "flaggedIssues": [
+    "NANSEN DIVERGENCE: Smart money buying while fundamentals are bearish — 
+    possible early accumulation signal for next 7d",
+    "mUSD DEPEG RISK: Not assessed — minor tail risk in extreme scenarios"
+  ]
+}
+```
 
-- **Low gas costs**: Decision logging costs ~0.001 MNT per entry, enabling every-60-second recording
-- **EVM compatibility**: Full Solidity support with Cancun opcodes
-- **Native RWA ecosystem**: mETH (liquid staking) and mUSD (stablecoin) are native Mantle assets
-- **Merchant Moe**: Native DEX with Liquidity Book for efficient swaps
+**Consensus: REACHED** — both agents agree on risk-off posture.
 
-### 5.2 Mantle-Native Assets Used
-
-| Asset | Type | Role in TuringVault |
-|-------|------|---------------------|
-| mETH | Liquid Staked ETH (LST) | Risk-on asset (yield + appreciation) |
-| mUSD | Stablecoin | Risk-off asset (capital preservation) |
-| MNT | Native token | Gas, deposits |
-
-### 5.3 Long-Term Ecosystem Value
-
-1. **TVL contribution**: Every deposit adds to Mantle's TVL metrics
-2. **Transaction volume**: 1440 decisions/day × gas = sustained network activity
-3. **DeFi composability**: Router integrates with Merchant Moe, adding volume to native DEX
-4. **Precedent**: First AI reasoning audit trail on Mantle — reference implementation for future AI agents
-
----
-
-## 6. Target Users
-
-### 6.1 Primary: Passive Crypto Investors
-- **Who**: Hold ETH/stables, want yield but lack time to actively manage
-- **Pain**: Miss opportunities, can't monitor 24/7, don't understand DeFi routing
-- **Solution**: Deposit once, AI manages optimally with full transparency
-
-### 6.2 Secondary: Institutional/Compliance-Focused
-- **Who**: Funds, DAOs, treasuries needing audit trails
-- **Pain**: Can't use AI tools without proving fiduciary responsibility
-- **Solution**: Every decision auditable on-chain — compliance-ready by design
-
-### 6.3 Tertiary: AI Researchers
-- **Who**: Building autonomous agents, need verifiable benchmarks
-- **Pain**: No standard for evaluating AI agent performance with provenance
-- **Solution**: ERC-8004 identity + decision history = verifiable agent reputation
+This exchange is permanently recorded on Mantle Mainnet. Anyone can audit it.
 
 ---
 
-## 7. Competitive Analysis
+## 6. Why Mantle?
 
-| Project | AI On-Chain? | Reasoning Stored? | RWA Focus? | Open Source? |
-|---------|:-----------:|:-----------------:|:----------:|:------------:|
-| Yearn Finance | ❌ | ❌ | Partial | ✅ |
-| Bittensor | ✅ | ❌ | ❌ | ✅ |
-| Autonolas | ✅ | ❌ | ❌ | ✅ |
-| Numerai | ❌ | ❌ | ❌ | Partial |
-| **TuringVault** | **✅** | **✅** | **✅** | **✅** |
+Mantle is not just a deployment target — it's central to the thesis.
 
-No existing project combines all three: AI decision-making, on-chain reasoning storage, and RWA portfolio management.
+### Native Assets Make the Strategy Real
+- **mETH** (0xcDA86A272531e8640cD7F1a92c01839911B90bb0): Mantle's liquid staking token. Holding mETH means you're earning yield on staked ETH. Our AI compares this yield against risk-free rates to make rebalancing decisions.
+- **mUSD**: Mantle's native stablecoin. The AI rotates into mUSD during bear markets — capital preservation in Mantle's native stable.
 
----
+The mETH/mUSD pair is not arbitrary — it's the most natural "risk-on / risk-off" pair on Mantle, backed by real yield mechanics.
 
-## 8. Technical Metrics & Proof of Liveness
+### Low Gas = Frequent On-Chain Reasoning
+Recording every AI decision on Ethereum would be prohibitively expensive. Mantle's low gas costs make it economically viable to store the reasoning of every single decision — even at 5-minute intervals. Our orchestrator has been running continuously with total gas cost under 1 MNT.
 
-### 8.1 Verified On-Chain Activity
+### Merchant Moe Integration
+Merchant Moe's Liquidity Book is Mantle's primary DEX. Its bin-based architecture is ideal for precise routing between mETH and mUSD. Our Router contract is designed to interface with Merchant Moe for actual swap execution (currently in development).
 
-- **Decision #0** (Block 38838789): `swap mETH`, confidence 91%, reasoning: "Bullish sentiment, smart money inflow $1.8M..."
-- **Decision #1** (Block 38838871): `swap mUSD`, confidence 72%, reasoning: "Bearish sentiment, fear/greed=25, risk-off triggered..."
-
-### 8.2 AI Reliability
-
-- **JSON validity rate**: 100% (3/3 live scenarios, 3/3 mock scenarios)
-- **Zod validation pass rate**: 100%
-- **Fallback trigger rate**: 0% (AI never produced invalid output)
-- **Average response time**: ~3s per decision
-
-### 8.3 Gas Efficiency (Mantle Sepolia)
-
-| Operation | Gas Used | Cost (~) |
-|-----------|----------|----------|
-| Deploy Identity | 1,280,000 | ~0.002 MNT |
-| Deploy DecisionLog | 1,100,000 | ~0.002 MNT |
-| Deploy Router | 1,000,000 | ~0.002 MNT |
-| logDecision() | 305,303 | ~0.0005 MNT |
-| executeSwap() | ~200,000 | ~0.0003 MNT |
-
-At 1440 decisions/day: **~0.72 MNT/day** total operational cost.
+### ERC-8004 Alignment
+The ERC-8004 standard being explored in the Mantle ecosystem is designed for AI agent identity. TuringVault's Identity contract is the first practical implementation of this concept — giving AI agents on-chain presence and reputation.
 
 ---
 
-## 9. Roadmap
+## 7. Partner Ecosystem Integration
 
-### Phase 1 ✅ (Complete)
-- Smart contracts (Identity, DecisionLog, Router)
-- AI Engine with Claude Sonnet 4.6
-- Zod validation pipeline
-- Full test coverage (34/34)
+### Mantle Network
+- **What we use:** RPC, native assets (mETH, mUSD), block explorer, Sourcify verification
+- **Why it matters:** All 4 contracts live on Mantle Mainnet. The orchestrator submits transactions to Mantle every 5 minutes. Every decision record costs ~0.001 MNT in gas.
 
-### Phase 2 ✅ (Complete)
-- Real market data integration
-- Full loop: Market → AI → On-chain (live)
-- Cron orchestrator
-- Web3 frontend with wallet connect
+### Bybit Wallet
+- **What we use:** RainbowKit wallet connector, WalletConnect v2
+- **Why it matters:** Bybit is a key co-sponsor. We've specifically configured our frontend to support Bybit Wallet as a primary connection method. Users can connect with Bybit Wallet to view live agent decisions and interact with the protocol.
 
-### Phase 3 (Current — June 2026)
-- Mainnet deployment
-- Contract verification on Mantlescan
-- 50+ on-chain decisions accumulated
-- Video demo
-- DoraHacks submission
+### Nansen
+- **What we use:** Smart Money Netflow API (`/api/v1/smart-money/netflow`)
+- **Why it matters:** Nansen's smart money data is one of four signals feeding our Analyst Agent. When institutional wallets are accumulating (positive 24h netflow), the Analyst weighs this against Fear&Greed and yield data. This is exactly what a sophisticated human trader would do.
+- **Integration detail:** Cached every 15 minutes to preserve API credits. When Nansen sentiment disagrees with Fear&Greed, the system signals "neutral" — forcing more conservative decisions.
 
-### Phase 4 (Post-Hackathon)
-- Multi-model consensus (Claude + Gemini voting)
-- Real swap execution via Merchant Moe
-- Nansen smart money data integration
-- Multi-asset expansion (mETH, USDY, wBTC)
-- DAO governance for risk parameters
-- Mobile app
+### AWS Bedrock / Anthropic Claude
+- **What we use:** Bedrock Converse API, Claude Sonnet 4.6 (`us.anthropic.claude-sonnet-4-6`)
+- **Why it matters:** Both AI agents run on Claude via Bedrock. The cross-region inference profile provides low latency and high reliability.
 
 ---
 
-## 10. Submission Answers
+## 8. What We've Built
 
-### "What type of real-world asset are you bringing on-chain?"
-Mantle liquid staking tokens (mETH) and stablecoins (mUSD) — native RWAs representing ETH staking yield and USD-denominated value preservation.
+### Completed (as of May 20, 2026)
 
-### "How does AI play a role?"
-AI (Claude Sonnet 4.6) serves as the autonomous portfolio manager — analyzing market data, making allocation decisions, and recording its full reasoning on-chain. It operates without human intervention 24/7.
+**Smart Contracts (46/46 tests passing):**
+- 4 production contracts deployed and Sourcify-verified on Mantle Mainnet
+- 4 contracts deployed and verified on Mantle Sepolia
+- ERC-721 agent identity with IPFS metadata
+- Immutable decision log
+- Multi-agent consensus registry with configurable thresholds
+- Mock contracts for testing (MockERC20, MockLBRouter)
 
-### "How is it realized on Mantle?"
-Three verified smart contracts manage the entire lifecycle: agent identity (ERC-8004), decision logging (Proof of Reasoning), and execution (Merchant Moe router). Low gas costs on Mantle make per-minute decision recording economically viable (~$0.0005/decision).
+**AI Orchestrator:**
+- Dual-agent pipeline (Analyst + Validator) — both running Claude Sonnet 4.6 via AWS Bedrock
+- Zod schema validation for both agents (AnalystSchema + ValidatorSchema)
+- Defensive fallback to "hold" on any validation failure
+- Real market data from CoinGecko, DeFiLlama, Fear&Greed, Nansen
+- Continuous orchestrator running every 5 minutes
+- Full on-chain recording of every cycle (3 transactions per cycle)
+
+**Live Metrics (Mantle Mainnet, May 20 2026):**
+- 20+ decision cycles recorded on-chain
+- 5+ approved consensus decisions
+- Agent NFT minted (Token #0)
+- All cycles running automatically since deployment
+
+**Frontend:**
+- Next.js 15 + TypeScript + Tailwind CSS
+- RainbowKit with Bybit Wallet support
+- Mantle Mainnet configured as default chain
+- Live at https://frontend-seven-beta-46.vercel.app
+- Market data API route (Next.js API routes)
+
+**Developer Experience:**
+- Full test suite (46 unit tests)
+- Gas reporting in test output
+- Environment-based configuration
+- Comprehensive documentation
 
 ---
 
-## 11. Team
+## 9. Roadmap & What's Next
 
-- **Builder**: USBVadik (vadik@nexus-shell.ai)
-- **AI Agents**: Claude Opus 4.6 (architecture), Claude Sonnet 4.6 (runtime decisions)
-- **GitHub**: https://github.com/USBVadik/TuringVault-Core
+We have 26 days until the June 15 deadline. Here's our plan:
+
+### Week 1 (May 20-27): UI Glass Mode
+The most impactful remaining feature is making the AI "thinking" visible to non-technical judges and users.
+
+- **Agent Activity Feed:** Live stream of decisions from on-chain events
+- **Reasoning Visualization:** Show the Analyst's reasoning in plain English (not raw JSON)
+- **Validator Report Card:** Display flagged issues with severity levels
+- **Consensus Meter:** Visual indicator of confidence levels and risk scores
+- **Historical Chart:** Decision history with market context overlaid
+
+### Week 2 (May 27 - June 3): Real Execution
+Connect the AI decisions to actual swaps:
+
+- **Merchant Moe Real Integration:** Replace mock router with live LB Router
+- **USDY Oracle:** Real risk-free rate from USDY yield data
+- **Slippage Calculator:** Pre-flight check on Merchant Moe pool depth
+- **Execution Pipeline:** When consensus reached → submit swap → record tx hash back to DecisionLog
+
+### Week 3 (June 3-10): Data & Intelligence
+Deepen the data sources and AI quality:
+
+- **Nansen Portfolio Endpoint:** Track what specific smart money wallets hold
+- **DeFiLlama Protocol Revenue:** Add Mantle protocol health metrics
+- **Multi-model Voting:** Add a second model (e.g., Gemini) for tie-breaking
+- **Agent Reputation Score:** Calculate accuracy rate over historical decisions
+- **Elfa AI Social Sentiment:** Add crypto Twitter sentiment as additional signal
+
+### Week 4 (June 10-15): Polish & Submit
+- **Mobile Responsive Design**
+- **Video Demo** (2+ minutes showing full cycle live)
+- **DoraHacks Submission** with all required materials
+- **Stress Test:** Run orchestrator continuously, ensure stability
+- **Final README** polish
 
 ---
 
-## 12. Links
+## 10. Why This Wins
 
-- **Live Demo**: https://frontend-seven-beta-46.vercel.app
-- **GitHub**: https://github.com/USBVadik/TuringVault-Core
-- **Contracts (Sepolia)**: See README.md
-- **On-chain Decisions**: https://explorer.sepolia.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5
+### Against the Judging Criteria
+
+**Technical Depth (30%)**
+We have more technical layers than any typical hackathon submission:
+1. 4 smart contracts (not 1 or 2)
+2. 46 unit tests
+3. Dual-AI agent architecture
+4. Zod validation pipeline
+5. Multi-source market data aggregation
+6. On-chain consensus with configurable thresholds
+7. AWS Bedrock production AI infrastructure
+
+**Innovation (25%)**
+Proof-of-Reasoning is genuinely new. No project in the current DeFi landscape records AI agent reasoning on-chain as a first-class primitive. This is infrastructure for the next generation of AI-DeFi — not another yield optimizer.
+
+**Ecosystem Contribution (25%)**
+- Mantle Mainnet (not just testnet)
+- mETH/mUSD (native Mantle assets)
+- Bybit Wallet support
+- Nansen smart money data
+- ERC-8004 identity standard implementation
+
+**Product Completeness (20%)**
+- Live public frontend
+- Working orchestrator with real decisions accumulating
+- Wallet connect functional
+- All contracts verified and readable on-chain
+
+### The Narrative That Resonates
+
+*"We're not building a better trading bot. We're building the accountability layer that makes AI agents trustworthy. When an AI agent on Mantle makes a decision, TuringVault ensures that decision is recorded, verified by a second agent, and permanently auditable. This is how DeFi gets comfortable with AI autonomy."*
+
+This narrative directly answers the hackathon's theme (Turing Test) — we're not asking "can AI pass as human?" We're asking "can AI prove it reasoned correctly?" The answer is yes, if you put the proof on-chain.
+
+---
+
+*Last updated: May 20, 2026*  
+*TuringVault — Mantle Turing Test Hackathon 2026*
