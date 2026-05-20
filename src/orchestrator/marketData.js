@@ -57,17 +57,11 @@ async function getNansenSmartMoney() {
       {
         method: "POST",
         headers: {
-          "apiKey": apiKey,
+          "apikey": apiKey,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          chains: ["ethereum"],
-          filters: {
-            include_smart_money_labels: ["Fund", "Smart Trader"],
-            include_stablecoins: false,
-            include_native_tokens: true
-          },
-          order_by: [{ field: "net_flow_24h_usd", direction: "DESC" }]
+          chains: ["ethereum"]
         })
       }
     );
