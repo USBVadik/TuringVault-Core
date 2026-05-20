@@ -43,6 +43,22 @@ const client = new BedrockRuntimeClient({
 });
 
 // === ANALYST AGENT ===
+// Dynamic prompt loading from IPFS (On-Chain Prompt Evolution)
+let _evolvedPrompts = null;
+async function getEvolvedPrompts() {
+  if (_evolvedPrompts !== undefined && _evolvedPrompts !== null) return _evolvedPrompts;
+  try {
+    const { loadPromptFromIPFS } = require("../evolution/promptEvolution");
+    _evolvedPrompts = await loadPromptFromIPFS();
+    if (_evolvedPrompts) {
+      console.log(`  [EVOLUTION] Loaded evolved prompt v${_evolvedPrompts.version} from IPFS`);
+    }
+  } catch (e) {
+    _evolvedPrompts = null;
+  }
+  return _evolvedPrompts;
+}
+
 const ANALYST_SYSTEM_PROMPT = `You are the ANALYST AGENT of TuringVault — an AI-powered RWA portfolio manager on Mantle Network.
 
 Your role: Analyze market data and propose optimal asset allocation between mETH (risk-on, yield-bearing) and mUSD (risk-off, capital preservation).
@@ -169,9 +185,14 @@ async function getMultiAgentDecision(marketData) {
 - Mantle TVL: $${((md.mantleTVL || 0) / 1e6).toFixed(0)}M
 - Pool Liquidity (mETH/mUSD): sufficient for <$50k swaps`;
 
-  // STEP 1: Analyst proposes
+  // STEP 1: Analyst proposes (try evolved prompt from IPFS first)
+  const evolved = await getEvolvedPrompts();
+  const activeAnalystPrompt = evolved?.analyst || ANALYST_SYSTEM_PROMPT;
+  const activeValidatorPrompt = evolved?.validator || VALIDATOR_SYSTEM_PROMPT;
+  if (evolved) console.log(`  [EVOLUTION] Using evolved prompt v${evolved.version}`);
+  
   console.log(`  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`);
-  const analystDecision = await callAgent(ANALYST_SYSTEM_PROMPT, marketPrompt, MODELS.analyst);
+  const analystDecision = await callAgent(activeAnalystPrompt, marketPrompt, MODELS.analyst);
   const analystValidated = AnalystSchema.safeParse(analystDecision);
   
   if (!analystValidated.success) {
@@ -198,7 +219,7 @@ ANALYST'S PROPOSAL TO VERIFY:
 Independently verify this proposal against the market data. Is the reasoning sound? Are there risks the Analyst missed?`;
 
   console.log(`  [VALIDATOR] Verifying proposal... (model: ${MODELS.validator})`);
-  const validatorRaw = await callAgent(VALIDATOR_SYSTEM_PROMPT, validatorPrompt, MODELS.validator);
+  const validatorRaw = await callAgent(activeValidatorPrompt, validatorPrompt, MODELS.validator);
   const validatorResult = ValidatorSchema.safeParse(validatorRaw);
   
   if (!validatorResult.success) {
