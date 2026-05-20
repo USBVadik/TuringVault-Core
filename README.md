@@ -28,15 +28,15 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a cryptographic attestat
 ## Architecture: Trustless Cognitive Trading Loop
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    TRUSTLESS COGNITIVE TRADING LOOP                          │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────┐  │
-│  │ CONTEXT      │   │ COGNITIVE    │   │ EXECUTION    │   │ ATTESTATION│  │
-│  │ ACQUISITION  │──▶│ SYNTHESIS    │──▶│ ENGINE       │──▶│ (ON-CHAIN) │  │
-│  └──────────────┘   └──────────────┘   └──────────────┘   └────────────┘  │
-│        │                    │                   │                  │        │
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    TRUSTLESS COGNITIVE TRADING LOOP                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────┐│
+│  │ CONTEXT      │   │ COGNITIVE    │   │ EXECUTION    │   │ ATTESTATION││
+│  │ ACQUISITION  │──▶│ SYNTHESIS    │──▶│ ENGINE       │──▶│ (ON-CHAIN) ││
+│  └──────────────┘   └──────────────┘   └──────────────┘   └────────────┘│
+│        │                  │                  │                │         │
 │  ┌─────┴─────┐      ┌─────┴─────┐      ┌─────┴─────┐    ┌─────┴─────┐   │
 │  │ Nansen MCP│      │ Analyst   │      │ Byreal    │    │ ERC-8004  │   │
 │  │ CoinGecko │      │ Agent     │      │ Perps CLI │    │ Identity  │   │
@@ -45,10 +45,10 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a cryptographic attestat
 │  │ Signals   │      │ Agent     │      │ Sign+Send │    │ Decision  │   │
 │  │ Fear&Greed│      │    ↓      │      └───────────┘    │ Log       │   │
 │  └───────────┘      │ Consensus │                       └───────────┘   │
-│                      └───────────┘                                        │
-│                                                                             │
-│  Chain: Mantle Mainnet (5000)  │  AI: Claude Sonnet 4.6 + Z.ai GLM-4.7    │
-└─────────────────────────────────────────────────────────────────────────────┘
+│                     └───────────┘                                       │
+│                                                                         │
+│  Chain: Mantle Mainnet (5000)  │  AI: Claude Sonnet 4.6 + Z.ai GLM-4.7  │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
