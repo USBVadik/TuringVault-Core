@@ -112,7 +112,7 @@ const ValidatorSchema = z.object({
 
 // Model configuration — multi-model for diverse perspectives
 const MODELS = {
-  analyst: process.env.ANALYST_MODEL || "zai.glm-4.7",       // Z.ai GLM-4.7 (hackathon partner)
+  analyst: process.env.ANALYST_MODEL || "zai.glm-5",          // Z.ai GLM-5 (latest, hackathon partner)
   validator: process.env.VALIDATOR_MODEL || "us.anthropic.claude-sonnet-4-6" // Claude as independent validator
 };
 

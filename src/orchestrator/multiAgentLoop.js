@@ -33,14 +33,21 @@ const DECISION_LOG_ABI = [
 ];
 
 // Contract addresses
-const REGISTRY_ADDR = "0x4Ed86C2221ecaF03018eb438e5b28201893dde3A";
+const REGISTRY_ADDR = "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6";
 const DECISION_LOG_ADDR = "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5";
+const REPUTATION_ADDR = "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a";
+
+const REPUTATION_ABI = [
+  "function submitFeedback(uint256 agentId, int128 score, bytes32 reasoningHash, string context) external",
+  "function recordPnL(uint256 agentId, int128 pnlBps, bytes32 reasoningHash) external"
+];
 
 async function runMultiAgentCycle() {
-  const provider = new ethers.JsonRpcProvider("https://rpc.sepolia.mantle.xyz");
+  const provider = new ethers.JsonRpcProvider("https://rpc.mantle.xyz");
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const registry = new ethers.Contract(REGISTRY_ADDR, REGISTRY_ABI, wallet);
   const decisionLog = new ethers.Contract(DECISION_LOG_ADDR, DECISION_LOG_ABI, wallet);
+  const reputation = new ethers.Contract(REPUTATION_ADDR, REPUTATION_ABI, wallet);
 
   console.log("\n╔══════════════════════════════════════════════════════════╗");
   console.log("║  TURINGVAULT MULTI-AGENT CYCLE                          ║");
@@ -74,8 +81,14 @@ async function runMultiAgentCycle() {
   console.log(`   VALIDATOR: ${decision.validator?.approved ? "✅" : "❌"} (${(decision.validator?.validatorConfidence * 100).toFixed(0)}% conf, risk=${decision.validator?.riskScore})`);
   console.log(`   CONSENSUS: ${decision.consensus ? "✅ REACHED" : "❌ BLOCKED"}\n`);
 
-  // Step 3: Record on-chain
-  console.log("⛓️  [STEP 3] Recording on-chain...");
+  // Step 3: Upload reasoning to IPFS
+  console.log("📁 [STEP 3] Uploading Proof-of-Reasoning to IPFS...");
+  const { uploadReasoningProof } = require("../ipfs/storage");
+  const ipfsResult = await uploadReasoningProof(decision, market);
+  console.log(`   ✅ IPFS: ${ipfsResult.uri}`);
+
+  // Step 4: Record on-chain
+  console.log("⛓️  [STEP 4] Recording on-chain...");
   
   // Get current nonce to avoid replacement issues
   const currentNonce = await provider.getTransactionCount(wallet.address, "latest");
@@ -116,11 +129,32 @@ async function runMultiAgentCycle() {
     ethers.parseEther("0"),
     confidenceBps,
     `[MULTI-AGENT] Analyst: ${decision.analyst?.reasoning?.substring(0, 80)} | Validator: ${decision.validator?.approved ? "APPROVED" : "REJECTED"} (risk=${riskScore})`.substring(0, 200),
-    ethers.ZeroHash,
+    ethers.keccak256(ethers.toUtf8Bytes(ipfsResult.cid)),
     { nonce: currentNonce + 2 }
   );
   await tx3.wait();
   console.log(`   ✅ Decision logged to DecisionLog`);
+
+  // Step 5: Record reputation feedback
+  try {
+    const reasoningHashBytes = ethers.keccak256(ethers.toUtf8Bytes(ipfsResult.cid));
+    // Score based on consensus: approved = positive (+confidence*50), rejected = neutral (0)
+    const repScore = decision.consensus 
+      ? Math.round((decision.analyst?.confidence || 0.5) * 50) 
+      : 0;
+    const context = `${decision.analyst?.action || "hold"}_${decision.analyst?.targetAsset || "mUSD"}_conf${confidenceBps}`;
+    const tx4 = await reputation.submitFeedback(
+      0, // agentId (our NFT token #0)
+      repScore,
+      reasoningHashBytes,
+      context,
+      { nonce: currentNonce + 3 }
+    );
+    await tx4.wait();
+    console.log(`   ✅ Reputation updated: +${repScore} (${context})`);
+  } catch (repErr) {
+    console.log(`   ⚠️  Reputation recording failed: ${repErr.message?.slice(0, 60)}`);
+  }
 
   // Summary
   const totalApproved = await registry.totalApproved();
