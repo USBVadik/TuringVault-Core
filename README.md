@@ -106,6 +106,19 @@ Low volatility + high confidence = full autonomy. Market stress = human oversigh
 
 ---
 
+## Partner Integrations
+
+| Partner | Integration | Module |
+|---------|------------|--------|
+| **Z.ai** | GLM-5 via AWS Bedrock | Primary analyst model — aggressive alpha identification |
+| **Tencent Cloud** | KMS HSM signing pipeline | DER ASN.1 parse → EIP-2 canonicalize → EIP-155 replay protection |
+| **Nansen** | MCP Protocol (24 tools) | Smart Money tracking, token analysis, wallet profiling (`src/mcp/nansenMCP.js`) |
+| **Byreal** | Perps CLI + RealClaw | Institutional execution layer — CLMM liquidity + perpetuals (`src/execution/executionEngine.js`) |
+| **Merchant Moe** | LB Router v2.1 | On-chain DEX quotes — real swap simulation with bin-step pricing |
+| **Mantle** | ERC-8004 + mETH/USDY | 5 verified contracts, 60+ on-chain decisions, native DeFi |
+| **Bybit** | Wallet Integration | End-user access via Bybit Web3 Wallet (RainbowKit connector) |
+| **Ondo Finance** | USDY (RWA) | Tokenized US T-Bills — adaptive 10-50% yield allocation |
+
 ## Technical Stack
 
 | Layer | Technology | Purpose |
@@ -115,6 +128,8 @@ Low volatility + high confidence = full autonomy. Market stress = human oversigh
 | **DEX Integration** | Merchant Moe LB Router v2.1 | Real on-chain swap quotes (1 MNT ≈ $0.62 verified live) |
 | **RWA Module** | USDY (Ondo Finance, 26M supply on Mantle) | Adaptive 10-50% allocation, 5.25% APY from US T-Bills |
 | **Key Security** | Tencent KMS pipeline (DER parse, EIP-2, EIP-155) | AI generates intents → Pre-Action Check → KMS signs |
+| **Smart Money** | Nansen MCP (24 tools) | Institutional flow detection, token scoring, wallet profiling |
+| **Execution** | Byreal Perps CLI | Deterministic trade execution — CLMM + perpetual futures |
 | **Storage** | IPFS (Pinata) | Agent Card, reasoning hashes, prompt evolution history |
 | **Frontend** | Next.js + Tailwind + RainbowKit + wagmi | Glass Mode dark dashboard, Bybit Wallet support |
 | **Chain** | Mantle Mainnet (ID: 5000) | Low gas (~$0.01/TX), EVM compatible, mETH/USDY yield |
@@ -213,22 +228,27 @@ cd frontend && npm install && npm run dev
 ## Hackathon Tracks
 
 ### 🏆 Agentic Wallets & Economy (Primary)
-- Full ERC-8004 implementation (5 contracts, all verified)
+- Full ERC-8004 implementation (5 contracts, all verified on Sourcify)
 - Agent Identity as NFT with evolving IPFS metadata
-- Hardware KMS pipeline — AI never touches keys
+- Tencent Cloud KMS pipeline — AI never touches keys, hardware-secured signing
 - Pre-Action Checks as on-chain governance gates
 
 ### 🤖 AI & RWA Track
 - USDY (Ondo Finance) adaptive allocation module
 - Real yield from US T-Bills (5.25% APY)
 - Risk-adjusted allocation (10-50% based on market regime)
-- Merchant Moe DEX integration for USDY/USDT swaps
+- Merchant Moe DEX integration for USDY/USDT swaps on Mantle
 
 ### 📊 AI Trading & Strategy
+- Byreal Perps CLI for institutional-grade execution
 - Dual-model consensus prevents impulsive trades
 - VaR-based autonomy (Human vs AI mode)
 - Real on-chain DEX quotes (Merchant Moe LB v2.1)
-- 60+ verifiable decisions on Mantle Mainnet
+
+### 🔍 AI Alpha & Data
+- Nansen MCP Protocol integration (24 tools — token analysis, smart money, wallet profiling)
+- 5-source market data aggregation (CoinGecko, DeFiLlama, Fear&Greed, Merchant Moe, USDY)
+- Z.ai GLM-5 for market pattern recognition
 
 ---
 
