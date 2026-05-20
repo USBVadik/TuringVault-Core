@@ -29,7 +29,7 @@ const AnalystSchema = z.object({
   targetAsset: z.enum(["mUSD", "mETH"]),
   allocationPct: z.number().min(0).max(100),
   confidence: z.number().min(0).max(1),
-  reasoning: z.string().max(500),
+  reasoning: z.string().max(1000),
   riskFactors: z.array(z.string()).optional(),
   expectedYield: z.string().optional()
 });
@@ -110,9 +110,15 @@ const ValidatorSchema = z.object({
   recommendation: z.string()  // flexible — validator can be verbose
 });
 
-async function callAgent(systemPrompt, userMessage) {
+// Model configuration — multi-model for diverse perspectives
+const MODELS = {
+  analyst: process.env.ANALYST_MODEL || "zai.glm-4.7",       // Z.ai GLM-4.7 (hackathon partner)
+  validator: process.env.VALIDATOR_MODEL || "us.anthropic.claude-sonnet-4-6" // Claude as independent validator
+};
+
+async function callAgent(systemPrompt, userMessage, modelId) {
   const command = new ConverseCommand({
-    modelId: "us.anthropic.claude-sonnet-4-6",
+    modelId: modelId || MODELS.analyst,
     system: [{ text: systemPrompt }],
     messages: [{ role: "user", content: [{ text: userMessage }] }],
     inferenceConfig: { maxTokens: 1024, temperature: 0.1 }
@@ -151,7 +157,8 @@ async function getMultiAgentDecision(marketData) {
     mantleTVL: marketData.mantleTVL || 0,
   };
 
-  const marketPrompt = `Current market data (${new Date().toISOString()}):
+  // Use rich promptContext from unifiedMarketData if available, else build basic prompt
+  const marketPrompt = marketData.promptContext || `Current market data (${new Date().toISOString()}):
 - ETH Price: $${md.ethPrice} (24h change: ${md.ethChange24h.toFixed(2)}%)
 - mETH Yield: ${md.mETHYield}% APY
 - Risk-Free Rate (USDY proxy): 4.5% APY
@@ -163,8 +170,8 @@ async function getMultiAgentDecision(marketData) {
 - Pool Liquidity (mETH/mUSD): sufficient for <$50k swaps`;
 
   // STEP 1: Analyst proposes
-  console.log("  [ANALYST] Analyzing market data...");
-  const analystDecision = await callAgent(ANALYST_SYSTEM_PROMPT, marketPrompt);
+  console.log(`  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`);
+  const analystDecision = await callAgent(ANALYST_SYSTEM_PROMPT, marketPrompt, MODELS.analyst);
   const analystValidated = AnalystSchema.safeParse(analystDecision);
   
   if (!analystValidated.success) {
@@ -190,8 +197,8 @@ ANALYST'S PROPOSAL TO VERIFY:
 
 Independently verify this proposal against the market data. Is the reasoning sound? Are there risks the Analyst missed?`;
 
-  console.log("  [VALIDATOR] Verifying proposal...");
-  const validatorRaw = await callAgent(VALIDATOR_SYSTEM_PROMPT, validatorPrompt);
+  console.log(`  [VALIDATOR] Verifying proposal... (model: ${MODELS.validator})`);
+  const validatorRaw = await callAgent(VALIDATOR_SYSTEM_PROMPT, validatorPrompt, MODELS.validator);
   const validatorResult = ValidatorSchema.safeParse(validatorRaw);
   
   if (!validatorResult.success) {

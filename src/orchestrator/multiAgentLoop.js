@@ -17,7 +17,7 @@ process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
 process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
 const { ethers } = require("ethers");
 const { getMultiAgentDecision } = require("./multiAgent");
-const { getMarketData } = require("./marketData");
+const { getUnifiedMarketContext } = require("./unifiedMarketData");
 
 // Contract ABIs (minimal)
 const REGISTRY_ABI = [
@@ -46,11 +46,25 @@ async function runMultiAgentCycle() {
   console.log("║  TURINGVAULT MULTI-AGENT CYCLE                          ║");
   console.log("╚══════════════════════════════════════════════════════════╝\n");
 
-  // Step 1: Fetch market data
-  console.log("📊 [STEP 1] Fetching real market data...");
-  const market = await getMarketData();
+  // Step 1: Fetch unified market data (5 sources: CoinGecko + DeFiLlama + F&G + Nansen MCP + Byreal)
+  console.log("📊 [STEP 1] Fetching unified market intelligence (5 sources)...");
+  const unified = await getUnifiedMarketContext();
+  // Map to legacy format expected by multiAgent.js
+  const market = {
+    ethPrice: unified.ethPrice,
+    ethChange24h: unified.ethChange24h || 0,
+    mntPrice: unified.mntPrice,
+    mantleTVL: unified.mantleTVL,
+    fearGreedIndex: unified.fearGreedValue,
+    sentiment: unified.fearGreedLabel?.toLowerCase() || "neutral",
+    mETHYield: unified.mETHYield || 3.5,
+    nansenSentiment: unified.nansenInsight ? "active" : "n/a",
+    nansenInsight: unified.nansenInsight,
+    byrealSignals: unified.byrealSignals,
+    promptContext: unified.promptContext // full context string for LLM
+  };
   console.log(`   ETH: $${market.ethPrice} | Sentiment: ${market.sentiment} | F&G: ${market.fearGreedIndex}`);
-  console.log(`   mETH Yield: ${market.mETHYield?.toFixed(2)}% | Nansen: ${market.nansenSentiment || "n/a"} | TVL: $${((market.mantleTVL||0)/1e6).toFixed(0)}M\n`);
+  console.log(`   Nansen: ${market.nansenInsight ? "✓ MCP" : "fallback"} | Byreal: ${market.byrealSignals?.length || 0} signals | TVL: $${((market.mantleTVL||0)/1e6).toFixed(0)}M\n`);
 
   // Step 2: Multi-agent decision
   console.log("🧠 [STEP 2] Multi-agent consensus process...");
