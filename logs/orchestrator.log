@@ -1,4 +1,12 @@
-[2026-05-20T08:12:31.023Z] INFO: === Starting cycle #1 ===
+╔══════════════════════════════════════════════════════════╗
+║  TURINGVAULT MULTI-AGENT ORCHESTRATOR — STARTING        ║
+║  Cadence: every 10 minutes                              ║
+║  Network: Mantle Mainnet (chain 5000)                   ║
+║  AI: Claude Sonnet 4.6 (Analyst + Validator)            ║
+╚══════════════════════════════════════════════════════════╝
+
+
+[2026-05-20T08:29:41.213Z] === CYCLE #1 ===
 
 ╔══════════════════════════════════════════════════════════╗
 ║  TURINGVAULT MULTI-AGENT CYCLE                          ║
@@ -6,13 +14,12 @@
 
 📊 [STEP 1] Fetching real market data...
 [Nansen] Fetching smart money netflows...
-[2026-05-20T08:12:31.180Z] INFO: TuringVault Orchestrator started — running every 15 minutes
-[2026-05-20T08:12:31.180Z] INFO: Nansen API: 1000 credits, each call = 10 credits, ~100 API calls available
-[2026-05-20T08:12:31.181Z] INFO: At 15min intervals: ~96 cycles/day = ~96 Nansen calls/day
-[Nansen] Smart money 24h netflow: $105,375 (bullish)
-[Nansen] Top buying: OFC, ASTEROID, UPEG
-   ETH: $2127.18 | Sentiment: neutral | F&G: 27
-   mETH Yield: 0.35% | Nansen: bullish | TVL: $209M
+Orchestrator running. Press Ctrl+C to stop.
+
+[Nansen] Smart money 24h netflow: $134,797 (bullish)
+[Nansen] Top buying: OFC, ASTEROID, NPC
+   ETH: $2128.47 | Sentiment: neutral | F&G: 27
+   mETH Yield: 0.34% | Nansen: bullish | TVL: $210M
 
 🧠 [STEP 2] Multi-agent consensus process...
   [ANALYST] Analyzing market data...
@@ -22,48 +29,59 @@
    CONSENSUS: ❌ BLOCKED
 
 ⛓️  [STEP 3] Recording on-chain...
-   ✅ Proposal #4 submitted (tx: 0x6e3775d7a9377006...)
-   ✅ Validation recorded (tx: 0x120f29ed5eee4176...)
-   ✅ Decision logged to DecisionLog
 
-╔══════════════════════════════════════════════════════════╗
-║  CYCLE COMPLETE                                         ║
-╠══════════════════════════════════════════════════════════╣
-║  Consensus: BLOCKED ❌                                ║
-║  Registry stats: 0 approved / 5 rejected            ║
-╚══════════════════════════════════════════════════════════╝
-
-[2026-05-20T08:13:21.690Z] INFO: Cycle #1 complete. Consensus: BLOCKED. Action: hold
-[2026-05-20T08:15:00.098Z] INFO: === Starting cycle #2 ===
+[2026-05-20T08:30:00.010Z] === CYCLE #2 ===
 
 ╔══════════════════════════════════════════════════════════╗
 ║  TURINGVAULT MULTI-AGENT CYCLE                          ║
 ╚══════════════════════════════════════════════════════════╝
 
 📊 [STEP 1] Fetching real market data...
-[Nansen] Using cached data (age: 148 s)
-   ETH: $2127.87 | Sentiment: neutral | F&G: 27
-   mETH Yield: 0.35% | Nansen: bullish | TVL: $209M
+[Nansen] Using cached data (age: 18 s)
+   ETH: $2128.47 | Sentiment: neutral | F&G: 27
+   mETH Yield: 0.34% | Nansen: bullish | TVL: $210M
 
 🧠 [STEP 2] Multi-agent consensus process...
   [ANALYST] Analyzing market data...
-  [VALIDATOR] Verifying proposal...
+   ✅ Proposal #7 submitted (tx: 0xa1157b6892810f06...)
 
-   ANALYST: swap mUSD (82%)
-   VALIDATOR: ✅ (81% conf, risk=34)
+   ANALYST: undefined undefined (NaN%)
+   VALIDATOR: ❌ (NaN% conf, risk=undefined)
    CONSENSUS: ❌ BLOCKED
 
 ⛓️  [STEP 3] Recording on-chain...
-   ✅ Proposal #5 submitted (tx: 0x96e733d8d98e002c...)
-   ✅ Validation recorded (tx: 0xb729a5128033fec4...)
+[CYCLE 2] Error: nonce has already been used (transaction="0x02f901d382138b1a830186a0851748786ea083024b5b944ed86c2221ecaf03018eb438e5b28201893dde3a80b901640dc829fa00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000004686f6c640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000046d55534400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c6e6f20726561736f6e696e670000000000000000000000000000000000000000c001a030d34360794188a3d9fd85143178f5be7e841caab45ec5fec06dea67ba410af5a058021b82b30d43b9032c510c842185ded82f0311ea3d8465a457faf48386836f", info={ "error": { "code": -32000, "message": "failed to forward tx to sequencer, err: 'nonce too low: next nonce 27, tx nonce 26'" } }, code=NONCE_EXPIRED, version=6.16.0)
+   ✅ Validation recorded (tx: 0x84511364430a0682...)
+[CYCLE 2] Error: replacement fee too low (transaction="0x02f9025382138b1b830186a0851748786ea0830336ff947bcd905678ed5db1e87852b933f1aefe544cfbb580b901e43604052500000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004686f6c640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000046d5553440000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000415b4d554c54492d4147454e545d20416e616c7973743a20756e646566696e6564207c2056616c696461746f723a2052454a454354454420287269736b3d3130302900000000000000000000000000000000000000000000000000000000000000c001a0b76a7e5518c2fa571cf8bdce1706b584deb239045ececfd2beefa22f61cc4e90a05a2b4635df173efed22581518d75bf145faf74b25b0bd02b9559d39a3273e2ef", info={ "error": { "code": -32000, "message": "failed to forward    ✅ Proposal #8 submitted (tx: 0xcc1b8e1987b16e32...)
+   ✅ Validation recorded (tx: 0x5114b6efd08d37b4...)
+
+[2026-05-20T08:40:00.051Z] === CYCLE #3 ===
+
+╔══════════════════════════════════════════════════════════╗
+║  TURINGVAULT MULTI-AGENT CYCLE                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 [STEP 1] Fetching real market data...
+[Nansen] Using cached data (age: 618 s)
+   ETH: $2132.78 | Sentiment: neutral | F&G: 27
+   mETH Yield: 0.34% | Nansen: bullish | TVL: $210M
+
+🧠 [STEP 2] Multi-agent consensus process...
+  [ANALYST] Analyzing market data...
+
+   ANALYST: undefined undefined (NaN%)
+   VALIDATOR: ❌ (NaN% conf, risk=undefined)
+   CONSENSUS: ❌ BLOCKED
+
+⛓️  [STEP 3] Recording on-chain...
+   ✅ Proposal #12 submitted (tx: 0xb769d331c21c554b...)
+   ✅ Validation recorded (tx: 0x2ecd71e561750069...)
    ✅ Decision logged to DecisionLog
 
 ╔══════════════════════════════════════════════════════════╗
 ║  CYCLE COMPLETE                                         ║
 ╠══════════════════════════════════════════════════════════╣
 ║  Consensus: BLOCKED ❌                                ║
-║  Registry stats: 0 approved / 6 rejected            ║
+║  Registry stats: 0 approved / 13 rejected            ║
 ╚══════════════════════════════════════════════════════════╝
 
-[2026-05-20T08:15:57.765Z] INFO: Cycle #2 complete. Consensus: BLOCKED. Action: hold
-[2026-05-20T08:15:57.765Z] INFO: Cycle #2 complete. Consensus: BLOCKED. Action: hold

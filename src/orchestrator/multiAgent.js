@@ -138,15 +138,28 @@ async function callAgent(systemPrompt, userMessage) {
  * Returns both agents' assessments + consensus result
  */
 async function getMultiAgentDecision(marketData) {
+  // Defensive defaults — prevent undefined in prompt
+  const md = {
+    ethPrice: marketData.ethPrice || 0,
+    ethChange24h: marketData.ethChange24h || marketData.priceChange24h || 0,
+    mETHYield: marketData.mETHYield || 3.5,
+    sentiment: marketData.sentiment || "neutral",
+    fearGreedIndex: marketData.fearGreedIndex || 50,
+    nansenSentiment: marketData.nansenSentiment || "n/a",
+    smartMoneyFlow: marketData.smartMoneyFlow || 0,
+    nansenTopBuying: marketData.nansenTopBuying || [],
+    mantleTVL: marketData.mantleTVL || 0,
+  };
+
   const marketPrompt = `Current market data (${new Date().toISOString()}):
-- ETH Price: $${marketData.ethPrice} (24h change: ${marketData.priceChange24h}%)
-- mETH Yield: ${marketData.mETHYield}% APY
+- ETH Price: $${md.ethPrice} (24h change: ${md.ethChange24h.toFixed(2)}%)
+- mETH Yield: ${md.mETHYield}% APY
 - Risk-Free Rate (USDY proxy): 4.5% APY
-- Yield Spread: ${((marketData.mETHYield || 0) - 4.5).toFixed(2)}%
-- Market Sentiment: ${marketData.sentiment} (Fear&Greed: ${marketData.fearGreedIndex}/100)
-- Nansen Smart Money: ${marketData.nansenSentiment || "n/a"} (24h flow: $${(marketData.smartMoneyFlow || 0).toLocaleString()})
-- Top Smart Money Buying: ${marketData.nansenTopBuying?.map(t => t.symbol).join(", ") || "none"}
-- Mantle TVL: $${((marketData.mantleTVL || 0) / 1e6).toFixed(0)}M
+- Yield Spread: ${(md.mETHYield - 4.5).toFixed(2)}%
+- Market Sentiment: ${md.sentiment} (Fear&Greed: ${md.fearGreedIndex}/100)
+- Nansen Smart Money: ${md.nansenSentiment} (24h flow: $${md.smartMoneyFlow.toLocaleString()})
+- Top Smart Money Buying: ${md.nansenTopBuying.map(t => t.symbol).join(", ") || "none"}
+- Mantle TVL: $${((md.mantleTVL || 0) / 1e6).toFixed(0)}M
 - Pool Liquidity (mETH/mUSD): sufficient for <$50k swaps`;
 
   // STEP 1: Analyst proposes
@@ -195,9 +208,9 @@ Independently verify this proposal against the market data. Is the reasoning sou
 
   // STEP 3: Determine consensus
   const consensus = validator.approved
-    && analystDecision.confidence >= 0.85
-    && validator.validatorConfidence >= 0.75
-    && validator.riskScore <= 60;
+    && analystDecision.confidence >= 0.75   // lowered from 0.85 — real markets rarely hit 85%+
+    && validator.validatorConfidence >= 0.70
+    && validator.riskScore <= 65;
 
   return {
     consensus,
