@@ -1,105 +1,94 @@
 # TuringVault
 
-> **Trustless Cognitive Trading Loop — Multi-Agent AI with Verifiable On-Chain Reasoning on Mantle**
+> **Hardware-Secured AI Vault with Decentralized Verification of Intent — Multi-Agent Proof-of-Reasoning on Mantle**
 
-[![Mantle Mainnet](https://img.shields.io/badge/Mantle-Mainnet-00D395)](https://mantlescan.xyz)
+[![Mantle Mainnet](https://img.shields.io/badge/Mantle-Mainnet_Live-00D395)](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD)
 [![ERC-8004](https://img.shields.io/badge/ERC--8004-Trustless_Agents-blue)](https://eips.ethereum.org/EIPS/eip-8004)
-[![Tests](https://img.shields.io/badge/tests-46%2F46_passing-brightgreen)]()
-[![Live](https://img.shields.io/badge/frontend-live-purple)](https://frontend-seven-beta-46.vercel.app)
+[![Tests](https://img.shields.io/badge/tests-103_passing-brightgreen)]()
+[![On-Chain](https://img.shields.io/badge/decisions-60%2B_on--chain-purple)]()
+[![Evolution](https://img.shields.io/badge/self--evolving-4_iterations-orange)]()
 
 ---
 
 ## The Problem
 
-AI trading agents are **black boxes**. Users delegate capital to systems they cannot audit — there's no way to verify *why* a trade was made, *what data* informed the decision, or whether the AI is hallucinating. This creates an impossible trust problem: if you can't verify the reasoning, you can't distinguish a genius trader from a random number generator.
+AI agents managing capital are **opaque black boxes**. Users cannot verify:
+- *Why* a trade was made
+- *What data* informed the decision
+- Whether the AI is hallucinating or actually reasoning
+- If risk parameters are being respected
 
-## The Solution: Proof-of-Reasoning
+This creates an impossible trust dilemma: you can't distinguish a competent agent from a random number generator without **verifiable proof of cognition**.
 
-TuringVault introduces **Proof-of-Reasoning (PoR)** — a cryptographic attestation framework where every AI decision is:
+## The Solution: Proof-of-Reasoning (PoR)
 
-1. **Made transparently** — dual-agent consensus (Analyst + Validator)
-2. **Recorded immutably** — full reasoning chain on Mantle blockchain
-3. **Auditable by anyone** — ERC-8004 Identity + Validation + Reputation registries
-4. **Executed deterministically** — Byreal CLI for institutional-grade trade execution
-5. **Informed by real data** — Nansen MCP Smart Money intelligence + multi-source aggregation
+TuringVault is NOT a trading bot. It's a **cryptographically-verified AI cognition framework** where:
 
----
-
-## Architecture: Trustless Cognitive Trading Loop
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    TRUSTLESS COGNITIVE TRADING LOOP                     │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌────────────┐│
-│  │ CONTEXT      │   │ COGNITIVE    │   │ EXECUTION    │   │ ATTESTATION││
-│  │ ACQUISITION  │──▶│ SYNTHESIS    │──▶│ ENGINE       │──▶│ (ON-CHAIN) ││
-│  └──────────────┘   └──────────────┘   └──────────────┘   └────────────┘│
-│        │                  │                  │                │         │
-│  ┌─────┴─────┐      ┌─────┴─────┐      ┌─────┴─────┐    ┌─────┴─────┐   │
-│  │ Nansen MCP│      │ Analyst   │      │ Byreal    │    │ ERC-8004  │   │
-│  │ CoinGecko │      │ Agent     │      │ Perps CLI │    │ Identity  │   │
-│  │ DeFiLlama │      │    ↓      │      │ Tencent   │    │ Validation│   │
-│  │ Byreal    │      │ Validator │      │ KMS HSM   │    │ Reputation│   │
-│  │ Signals   │      │ Agent     │      │ Sign+Send │    │ Decision  │   │
-│  │ Fear&Greed│      │    ↓      │      └───────────┘    │ Log       │   │
-│  └───────────┘      │ Consensus │                       └───────────┘   │
-│                     └───────────┘                                       │
-│                                                                         │
-│  Chain: Mantle Mainnet (5000)  │  AI: Claude Sonnet 4.6 + Z.ai GLM-4.7  │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+1. **Dual-model consensus** — Two independent LLMs (GLM-5 Analyst + Claude 4.6 Validator) must agree before any action
+2. **Immutable reasoning chain** — Every decision, with full context, recorded on Mantle
+3. **Pre-Action Checks** — On-chain validation gates prevent execution without consensus
+4. **Hardware-secured signing** — AI generates "intents", never touches private keys (KMS pipeline)
+5. **Self-evolution** — Agent reads its own on-chain performance and rewrites its system prompt via IPFS
 
 ---
 
-## Partner Integrations
-
-| Partner | Integration | Purpose |
-|---------|------------|---------|
-| **Nansen** | MCP Protocol (24 tools) | Smart Money tracking, token analysis, wallet profiling |
-| **Byreal** | Perps CLI + RealClaw | Deterministic execution — CLMM liquidity + perpetual futures |
-| **Tencent Cloud** | KMS HSM | Institutional key management — private keys never leave hardware |
-| **AWS Bedrock** | Claude Sonnet 4.6 | Cognitive core — multi-agent reasoning + decision synthesis |
-| **Z.ai** | GLM-4.7 (planned) | Secondary model for multi-model voting consensus |
-| **Mantle** | ERC-8004 + DeFi | On-chain attestation, mETH/mUSD/USDY yield strategies |
-| **Bybit** | Wallet Integration | End-user access via Bybit Web3 Wallet |
-
----
-
-## Data Sources (Live)
+## Architecture
 
 ```
-=== MARKET INTELLIGENCE ===
-
-[PRICE DATA]        CoinGecko → ETH, MNT real-time
-[TVL]               DeFiLlama → Mantle ecosystem health
-[SENTIMENT]         Fear & Greed Index → market psychology
-[SMART MONEY]       Nansen MCP → institutional flows, 53M+ labeled addresses
-[TRADING SIGNALS]   Byreal Perps → RSI, funding rates, open interest
+┌─────────────────────────────────────────────────────────────────────────────┐
+│               TRUSTLESS COGNITIVE TRADING LOOP (Mantle 5000)                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  [1] MARKET DATA          [2] MULTI-AGENT AI       [3] EXECUTION           │
+│  ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐    │
+│  │ CoinGecko       │      │ GLM-5 Analyst   │      │ VaR Calculator  │    │
+│  │ DeFiLlama       │─────▶│       ↓         │─────▶│ Merchant Moe LB │    │
+│  │ Fear & Greed    │      │ Claude Validator │      │ Tencent KMS HSM │    │
+│  │ Merchant Moe LB │      │       ↓         │      │ Intent → Sign   │    │
+│  │ USDY/RWA Yield  │      │ Zod Consensus   │      └─────────────────┘    │
+│  └─────────────────┘      └─────────────────┘              │               │
+│                                                              ▼               │
+│  [4] ON-CHAIN ATTESTATION                    [5] SELF-EVOLUTION             │
+│  ┌─────────────────────────────────────┐     ┌─────────────────────┐       │
+│  │ Identity Registry (ERC-721+8004)    │     │ Read on-chain perf  │       │
+│  │ Decision Log (action+reasoning)     │     │ GLM-5 self-reflect  │       │
+│  │ Validation Registry (Pre-Action)    │     │ Claude safety check │       │
+│  │ Reputation Registry (PnL+feedback)  │     │ New prompt → IPFS   │       │
+│  │ Router (strategy dispatch)          │     │ setAgentURI() TX    │       │
+│  └─────────────────────────────────────┘     └─────────────────────┘       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Multi-Agent Consensus System
+## Key Innovation: On-Chain Prompt Evolution
 
-TuringVault does NOT rely on a single AI making decisions. Instead:
+TuringVault is a **self-improving cybernetic organism on the blockchain**:
 
-### Agent 1: Analyst
-- Receives full market context (5 data sources)
-- Proposes action with confidence score + reasoning
-- Constrained by hard-coded risk parameters
+1. Agent makes 20+ trading decisions → recorded on Mantle
+2. Evolution module reads performance from `ReputationRegistry`
+3. GLM-5 performs **self-reflection** — analyzes its own error patterns
+4. Claude 4.6 **validates** the proposed evolution (prevents degeneration)
+5. New Agent Card uploaded to **IPFS** (Pinata)
+6. `setAgentURI()` called on-chain → **tokenURI points to evolved prompt**
+7. Next cycle loads prompt from IPFS — the agent has literally rewritten itself
 
-### Agent 2: Validator  
-- Independently reviews the Analyst's proposal
-- Challenges assumptions, identifies risks
-- Assigns validation confidence + risk score
+**4 evolution iterations completed**, each producing a more conservative, data-driven agent.  
+Every evolution is verifiable: `tokenURI → IPFS CID → full prompt + parameters`.
 
-### Consensus Engine (Zod-validated)
-- Both agents must agree (analyst ≥75%, validator ≥70%)
-- Risk score must be below threshold (≤65)
-- Failed consensus → HOLD (conservative default)
-- Result recorded on-chain regardless of outcome
+---
+
+## Human vs AI Mode (VaR-Based Autonomy)
+
+```
+VaR < 50 bps  → AUTONOMOUS: AI executes without human intervention
+VaR 50-150    → SUPERVISED: AI proposes, human approves via intent queue
+VaR > 300     → BLOCKED: Too risky, no action taken
+```
+
+The Value-at-Risk threshold dynamically determines how much autonomy the AI has.  
+Low volatility + high confidence = full autonomy. Market stress = human oversight.
 
 ---
 
@@ -107,12 +96,57 @@ TuringVault does NOT rely on a single AI making decisions. Instead:
 
 | Contract | Address | Verified |
 |----------|---------|----------|
-| TuringVaultIdentity (ERC-721) | `0x582E6a649B99784829193E14bB7Af8c4A482E165` | ✅ Sourcify |
-| TuringVaultDecisionLog | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` | ✅ Sourcify |
-| TuringVaultRouter | `0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001` | ✅ Sourcify |
-| ValidationRegistry | `0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6` | ✅ Sourcify |
+| **TuringVaultIdentity** (ERC-8004) | [`0x6f862802e0d5463DF18d267e422347BeCacc28bD`](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) | ✅ Sourcify |
+| **TuringVaultDecisionLog** | [`0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) | ✅ Sourcify |
+| **TuringVaultReputationRegistry** | [`0xC78119F3274B05046Ac7c38a14298a6cbD946e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) | ✅ Sourcify |
+| **TuringVaultValidation** (Pre-Action) | [`0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705`](https://explorer.mantle.xyz/address/0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705) | ✅ Sourcify |
+| **TuringVaultRouter** | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | ✅ Sourcify |
 
-Agent Identity NFT: Token #0 (Claude Sonnet 4.6 Multi-Agent)
+**Agent Identity:** Token #0 | **On-Chain Decisions:** 60+ | **Gas Used:** ~1 MNT total
+
+---
+
+## Technical Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **AI Models** | Z.ai GLM-5 + Claude Sonnet 4.6 (AWS Bedrock) | Dual-model consensus — analyst proposes, validator checks |
+| **Smart Contracts** | Solidity 0.8.28, OpenZeppelin v5, Hardhat | ERC-8004 Identity + Decision + Reputation + Validation |
+| **DEX Integration** | Merchant Moe LB Router v2.1 | Real on-chain swap quotes (1 MNT ≈ $0.62 verified live) |
+| **RWA Module** | USDY (Ondo Finance, 26M supply on Mantle) | Adaptive 10-50% allocation, 5.25% APY from US T-Bills |
+| **Key Security** | Tencent KMS pipeline (DER parse, EIP-2, EIP-155) | AI generates intents → Pre-Action Check → KMS signs |
+| **Storage** | IPFS (Pinata) | Agent Card, reasoning hashes, prompt evolution history |
+| **Frontend** | Next.js + Tailwind + RainbowKit + wagmi | Glass Mode dark dashboard, Bybit Wallet support |
+| **Chain** | Mantle Mainnet (ID: 5000) | Low gas (~$0.01/TX), EVM compatible, mETH/USDY yield |
+
+---
+
+## Multi-Agent Consensus
+
+```
+┌─────────────────────────────────────────────────┐
+│  Market Data (5 sources) → unified context      │
+│                    ↓                            │
+│  ┌─────────────────────────────────────────┐   │
+│  │ ANALYST (GLM-5)                         │   │
+│  │ - Aggressive alpha seeker               │   │
+│  │ - Output: action, asset, confidence,    │   │
+│  │           reasoning (Zod-validated)      │   │
+│  └─────────────────────────────────────────┘   │
+│                    ↓                            │
+│  ┌─────────────────────────────────────────┐   │
+│  │ VALIDATOR (Claude Sonnet 4.6)           │   │
+│  │ - Conservative risk manager             │   │
+│  │ - Independent review (not rubber-stamp) │   │
+│  │ - Output: risk score, approve/reject    │   │
+│  └─────────────────────────────────────────┘   │
+│                    ↓                            │
+│  Consensus: both ≥60% confidence + risk ≤65    │
+│  → Pre-Action Check on-chain                   │
+│  → VaR gate (autonomous / supervised / blocked)│
+│  → Execute or queue for human approval         │
+└─────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -120,29 +154,32 @@ Agent Identity NFT: Token #0 (Claude Sonnet 4.6 Multi-Agent)
 
 ```
 turingvault/
-├── contracts/                    # Solidity — ERC-8004 + DeFi integration
-│   ├── TuringVaultIdentity.sol       # ERC-721 Agent Identity Registry
-│   ├── TuringVaultDecisionLog.sol    # Immutable decision history
-│   ├── TuringVaultRouter.sol         # Strategy routing + execution
-│   └── TuringVaultValidationRegistry.sol  # Multi-agent consensus on-chain
+├── contracts/                         # Solidity (5 contracts)
+│   ├── TuringVaultIdentity.sol           # ERC-8004 Agent Identity (ERC-721 + metadata + EIP-712)
+│   ├── TuringVaultDecisionLog.sol        # Immutable decision history
+│   ├── TuringVaultRouter.sol             # Strategy routing + execution
+│   ├── TuringVaultReputationRegistry.sol # Reputation scores + PnL tracking
+│   └── TuringVaultValidation.sol         # Pre-Action Checks (request→response→approve)
 ├── src/
-│   ├── orchestrator/             # AI Cognitive Core
-│   │   ├── multiAgent.js            # Analyst + Validator dual-agent engine
-│   │   ├── multiAgentLoop.js        # Full cycle: data → AI → on-chain
-│   │   ├── unifiedMarketData.js     # 5-source market intelligence aggregator
-│   │   └── mainMultiAgent.js        # Production cron orchestrator
-│   ├── execution/                # Trade Execution Layer
-│   │   ├── executionEngine.js        # Byreal Perps CLI wrapper
-│   │   └── tencentKMS.js            # Tencent Cloud KMS signing interface
-│   └── mcp/                      # Protocol Integrations
-│       └── nansenMCP.js              # Nansen MCP client (24 tools)
-├── frontend/                     # Next.js 15 + RainbowKit + Bybit Wallet
-├── test/                         # 46 tests (Hardhat + Chai)
-├── docs/                         # Architecture, Vision, Submission docs
-│   ├── PROJECT_VISION.md
-│   ├── ARCHITECTURE.md
-│   └── SUBMISSION.md
-└── scripts/                      # Deploy + verify scripts
+│   ├── orchestrator/                  # AI Cognitive Core
+│   │   ├── multiAgent.js                # Dual-model engine (GLM-5 + Claude)
+│   │   ├── multiAgentLoop.js            # Full cycle: data → AI → on-chain
+│   │   ├── integratedOrchestrator.js    # v2: VaR + intent queue + all modules
+│   │   └── unifiedMarketData.js         # 5-source market aggregator
+│   ├── dex/                           # DEX Integration
+│   │   └── merchantMoe.js               # Merchant Moe LB v2.1 (real quotes)
+│   ├── rwa/                           # Real World Assets
+│   │   └── usdyModule.js                # USDY allocation (Ondo Finance)
+│   ├── kms/                           # Key Management
+│   │   └── tencentKMS.js                # DER parse, EIP-2, recovery ID, EIP-155
+│   ├── evolution/                     # Self-Evolution
+│   │   └── promptEvolution.js            # On-chain performance → IPFS prompt update
+│   └── ipfs/                          # Decentralized Storage
+│       └── storage.js                    # Pinata upload + deterministic fallback
+├── frontend/                          # Next.js 15 + Glass Mode UI
+├── test/                              # 103 tests (Hardhat + Jest)
+├── scripts/                           # Deploy, verify, upload scripts
+└── assets/                            # Agent Card JSON
 ```
 
 ---
@@ -150,81 +187,75 @@ turingvault/
 ## Quick Start
 
 ```bash
-# Clone
 git clone https://github.com/USBVadik/TuringVault-Core.git
-cd turingvault
-
-# Install
-npm install
-npm install -g @byreal-io/byreal-perps-cli
+cd turingvault && npm install
 
 # Configure
 cp .env.example .env
-# Add: AWS keys, NANSEN_API_KEY, PRIVATE_KEY
+# Required: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, PRIVATE_KEY, PINATA_JWT
 
-# Test
-npx hardhat test  # 46/46 passing
+# Run tests
+npx hardhat test          # 91 contract tests
+npx jest --no-coverage    # 12 orchestrator tests
 
-# Run orchestrator (dry-run)
-node src/orchestrator/multiAgentLoop.js
+# Run full cycle (dry-run)
+node src/orchestrator/integratedOrchestrator.js paper
 
-# Run with live execution
-DRY_RUN=false node src/orchestrator/mainMultiAgent.js
+# Run prompt evolution
+node src/evolution/promptEvolution.js --force
+
+# Frontend
+cd frontend && npm install && npm run dev
 ```
-
----
-
-## ERC-8004 Implementation
-
-TuringVault implements the full ERC-8004 (Trustless Agents) standard:
-
-1. **Identity Registry** — Agent registered as ERC-721 NFT with IPFS metadata
-2. **Validation Registry** — Every consensus result cryptographically attested on-chain
-3. **Reputation Registry** — Historical accuracy tracked (approved/rejected ratio)
-4. **Decision Log** — Full reasoning chain (action, asset, confidence, rationale)
-
-This makes TuringVault the first verifiable AI trading agent where any smart contract or auditor can programmatically verify the reasoning behind every trade.
 
 ---
 
 ## Hackathon Tracks
 
-### AI Trading & Strategy
-- Byreal Perps CLI for institutional execution
-- Multi-agent consensus prevents impulsive trades
-- Risk guardrails enforced at code level (not prompt level)
+### 🏆 Agentic Wallets & Economy (Primary)
+- Full ERC-8004 implementation (5 contracts, all verified)
+- Agent Identity as NFT with evolving IPFS metadata
+- Hardware KMS pipeline — AI never touches keys
+- Pre-Action Checks as on-chain governance gates
 
-### AI Alpha & Data  
-- Nansen MCP (24 tools) for Smart Money intelligence
-- 5-source market data aggregation
-- Real-time signal processing from Byreal
+### 🤖 AI & RWA Track
+- USDY (Ondo Finance) adaptive allocation module
+- Real yield from US T-Bills (5.25% APY)
+- Risk-adjusted allocation (10-50% based on market regime)
+- Merchant Moe DEX integration for USDY/USDT swaps
 
-### Agentic Wallets & Economy
-- Full ERC-8004 implementation (Identity + Validation + Reputation)
-- Tencent Cloud KMS for institutional key security
-- Agent autonomy with verifiable constraints
-
----
-
-## Roadmap
-
-| Phase | Status | Description |
-|-------|--------|-------------|
-| Phase 1: Foundation | ✅ Done | Contracts, tests, Sepolia deploy |
-| Phase 2: Intelligence | ✅ Done | Multi-agent consensus, market data |
-| Phase 3: Execution | 🔄 Current | Byreal integration, Nansen MCP, KMS |
-| Phase 4: Polish | 📋 Planned | Glass UI, video demo, DoraHacks submit |
+### 📊 AI Trading & Strategy
+- Dual-model consensus prevents impulsive trades
+- VaR-based autonomy (Human vs AI mode)
+- Real on-chain DEX quotes (Merchant Moe LB v2.1)
+- 60+ verifiable decisions on Mantle Mainnet
 
 ---
 
-## Why TuringVault Wins
+## On-Chain Proof
 
-| Criteria (30%) | Our Approach |
-|----------------|--------------|
-| **Technical Depth** | 5 partner integrations, dual-agent AI, ERC-8004, institutional KMS |
-| **Innovation** (25%) | First Proof-of-Reasoning system — verifiable AI cognition on-chain |
-| **Ecosystem** (25%) | Mainnet deploy, mETH strategies, Nansen+Byreal+Tencent integration |
-| **Completeness** (20%) | 46 tests, live frontend, running orchestrator, full documentation |
+Every claim is verifiable:
+
+| Claim | Proof |
+|-------|-------|
+| 60+ AI decisions | [`DecisionLog.totalDecisions()`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5#readContract) |
+| Agent registered | [`Identity.tokenURI(0)`](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD#readContract) → IPFS |
+| Prompt evolution | tokenURI changed 4× (each TX on explorer) |
+| Pre-Action checks | [`Validation` events](https://explorer.mantle.xyz/address/0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705) |
+| Multi-agent consensus | Every TX has both analyst + validator reasoning hashes |
+
+---
+
+## Why TuringVault
+
+| | Other AI Agents | TuringVault |
+|---|---|---|
+| **Reasoning** | Hidden / prompt-injected | On-chain, IPFS-pinned, auditable |
+| **Consensus** | Single model | Dual-model adversarial (propose + challenge) |
+| **Key Security** | Plaintext in .env | KMS HSM pipeline (DER + EIP-2 + EIP-155) |
+| **Self-Improvement** | Manual prompt tweaking | Autonomous evolution with safety validator |
+| **Trust** | "Trust me bro" | Cryptographic attestation (ERC-8004) |
+| **Autonomy** | Binary (on/off) | Continuous (VaR-based sliding scale) |
 
 ---
 
@@ -234,4 +265,4 @@ MIT
 
 ---
 
-*Built for Mantle Turing Test 2026 — proving AI can be trusted through radical transparency.*
+*Built for Mantle Turing Test Hackathon 2026 — proving AI cognition can be made trustless through radical on-chain transparency.*
