@@ -11,6 +11,10 @@
  * 5. If approved + high confidence → executes swap
  */
 require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+// Force-override AWS credentials from .env (in case system env vars take priority)
+const _env = require("dotenv").parse(require("fs").readFileSync(require("path").resolve(__dirname, "../../.env")));
+process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
+process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
 const { ethers } = require("ethers");
 const { getMultiAgentDecision } = require("./multiAgent");
 const { getMarketData } = require("./marketData");
