@@ -78,23 +78,58 @@ class PromptEvolution {
     console.log(`  Current tokenURI: ${tokenURI}`);
     
     if (!tokenURI || tokenURI === "" || tokenURI === "ipfs://QmTuringVaultAgent") {
-      return null; // No valid agent card yet
+      return this._fallbackCard();
     }
     
-    // Fetch from IPFS gateway
+    // Try multiple IPFS gateways
     const cid = tokenURI.replace("ipfs://", "");
-    const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${cid}`;
+    const gateways = [
+      `https://dweb.link/ipfs/${cid}`,
+      `https://ipfs.io/ipfs/${cid}`,
+      `https://gateway.pinata.cloud/ipfs/${cid}`,
+    ];
     
-    try {
-      const response = await fetch(gatewayUrl);
-      if (response.ok) {
-        return await response.json();
-      }
-    } catch (e) {
-      console.log(`  Warning: Could not fetch from gateway: ${e.message}`);
+    for (const url of gateways) {
+      try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (response.ok) {
+          const text = await response.text();
+          if (text.startsWith('{')) return JSON.parse(text);
+        }
+      } catch (e) { /* try next */ }
     }
     
-    return null;
+    console.log(`  Warning: IPFS gateways unreachable, using local fallback`);
+    return this._fallbackCard();
+  }
+
+  _fallbackCard() {
+    // Build card from local evolution log + known state
+    const localAsset = path.resolve(__dirname, "../../assets/agent-card.json");
+    if (fs.existsSync(localAsset)) {
+      try { return JSON.parse(fs.readFileSync(localAsset)); } catch {}
+    }
+    // Derive version from evolution log
+    let version = "2.0.0";
+    if (fs.existsSync(EVOLUTION_LOG_PATH)) {
+      const log = JSON.parse(fs.readFileSync(EVOLUTION_LOG_PATH));
+      const count = log.evolutions?.filter(e => !e.rejected).length || 0;
+      version = `2.0.${count}`;
+    }
+    return {
+      name: "TuringVault AI Agent",
+      systemPrompt: {
+        version,
+        analyst: "You are TuringVault's AI Analyst (GLM-5). Analyze market data. Output JSON: action, targetAsset, confidence, reasoning.",
+        validator: "You are TuringVault's Validator (Claude). Score risk 0-100, approve/reject.",
+        riskParameters: {
+          maxPositionSize: "50% of portfolio",
+          varThreshold: { autonomous: 50, supervised: 150, blocked: 300 },
+          minConfidence: 0.6,
+        },
+        evolutionHistory: []
+      }
+    };
   }
 
   /**
