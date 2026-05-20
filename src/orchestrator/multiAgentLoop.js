@@ -59,6 +59,9 @@ async function runMultiAgentCycle() {
   // Step 3: Record on-chain
   console.log("⛓️  [STEP 3] Recording on-chain...");
   
+  // Get current nonce to avoid replacement issues
+  const currentNonce = await provider.getTransactionCount(wallet.address, "latest");
+  
   // Submit analyst proposal
   const confidenceBps = Math.round((decision.analyst?.confidence || 0) * 10000);
   const tx1 = await registry.submitProposal(
@@ -66,7 +69,8 @@ async function runMultiAgentCycle() {
     decision.analyst?.targetAsset || "mUSD",
     ethers.parseEther("0"),
     confidenceBps,
-    decision.analyst?.reasoning?.substring(0, 200) || "no reasoning"
+    decision.analyst?.reasoning?.substring(0, 200) || "no reasoning",
+    { nonce: currentNonce }
   );
   const receipt1 = await tx1.wait();
   const proposalId = (await registry.totalProposals()) - 1n;
@@ -80,21 +84,22 @@ async function runMultiAgentCycle() {
     validatorConfBps,
     riskScore * 100, // scale to bps
     decision.validator?.reasoning?.substring(0, 200) || "no reasoning",
-    decision.validator?.approved || false
+    decision.validator?.approved || false,
+    { nonce: currentNonce + 1 }
   );
   const receipt2 = await tx2.wait();
   console.log(`   ✅ Validation recorded (tx: ${receipt2.hash.substring(0, 18)}...)`);
 
   // Also log to DecisionLog for backward compatibility
-  const reasoningStr = `[MULTI-AGENT] Analyst: ${decision.analyst?.reasoning?.substring(0, 80)} | Validator: ${decision.validator?.approved ? "APPROVED" : "REJECTED"} (risk=${riskScore})`.substring(0, 200);
   const tx3 = await decisionLog.logDecision(
     decision.action,
     decision.analyst?.targetAsset || "mUSD",
     ethers.parseEther("0"),
     ethers.parseEther("0"),
     confidenceBps,
-    reasoningStr,
-    ethers.ZeroHash
+    `[MULTI-AGENT] Analyst: ${decision.analyst?.reasoning?.substring(0, 80)} | Validator: ${decision.validator?.approved ? "APPROVED" : "REJECTED"} (risk=${riskScore})`.substring(0, 200),
+    ethers.ZeroHash,
+    { nonce: currentNonce + 2 }
   );
   await tx3.wait();
   console.log(`   ✅ Decision logged to DecisionLog`);
