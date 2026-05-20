@@ -25,7 +25,7 @@ const REGISTRY_ABI = [
 ];
 
 const DECISION_LOG_ABI = [
-  "function logDecision(string action, string targetAsset, uint256 amountIn, uint256 amountOut, uint256 confidence, string reasoning) external returns (uint256)"
+  "function logDecision(string action, string targetAsset, uint256 amountIn, uint256 amountOut, uint256 confidence, string reasoningHash, bytes32 txHash) external returns (uint256)"
 ];
 
 // Contract addresses
@@ -46,7 +46,7 @@ async function runMultiAgentCycle() {
   console.log("📊 [STEP 1] Fetching real market data...");
   const market = await getMarketData();
   console.log(`   ETH: $${market.ethPrice} | Sentiment: ${market.sentiment} | F&G: ${market.fearGreedIndex}`);
-  console.log(`   mETH Yield: ${market.methYield}% | TVL: $${market.tvl}\n`);
+  console.log(`   mETH Yield: ${market.mETHYield?.toFixed(2)}% | Nansen: ${market.nansenSentiment || "n/a"} | TVL: $${((market.mantleTVL||0)/1e6).toFixed(0)}M\n`);
 
   // Step 2: Multi-agent decision
   console.log("🧠 [STEP 2] Multi-agent consensus process...");
@@ -86,13 +86,15 @@ async function runMultiAgentCycle() {
   console.log(`   ✅ Validation recorded (tx: ${receipt2.hash.substring(0, 18)}...)`);
 
   // Also log to DecisionLog for backward compatibility
+  const reasoningStr = `[MULTI-AGENT] Analyst: ${decision.analyst?.reasoning?.substring(0, 80)} | Validator: ${decision.validator?.approved ? "APPROVED" : "REJECTED"} (risk=${riskScore})`.substring(0, 200);
   const tx3 = await decisionLog.logDecision(
     decision.action,
     decision.analyst?.targetAsset || "mUSD",
     ethers.parseEther("0"),
     ethers.parseEther("0"),
     confidenceBps,
-    `[MULTI-AGENT] Analyst: ${decision.analyst?.reasoning?.substring(0, 80)} | Validator: ${decision.validator?.approved ? "APPROVED" : "REJECTED"} (risk=${riskScore})`
+    reasoningStr,
+    ethers.ZeroHash
   );
   await tx3.wait();
   console.log(`   ✅ Decision logged to DecisionLog`);

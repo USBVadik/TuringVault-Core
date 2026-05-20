@@ -140,13 +140,13 @@ async function callAgent(systemPrompt, userMessage) {
 async function getMultiAgentDecision(marketData) {
   const marketPrompt = `Current market data (${new Date().toISOString()}):
 - ETH Price: $${marketData.ethPrice} (24h change: ${marketData.priceChange24h}%)
-- mETH Yield: ${marketData.methYield}% APY
+- mETH Yield: ${marketData.mETHYield}% APY
 - Risk-Free Rate (USDY proxy): 4.5% APY
-- Yield Spread: ${(marketData.methYield - 4.5).toFixed(2)}%
+- Yield Spread: ${((marketData.mETHYield || 0) - 4.5).toFixed(2)}%
 - Market Sentiment: ${marketData.sentiment} (Fear&Greed: ${marketData.fearGreedIndex}/100)
-- Smart Money Flow: $${marketData.smartMoneyFlow}
-- Mantle TVL: $${marketData.tvl}
-- Volatility: ${marketData.volatility}
+- Nansen Smart Money: ${marketData.nansenSentiment || "n/a"} (24h flow: $${(marketData.smartMoneyFlow || 0).toLocaleString()})
+- Top Smart Money Buying: ${marketData.nansenTopBuying?.map(t => t.symbol).join(", ") || "none"}
+- Mantle TVL: $${((marketData.mantleTVL || 0) / 1e6).toFixed(0)}M
 - Pool Liquidity (mETH/mUSD): sufficient for <$50k swaps`;
 
   // STEP 1: Analyst proposes
