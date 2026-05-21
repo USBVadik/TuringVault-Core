@@ -91,11 +91,13 @@ function FadeIn({ children, delay = 0, className = '' }: { children: ReactNode; 
 
 // ═══ Animated counter ═══
 function AnimatedCounter({ value, className = '' }: { value: number; className?: string }) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(value); // start at real value (SSR-safe)
   const ref = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
 
   useEffect(() => {
+    // Reset to 0 and animate up on client
+    setCount(0);
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
@@ -141,7 +143,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
   }
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden relative" style={{ background: 'linear-gradient(180deg, #06060a 0%, #0a0812 40%, #080610 60%, #06060a 100%)' }}>
+    <div className="min-h-screen text-white overflow-x-hidden relative" style={{ background: 'var(--vault-bg)' }}>
       {/* Background effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute w-[600px] h-[600px] top-[-200px] left-[-100px] rounded-full blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)', animation: 'orbFloat 25s ease-in-out infinite' }} />
@@ -152,8 +154,8 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
       {/* ═══ FEATURED PROOF REPLAY ═══ */}
       <section className="relative overflow-hidden border-b border-white/5">
         {/* Atmospheric animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-950/30 via-[#06060a] to-transparent pointer-events-none" />
-        <div className="absolute top-10 left-1/4 w-[600px] h-[300px] bg-red-500/[0.05] rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/30 via-[#030308] to-transparent pointer-events-none" />
+        <div className="absolute top-10 left-1/4 w-[600px] h-[300px] bg-purple-500/[0.05] rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[200px] bg-green-500/[0.04] rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
         
         <div className="relative max-w-5xl mx-auto px-6 py-12">
@@ -180,7 +182,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
           </p>
 
           {/* Replay timeline */}
-          <div className="grid grid-cols-5 gap-0 items-stretch">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-0 items-stretch">
             {[
               { phase: 'AI INTENT', content: 'Swap ETH → mUSD', detail: 'Market intelligence + Fear & Greed signal → 78% confidence', color: 'border-white/10', textColor: 'text-white/70', dot: 'bg-white/30', glow: '' },
               { phase: 'VALIDATOR', content: 'Rejected', detail: '"Panic metrics ≠ fundamental weakness"', color: 'border-orange-500/20', textColor: 'text-orange-400', dot: 'bg-orange-400', glow: 'shadow-[0_0_8px_rgba(251,146,60,0.5)]' },
@@ -197,7 +199,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                   <div className="absolute left-0 top-[18px] w-full h-px -translate-x-1/2 bg-gradient-to-r from-white/10 to-white/5 -z-0" />
                 )}
                 <div className="flex items-center gap-2 mb-3 z-10">
-                  <div className={`w-3 h-3 rounded-full ${step.dot} ring-2 ring-[#06060a] ${step.glow}`} />
+                  <div className={`w-3 h-3 rounded-full ${step.dot} ring-2 ring-[#030308] ${step.glow}`} />
                   <span className="text-[9px] font-mono text-white/30 uppercase tracking-wider">{step.phase}</span>
                 </div>
                 <div className={`flex-1 p-3 rounded-lg border ${step.color} bg-white/[0.02] card-hover`}>
@@ -226,9 +228,9 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
 
       {/* ═══ COMPACT HEADER ═══ */}
       <FadeIn>
-        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-red-500/80 to-orange-500/80 flex items-center justify-center float-gentle">
+            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-purple-500/80 to-green-500/80 flex items-center justify-center float-gentle">
               <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <div>
@@ -259,13 +261,13 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
         <FadeIn>
           <section>
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-5 h-5 rounded bg-red-500/20 flex items-center justify-center">
-                <svg className="w-3 h-3 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <div className="w-5 h-5 rounded bg-purple-500/20 flex items-center justify-center">
+                <svg className="w-3 h-3 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
               </div>
               <h2 className="text-sm font-semibold uppercase tracking-wider text-white/60">
-                Capital Saved — Blocked Would-Have-Lost
+                Protected Capital — Trades That Would Have Lost
               </h2>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 glow-red">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
                 LIVE PROOF
               </span>
             </div>
@@ -276,8 +278,8 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                   key={c.id}
                   className={`relative rounded-xl border cursor-pointer card-hover ${
                     expandedCase === c.id 
-                      ? 'border-red-500/30 bg-red-500/5 scale-[1.02]' 
-                      : 'border-white/5 bg-white/[0.02] hover:border-red-500/20 hover:bg-red-500/[0.02]'
+                      ? 'border-purple-500/30 bg-purple-500/5 scale-[1.02]' 
+                      : 'border-white/[0.06] bg-white/[0.02] hover:border-purple-500/20 hover:bg-purple-500/[0.02]'
                   }`}
                   onClick={() => setExpandedCase(expandedCase === c.id ? null : c.id)}
                   style={{ animationDelay: `${idx * 0.1}s` }}
@@ -349,9 +351,9 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
 
         {/* ═══ DECISION PIPELINE ═══ */}
         <FadeIn delay={0.1}>
-          <section className="p-6 rounded-xl border border-white/5 bg-white/[0.015] relative overflow-hidden">
+          <section className="glass-card p-6 relative overflow-hidden">
             <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider relative">Decision Pipeline</h2>
-            <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2 relative">
+            <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-2 md:gap-1 overflow-x-auto pb-2 relative">
               {[
                 { label: 'Market Data', sub: 'Nansen MCP + CoinGecko + DeFiLlama', color: 'from-blue-500/20 to-blue-500/5' },
                 { label: 'GLM-5 Analyst', sub: 'Z.ai reasoning', color: 'from-purple-500/20 to-purple-500/5' },
@@ -367,7 +369,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                     <span className="text-[8px] text-white/30 text-center mt-1">{s.sub}</span>
                   </div>
                   {i < 6 && (
-                    <div className="mx-1 arrow-animate" style={{ animationDelay: `${i * 0.3}s` }}>
+                    <div className="mx-1 arrow-animate hidden md:block" style={{ animationDelay: `${i * 0.3}s` }}>
                       <svg className="w-4 h-4 text-white/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </div>
                   )}
@@ -379,26 +381,27 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
 
         {/* ═══ ECOSYSTEM PROOF STACK ═══ */}
         <FadeIn delay={0.15}>
-          <section className="p-6 rounded-xl border border-white/5 bg-white/[0.015]">
+          <section className="glass-card p-6">
             <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider">Ecosystem Stack Used In This Proof</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {[
-                { name: 'Nansen', role: 'Detects smart money & wallet signals', detail: 'MCP Protocol · 36 analytics tools' },
-                { name: 'Merchant Moe', role: 'Approved execution route', detail: 'Liquidity Book Router v2.1' },
-                { name: 'Byreal', role: 'Perps funding/OI risk signal', detail: 'RSI + funding rate data feed' },
-                { name: 'Bybit', role: 'Agentic wallet & trading UX target', detail: 'Web3 ecosystem connector' },
-                { name: 'Z.ai', role: 'GLM-5 primary analyst reasoning', detail: 'Aggressive alpha identification' },
-                { name: 'Tencent Cloud', role: 'KMS signing pipeline', detail: 'SECP256K1 hardware HSM' },
-                { name: 'Ondo Finance', role: 'RWA yield allocation target', detail: 'USDY tokenized T-Bills' },
-                { name: 'Mantle', role: 'Immutable proof layer', detail: '4 Sourcify-verified contracts' },
-                { name: 'Pinata', role: 'Reasoning artifact storage', detail: 'IPFS-pinned Agent Cards' },
-                { name: 'Anthropic', role: 'Adversarial validation model', detail: 'Claude 4.6 via Bedrock' },
+                { name: 'Nansen', role: 'Detects smart money & wallet signals', detail: 'MCP Protocol · 36 analytics tools', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/mcp/nansenMCP.js', proofLabel: 'src/mcp/nansenMCP.js' },
+                { name: 'Merchant Moe', role: 'Approved execution route', detail: 'Liquidity Book Router v2.1', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/execution/executionEngine.js', proofLabel: 'executionEngine.js' },
+                { name: 'Byreal', role: 'Perps funding/OI risk signal', detail: 'RSI + funding rate data feed', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/unifiedMarketData.js', proofLabel: 'unifiedMarketData.js' },
+                { name: 'Bybit', role: 'Agentic wallet & trading UX target', detail: 'Web3 ecosystem connector', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/frontend/app/providers.tsx', proofLabel: 'RainbowKit config' },
+                { name: 'Z.ai', role: 'GLM-5 primary analyst reasoning', detail: 'Aggressive alpha identification', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js', proofLabel: 'multiAgentLoop.js' },
+                { name: 'Tencent Cloud', role: 'KMS signing pipeline', detail: 'SECP256K1 hardware HSM', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/execution/executionEngine.js#L1', proofLabel: 'KMS pipeline' },
+                { name: 'Ondo Finance', role: 'RWA yield allocation target', detail: 'USDY tokenized T-Bills', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/integratedOrchestrator.js', proofLabel: 'integratedOrchestrator.js' },
+                { name: 'Mantle', role: 'Immutable proof layer', detail: '4 Sourcify-verified contracts', proof: 'https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5', proofLabel: 'DecisionLog contract' },
+                { name: 'Pinata', role: 'Reasoning artifact storage', detail: 'IPFS-pinned Agent Cards', proof: 'https://gateway.pinata.cloud/ipfs/QmUc6Qo4yoH2SboEesPeKuojs93MaJNxFjw9mDRTZp4axw', proofLabel: 'Agent Card JSON' },
+                { name: 'Anthropic', role: 'Adversarial validation model', detail: 'Claude 4.6 via Bedrock', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js#L1', proofLabel: 'Validator logic' },
               ].map((p, i) => (
-                <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] hover:border-white/15 transition-all duration-200 card-hover">
+                <a key={i} href={p.proof} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg border border-white/5 bg-white/[0.02] hover:border-purple-500/40 hover:bg-purple-500/[0.04] transition-all duration-200 card-hover group">
                   <p className="text-xs font-semibold text-white/80 mb-0.5">{p.name}</p>
                   <p className="text-[10px] text-white/40 leading-tight">{p.role}</p>
                   <p className="text-[9px] text-white/20 mt-1">{p.detail}</p>
-                </div>
+                  <p className="text-[9px] text-purple-400/60 mt-1.5 group-hover:text-purple-400/90 transition-colors">→ {p.proofLabel}</p>
+                </a>
               ))}
             </div>
           </section>
@@ -423,7 +426,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                   const decisionNum = totalDecisions - i;
                   const isBlocked = d.status === 'Rejected' || d.status === 'Pending';
                   const confidencePct = d.confidence / 100;
-                  const riskScore = d.riskScore ? d.riskScore / 100 : 0;
+                  const riskScore = d.riskScore ? Math.round(d.riskScore / 100) : 0;
                   const isExpanded = selectedDecision === i;
                   
                   const varMatch = d.reasoningHash?.match?.(/VaR:(\d+)/);
@@ -436,7 +439,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                         isExpanded 
                           ? 'border-white/10 bg-white/[0.04]'
                           : isBlocked 
-                            ? 'border-red-500/10 bg-red-500/[0.02] hover:border-red-500/20' 
+                            ? 'border-purple-500/10 bg-purple-500/[0.02] hover:border-purple-500/20' 
                             : 'border-green-500/10 bg-green-500/[0.02] hover:border-green-500/20'
                       }`}
                       onClick={() => setSelectedDecision(isExpanded ? null : i)}
@@ -447,7 +450,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                           
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                             isBlocked 
-                              ? 'bg-red-500/10 text-red-400 border border-red-500/20' 
+                              ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20' 
                               : 'bg-green-500/10 text-green-400 border border-green-500/20'
                           }`}>
                             {isBlocked ? 'BLOCKED' : 'APPROVED'}
@@ -514,7 +517,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
           <FadeIn delay={0.2} className="space-y-5">
             
             {/* Agent Identity */}
-            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02] card-hover relative overflow-hidden scan-line">
+            <div className="glass-card p-5 relative overflow-hidden scan-line">
               <h3 className="text-[10px] font-semibold text-white/40 mb-3 uppercase tracking-wider relative">Agent Identity (ERC-8004)</h3>
               {agentCard ? (
                 <div className="space-y-3 relative">
@@ -543,7 +546,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                 <p className="text-xs text-white/30 relative">Loading from IPFS...</p>
               )}
               <a 
-                href="https://ipfs.io/ipfs/QmUc6Qo4yoH2SboEesPeKuojs93MaJNxFjw9mDRTZp4axw"
+                href="https://gateway.pinata.cloud/ipfs/QmbPbFMuYGQC5WRMhryDJ6VM16MT1amEvqK7SJQ49vNZFB"
                 target="_blank"
                 rel="noopener"
                 className="block mt-3 text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors relative"
@@ -612,13 +615,13 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
               </div>
               <div className="mt-3 pt-3 border-t border-white/5">
                 <a
-                  href="https://ipfs.io/ipfs/QmUc6Qo4yoH2SboEesPeKuojs93MaJNxFjw9mDRTZp4axw"
+                  href="https://gateway.pinata.cloud/ipfs/QmbPbFMuYGQC5WRMhryDJ6VM16MT1amEvqK7SJQ49vNZFB"
                   target="_blank"
                   rel="noopener"
                   className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-all duration-200 group"
                 >
                   <span className="text-[10px] text-white/40 group-hover:text-white/70 transition-colors">IPFS Agent Card</span>
-                  <span className="text-[9px] font-mono text-white/20 group-hover:text-cyan-400 transition-colors">QmUc6Qo...axw ↗</span>
+                  <span className="text-[9px] font-mono text-white/20 group-hover:text-cyan-400 transition-colors">QmbPbFM...ZFB ↗</span>
                 </a>
               </div>
             </div>
