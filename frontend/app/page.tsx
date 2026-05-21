@@ -42,7 +42,7 @@ const DECISION_LOG_ABI = [
 ] as const;
 
 const ROUTER_ABI = [
-  { name: 'deposit', type: 'function', stateMutability: 'payable', inputs: [], outputs: [] },
+  { name: 'deposit', type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'token', type: 'address' }, { name: 'amount', type: 'uint256' }], outputs: [] },
   { name: 'withdraw', type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'amount', type: 'uint256' }], outputs: [] },
 ] as const;
 
@@ -112,11 +112,9 @@ export default function Home() {
   }, []);
 
   function handleDeposit() {
-    if (!depositAmount || parseFloat(depositAmount) <= 0) return;
-    writeContract({
-      address: CONTRACTS.ROUTER, abi: ROUTER_ABI, functionName: 'deposit',
-      value: parseEther(depositAmount),
-    });
+    // Router.deposit(address,uint256) requires ERC20 approval + token address
+    // For hackathon demo, deposits are agent-managed only
+    alert('Deposits are managed by the AI agent. View decision history below.');
   }
 
   return (

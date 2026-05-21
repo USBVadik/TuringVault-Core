@@ -125,7 +125,7 @@ Low volatility + high confidence = full autonomy. Market stress = human oversigh
 | **TuringVaultDecisionLog** | [`0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) | ✅ Sourcify |
 | **TuringVaultReputationRegistry** | [`0xC78119F3274B05046Ac7c38a14298a6cbD946e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) | ✅ Sourcify |
 | **TuringVaultValidation** (Pre-Action) | [`0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705`](https://explorer.mantle.xyz/address/0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705) | ✅ Sourcify |
-| **TuringVaultRouter** | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | ✅ Sourcify |
+| **TuringVaultRouter** | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | ⏳ Pending |
 
 **Agent Identity:** Token #0 | **Decisions On-Chain:** 20 | **Safety Blocks:** 19/20 | **Gas Used:** ~1 MNT total
 
