@@ -1,0 +1,57 @@
+{
+  "executionLog": {
+    "version": "1.0.0",
+    "engine": "Byreal Perps CLI v2.3",
+    "mode": "dry-run",
+    "timestamp": "2026-05-18T14:32:00Z",
+    "session": "tv-agent-cycle-019"
+  },
+  "signalScan": {
+    "source": "Byreal RealClaw Signal Scanner",
+    "scannedAt": "2026-05-18T14:30:45Z",
+    "marketsScanned": 47,
+    "signalsDetected": 3,
+    "topSignal": {
+      "pair": "ETH-PERP",
+      "direction": "long",
+      "confidence": 0.72,
+      "timeframe": "4h",
+      "indicators": {
+        "rsi_14": 28.4,
+        "macd_signal": "bullish_cross",
+        "volume_spike": 2.3,
+        "funding_rate": -0.0012,
+        "open_interest_change": "+4.2%"
+      },
+      "entry": 2445.50,
+      "stopLoss": 2398.00,
+      "takeProfit": 2520.00,
+      "riskRewardRatio": 1.57
+    }
+  },
+  "preTradeValidation": {
+    "varCalculated": 185,
+    "varThreshold": "supervised",
+    "analystConfidence": 0.72,
+    "validatorConfidence": 0.58,
+    "validatorRiskScore": 68,
+    "consensusReached": false,
+    "reason": "Validator risk score 68 exceeds max threshold 65",
+    "outcome": "BLOCKED"
+  },
+  "executionResult": {
+    "executed": false,
+    "reason": "Blocked by safety gate — VaR supervised + validator rejected",
+    "savedFromLoss": true,
+    "marketAfter4h": {
+      "ethPrice4hLater": 2412.30,
+      "wouldHavePnL": "-1.36%",
+      "comment": "Safety gate saved ~$33 on 0.1 ETH position"
+    }
+  },
+  "onChainAttestation": {
+    "decisionLogTx": "0x7a2b...recorded on Mantle",
+    "validationRegistryTx": "0x4c8e...rejected with score 58",
+    "ipfsProof": "QmXyz...full reasoning document"
+  }
+}
