@@ -393,7 +393,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                 { name: 'Tencent Cloud', role: 'KMS signing pipeline', detail: 'SECP256K1 hardware HSM', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/execution/executionEngine.js#L1', proofLabel: 'KMS pipeline' },
                 { name: 'Ondo Finance', role: 'RWA yield allocation target', detail: 'USDY tokenized T-Bills', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/integratedOrchestrator.js', proofLabel: 'integratedOrchestrator.js' },
                 { name: 'Mantle', role: 'Immutable proof layer', detail: '4 Sourcify-verified contracts', proof: 'https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5', proofLabel: 'DecisionLog contract' },
-                { name: 'Pinata', role: 'Reasoning artifact storage', detail: 'IPFS-pinned Agent Cards', proof: 'https://gateway.pinata.cloud/ipfs/QmUc6Qo4yoH2SboEesPeKuojs93MaJNxFjw9mDRTZp4axw', proofLabel: 'Agent Card JSON' },
+                { name: 'Pinata', role: 'Reasoning artifact storage', detail: 'IPFS-pinned Agent Cards', proof: 'https://gateway.pinata.cloud/ipfs/QmYqTNXxtYyNPxkSuaeeoBbbDGjZBv6rqVQy5RFJ3rJmRQ', proofLabel: 'Agent Card JSON' },
                 { name: 'Anthropic', role: 'Adversarial validation model', detail: 'Claude 4.6 via Bedrock', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js#L1', proofLabel: 'Validator logic' },
               ].map((p, i) => (
                 <a key={i} href={p.proof} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg border border-white/5 bg-white/[0.02] hover:border-purple-500/40 hover:bg-purple-500/[0.04] transition-all duration-200 card-hover group">
@@ -546,7 +546,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                 <p className="text-xs text-white/30 relative">Loading from IPFS...</p>
               )}
               <a 
-                href="https://gateway.pinata.cloud/ipfs/QmbPbFMuYGQC5WRMhryDJ6VM16MT1amEvqK7SJQ49vNZFB"
+                href="https://gateway.pinata.cloud/ipfs/QmYqTNXxtYyNPxkSuaeeoBbbDGjZBv6rqVQy5RFJ3rJmRQ"
                 target="_blank"
                 rel="noopener"
                 className="block mt-3 text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors relative"
@@ -615,7 +615,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
               </div>
               <div className="mt-3 pt-3 border-t border-white/5">
                 <a
-                  href="https://gateway.pinata.cloud/ipfs/QmbPbFMuYGQC5WRMhryDJ6VM16MT1amEvqK7SJQ49vNZFB"
+                  href="https://gateway.pinata.cloud/ipfs/QmYqTNXxtYyNPxkSuaeeoBbbDGjZBv6rqVQy5RFJ3rJmRQ"
                   target="_blank"
                   rel="noopener"
                   className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-all duration-200 group"

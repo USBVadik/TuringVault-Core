@@ -379,6 +379,16 @@ async function runIntegratedCycle(options = {}) {
     console.log(`   ⚠️  Reputation: ${e.message?.slice(0, 50)}`);
   }
 
+  // ─── Update Agent Card on IPFS ───
+  try {
+    const { uploadAndUpdateAgentCard } = require("../../scripts/uploadAgentCard");
+    console.log("\n🔄 Updating Agent Card on IPFS...");
+    const cardResult = await uploadAndUpdateAgentCard();
+    console.log(`   ✅ Agent Card synced — CID: ${cardResult.cid.slice(0, 16)}...`);
+  } catch (e) {
+    console.log(`   ⚠️  Agent Card update failed: ${e.message?.slice(0, 80)}`);
+  }
+
   // ─── Summary ───
   const totalApproved = await registry.totalApproved();
   const totalRejected = await registry.totalRejected();
