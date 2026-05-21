@@ -43,6 +43,12 @@ const DECISION_LOG_ABI = [
   },
 ] as const;
 
+const VALIDATION_ABI = [
+  { name: 'totalProposals', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  { name: 'totalApproved', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  { name: 'totalRejected', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+] as const;
+
 const ROUTER_ABI = [
   { name: 'deposit', type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'token', type: 'address' }, { name: 'amount', type: 'uint256' }], outputs: [] },
   { name: 'withdraw', type: 'function', stateMutability: 'nonpayable', inputs: [{ name: 'amount', type: 'uint256' }], outputs: [] },
@@ -85,6 +91,15 @@ export default function Home() {
   });
   const { data: recentDecisions } = useReadContract({
     address: CONTRACTS.DECISION_LOG, abi: DECISION_LOG_ABI, functionName: 'getRecentDecisions', args: [BigInt(10)],
+  });
+  const { data: totalProposals } = useReadContract({
+    address: CONTRACTS.VALIDATION, abi: VALIDATION_ABI, functionName: 'totalProposals',
+  });
+  const { data: totalApproved } = useReadContract({
+    address: CONTRACTS.VALIDATION, abi: VALIDATION_ABI, functionName: 'totalApproved',
+  });
+  const { data: totalRejected } = useReadContract({
+    address: CONTRACTS.VALIDATION, abi: VALIDATION_ABI, functionName: 'totalRejected',
   });
 
   // ═══ WRITE CONTRACT ═══  (kept for future deposit feature)
@@ -179,22 +194,22 @@ export default function Home() {
               </h2>
               <p className="text-sm text-white/40 max-w-lg">
                 Multi-model adversarial consensus with on-chain proof of every reasoning step.
-                19/20 dangerous trades blocked — market confirmed every call.
+                {totalRejected && totalProposals ? `${totalRejected.toString()}/${totalProposals.toString()}` : '—'} dangerous trades blocked — market confirmed every call.
               </p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 shrink-0">
               <div className="text-center">
-                <div className="stat-number">{totalDecisions?.toString() || '20'}</div>
+                <div className="stat-number">{totalProposals?.toString() || totalDecisions?.toString() || '—'}</div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">On-Chain Proofs</div>
               </div>
               <div className="text-center">
-                <div className="stat-number text-red-400">19</div>
+                <div className="stat-number text-red-400">{totalRejected?.toString() || '—'}</div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">Trades Blocked</div>
               </div>
               <div className="text-center">
-                <div className="stat-number stat-number-green">95%</div>
+                <div className="stat-number stat-number-green">{totalProposals ? `${Math.round((Number(totalRejected) || 0) / Number(totalProposals) * 100)}%` : '—'}</div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">Safety Rate</div>
               </div>
             </div>

@@ -66,8 +66,9 @@ Your role: Analyze market data and propose optimal asset allocation between mETH
 DECISION FRAMEWORK:
 - Compare mETH yield vs risk-free rate (treasury proxy via USDY ~4.5%)
 - When mETH yield > risk-free + 1% AND sentiment is bullish → propose swap to mETH
-- When sentiment is bearish OR Fear&Greed < 30 → propose swap to mUSD  
-- When signals conflict → propose hold
+- When Fear&Greed < 25 (extreme fear) → propose swap to mUSD (defensive)
+- When Fear&Greed between 25-40 OR signals conflict → propose HOLD with reasoning
+- When sentiment is neutral → propose HOLD (capital preservation in uncertain market)
 - Factor in smart money flows and TVL changes
 
 RISK RULES:
@@ -323,10 +324,10 @@ async function getMultiAgentDecision(marketData) {
 
   // STEP 1: Analyst proposes (try evolved prompt from IPFS first)
   const evolved = await getEvolvedPrompts();
-  const activeAnalystPrompt = evolved?.analyst || ANALYST_SYSTEM_PROMPT;
+  const activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;  // Always use local — evolved IPFS prompts lag behind fixes
   // Always use local validator prompt — evolved versions from IPFS lack strict JSON enforcement
   const activeValidatorPrompt = VALIDATOR_SYSTEM_PROMPT;
-  if (evolved) console.log(`  [EVOLUTION] Using evolved prompt v${evolved.version}`);
+  if (evolved) console.log(`  [EVOLUTION] Using evolved prompt v${evolved.version} (local overrides active)`);
   
   console.log(`  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`);
   const analystRaw = await callAgent(activeAnalystPrompt, marketPrompt, MODELS.analyst);
