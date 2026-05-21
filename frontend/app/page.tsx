@@ -247,15 +247,81 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══ LIVE TERMINAL — AI Agent in Action ═══ */}
-        <section className="mb-8 anim-fade-up" style={{ animationDelay: '0.45s' }}>
-          <div className="flex items-center gap-2 mb-3 pl-1">
-            <Terminal className="w-4 h-4 text-green-400" />
-            <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Live Agent Pipeline</span>
-            <span className="ml-auto text-[9px] font-mono text-white/20">Real execution data from Mantle Mainnet</span>
+        {/* ═══ LIVE TERMINAL + FUNDING WINDOW ═══ */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8 anim-fade-up" style={{ animationDelay: '0.45s' }}>
+
+          {/* Live Agent Pipeline — 2/3 width */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-2 mb-3 pl-1">
+              <Terminal className="w-4 h-4 text-green-400" />
+              <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Live Agent Pipeline</span>
+              <span className="ml-auto text-[9px] font-mono text-white/20">Real execution data from Mantle Mainnet</span>
+            </div>
+            <LiveTerminal />
           </div>
-          <LiveTerminal />
-        </section>
+
+          {/* Funding Window — 1/3 width */}
+          <div className="lg:col-span-1">
+            <div className="flex items-center gap-2 mb-3 pl-1">
+              <Wallet className="w-4 h-4 text-purple-400" />
+              <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Vault Funding</span>
+            </div>
+            <div className="glass-card p-5 funding-panel">
+              {/* AUM Stats */}
+              <div className="space-y-3 mb-5">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-white/30 uppercase tracking-wider">Vault Balance</span>
+                  <span className="text-sm font-mono font-bold text-white/80">~5.09 MNT</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-white/30 uppercase tracking-wider">Total Deployed</span>
+                  <span className="text-sm font-mono font-bold text-green-400">2× Swaps</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] text-white/30 uppercase tracking-wider">Agent Wallet</span>
+                  <a
+                    href="https://explorer.mantle.xyz/address/0xDC783CDBfA993f3FC299460627b204E83bf4fb5a"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[10px] font-mono text-purple-400/70 hover:text-purple-400 transition-colors flex items-center gap-1"
+                  >
+                    0xDC78…fb5a <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-white/5 mb-5" />
+
+              {/* Strategy info */}
+              <div className="space-y-2 mb-5">
+                <p className="text-[10px] text-white/25 uppercase tracking-widest mb-2">Strategy</p>
+                <div className="funding-strategy-row">
+                  <span className="text-[10px] font-mono text-purple-400/70">mETH Yield</span>
+                  <span className="text-[10px] font-mono text-white/50">3.41% APY</span>
+                </div>
+                <div className="funding-strategy-row">
+                  <span className="text-[10px] font-mono text-purple-400/70">USDY (RWA)</span>
+                  <span className="text-[10px] font-mono text-white/50">10–50% alloc</span>
+                </div>
+                <div className="funding-strategy-row">
+                  <span className="text-[10px] font-mono text-purple-400/70">Risk Gate</span>
+                  <span className="text-[10px] font-mono text-green-400/70">VaR &lt; 150 bps</span>
+                </div>
+              </div>
+
+              {/* CTA — disabled, agent-managed */}
+              <div className="text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/8 w-full justify-center">
+                  <Shield className="w-3.5 h-3.5 text-purple-400/50" />
+                  <span className="text-[10px] font-mono text-white/25">Agent-Managed · Autonomous</span>
+                </div>
+                <p className="text-[9px] text-white/15 mt-2">Deposits governed by on-chain validation</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
 
         {/* ═══ 3-COL GRID: Market | Reasoning | Deposit ═══ */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
