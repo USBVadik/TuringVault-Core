@@ -80,10 +80,14 @@ const AGENT_CARD = {
   ],
   
   stats: {
-    totalDecisions: "60+",
+    totalDecisions: 20,
+    proposalsValidated: 20,
+    safetyBlockedActions: 19,
+    approvedExecutions: 1,
     consensusRate: "100%",
     avgVaR: "~100 bps",
-    gasEfficiency: "~0.005 MNT per TX"
+    gasEfficiency: "~0.005 MNT per TX",
+    narrative: "Risk firewall blocked 19/20 unsafe proposals — safety-first design"
   }
 };
 
