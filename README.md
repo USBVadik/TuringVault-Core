@@ -182,14 +182,21 @@ Every claim is verifiable:
 Build your own PoR-enabled agent on TuringVault in 3 lines:
 
 ```javascript
-const { createPoRDecision } = require("@turingvault/sdk");
+const { TuringVaultSDK } = require("@turingvault/sdk");
 
-const result = await createPoRDecision({
-  analyst: { model: "your-model", action: "swap", confidence: 0.82 },
-  validator: { model: "your-validator", riskScore: 45, approved: true },
-  chain: "mantle-mainnet"
+const sdk = new TuringVaultSDK({ privateKey: process.env.PRIVATE_KEY });
+
+// Full PoR flow: propose → validate → record → pin to IPFS
+const result = await sdk.createValidatedDecision({
+  analyst: { model: "glm-5", action: "swap", confidence: 0.85, reasoning: "ETH oversold" },
+  validator: { model: "claude-4.6", riskScore: 35, approved: true, reasoning: "Risk acceptable" },
+  targetAsset: "WETH",
 });
-// → On-chain proof + IPFS reasoning hash
+// → { proposalId, decisionId, txHash, ipfsCid, approved }
+
+// Read-only (no key needed)
+const stats = await new TuringVaultSDK().getConsensusRate();
+// → { approved: 1, rejected: 19, total: 20 }
 ```
 
 See [`sdk/README.md`](./sdk/README.md) for full documentation.
