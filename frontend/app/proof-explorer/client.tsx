@@ -111,7 +111,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
               { 
                 phase: 'AI INTENT',
                 content: 'Swap ETH → mUSD',
-                detail: 'Nansen Smart Money + F&G signal → 78% confidence',
+                detail: 'Market intelligence + Fear & Greed signal → 78% confidence',
                 color: 'border-white/10',
                 textColor: 'text-white/70',
                 dot: 'bg-white/30'
@@ -332,21 +332,21 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
           </div>
         </section>
 
-        {/* ═══ PARTNER INTEGRATIONS ═══ */}
+        {/* ═══ ECOSYSTEM PROOF STACK ═══ */}
         <section className="p-6 rounded-xl border border-white/5 bg-white/[0.015]">
-          <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider">Integrated Partners</h2>
+          <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider">Ecosystem Stack Used In This Proof</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
             {[
-              { name: 'Nansen', role: 'Smart Money intelligence via MCP', detail: '36 on-chain analytics tools' },
-              { name: 'Merchant Moe', role: 'DEX execution layer', detail: 'Liquidity Book Router v2.1' },
-              { name: 'Bybit', role: 'Web3 wallet access', detail: 'RainbowKit connector' },
-              { name: 'Byreal', role: 'Perps signals & execution', detail: 'RSI, funding, OI data feed' },
-              { name: 'Z.ai', role: 'Primary AI analyst', detail: 'GLM-5 via AWS Bedrock' },
-              { name: 'Tencent Cloud', role: 'KMS HSM signing', detail: 'SECP256K1 hardware keys' },
-              { name: 'Ondo Finance', role: 'RWA yield target', detail: 'USDY tokenized T-Bills' },
-              { name: 'Mantle', role: 'L2 infrastructure', detail: '4 Sourcify-verified contracts' },
-              { name: 'Pinata', role: 'IPFS proof storage', detail: 'Reasoning & Agent Cards' },
-              { name: 'Anthropic', role: 'Adversarial validator', detail: 'Claude 4.6 via Bedrock' },
+              { name: 'Nansen', role: 'Detects smart money & wallet signals', detail: 'MCP Protocol · 36 analytics tools' },
+              { name: 'Merchant Moe', role: 'Approved execution route', detail: 'Liquidity Book Router v2.1' },
+              { name: 'Byreal', role: 'Perps funding/OI risk signal', detail: 'RSI + funding rate data feed' },
+              { name: 'Bybit', role: 'Agentic wallet & trading UX target', detail: 'Web3 ecosystem connector' },
+              { name: 'Z.ai', role: 'GLM-5 primary analyst reasoning', detail: 'Aggressive alpha identification' },
+              { name: 'Tencent Cloud', role: 'KMS signing pipeline', detail: 'SECP256K1 hardware HSM' },
+              { name: 'Ondo Finance', role: 'RWA yield allocation target', detail: 'USDY tokenized T-Bills' },
+              { name: 'Mantle', role: 'Immutable proof layer', detail: '4 Sourcify-verified contracts' },
+              { name: 'Pinata', role: 'Reasoning artifact storage', detail: 'IPFS-pinned Agent Cards' },
+              { name: 'Anthropic', role: 'Adversarial validation model', detail: 'Claude 4.6 via Bedrock' },
             ].map((p, i) => (
               <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] hover:border-white/10 transition-colors">
                 <p className="text-xs font-semibold text-white/80 mb-0.5">{p.name}</p>
