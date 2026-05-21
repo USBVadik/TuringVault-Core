@@ -359,6 +359,7 @@ export default function Home() {
           </div>
         </footer>
       </main>
+      <RiskMascot varLevel={95} />
     </>
   );
 }
@@ -395,6 +396,27 @@ function parseReasoning(hash: string): string {
   } catch {
     return hash.substring(0, 60);
   }
+}
+
+/* ═══ RISK STATE MASCOT ═══ */
+function RiskMascot({ varLevel }: { varLevel: number }) {
+  const state = varLevel < 50 ? 'calm' : varLevel < 150 ? 'alert' : varLevel < 300 ? 'warning' : 'blocked';
+  const config = {
+    calm: { emoji: '🟢', label: 'Calm', color: 'border-green-500/30 bg-green-500/5', pulse: '' },
+    alert: { emoji: '🟡', label: 'Supervised', color: 'border-yellow-500/30 bg-yellow-500/5', pulse: '' },
+    warning: { emoji: '🟠', label: 'High VaR', color: 'border-orange-500/30 bg-orange-500/5', pulse: 'animate-pulse' },
+    blocked: { emoji: '🔴', label: 'Blocked', color: 'border-red-500/30 bg-red-500/5', pulse: 'animate-pulse' },
+  }[state];
+
+  return (
+    <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 px-3 py-2 rounded-full border backdrop-blur-md ${config.color} ${config.pulse}`}>
+      <span className="text-lg">{config.emoji}</span>
+      <div className="text-xs">
+        <p className="text-white/70 font-medium">{config.label}</p>
+        <p className="text-white/30 font-mono text-[10px]">VaR: {varLevel} bps</p>
+      </div>
+    </div>
+  );
 }
 
 /* ═══ REASONING LINES (simulated live feed) ═══ */
