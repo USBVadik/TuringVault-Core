@@ -11,10 +11,17 @@
  *   - Above threshold: AI proposes, human approves via intent queue
  */
 
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
-const _env = require("dotenv").parse(require("fs").readFileSync(require("path").resolve(__dirname, "../../.env")));
-process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
-process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
+const path = require("path");
+const fs = require("fs");
+const envPath = path.resolve(__dirname, "../../.env");
+if (fs.existsSync(envPath)) {
+  require("dotenv").config({ path: envPath });
+  const _env = require("dotenv").parse(fs.readFileSync(envPath));
+  if (_env.AWS_ACCESS_KEY_ID) process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
+  if (_env.AWS_SECRET_ACCESS_KEY) process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
+} else {
+  require("dotenv").config();
+}
 
 const { ethers } = require("ethers");
 const { getMultiAgentDecision } = require("./multiAgent");
@@ -22,8 +29,6 @@ const { getUnifiedMarketContext } = require("./unifiedMarketData");
 const { MerchantMoeDEX } = require("../dex/merchantMoe");
 const { RWAModule } = require("../rwa/usdyModule");
 const { TencentKMSCrypto } = require("../kms/tencentKMS");
-const fs = require("fs");
-const path = require("path");
 
 // ═══ Configuration ═══
 const CONFIG = {
