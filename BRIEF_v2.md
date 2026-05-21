@@ -45,15 +45,16 @@ AI-агенты уже управляют капиталом on-chain, но:
 ```
 VaR < 50 bps  → AUTONOMOUS: AI исполняет без вмешательства человека
 VaR 50-150    → SUPERVISED: AI предлагает, человек одобряет через intent queue
-VaR > 300     → BLOCKED: Слишком рискованно, действие отменяется
+VaR > 150     → BLOCKED: Слишком рискованно, действие отменяется
 ```
 - Не бинарное on/off — непрерывная шкала автономии на основе Value-at-Risk
 - Smart contract проверяет перед исполнением (Pre-Action Check)
 
-### 3.4. Hardware-Secured Signing (Tencent KMS)
+### 3.4. Hardware-Secured Signing Pipeline (Tencent KMS-compatible)
 - AI генерирует НАМЕРЕНИЯ (intents), никогда не касается приватных ключей
-- Tencent Cloud KMS HSM подписывает только после Pre-Action Check
-- Pipeline: DER parse → secp256k1 recovery → EIP-2 (low-S) → EIP-155 (chain-id)
+- Full DER → secp256k1 recovery → EIP-2 (low-S) → EIP-155 (chain-id) pipeline implemented
+- Production mode: Tencent Cloud KMS HSM подписывает только после Pre-Action Check
+- Demo mode: Cryptographically valid simulation with identical pipeline stages
 - Ключ физически недоступен для AI, даже при компрометации модели
 
 ### 3.5. Self-Evolution with Safety Validator

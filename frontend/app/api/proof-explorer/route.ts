@@ -5,8 +5,9 @@ const RPC_URL = 'https://rpc.mantle.xyz';
 
 const CONTRACTS = {
   DECISION_LOG: '0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5',
-  VALIDATION: '0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705',
+  VALIDATION_REGISTRY: '0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6',
   IDENTITY: '0x6f862802e0d5463DF18d267e422347BeCacc28bD',
+  REPUTATION: '0xC78119F3274B05046Ac7c38a14298a6cbD946e1a',
 };
 
 const DECISION_LOG_ABI = [
@@ -15,8 +16,11 @@ const DECISION_LOG_ABI = [
   'function successfulSwaps() view returns (uint256)',
 ];
 
-const VALIDATION_ABI = [
-  'function getSummary(uint256 agentId) view returns (uint256 totalRequests, uint256 totalResponses, uint256 approved, uint256 rejected, uint256 avgScore)',
+const VALIDATION_REGISTRY_ABI = [
+  'function totalProposals() view returns (uint256)',
+  'function totalApproved() view returns (uint256)',
+  'function totalRejected() view returns (uint256)',
+  'function getConsensusRate() view returns (uint256 approved, uint256 rejected, uint256 total)',
 ];
 
 const IDENTITY_ABI = [
@@ -28,15 +32,15 @@ export async function GET() {
     const provider = new ethers.JsonRpcProvider(RPC_URL);
     
     const decisionLog = new ethers.Contract(CONTRACTS.DECISION_LOG, DECISION_LOG_ABI, provider);
-    const validation = new ethers.Contract(CONTRACTS.VALIDATION, VALIDATION_ABI, provider);
+    const validationRegistry = new ethers.Contract(CONTRACTS.VALIDATION_REGISTRY, VALIDATION_REGISTRY_ABI, provider);
     const identity = new ethers.Contract(CONTRACTS.IDENTITY, IDENTITY_ABI, provider);
 
     // Fetch all data in parallel
-    const [totalDecisions, recentDecisions, tokenURI, validationSummary] = await Promise.all([
+    const [totalDecisions, recentDecisions, tokenURI, consensusRate] = await Promise.all([
       decisionLog.totalDecisions(),
       decisionLog.getRecentDecisions(20),
       identity.tokenURI(0),
-      validation.getSummary(0).catch(() => null),
+      validationRegistry.getConsensusRate().catch(() => null),
     ]);
 
     // Parse decisions
@@ -51,14 +55,17 @@ export async function GET() {
       txHash: d[7],
     }));
 
-    // Fetch Agent Card from IPFS
+    // Fetch Agent Card from IPFS (skip in dev for speed)
     let agentCard = null;
     if (tokenURI) {
       const cid = tokenURI.replace('ipfs://', '');
       try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
         const ipfsRes = await fetch(`https://ipfs.io/ipfs/${cid}`, { 
-          signal: AbortSignal.timeout(5000) 
+          signal: controller.signal
         });
+        clearTimeout(timeout);
         if (ipfsRes.ok) {
           agentCard = await ipfsRes.json();
         }
@@ -67,15 +74,16 @@ export async function GET() {
       }
     }
 
-    // Parse validation summary
+    // Parse validation consensus from registry
     let validationData = null;
-    if (validationSummary) {
+    if (consensusRate) {
       validationData = {
-        totalRequests: Number(validationSummary[0]),
-        totalResponses: Number(validationSummary[1]),
-        approved: Number(validationSummary[2]),
-        rejected: Number(validationSummary[3]),
-        avgScore: Number(validationSummary[4]),
+        totalApproved: Number(consensusRate[0]),
+        totalRejected: Number(consensusRate[1]),
+        totalProposals: Number(consensusRate[2]),
+        consensusRate: Number(consensusRate[2]) > 0 
+          ? Math.round((Number(consensusRate[0]) / Number(consensusRate[2])) * 100) 
+          : 0,
       };
     }
 

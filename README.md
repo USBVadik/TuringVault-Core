@@ -140,7 +140,7 @@ Low volatility + high confidence = full autonomy. Market stress = human oversigh
 | **Nansen** | MCP Protocol (24 tools) | Smart Money tracking, token scoring, wallet profiling |
 | **Byreal** | Perps CLI + RealClaw | Institutional execution — CLMM + perpetual futures |
 | **Merchant Moe** | LB Router v2.1 | On-chain DEX quotes with bin-step pricing |
-| **Mantle** | ERC-8004 + native DeFi | Chain infrastructure, 5 verified contracts |
+| **Mantle** | ERC-8004 + native DeFi | Chain infrastructure, 5 deployed contracts (4 Sourcify-verified) |
 | **Bybit** | Web3 Wallet | End-user access via RainbowKit connector |
 | **Ondo Finance** | USDY (RWA) | Tokenized US T-Bills, adaptive yield allocation |
 
@@ -233,7 +233,7 @@ cd frontend && npm install && npm run dev
 - Risk firewall proof: 19/20 unsafe proposals blocked
 
 ### 🤖 Agentic Wallets & Economy
-- Full ERC-8004 implementation (5 contracts, all verified on Sourcify)
+- Full ERC-8004 implementation (5 contracts, 4 verified on Sourcify)
 - Agent Identity as NFT with evolving IPFS metadata
 - Tencent Cloud KMS pipeline — hardware-secured signing
 - Pre-Action Checks as on-chain governance gates
