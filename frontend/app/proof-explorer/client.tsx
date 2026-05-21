@@ -111,7 +111,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
               { 
                 phase: 'AI INTENT',
                 content: 'Swap ETH → mUSD',
-                detail: '78% confidence, Fear & Greed = 27',
+                detail: 'Nansen Smart Money + F&G signal → 78% confidence',
                 color: 'border-white/10',
                 textColor: 'text-white/70',
                 dot: 'bg-white/30'
@@ -309,13 +309,13 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
           <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider">Decision Pipeline</h2>
           <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2">
             {[
-              { label: 'Market Data', sub: '5 real-time sources', color: 'from-blue-500/20 to-blue-500/5' },
+              { label: 'Market Data', sub: 'Nansen MCP + CoinGecko + DeFiLlama', color: 'from-blue-500/20 to-blue-500/5' },
               { label: 'GLM-5 Analyst', sub: 'Z.ai reasoning', color: 'from-purple-500/20 to-purple-500/5' },
               { label: 'Claude 4.6 Validator', sub: 'Adversarial check', color: 'from-orange-500/20 to-orange-500/5' },
               { label: 'VaR Gate', sub: '<50 auto · 50-150 supervised · >150 blocked', color: 'from-red-500/20 to-red-500/5' },
               { label: 'KMS Sign', sub: 'Tencent Cloud HSM', color: 'from-yellow-500/20 to-yellow-500/5' },
-              { label: 'On-Chain', sub: '4 Mantle contracts', color: 'from-green-500/20 to-green-500/5' },
-              { label: 'IPFS Proof', sub: 'Pinata pinned', color: 'from-cyan-500/20 to-cyan-500/5' },
+              { label: 'Execution', sub: 'Merchant Moe LB + Byreal Perps', color: 'from-green-500/20 to-green-500/5' },
+              { label: 'On-Chain', sub: 'Mantle · IPFS Pinata', color: 'from-cyan-500/20 to-cyan-500/5' },
             ].map((s, i) => (
               <div key={i} className="flex items-center">
                 <div className={`flex flex-col items-center min-w-[90px] p-3 rounded-lg bg-gradient-to-b ${s.color}`}>
@@ -327,6 +327,31 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                     <svg className="w-4 h-4 text-white/15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                   </div>
                 )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══ PARTNER INTEGRATIONS ═══ */}
+        <section className="p-6 rounded-xl border border-white/5 bg-white/[0.015]">
+          <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider">Integrated Partners</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {[
+              { name: 'Nansen', role: 'Smart Money intelligence via MCP', detail: '36 on-chain analytics tools' },
+              { name: 'Merchant Moe', role: 'DEX execution layer', detail: 'Liquidity Book Router v2.1' },
+              { name: 'Bybit', role: 'Web3 wallet access', detail: 'RainbowKit connector' },
+              { name: 'Byreal', role: 'Perps signals & execution', detail: 'RSI, funding, OI data feed' },
+              { name: 'Z.ai', role: 'Primary AI analyst', detail: 'GLM-5 via AWS Bedrock' },
+              { name: 'Tencent Cloud', role: 'KMS HSM signing', detail: 'SECP256K1 hardware keys' },
+              { name: 'Ondo Finance', role: 'RWA yield target', detail: 'USDY tokenized T-Bills' },
+              { name: 'Mantle', role: 'L2 infrastructure', detail: '4 Sourcify-verified contracts' },
+              { name: 'Pinata', role: 'IPFS proof storage', detail: 'Reasoning & Agent Cards' },
+              { name: 'Anthropic', role: 'Adversarial validator', detail: 'Claude 4.6 via Bedrock' },
+            ].map((p, i) => (
+              <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] hover:border-white/10 transition-colors">
+                <p className="text-xs font-semibold text-white/80 mb-0.5">{p.name}</p>
+                <p className="text-[10px] text-white/40 leading-tight">{p.role}</p>
+                <p className="text-[9px] text-white/20 mt-1">{p.detail}</p>
               </div>
             ))}
           </div>
