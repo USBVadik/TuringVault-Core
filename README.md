@@ -35,35 +35,35 @@ TuringVault is NOT a trading bot. It's a **cryptographically-verified AI cogniti
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                      TRUSTLESS COGNITIVE TRADING LOOP                             │
-├──────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   ┌──────────────────┐ │
-│  │   CONTEXT    │   │  COGNITIVE   │   │  EXECUTION   │   │   ATTESTATION    │ │
-│  │ ACQUISITION  │──▶│  SYNTHESIS   │──▶│    ENGINE     │──▶│   (ON-CHAIN)     │ │
-│  └──────────────┘   └──────────────┘   └──────────────┘   └──────────────────┘ │
-│        │                    │                   │                    │            │
+┌───────────────────────────────────────────────────────────────────────────────┐
+│                      TRUSTLESS COGNITIVE TRADING LOOP                         │
+├───────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
+│  ┌──────────────┐   ┌─────────────┐   ┌──────────────┐   ┌──────────────────┐ │
+│  │   CONTEXT    │   │  COGNITIVE  │   │  EXECUTION   │   │   ATTESTATION    │ │
+│  │ ACQUISITION  │──▶│  SYNTHESIS  │──▶│    ENGINE    │──▶│   (ON-CHAIN)     │ │
+│  └──────────────┘   └─────────────┘   └──────────────┘   └──────────────────┘ │
+│        │                  │                  │                   │            │
 │  ┌─────┴──────┐     ┌─────┴──────┐     ┌─────┴──────┐     ┌──────┴─────────┐  │
 │  │ Nansen MCP │     │ Analyst    │     │ Byreal     │     │ ERC-8004       │  │
-│  │ CoinGecko  │     │ (GLM-5)   │     │ Perps CLI  │     │ Identity       │  │
+│  │ CoinGecko  │     │ (GLM-5)    │     │ Perps CLI  │     │ Identity       │  │
 │  │ DeFiLlama  │     │     ↓      │     │ Merchant   │     │ Validation     │  │
 │  │ Merchant   │     │ Validator  │     │ Moe LB v2  │     │ Reputation     │  │
 │  │ Moe Bins   │     │ (Claude)   │     │ Tencent    │     │ Decision Log   │  │
 │  │ Fear&Greed │     │     ↓      │     │ KMS HSM    │     │ Router         │  │
 │  │ USDY Yield │     │ Consensus  │     │ Sign+Send  │     │ IPFS Pinata    │  │
 │  └────────────┘     └────────────┘     └────────────┘     └────────────────┘  │
-│                                                                                  │
-│                           ┌──────────────────────┐                               │
-│                           │  SELF-EVOLUTION LOOP │                               │
-│                           │  Read perf → Reflect │                               │
-│                           │  → Validate → IPFS   │                               │
-│                           │  → setAgentURI() TX  │                               │
-│                           └──────────────────────┘                               │
-│                                                                                  │
-│  Chain: Mantle Mainnet (5000)  │  AI: Z.ai GLM-5 + Claude Sonnet 4.6 (Bedrock) │
-│  VaR Gate: <50 autonomous │ 50-150 supervised │ >300 blocked                    │
-└──────────────────────────────────────────────────────────────────────────────────┘
+│                                                                               │
+│                           ┌──────────────────────┐                            │
+│                           │  SELF-EVOLUTION LOOP │                            │
+│                           │  Read perf → Reflect │                            │
+│                           │  → Validate → IPFS   │                            │
+│                           │  → setAgentURI() TX  │                            │
+│                           └──────────────────────┘                            │
+│                                                                               │
+│  Chain: Mantle Mainnet (5000)  │  AI: Z.ai GLM-5 + Claude Sonnet 4.6 (Bedrock)│
+│  VaR Gate: <50 autonomous │ 50-150 supervised │ >300 blocked                  │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
