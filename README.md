@@ -7,7 +7,7 @@
 [![Mantle Mainnet](https://img.shields.io/badge/Mantle-Mainnet_Live-00D395)](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD)
 [![ERC-8004](https://img.shields.io/badge/ERC--8004-Agent_Identity-blue)](https://eips.ethereum.org/EIPS/eip-8004)
 [![Tests](https://img.shields.io/badge/tests-110_passing-brightgreen)]()
-[![Safety](https://img.shields.io/badge/risk_firewall-19%2F20_blocked-red)]()
+[![Safety](https://img.shields.io/badge/risk_firewall-31%2F36_blocked-red)]()
 [![Evolution](https://img.shields.io/badge/self--evolving-4_iterations-orange)]()
 
 ---
@@ -40,14 +40,15 @@ TuringVault is **not a trading bot**. It's a trust infrastructure layer that ens
 TuringVault's risk firewall is working as designed:
 
 | Metric | Value | Meaning |
-|--------|-------|---------|
-| **Total Proposals** | 20 | Analyst proposed 20 market actions |
-| **Blocked by Validator** | 19 | Risk firewall rejected 19 unsafe proposals |
-| **Approved Executions** | 1 | Only 1 action met all safety thresholds |
+|--------|-------|---------| 
+| **Total Proposals** | 36 | Analyst proposed 36 market actions |
+| **Blocked by Validator** | 31 | Risk firewall rejected 31 unsafe/low-confidence proposals |
+| **Approved Executions** | 5 | Only 5 actions met all safety thresholds |
+| **Real Swaps** | 2 | USDT0→mETH, USDT0→WMNT via Merchant Moe Router |
 | **Consensus Rate** | 100% | Every decision went through full dual-model pipeline |
 | **VaR Gate Active** | ✅ | Autonomous / Supervised / Blocked tiers enforced |
 
-> **19/20 blocked is not failure — it's proof the safety layer works.** A risk firewall that blocks nothing is security theater.
+> **31/36 blocked is not failure — it's proof the safety layer works.** The agent calculated slippage risk on thin Mantle DEX pools and refused to execute — protecting capital in a Fear=29 market. A risk firewall that blocks nothing is security theater.
 
 ---
 
@@ -235,9 +236,9 @@ cd frontend && npm install && npm run dev
 ### 🏆 AI Trading & Strategy (Primary)
 - Dual-model consensus prevents impulsive trades
 - VaR-based autonomy (Human vs AI mode)
-- Real on-chain DEX quotes (Merchant Moe LB v2.1)
-- Byreal Perps CLI for institutional execution
-- Risk firewall proof: 19/20 unsafe proposals blocked
+- Real on-chain DEX swaps via Merchant Moe LB v2.1 (2 executed)
+- Byreal Perps CLI for institutional hedging execution
+- Risk firewall proof: 31/36 unsafe proposals blocked in live Fear=29 market
 
 ### 🤖 Agentic Wallets & Economy
 - Full ERC-8004 implementation (5 contracts, 4 verified on Sourcify)
@@ -245,6 +246,29 @@ cd frontend && npm install && npm run dev
 - Tencent Cloud KMS pipeline — hardware-secured signing
 - Pre-Action Checks as on-chain governance gates
 - Agent Trust SDK for ecosystem builders
+
+---
+
+## 🌐 Ecosystem & Sponsor Technology
+
+| Sponsor | Integration | Details |
+|---------|-------------|---------|
+| **Z.ai (GLM-5)** | Analyst Agent | 745B-parameter model for long-horizon portfolio reasoning. Chosen over GPT-4 for superior agentic planning capabilities |
+| **Nansen MCP** | On-chain Intelligence | Real-time smart money flows across 25+ chains via Model Context Protocol. Powers the Context Acquisition layer |
+| **Mantle Network** | Execution & Settlement | All 5 ERC-8004 contracts deployed on mainnet. Low gas enables per-decision on-chain logging ($0.001/tx) |
+| **Byreal Perps** | Hedging Layer | Hyperliquid perpetual futures via CLI. Agent can open protective shorts when DEX slippage is too high |
+| **Merchant Moe** | DEX Execution | Liquidity Book v2.1 swaps (USDT0→mETH, USDT0→WMNT). Bin-level liquidity checks prevent slippage losses |
+| **Pinata/IPFS** | Reasoning Storage | Every decision's full reasoning chain pinned to IPFS before on-chain hash recording |
+
+### Why ERC-8004 over Custom Reputation?
+
+Many competitors (NoBanks, Mensa) use bespoke reputation contracts. TuringVault implements [ERC-8004 (Trustless Agents)](https://eips.ethereum.org/EIPS/eip-8004) — the emerging standard for on-chain agent identity:
+
+- **Identity Registry** → Agent exists as verifiable NFT (not just an EOA)
+- **Validation Registry** → Pre-action checks enforced by authorized validators
+- **Reputation Registry** → Performance history portable across protocols
+- **EIP-7702 compatible** → Gas sponsorship for reputation updates = zero-cost UX for monitoring
+- **Composable** → Any protocol can query agent trust score without custom integrations
 
 ---
 
@@ -258,7 +282,7 @@ cd frontend && npm install && npm run dev
 | **Self-Improvement** | Manual prompt tweaking | Autonomous evolution with safety validator |
 | **Trust** | "Trust me bro" | Verifiable decision provenance (ERC-8004) |
 | **Autonomy** | Binary (on/off) | Continuous (VaR-based sliding scale) |
-| **Safety** | Hope it works | Risk firewall with on-chain proof (19/20 blocked) |
+| **Safety** | Hope it works | Risk firewall with on-chain proof (31/36 blocked) |
 
 ---
 
