@@ -13,6 +13,7 @@ const CONTRACTS = {
   IDENTITY: '0x6f862802e0d5463DF18d267e422347BeCacc28bD' as `0x${string}`,
   DECISION_LOG: '0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5' as `0x${string}`,
   VALIDATION: '0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705' as `0x${string}`,
+  VALIDATION_REGISTRY: '0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6' as `0x${string}`,
   REPUTATION: '0xC78119F3274B05046Ac7c38a14298a6cbD946e1a' as `0x${string}`,
   ROUTER: '0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001' as `0x${string}`,
 };
@@ -93,13 +94,13 @@ export default function Home() {
     address: CONTRACTS.DECISION_LOG, abi: DECISION_LOG_ABI, functionName: 'getRecentDecisions', args: [BigInt(10)],
   });
   const { data: totalProposals } = useReadContract({
-    address: CONTRACTS.VALIDATION, abi: VALIDATION_ABI, functionName: 'totalProposals',
+    address: CONTRACTS.VALIDATION_REGISTRY, abi: VALIDATION_ABI, functionName: 'totalProposals',
   });
   const { data: totalApproved } = useReadContract({
-    address: CONTRACTS.VALIDATION, abi: VALIDATION_ABI, functionName: 'totalApproved',
+    address: CONTRACTS.VALIDATION_REGISTRY, abi: VALIDATION_ABI, functionName: 'totalApproved',
   });
   const { data: totalRejected } = useReadContract({
-    address: CONTRACTS.VALIDATION, abi: VALIDATION_ABI, functionName: 'totalRejected',
+    address: CONTRACTS.VALIDATION_REGISTRY, abi: VALIDATION_ABI, functionName: 'totalRejected',
   });
 
   // ═══ WRITE CONTRACT ═══  (kept for future deposit feature)
