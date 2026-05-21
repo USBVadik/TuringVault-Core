@@ -21,6 +21,7 @@ const VALIDATION_REGISTRY_ABI = [
   'function totalApproved() view returns (uint256)',
   'function totalRejected() view returns (uint256)',
   'function getConsensusRate() view returns (uint256 approved, uint256 rejected, uint256 total)',
+  'function getRecentProposals(uint256 count) view returns (tuple(uint256 timestamp, string action, string targetAsset, uint256 amountIn, uint256 confidence, string reasoning, uint256 validatorConfidence, string validatorReasoning, uint256 riskScore, uint8 status, uint256 validatedAt, bytes32 executionTxHash)[])',
 ];
 
 const IDENTITY_ABI = [
@@ -36,29 +37,52 @@ export async function GET() {
     const identity = new ethers.Contract(CONTRACTS.IDENTITY, IDENTITY_ABI, provider);
 
     // Fetch all data in parallel
-    const [totalDecisions, recentDecisions, tokenURI, consensusRate] = await Promise.all([
+    const [totalDecisions, recentDecisions, tokenURI, consensusRate, recentProposals] = await Promise.all([
       decisionLog.totalDecisions(),
       decisionLog.getRecentDecisions(20),
       identity.tokenURI(0),
       validationRegistry.getConsensusRate().catch(() => null),
+      validationRegistry.getRecentProposals(20).catch(() => []),
     ]);
 
-    // Parse decisions
-    const decisions = recentDecisions.map((d: ethers.Result) => ({
-      timestamp: Number(d[0]),
-      action: d[1],
-      targetAsset: d[2],
-      amountIn: d[3].toString(),
-      amountOut: d[4].toString(),
-      confidence: Number(d[5]),
-      reasoningHash: d[6],
-      txHash: d[7],
+    // Parse proposals to get status mapping
+    const proposals = (recentProposals as ethers.Result[]).map((p: ethers.Result) => ({
+      timestamp: Number(p[0]),
+      action: p[1],
+      targetAsset: p[2],
+      confidence: Number(p[4]),
+      reasoning: p[5],
+      validatorReasoning: p[7],
+      riskScore: Number(p[8]),
+      status: ['Pending', 'Approved', 'Rejected', 'Expired'][Number(p[9])],
     }));
 
-    // Fetch Agent Card from IPFS (skip in dev for speed)
+    // Parse decisions and match with proposals by timestamp proximity
+    const decisions = (recentDecisions as ethers.Result[]).map((d: ethers.Result) => {
+      const ts = Number(d[0]);
+      // Find matching proposal (closest timestamp within 60s)
+      const matchingProposal = proposals.find(p => Math.abs(p.timestamp - ts) < 60);
+      
+      return {
+        timestamp: ts,
+        action: d[1],
+        targetAsset: d[2],
+        amountIn: d[3].toString(),
+        amountOut: d[4].toString(),
+        confidence: Number(d[5]),
+        reasoningHash: d[6],
+        txHash: d[7],
+        // Enriched from ValidationRegistry
+        status: matchingProposal?.status || (d[1] === 'hold' ? 'Approved' : 'Rejected'),
+        riskScore: matchingProposal?.riskScore || 0,
+        validatorReasoning: matchingProposal?.validatorReasoning || '',
+      };
+    });
+
+    // Fetch Agent Card from IPFS
     let agentCard = null;
     if (tokenURI) {
-      const cid = tokenURI.replace('ipfs://', '');
+      const cid = (tokenURI as string).replace('ipfs://', '');
       try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 3000);
@@ -70,11 +94,11 @@ export async function GET() {
           agentCard = await ipfsRes.json();
         }
       } catch {
-        // IPFS timeout is OK — we still have on-chain data
+        // IPFS timeout is OK
       }
     }
 
-    // Parse validation consensus from registry
+    // Parse validation consensus
     let validationData = null;
     if (consensusRate) {
       validationData = {

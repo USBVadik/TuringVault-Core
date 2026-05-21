@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TuringVault — AI-Managed RWA Router",
+  title: "TuringVault — Proof-of-Reasoning Trust Firewall",
   description: "Autonomous AI agent managing real-world assets on Mantle Network",
 };
 
