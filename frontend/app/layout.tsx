@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import Navbar from "./components/Navbar";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -24,7 +25,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans bg-[#06060e] text-gray-200 min-h-screen antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          <div className="pt-14">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

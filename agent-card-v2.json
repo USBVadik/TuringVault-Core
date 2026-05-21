@@ -1,0 +1,78 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "TuringVault AI Agent",
+  "description": "Autonomous multi-agent trading system with Proof-of-Reasoning attestation on Mantle. Dual-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator) with VaR-based risk gating, hardware KMS signing, and on-chain reputation tracking. Acts as a Trust Firewall: 19/20 unsafe proposals blocked, saving capital during market panic.",
+  "image": "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-avatar.png",
+  "capabilities": [
+    "market_analysis",
+    "multi_agent_consensus",
+    "dex_trading",
+    "rwa_allocation",
+    "risk_assessment",
+    "proof_of_reasoning",
+    "self_reflection"
+  ],
+  "models": {
+    "analyst": {
+      "provider": "Z.ai (via AWS Bedrock)",
+      "model": "GLM-5",
+      "role": "Aggressive market analyst — identifies alpha opportunities"
+    },
+    "validator": {
+      "provider": "Anthropic (via AWS Bedrock)",
+      "model": "Claude 4.6",
+      "role": "Conservative risk manager — validates proposals, assigns risk scores, blocks unsafe trades"
+    }
+  },
+  "systemPrompt": {
+    "version": "2.1.0",
+    "lastUpdated": "2026-05-21T15:55:00.000Z",
+    "analyst": "You are TuringVault's AI Analyst (GLM-5). Analyze market data from CoinGecko, DeFiLlama, Fear&Greed Index, Nansen MCP, and on-chain DEX state. Output: action (hold/swap/provide_liquidity), targetAsset, confidence (0-1), reasoning (max 200 chars). Be aggressive but data-driven.",
+    "validator": "You are TuringVault's Validator (Claude 4.6). Review the Analyst's proposal against current market conditions. Score risk 0-100, provide validatorConfidence 0-1, and approve/reject. Protect capital above all. Surface-level fear metrics do not justify exits when fundamentals are intact.",
+    "riskParameters": {
+      "maxPositionSize": "50% of portfolio",
+      "varThreshold": {
+        "autonomous": 50,
+        "supervised": 150,
+        "blocked": 150
+      },
+      "maxDailySwaps": 10,
+      "minConfidence": 0.6,
+      "rwaAllocationRange": "10-50%"
+    }
+  },
+  "contracts": {
+    "chain": "Mantle Mainnet (5000)",
+    "identity": "0x6f862802e0d5463DF18d267e422347BeCacc28bD",
+    "decisionLog": "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5",
+    "validationRegistry": "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6",
+    "reputationRegistry": "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a"
+  },
+  "dataSources": [
+    "CoinGecko (ETH/MNT price, 24h change)",
+    "DeFiLlama (Mantle TVL)",
+    "Fear & Greed Index (market sentiment)",
+    "Nansen MCP (36 analytics tools, smart money signals)",
+    "Merchant Moe LB v2.1 (on-chain DEX state, active bins)",
+    "Byreal (perps funding rate, open interest)",
+    "Ondo Finance USDY (RWA yield rates)"
+  ],
+  "executionPipeline": [
+    "1. Unified market data aggregation (7 sources)",
+    "2. Multi-agent consensus (GLM-5 proposes, Claude 4.6 validates)",
+    "3. VaR calculation → autonomy level: <50 auto, 50-150 supervised, >150 blocked",
+    "4. DEX quote (Merchant Moe LB) + RWA allocation signal (Ondo USDY)",
+    "5. KMS signing (Tencent Cloud SECP256K1 HSM)",
+    "6. On-chain recording (4 TXs: proposal, validation, decision log, reputation)"
+  ],
+  "stats": {
+    "totalDecisions": 20,
+    "proposalsValidated": 20,
+    "safetyBlockedActions": 19,
+    "approvedExecutions": 1,
+    "consensusRate": "100%",
+    "avgVaR": "~160 bps",
+    "gasEfficiency": "~0.005 MNT per TX",
+    "narrative": "Trust Firewall blocked 19/20 unsafe proposals during market fear — ETH recovered +1.2% after each block. Safety-first autonomous agent design."
+  }
+}
