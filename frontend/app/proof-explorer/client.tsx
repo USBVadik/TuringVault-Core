@@ -562,12 +562,12 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
               <div className="mb-4">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-[10px] text-white/30">Risk Firewall Activation</span>
-                  <span className="text-xs text-red-400 font-mono font-bold">95%</span>
+                  <span className="text-xs text-red-400 font-mono font-bold">{validation ? `${Math.round(validation.totalRejected / (validation.totalRejected + validation.totalApproved) * 100)}%` : '—'}</span>
                 </div>
                 <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-red-600 via-red-500 to-orange-500 rounded-full animate-progress" />
                 </div>
-                <p className="text-[9px] text-white/20 mt-1">19 of 20 proposals blocked — system working as designed</p>
+                <p className="text-[9px] text-white/20 mt-1">{validation ? `${validation.totalRejected} of ${validation.totalRejected + validation.totalApproved} proposals blocked` : '—'} — system working as designed</p>
               </div>
 
               <div className="space-y-2 pt-2 border-t border-white/5">
@@ -584,9 +584,9 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                   <span className="text-[10px] text-red-400 font-mono font-medium">BLOCKED</span>
                 </div>
                 <div className="mt-2 pt-2 border-t border-white/5 space-y-1.5">
-                  <MetricRow label="Min Analyst Confidence" value="60%" />
-                  <MetricRow label="Min Validator Confidence" value="60%" />
-                  <MetricRow label="Max Risk Score" value="65/100" />
+                  <MetricRow label="Min Analyst Confidence" value="50%" />
+                  <MetricRow label="Min Validator Confidence" value="55%" />
+                  <MetricRow label="Max Risk Score" value="75/100" />
                   <MetricRow label="Proposal TTL" value="5 min" />
                 </div>
               </div>
