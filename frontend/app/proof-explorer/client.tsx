@@ -57,24 +57,32 @@ interface Props {
 // ═══ Scroll-triggered fade-in ═══
 function FadeIn({ children, delay = 0, className = '' }: { children: ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Mark as mounted (client-side) — start with opacity-0 only after hydration
+    setMounted(true);
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
-      { threshold: 0.1, rootMargin: '-30px' }
+      { threshold: 0.05, rootMargin: '100px' }
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    const fallback = setTimeout(() => setVisible(true), 1500);
+    return () => { observer.disconnect(); clearTimeout(fallback); };
   }, []);
+
+  // Before hydration: render fully visible (no flash of invisible content)
+  // After hydration: animate in
+  const isVisible = !mounted || visible;
 
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'} ${className}`}
-      style={{ transitionDelay: `${delay}s` }}
+      className={`${mounted ? 'transition-all duration-700 ease-out' : ''} ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'} ${className}`}
+      style={mounted ? { transitionDelay: `${delay}s` } : undefined}
     >
       {children}
     </div>
@@ -133,12 +141,18 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
   }
 
   return (
-    <div className="min-h-screen bg-[#06060a] text-white overflow-hidden">
+    <div className="min-h-screen text-white overflow-x-hidden relative" style={{ background: 'linear-gradient(180deg, #06060a 0%, #0a0812 40%, #080610 60%, #06060a 100%)' }}>
+      {/* Background effects */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute w-[600px] h-[600px] top-[-200px] left-[-100px] rounded-full blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)', animation: 'orbFloat 25s ease-in-out infinite' }} />
+        <div className="absolute w-[500px] h-[500px] bottom-[-150px] right-[-100px] rounded-full blur-[80px]" style={{ background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)', animation: 'orbFloat 30s ease-in-out infinite reverse' }} />
+        <div className="absolute w-[550px] h-[550px] bottom-[10%] left-[25%] rounded-full blur-[100px]" style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%)', animation: 'orbFloat 35s ease-in-out infinite', animationDelay: '-12s' }} />
+      </div>
       
       {/* ═══ FEATURED PROOF REPLAY ═══ */}
       <section className="relative overflow-hidden border-b border-white/5">
         {/* Atmospheric animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-950/30 via-[#06060a] to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-red-950/30 via-[#06060a] to-transparent pointer-events-none" />
         <div className="absolute top-10 left-1/4 w-[600px] h-[300px] bg-red-500/[0.05] rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute bottom-0 right-1/4 w-[400px] h-[200px] bg-green-500/[0.04] rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
         
@@ -630,7 +644,8 @@ const stats = await sdk.getConsensusRate();
         </div>
 
         {/* Footer */}
-        <footer className="pt-8 border-t border-white/5 text-center">
+        <footer className="pt-8 pb-12 border-t border-white/5 text-center relative">
+          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-purple-900/[0.03] to-transparent" />
           <p className="text-[10px] text-white/15 shimmer-text">
             TuringVault — Proof-of-Reasoning infrastructure for autonomous agents on Mantle
           </p>

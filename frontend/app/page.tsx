@@ -124,6 +124,7 @@ export default function Home() {
         <div className="orb orb-1" />
         <div className="orb orb-2" />
         <div className="orb orb-3" />
+        <div className="orb orb-4" />
       </div>
       <div className="noise-overlay" />
       <div className="grid-bg" />
@@ -338,7 +339,8 @@ export default function Home() {
         </section>
 
         {/* ═══ CONTRACTS + FOOTER ═══ */}
-        <footer className="mt-16 pt-8 border-t border-white/5">
+        <footer className="mt-16 pt-8 pb-12 border-t border-white/5 relative">
+          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-purple-900/[0.03] to-transparent rounded-b-3xl" />
           <div className="flex flex-col items-center gap-4">
             <div className="flex flex-wrap gap-5 justify-center">
               {Object.entries(CONTRACTS).map(([name, addr]) => (
