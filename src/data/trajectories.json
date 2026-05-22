@@ -1,0 +1,187 @@
+[
+  {
+    "id": "traj_1779469035789",
+    "timestamp": "2026-05-22T16:57:15.789Z",
+    "proposalId": 61,
+    "analyst": {
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "confidence": 0.75,
+      "reasoning": "Fear at 28. Perps signal ETH Short (56). MNT -3.38%. Yield spread -1%. Risk-off to preserve capital amid bearish momentum.",
+      "direction": "neutral",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.68,
+      "riskScore": 28,
+      "reasoning": "This is a defensive risk-off swap to mUSD (stablecoin), not a directional leveraged trade. Approval criteria for defensive de-risking applies. Validating the Analyst's reasoning against raw signals: (1) Fear & Greed at 28 — CONFIRMED, genuine fear reading. (2) ETH Short signal from perps (RSI=52.2, score=56) — CONFIRMED, though score is moderate not strong. (3) MNT -3.38% 24h decline — CONFIRMED in price data. (4) Yield spread -1% mETH vs USDY — CONFIRMED bearish in raw signals. (5) Signal consensus BEARISH — CONFIRMED. The Analyst's reasoning accurately reflects the available data with no hallucinated numbers. The 20% allocation is conservative and well within the 40% threshold. Regime is HOLD with only 35% confidence and undefined signals — this ambiguity itself justifies partial de-risking. The empty risk factors array is a minor concern but the overall bearish signal stack supports the defensive posture. R:R framework for a stablecoin swap: downside is opportunity cost if ETH rallies, upside is capital preservation in a bearish/unclear regime — this is asymmetrically favorable given current signal stack. One flag: Analyst confidence of 75% appears slightly elevated given the regime confidence is only 35% and perps ETH short score is a moderate 56, not a high-conviction reading. However, this does not invalidate a small defensive allocation.",
+      "flaggedIssues": [
+        "Analyst confidence (75%) overstated relative to regime confidence (35%) and moderate perps score (56)",
+        "Risk factors array is empty — Analyst should have listed opportunity cost and potential ETH reversal risk",
+        "Smart money flow is neutral ($0.0M outflow) — does not actively confirm bearish thesis, merely does not contradict it",
+        "Single confirming perps signal (ETH short score 56) is below high-conviction threshold — approval granted only because action is defensive stablecoin swap, not directional trade"
+      ],
+      "recommendation": "approve — defensive 20% mUSD allocation is justified by bearish signal consensus, fear sentiment, negative yield spread, and unclear regime. Conservative size limits downside. Monitor for regime clarification before any further reallocation."
+    },
+    "consensus": true,
+    "regime": "HOLD",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2121.3,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "ambiguous",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 3
+    }
+  },
+  {
+    "id": "traj_1779469097750",
+    "timestamp": "2026-05-22T16:58:17.750Z",
+    "proposalId": 62,
+    "analyst": {
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "confidence": 0.75,
+      "reasoning": "Extreme Fear (28) + bearish perps funding (1.4%) signal oversold bounce pending, but negative mETH yield spread and outflows confirm downtrend. Wait for $2015 liq cascade.",
+      "direction": "neutral",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": false,
+      "validatorConfidence": 0.52,
+      "riskScore": 58,
+      "reasoning": "The HOLD action itself is low-risk and directionally appropriate given the HOLD regime, but several issues prevent approval. (1) CONFIDENCE MISMATCH: Analyst claims 75% confidence, but the regime confidence is only 35% and signals are explicitly 'mixed/unclear.' No basis exists for 75% confidence — this is a significant overstatement unsupported by the raw data. (2) CONTRADICTORY REASONING WITHOUT ACKNOWLEDGMENT: The Analyst cites 'Extreme Fear (28) + bearish perps funding (1.4%) signal oversold bounce pending' — but Fear & Greed of 28 does NOT automatically signal an oversold bounce; it is consistent with continued downtrend. The perps signals show ETH Short with RSI=52 and score=56, which is a weak short signal, not a bounce confirmation. The Analyst is selectively interpreting Fear as bullish without a confirming reversal signal. (3) FUNDING RATE MISREAD: Raw structured signals show funding rate as 'n/a% annualised → undefined.' The Analyst cites 'bearish perps funding (1.4%)' — this figure appears sourced from the ByReal perps table (ETH Short, funding=1.4%), but the structured signal explicitly marks funding as undefined/n/a. Cross-contaminating data sources without acknowledgment is a data integrity flag. (4) SMART MONEY MISCHARACTERIZED: Analyst states 'outflows confirm downtrend' but raw signal shows '$0.0M → NEUTRAL.' Zero outflow is NEUTRAL, not bearish confirmation. This is a hallucinated/misread data point. (5) RISK FACTORS ARRAY IS EMPTY: No risk factors listed despite bearish consensus, negative yield spread, and unclear regime — this is an incomplete risk assessment. (6) R:R NOT DEFINED: For a HOLD action, no explicit R:R is provided. While HOLD is inherently lower risk, the 20% mUSD allocation target implies a partial defensive rebalance, which requires justification. The reasoning does not define stop-loss logic or reward target for the rebalance. The action (HOLD) is not wrong in isolation, but the proposal contains at least two misread data points (smart money flow, funding rate sourcing), unjustified confidence inflation, and an empty risk register. These collectively fail the validation checklist.",
+      "flaggedIssues": [
+        "Analyst confidence 75% contradicts regime confidence of 35% — unjustified overstatement",
+        "Smart money flow misread: raw signal is NEUTRAL ($0.0M), Analyst claims 'outflows confirm downtrend'",
+        "Funding rate cross-contamination: structured signal marks funding as n/a/undefined, Analyst cites 1.4% from ByReal table without acknowledging source discrepancy",
+        "Fear & Greed 28 interpreted as 'oversold bounce pending' without any confirming reversal signal — selective/contradictory interpretation not acknowledged",
+        "Risk factors array is empty — incomplete risk assessment",
+        "No R:R ratio defined for the proposed 20% mUSD rebalance action"
+      ],
+      "recommendation": "reject"
+    },
+    "consensus": false,
+    "regime": "HOLD",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2120.85,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 4
+    }
+  },
+  {
+    "id": "traj_1779469156412",
+    "timestamp": "2026-05-22T16:59:16.412Z",
+    "proposalId": 63,
+    "analyst": {
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "confidence": 0.72,
+      "reasoning": "Fear at 28 with bearish consensus. High funding (1.4%) makes ETH short attractive. MNT underperforming (-3.4%). Risk-off to stablecoin preserves capital near $2k support.",
+      "direction": "neutral",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.71,
+      "riskScore": 28,
+      "reasoning": "The proposal is a defensive 20% swap to mUSD (stablecoin/risk-off), not a directional SWAP into a volatile asset. Approval criteria for risk-off moves require signals to justify de-risking — they do here. Fear & Greed at 28 (Fear) is confirmed. Signal consensus is explicitly BEARISH. MNT is down -3.4% in 24h, a real and verifiable data point. Yield spread at -1% is BEARISH and confirmed in raw signals. The regime is HOLD with only 35% confidence, meaning no bullish conviction exists to argue against de-risking. The 20% allocation is well within the 40% cap and is a partial, measured defensive move. R:R for a stablecoin conversion is asymmetric in favor of capital preservation: downside is opportunity cost if ETH rallies, upside is avoiding further drawdown toward $2014/$1908 liquidation levels. This easily clears 1.5:1 R:R given the bearish signal stack. FLAGGED ISSUES (minor, non-blocking): (1) Analyst cites 'high funding (1.4%) makes ETH short attractive' — this is a perps signal and not directly actionable in the current portfolio context (no perps position is being opened), so the reasoning is partially irrelevant but does not contradict the core de-risking thesis. (2) Risk Factors array is empty — Analyst should have listed opportunity cost and potential ETH recovery as risks. (3) Analyst confidence of 72% is slightly high given regime confidence of only 35% and neutral smart money flow, but the action itself (small defensive stablecoin move) does not require high confidence to be valid. Overall: defensive, small-size, signal-supported risk-off action in a bearish/unclear regime. APPROVE.",
+      "flaggedIssues": [
+        "Analyst confidence (72%) overstated relative to regime confidence (35%) and neutral smart money flow",
+        "Risk Factors array is empty — opportunity cost and ETH recovery scenario not acknowledged",
+        "Funding rate cited as justification is a perps signal not directly relevant to spot portfolio rebalancing — reasoning partially misaligned but non-blocking"
+      ],
+      "recommendation": "approve"
+    },
+    "consensus": true,
+    "regime": "HOLD",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2120.34,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "ambiguous",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 6
+    }
+  },
+  {
+    "id": "traj_1779469214247",
+    "timestamp": "2026-05-22T17:00:14.247Z",
+    "proposalId": 64,
+    "analyst": {
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "confidence": 0.75,
+      "reasoning": "Extreme Fear (28) + bearish perps signals. High funding rates (1.4%) suggest squeeze risk. Awaiting retest of $2,014 support before entry.",
+      "direction": "neutral",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.71,
+      "riskScore": 28,
+      "reasoning": "The Analyst proposes HOLD with 20% allocation to mUSD — a defensive/risk-off posture. This is not a directional SWAP in a ranging regime, so the primary rejection trigger does not apply. Evaluating the reasoning against raw signals: (1) Fear & Greed at 28 (Fear) is confirmed in market data — accurate. (2) Bearish perps signals are confirmed across ETH Short (RSI=52.2, score=56), BTC Short, and multiple others — accurate. (3) Funding rate of 1.4% is confirmed in perps data for ETH — accurate, though the Analyst labels it 'high' when 1.4% is moderate, not extreme; this is a minor overstatement but not a hallucination. (4) $2,014 support level is confirmed in liquidation levels below — accurate. (5) Yield spread of -1% is bearish and confirmed in raw signals. FLAGGED ISSUES: The Analyst claims 75% confidence but the regime confidence is only 35% (undefined/mixed). This is a meaningful discrepancy — the Analyst's confidence significantly exceeds what the underlying regime signal supports. However, since the proposed action is HOLD (not a directional trade), this overconfidence does not create capital risk. The Analyst also lists zero risk factors, which is a minor omission — regime uncertainty and MNT's -3.40% 24h decline are unacknowledged. Smart money flow is neutral ($0.0M outflow), not bearish, which the Analyst does not explicitly address. Despite these issues, the core action — partial defensive allocation to mUSD while awaiting clearer entry — is conservative, capital-protective, and consistent with the bearish signal consensus and unclear regime. R:R is not applicable in the traditional sense for a HOLD/defensive allocation. Risk score is LOW (28) because the action preserves capital rather than deploying it directionally.",
+      "flaggedIssues": [
+        "Analyst confidence (75%) significantly exceeds regime confidence (35%) — overstatement not justified by signal strength",
+        "Risk factors array is empty — regime uncertainty and MNT -3.40% decline are unacknowledged",
+        "Smart money flow is NEUTRAL ($0.0M), not bearish — Analyst did not explicitly address this neutral data point",
+        "Funding rate described as 'high' at 1.4% — moderate characterization, minor overstatement"
+      ],
+      "recommendation": "approve — defensive HOLD with partial mUSD allocation is capital-protective and consistent with bearish consensus and unclear regime; directional risk is not taken"
+    },
+    "consensus": true,
+    "regime": "HOLD",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2120.34,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 5
+    }
+  }
+]

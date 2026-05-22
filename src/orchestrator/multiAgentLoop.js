@@ -276,6 +276,34 @@ async function runMultiAgentCycle() {
     console.log(`   ⚠️  Position state update failed: ${posErr.message?.slice(0, 60)}`);
   }
 
+  // Step 7: Log trajectory for process-level audit
+  try {
+    const trajectoryLogger = require("./trajectoryLogger");
+    const trajEntry = trajectoryLogger.logCycle({
+      proposalId: Number(proposalId),
+      analyst: decision.analyst,
+      validator: decision.validator,
+      consensus: decision.consensus,
+      regime: market.structuredSignals?.regime?.regime || "unknown",
+      analystDuration: decision._timing?.analyst || 0,
+      validatorDuration: decision._timing?.validator || 0,
+      onchainDuration: Date.now() - (decision._timing?.start || Date.now()),
+      marketSnapshot: {
+        ethPrice: market.ethPrice,
+        fearGreed: market.fearGreedIndex,
+        mntPrice: market.mntPrice,
+      },
+    });
+    const consistency = trajEntry.metrics.actionReasoningConsistent;
+    if (consistency === "contradictory") {
+      console.log(`   ⚠️  TRAJECTORY: Action-reasoning CONTRADICTION detected`);
+    } else {
+      console.log(`   ✅ Trajectory logged (consistency: ${consistency}, data points: ${trajEntry.metrics.dataPointsUsed})`);
+    }
+  } catch (trajErr) {
+    console.log(`   ⚠️  Trajectory logging failed: ${trajErr.message?.slice(0, 60)}`);
+  }
+
   // Summary
   const totalApproved = await registry.totalApproved();
   const totalRejected = await registry.totalRejected();

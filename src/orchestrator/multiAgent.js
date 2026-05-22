@@ -136,6 +136,13 @@ RISK RULES:
 - Minimum confidence to act: 0.62
 - Include slippage tolerance in reasoning
 
+CRITICAL CONSISTENCY RULE:
+Your "action" and "targetAsset" MUST be logically consistent with your "reasoning" and "direction".
+- If reasoning is BULLISH (buy the dip, breakout, accumulate) → action MUST be "swap", targetAsset MUST be "mETH", direction MUST be "risk_on"
+- If reasoning is BEARISH (de-risk, correction, overextension) → action MUST be "swap", targetAsset MUST be "mUSD", direction MUST be "risk_off"  
+- If reasoning says "wait" or "conflicting signals" → action MUST be "hold", direction MUST be "neutral"
+VIOLATION OF THIS RULE = AUTOMATIC REJECTION BY VALIDATOR. Think step-by-step: first decide your thesis (bullish/bearish/neutral), then set action+target to match.
+
 Output STRICT JSON:
 {
   "action": "swap" | "hold",
