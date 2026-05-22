@@ -61,20 +61,32 @@ async function getEvolvedPrompts() {
 
 const ANALYST_SYSTEM_PROMPT = `You are the ANALYST AGENT of TuringVault — an AI-powered RWA portfolio manager on Mantle Network.
 
-Your role: Analyze market data and propose optimal asset allocation between mETH (risk-on, yield-bearing) and mUSD (risk-off, capital preservation).
+Your role: Find and execute profitable opportunities between mETH (risk-on, yield-bearing ETH) and mUSD (risk-off, stablecoin).
 
-DECISION FRAMEWORK:
-- Compare mETH yield vs risk-free rate (treasury proxy via USDY ~4.5%)
-- When mETH yield > risk-free + 1% AND sentiment is bullish → propose swap to mETH
-- When Fear&Greed < 25 (extreme fear) → propose swap to mUSD (defensive)
-- When Fear&Greed between 25-40 OR signals conflict → propose HOLD with reasoning
-- When sentiment is neutral → propose HOLD (capital preservation in uncertain market)
-- Factor in smart money flows and TVL changes
+DECISION FRAMEWORK (use structured signals, not just sentiment text):
+
+REGIME-BASED LOGIC:
+- TREND_UP: Aggressive risk-on → swap to mETH (30-50% allocation)
+- CONTRARIAN_LONG: Crowded shorts + negative funding → contrarian long mETH (20-40%)
+- TREND_DOWN: Risk-off → swap to mUSD (20-40%)
+- RANGING: Only act if yield spread > 1.5% OR funding strongly one-sided
+- CRISIS: Defensive → mUSD unless funding is extreme negative (short squeeze setup)
+
+FUNDING RATE LOGIC (most reliable signal):
+- Funding annualized < -10%: Shorts are paying longs → BULLISH, propose mETH
+- Funding annualized > +20%: Longs are paying shorts → BEARISH, propose mUSD
+- Funding between -10% and +20%: Neutral on funding, weight other signals
+
+SMART MONEY FLOW (Nansen):
+- INFLOW > $1M: Institutions buying → confirms risk-on
+- OUTFLOW > $1M: Institutions selling → confirms risk-off
+
+HOLD only when: 2+ major signals conflict with no clear edge, OR regime is RANGING AND funding neutral AND yield spread < 1%. Do NOT default to HOLD because sentiment is "neutral" — neutral market conditions with clear funding signals still warrant action.
 
 RISK RULES:
 - Never propose swapping more than 50% of portfolio in one move
-- If volatility > 0.7 → reduce position size by 50%
-- Always include slippage tolerance (default 50 bps, max 100 in high vol)
+- Minimum confidence to act: 0.62
+- Include slippage tolerance in reasoning
 
 Output STRICT JSON:
 {
@@ -83,7 +95,7 @@ Output STRICT JSON:
   "targetAsset": "mETH" | "mUSD",
   "allocationPct": 0-100,
   "confidence": 0.0-1.0,
-  "reasoning": "2-3 sentence explanation of your logic",
+  "reasoning": "2-3 sentence explanation referencing specific signals (regime, funding, flows)",
   "riskFactors": ["factor1", "factor2"],
   "expectedYield": "annualized % if applicable"
 }`;
@@ -324,10 +336,17 @@ async function getMultiAgentDecision(marketData) {
 
   // STEP 1: Analyst proposes (try evolved prompt from IPFS first)
   const evolved = await getEvolvedPrompts();
-  const activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;  // Always use local — evolved IPFS prompts lag behind fixes
-  // Always use local validator prompt — evolved versions from IPFS lack strict JSON enforcement
+  // Use evolved prompt from IPFS if available AND it's not a fallback placeholder
+  const activeAnalystPrompt = (evolved?.analyst && evolved.analyst.length > 100) 
+    ? evolved.analyst 
+    : ANALYST_SYSTEM_PROMPT;
+  // Validator always uses local prompt — evolved versions may lack strict JSON enforcement
   const activeValidatorPrompt = VALIDATOR_SYSTEM_PROMPT;
-  if (evolved) console.log(`  [EVOLUTION] Using evolved prompt v${evolved.version} (local overrides active)`);
+  if (evolved?.analyst && evolved.analyst.length > 100) {
+    console.log(`  [EVOLUTION] ✅ Using evolved analyst prompt v${evolved.version} from IPFS`);
+  } else if (evolved) {
+    console.log(`  [EVOLUTION] Evolved prompt v${evolved.version} too short, using local`);
+  }
   
   console.log(`  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`);
   const analystRaw = await callAgent(activeAnalystPrompt, marketPrompt, MODELS.analyst);
@@ -347,7 +366,18 @@ async function getMultiAgentDecision(marketData) {
   }
 
   // STEP 2: Validator independently assesses
-  const validatorPrompt = `${marketPrompt}
+  // Give Validator the RAW structured signals separately — so it can cross-check GLM-5's reasoning
+  const rawSignalsSummary = marketData.structuredSignals 
+    ? `\nRAW STRUCTURED SIGNALS (verify Analyst's reasoning against these):
+- Regime: ${marketData.structuredSignals.regime?.regime} (${marketData.structuredSignals.regime?.confidence}% confidence) — ${marketData.structuredSignals.regime?.rationale}
+- Signal consensus: ${marketData.structuredSignals.consensus}
+- Funding rate: ${marketData.structuredSignals.signals?.funding?.value?.toFixed(2) || 'n/a'}% annualised → ${marketData.structuredSignals.signals?.funding?.label} (strength ${marketData.structuredSignals.signals?.funding?.strength || 'n/a'})
+- Smart money flow: ${marketData.structuredSignals.signals?.onchainFlow?.direction || 'n/a'} $${((marketData.structuredSignals.signals?.onchainFlow?.netUsd || 0)/1e6).toFixed(1)}M → ${marketData.structuredSignals.signals?.onchainFlow?.label}
+- Yield spread: ${marketData.structuredSignals.signals?.yieldSpread?.spread?.toFixed(2) || 'n/a'}% → ${marketData.structuredSignals.signals?.yieldSpread?.label}
+- Liq risk: ${marketData.structuredSignals.signals?.liquidation?.riskType || 'n/a'}`
+    : '';
+
+  const validatorPrompt = `${marketPrompt}${rawSignalsSummary}
 
 ANALYST'S PROPOSAL TO VERIFY:
 - Action: ${analystDecision.action}
@@ -357,7 +387,7 @@ ANALYST'S PROPOSAL TO VERIFY:
 - Reasoning: "${analystDecision.reasoning}"
 - Risk Factors: ${JSON.stringify(analystDecision.riskFactors || [])}
 
-Independently verify this proposal against the market data. Is the reasoning sound? Are there risks the Analyst missed?`;
+Cross-check: does the Analyst's reasoning actually match the raw signals above? Is there a signal they ignored or misread?`;
 
   console.log(`  [VALIDATOR] Verifying proposal... (model: ${MODELS.validator})`);
   const validatorRaw = await callAgent(activeValidatorPrompt, validatorPrompt, MODELS.validator);
