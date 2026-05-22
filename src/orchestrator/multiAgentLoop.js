@@ -18,6 +18,8 @@ process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
 const { ethers } = require("ethers");
 const { getMultiAgentDecision } = require("./multiAgent");
 const { getUnifiedMarketContext } = require("./unifiedMarketData");
+const { getStructuredSignals } = require("./signalEngine");
+const outcomeTracker = require("./outcomeTracker");
 
 // Contract ABIs (minimal)
 const REGISTRY_ABI = [
@@ -63,9 +65,21 @@ async function runMultiAgentCycle() {
   console.log("║  TURINGVAULT MULTI-AGENT CYCLE                          ║");
   console.log("╚══════════════════════════════════════════════════════════╝\n");
 
-  // Step 1: Fetch unified market data (5 sources: CoinGecko + DeFiLlama + F&G + Nansen MCP + Byreal)
+  // Step 1: Fetch unified market data + structured signals
   console.log("📊 [STEP 1] Fetching unified market intelligence (5 sources)...");
   const unified = await getUnifiedMarketContext();
+
+  // Structured signals (funding rate, liq map, on-chain flow, yield spread, regime)
+  console.log("📡 [STEP 1.5] Computing structured signals...");
+  const structuredSignals = await getStructuredSignals(unified);
+  console.log(`   Regime: ${structuredSignals.regime.regime} | Consensus: ${structuredSignals.consensus} | Funding: ${structuredSignals.signals.funding?.value?.toFixed(2) || 'n/a'}%`);
+
+  // Settle any pending outcomes from previous cycles
+  console.log("⚖️  [STEP 1.6] Settling pending outcome evaluations...");
+  await outcomeTracker.settle({ wallet, provider });
+  const pendingCount = outcomeTracker.getPendingCount();
+  if (pendingCount > 0) console.log(`   ${pendingCount} decision(s) still pending settlement (< 4h old)`);
+
   // Map to legacy format expected by multiAgent.js
   const market = {
     ethPrice: unified.ethPrice,
@@ -78,7 +92,10 @@ async function runMultiAgentCycle() {
     nansenSentiment: unified.nansenInsight ? "active" : "n/a",
     nansenInsight: unified.nansenInsight,
     byrealSignals: unified.byrealSignals,
-    promptContext: unified.promptContext // full context string for LLM
+    // Inject structured signals into prompt context (replaces text blob with typed signals)
+    promptContext: unified.promptContext + "\n\n" + structuredSignals.promptSummary,
+    // Pass structured signals as typed object too
+    structuredSignals,
   };
   console.log(`   ETH: $${market.ethPrice} | Sentiment: ${market.sentiment} | F&G: ${market.fearGreedIndex}`);
   console.log(`   Nansen: ${market.nansenInsight ? "✓ MCP" : "fallback"} | Byreal: ${market.byrealSignals?.length || 0} signals | TVL: $${((market.mantleTVL||0)/1e6).toFixed(0)}M\n`);
@@ -199,16 +216,35 @@ async function runMultiAgentCycle() {
     console.log(`   ⚠️  Reputation recording failed: ${repErr.message?.slice(0, 60)}`);
   }
 
+  // Step 6: Record outcome for future settlement (the real learning loop)
+  console.log("🔮 [STEP 6] Recording outcome for settlement in 4h...");
+  try {
+    outcomeTracker.record({
+      decisionId: Number(proposalId),
+      action: decision.analyst?.action || "hold",
+      targetAsset: decision.analyst?.targetAsset || "mUSD",
+      consensus: decision.consensus || false,
+      confidence: decision.analyst?.confidence || 0.5,
+      priceAtDecision: market.ethPrice,
+      ipfsCid: ipfsResult.cid,
+    });
+    console.log(`   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`);
+  } catch (e) {
+    console.log(`   ⚠️  Outcome record failed: ${e.message?.slice(0, 60)}`);
+  }
+
   // Summary
   const totalApproved = await registry.totalApproved();
   const totalRejected = await registry.totalRejected();
   
-  console.log(`\n╔══════════════════════════════════════════════════════════╗`);
-  console.log(`║  CYCLE COMPLETE                                         ║`);
-  console.log(`╠══════════════════════════════════════════════════════════╣`);
-  console.log(`║  Consensus: ${decision.consensus ? "APPROVED ✅" : "BLOCKED ❌ "}                               ║`);
-  console.log(`║  Registry stats: ${totalApproved} approved / ${totalRejected} rejected            ║`);
-  console.log(`╚══════════════════════════════════════════════════════════╝\n`);
+  const boxW = 56; // inner width between ║ chars
+  const pad = (s) => s.padEnd(boxW);
+  console.log(`\n╔${'═'.repeat(boxW)}╗`);
+  console.log(`║${pad('  CYCLE COMPLETE')}║`);
+  console.log(`╠${'═'.repeat(boxW)}╣`);
+  console.log(`║${pad(`  Consensus: ${decision.consensus ? "APPROVED ✅" : "BLOCKED ❌"}`)}║`);
+  console.log(`║${pad(`  Registry stats: ${totalApproved} approved / ${totalRejected} rejected`)}║`);
+  console.log(`╚${'═'.repeat(boxW)}╝\n`);
 
   return decision;
 }

@@ -199,7 +199,17 @@ class PromptEvolution {
    */
   async selfReflect(currentCard, performance) {
     const currentAnalystPrompt = currentCard?.systemPrompt?.analyst || "No current prompt found";
-    const currentValidatorPrompt = currentCard?.systemPrompt?.validator || "No current prompt found";
+
+    // Get REAL outcome history from outcomeTracker (not empty [])
+    let outcomeData = { total: 0, summary: {}, forPrompt: [] };
+    try {
+      const { getOutcomeHistory } = require("../orchestrator/outcomeTracker");
+      outcomeData = getOutcomeHistory(20);
+    } catch (e) {
+      console.log("  [EVOLUTION] outcomeTracker not available — using on-chain stats only");
+    }
+
+    const hasRealOutcomes = outcomeData.total > 0;
     
     const reflectionPrompt = `You are performing SELF-REFLECTION on your own trading performance.
 
@@ -208,22 +218,41 @@ CURRENT PERFORMANCE DATA:
 - Reputation score: ${performance.score}
 - Total feedback entries: ${performance.totalFeedback}
 
+${hasRealOutcomes ? `REAL OUTCOME HISTORY (last ${outcomeData.total} settled decisions):
+- Correct blocks (HOLD, price fell — firewall worked): ${outcomeData.summary.correctBlocks}
+- Missed alpha (HOLD, price rose — too conservative): ${outcomeData.summary.missedAlpha}
+- Good calls (SWAP approved, price in our favour): ${outcomeData.summary.goodCalls}
+- Bad calls (SWAP approved, price against us): ${outcomeData.summary.badCalls}
+- Accuracy: ${outcomeData.summary.accuracy}
+- Total PnL signal: ${outcomeData.summary.totalPnlBps > 0 ? '+' : ''}${outcomeData.summary.totalPnlBps} bps
+
+INDIVIDUAL OUTCOMES (most recent first):
+${outcomeData.forPrompt.map(e =>
+  `  ${e.when} | ${e.action} | consensus=${e.consensus} | ETH ${e.pricePct >= 0 ? '+' : ''}${e.pricePct}% | ${e.outcome} | score${e.score >= 0 ? '+' : ''}${e.score}`
+).join('\n')}` : `OUTCOME HISTORY: Not yet available (decisions settle after 4h). Use on-chain stats only.`}
+
 YOUR CURRENT SYSTEM PROMPT (Analyst):
 "${currentAnalystPrompt}"
 
 YOUR CURRENT RISK PARAMETERS:
 ${JSON.stringify(currentCard?.systemPrompt?.riskParameters || {}, null, 2)}
 
-TASK: Analyze what went wrong and propose improvements to your own system prompt.
+TASK: Analyze SPECIFICALLY what went wrong based on the outcome data above, and propose improvements.
+${hasRealOutcomes && outcomeData.summary.missedAlpha > outcomeData.summary.correctBlocks
+  ? 'FOCUS: You are being TOO CONSERVATIVE. You blocked too many trades that turned out to be correct moves. Raise your confidence thresholds or loosen the decision criteria.'
+  : ''}
+${hasRealOutcomes && outcomeData.summary.badCalls > 0
+  ? 'FOCUS: You had bad approved calls. Review what signals those trades relied on and add skepticism for those conditions.'
+  : ''}
 Consider:
-1. Are you too aggressive or too conservative?
-2. Are your decision thresholds optimal?
-3. Should you weight certain signals differently?
+1. Are you too aggressive or too conservative? (the outcome data tells you)
+2. Which signal types led to correct decisions?
+3. Should funding rate signal be weighted more heavily?
 4. Are there patterns in your errors?
 
 Output STRICT JSON:
 {
-  "analysis": "3-4 sentence self-analysis of what needs to change",
+  "analysis": "3-4 sentence self-analysis based on ACTUAL outcome data above",
   "newAnalystPrompt": "Your improved analyst system prompt (max 800 chars). Keep the JSON output format the same.",
   "newRiskParameters": {
     "maxPositionSize": "string",
@@ -231,7 +260,7 @@ Output STRICT JSON:
     "minConfidenceToAct": number,
     "sentimentWeight": number
   },
-  "evolutionReason": "1 sentence explaining the key change",
+  "evolutionReason": "1 sentence explaining the key change and what outcome data drove it",
   "confidenceInChange": 0.0-1.0
 }`;
 
