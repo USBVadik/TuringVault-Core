@@ -1,8 +1,8 @@
 'use client';
 
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther, formatEther } from 'viem';
+import { useAccount } from 'wagmi';
+import 'viem';
 import { useState, useEffect, useMemo } from 'react';
 import { Shield, Brain, TrendingUp, Activity, Wallet, ArrowRightLeft, Cpu, GitBranch, BarChart3, ExternalLink, Terminal } from 'lucide-react';
 import { LiveTerminal } from './components/LiveTerminal';
@@ -82,29 +82,26 @@ export default function Home() {
   const { address, isConnected } = useAccount();
   const [marketData, setMarketData] = useState<any>(null);
   const [reasoningStep, setReasoningStep] = useState(0);
+  const [chainData, setChainData] = useState<any>(null);
 
-  // ═══ ON-CHAIN READS ═══
-  const { data: totalDecisions } = useReadContract({
-    address: CONTRACTS.DECISION_LOG, abi: DECISION_LOG_ABI, functionName: 'totalDecisions',
-  });
-  const { data: successfulSwaps } = useReadContract({
-    address: CONTRACTS.DECISION_LOG, abi: DECISION_LOG_ABI, functionName: 'successfulSwaps',
-  });
-  const { data: totalPnL } = useReadContract({
-    address: CONTRACTS.DECISION_LOG, abi: DECISION_LOG_ABI, functionName: 'totalPnLBasisPoints',
-  });
-  const { data: recentDecisions } = useReadContract({
-    address: CONTRACTS.DECISION_LOG, abi: DECISION_LOG_ABI, functionName: 'getRecentDecisions', args: [BigInt(10)],
-  });
-  const { data: totalProposals } = useReadContract({
-    address: CONTRACTS.VALIDATION_REGISTRY, abi: VALIDATION_ABI, functionName: 'totalProposals',
-  });
-  const { data: totalApproved } = useReadContract({
-    address: CONTRACTS.VALIDATION_REGISTRY, abi: VALIDATION_ABI, functionName: 'totalApproved',
-  });
-  const { data: totalRejected } = useReadContract({
-    address: CONTRACTS.VALIDATION_REGISTRY, abi: VALIDATION_ABI, functionName: 'totalRejected',
-  });
+  // ═══ ON-CHAIN READS (via server API to avoid client tuple decode issues) ═══
+  useEffect(() => {
+    async function fetchChainData() {
+      try {
+        const res = await fetch('/api/decisions');
+        if (res.ok) setChainData(await res.json());
+      } catch {}
+    }
+    fetchChainData();
+    const interval = setInterval(fetchChainData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const totalDecisions = chainData?.totalDecisions;
+  const totalProposals = chainData?.totalProposals;
+  const totalApproved = chainData?.totalApproved;
+  const totalRejected = chainData?.totalRejected;
+  const recentDecisions = chainData?.decisions;
 
   // ═══ WRITE CONTRACT ═══  (kept for future deposit feature)
   // const { writeContract, data: txHash } = useWriteContract();
@@ -198,22 +195,22 @@ export default function Home() {
               </h2>
               <p className="text-sm text-white/40 max-w-lg">
                 Multi-model adversarial consensus with on-chain proof of every reasoning step.
-                {totalRejected && totalProposals ? `${totalRejected.toString()}/${totalProposals.toString()}` : '—'} dangerous trades blocked — market confirmed every call.
+                {totalRejected && totalProposals ? `${totalRejected}/${totalProposals}` : '—'} dangerous trades blocked — market confirmed every call.
               </p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 shrink-0">
               <div className="text-center">
-                <div className="stat-number">{totalProposals?.toString() || totalDecisions?.toString() || '—'}</div>
+                <div className="stat-number">{totalProposals || totalDecisions || '—'}</div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">On-Chain Proofs</div>
               </div>
               <div className="text-center">
-                <div className="stat-number text-red-400">{totalRejected?.toString() || '—'}</div>
+                <div className="stat-number text-red-400">{totalRejected || '—'}</div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">Trades Blocked</div>
               </div>
               <div className="text-center">
-                <div className="stat-number stat-number-green">{totalProposals ? `${Math.round((Number(totalRejected) || 0) / Number(totalProposals) * 100)}%` : '—'}</div>
+                <div className="stat-number stat-number-green">{totalProposals ? `${Math.round((totalRejected || 0) / totalProposals * 100)}%` : '—'}</div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">Safety Rate</div>
               </div>
             </div>
@@ -423,17 +420,17 @@ export default function Home() {
               <span>Time</span><span>Action</span><span>Asset</span><span>Amount</span><span>Confidence</span><span>Reasoning</span>
             </div>
             {recentDecisions && recentDecisions.length > 0 ? (
-              [...recentDecisions].reverse().map((d: any, i: number) => (
+              recentDecisions.map((d: any, i: number) => (
                 <div key={i} className="table-v2-row grid-cols-6">
                   <span className="text-white/40 font-mono text-[11px]">
-                    {new Date(Number(d.timestamp) * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(d.timestamp * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   <span className={`font-bold text-[11px] ${d.action === 'swap' ? 'text-green-400' : 'text-purple-400'}`}>
                     {d.action.toUpperCase()}
                   </span>
                   <span className="text-white/80 font-medium">{d.targetAsset}</span>
-                  <span className="text-white/50 font-mono text-[11px]">{formatEther(d.amountIn)} MNT</span>
-                  <span className="text-white/70 font-mono">{(Number(d.confidence) / 100).toFixed(1)}%</span>
+                  <span className="text-white/50 font-mono text-[11px]">{(Number(d.amountIn) / 1e18).toFixed(3)} MNT</span>
+                  <span className="text-white/70 font-mono">{(d.confidence / 100).toFixed(1)}%</span>
                   <span className="text-white/25 truncate font-mono text-[10px]">{parseReasoning(d.reasoningHash)}</span>
                 </div>
               ))

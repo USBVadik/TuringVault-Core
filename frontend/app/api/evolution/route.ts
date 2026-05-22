@@ -19,7 +19,7 @@ export async function GET() {
       address: IDENTITY_ADDRESS,
       abi: IDENTITY_ABI,
       functionName: 'tokenURI',
-      args: [1n],
+      args: [BigInt(1)],
     });
 
     let currentCard = null;
