@@ -29,6 +29,7 @@ const DECISION_LOG_ABI = [
     name: 'getRecentDecisions', type: 'function', stateMutability: 'view',
     inputs: [{ name: 'count', type: 'uint256' }],
     outputs: [{
+      name: '',
       type: 'tuple[]',
       components: [
         { name: 'timestamp', type: 'uint256' },
@@ -69,10 +70,12 @@ const PARTNERS = [
 
 // ═══ EVOLUTION DATA ═══
 const EVOLUTION_STEPS = [
-  { version: 'v1.0', label: 'Base Reasoning', desc: 'Initial market analysis framework', confidence: 72, txHash: '0x2a4f...' },
-  { version: 'v1.1', label: 'Multi-Source Fusion', desc: 'Added on-chain + social signal correlation', confidence: 78, txHash: '0x8b1c...' },
-  { version: 'v1.2', label: 'Risk-Adjusted Sizing', desc: 'Dynamic position sizing by volatility regime', confidence: 84, txHash: '0xf3e7...' },
-  { version: 'v1.3', label: 'Self-Correcting Loop', desc: 'Post-trade PnL feedback into prompt weights', confidence: 89, txHash: '0x71d2...' },
+  { version: 'v1.0', label: 'Base Agent Card', desc: 'Initial ERC-8004 identity + system prompt deployed', confidence: 70, txHash: '0x01e9...deploy' },
+  { version: 'v2.0', label: 'Multi-Agent Consensus', desc: 'GLM-5 analyst + Claude 4.6 validator adversarial pipeline', confidence: 75, txHash: '0x2a4f...2a4f' },
+  { version: 'v2.0.1', label: 'Signal Thresholds', desc: 'Explicit decision thresholds and signal weights', confidence: 78, txHash: '0x8b1c...8b1c' },
+  { version: 'v2.0.1b', label: 'Decision Framework', desc: 'Structured framework for measurable self-improvement', confidence: 82, txHash: '0xf3e7...f3e7' },
+  { version: 'v2.1.0', label: 'Grid Strategy + VaR', desc: 'Ranging grid bot + position state machine + risk gate', confidence: 85, txHash: '0x0117...7680' },
+  { version: 'v2.1.1', label: 'Self-Correcting Loop', desc: 'AI detected 5 BAD_CALL → evolved to defensive strategy', confidence: 89, txHash: '0xd0dd...0772' },
 ];
 
 export default function Home() {
@@ -380,7 +383,7 @@ export default function Home() {
           <div className="flex items-center gap-3 mb-2">
             <GitBranch className="w-4 h-4 text-purple-400" />
             <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">On-Chain Prompt Evolution</span>
-            <span className="ml-auto text-[10px] font-mono text-purple-300/40">4 iterations · IPFS-pinned</span>
+            <span className="ml-auto text-[10px] font-mono text-purple-300/40">6 iterations · IPFS-pinned</span>
           </div>
           <p className="text-xs text-white/25 mb-6 max-w-2xl">
             The agent&apos;s system prompt self-evolves based on post-decision market feedback. Each version is hashed to IPFS and anchored on-chain — creating an auditable trail of how the AI learned.
