@@ -84,9 +84,9 @@ class PromptEvolution {
     // Try multiple IPFS gateways
     const cid = tokenURI.replace("ipfs://", "");
     const gateways = [
-      `https://dweb.link/ipfs/${cid}`,
+      `https://green-linear-jay-761.mypinata.cloud/ipfs/${cid}`,
       `https://ipfs.io/ipfs/${cid}`,
-      `https://gateway.pinata.cloud/ipfs/${cid}`,
+      `https://dweb.link/ipfs/${cid}`,
     ];
     
     for (const url of gateways) {
@@ -569,7 +569,7 @@ async function loadPromptFromIPFS() {
     if (!tokenURI || !tokenURI.startsWith("ipfs://")) return null;
     
     const cid = tokenURI.replace("ipfs://", "");
-    const response = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`, { signal: AbortSignal.timeout(5000) });
+    const response = await fetch(`https://green-linear-jay-761.mypinata.cloud/ipfs/${cid}`, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) return null;
     
     const card = await response.json();

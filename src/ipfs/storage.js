@@ -11,7 +11,7 @@
 const https = require("https");
 
 const PINATA_JWT = process.env.PINATA_JWT || "";
-const PINATA_GATEWAY = process.env.PINATA_GATEWAY || "gateway.pinata.cloud";
+const PINATA_GATEWAY = process.env.PINATA_GATEWAY || "green-linear-jay-761.mypinata.cloud";
 
 /**
  * Upload JSON to IPFS via Pinata pinJSONToIPFS
