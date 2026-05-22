@@ -20,6 +20,7 @@ const { getMultiAgentDecision } = require("./multiAgent");
 const { getUnifiedMarketContext } = require("./unifiedMarketData");
 const { getStructuredSignals } = require("./signalEngine");
 const outcomeTracker = require("./outcomeTracker");
+const positionState = require("../strategies/positionState");
 
 // Contract ABIs (minimal)
 const REGISTRY_ABI = [
@@ -231,6 +232,48 @@ async function runMultiAgentCycle() {
     console.log(`   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`);
   } catch (e) {
     console.log(`   ⚠️  Outcome record failed: ${e.message?.slice(0, 60)}`);
+  }
+
+  // Step 6.5: Update position state for RANGING grid memory
+  try {
+    const rangingSignal = market.structuredSignals?.signals?.ranging;
+    if (decision.consensus && decision.action === 'swap') {
+      const targetAsset = decision.analyst?.targetAsset;
+      const overrideReason = rangingSignal?.overrideReason;
+
+      if (targetAsset === 'mETH') {
+        // Entered a mETH position
+        positionState.enterPosition({
+          status: 'IN_mETH',
+          entryPrice: market.ethPrice,
+          targetExit: rangingSignal?.targetExit || (market.ethPrice * 1.015),
+          stopLoss: rangingSignal?.stopLoss || (market.ethPrice * 0.982),
+          allocationPct: decision.analyst?.allocationPct || 30,
+        });
+        console.log(`   📍 Position state: IN_mETH @ $${market.ethPrice}`);
+      } else if (targetAsset === 'mUSD') {
+        // Exited to mUSD
+        const reason = overrideReason || 'GRID_SELL';
+        positionState.exitPosition(reason);
+        console.log(`   📍 Position state: FLAT (exited to mUSD, reason: ${reason})`);
+        
+        // USDY idle parking — don't let cash sit at 0% yield
+        const { getIdleParkingSignal } = require('../strategies/idleParking');
+        const parkSignal = getIdleParkingSignal(signals?.regime?.regime || 'HOLD');
+        if (parkSignal) {
+          console.log(`   💰 ${parkSignal.reason}`);
+          console.log(`   💰 Route: ${parkSignal.route}`);
+        }
+      }
+    } else if (!decision.consensus) {
+      // No action — still tick the cycle if we're in a position
+      const state = positionState.getState();
+      if (state.status !== 'FLAT') {
+        console.log(`   📍 Position: ${state.status} @ $${state.entryPrice} (cycle ${state.cycleCount})`);
+      }
+    }
+  } catch (posErr) {
+    console.log(`   ⚠️  Position state update failed: ${posErr.message?.slice(0, 60)}`);
   }
 
   // Summary

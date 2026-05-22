@@ -18,9 +18,52 @@
  * This solves the "single LLM hallucination" problem.
  */
 require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
 const { BedrockRuntimeClient, ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
 const { validateDecision } = require("./validator");
 const { z } = require("zod");
+
+// === DYNAMIC CONFIDENCE THRESHOLD ===
+// Reads outcome history and raises threshold after consecutive losses
+const OUTCOME_HISTORY_PATH = path.resolve(__dirname, "../../data/outcome_history.json");
+const BASE_CONFIDENCE_THRESHOLD = 0.60;
+const ELEVATED_CONFIDENCE_THRESHOLD = 0.85;
+const CONSECUTIVE_LOSS_TRIGGER = 3;
+
+function getDynamicConfidenceThreshold() {
+  try {
+    if (!fs.existsSync(OUTCOME_HISTORY_PATH)) {
+      return BASE_CONFIDENCE_THRESHOLD;
+    }
+    const raw = fs.readFileSync(OUTCOME_HISTORY_PATH, "utf8");
+    const history = JSON.parse(raw);
+    const outcomes = Array.isArray(history) ? history : (history.outcomes || history.decisions || []);
+    
+    if (outcomes.length === 0) return BASE_CONFIDENCE_THRESHOLD;
+    
+    // Count consecutive losses from most recent
+    let consecutiveLosses = 0;
+    for (let i = outcomes.length - 1; i >= 0; i--) {
+      const pnl = outcomes[i].pnl ?? outcomes[i].profit ?? outcomes[i].realizedPnl ?? 0;
+      if (pnl < 0) {
+        consecutiveLosses++;
+      } else {
+        break; // stop at first non-loss
+      }
+    }
+    
+    if (consecutiveLosses >= CONSECUTIVE_LOSS_TRIGGER) {
+      console.log(`  [RISK] ⚠️ ${consecutiveLosses} consecutive losses detected — raising confidence threshold to ${ELEVATED_CONFIDENCE_THRESHOLD} (from ${BASE_CONFIDENCE_THRESHOLD})`);
+      return ELEVATED_CONFIDENCE_THRESHOLD;
+    }
+    
+    return BASE_CONFIDENCE_THRESHOLD;
+  } catch (err) {
+    console.log(`  [RISK] Could not read outcome history: ${err.message} — using base threshold`);
+    return BASE_CONFIDENCE_THRESHOLD;
+  }
+}
 
 // Extended schema for Analyst (has extra fields vs base schema)
 const AnalystSchema = z.object({
@@ -69,7 +112,12 @@ REGIME-BASED LOGIC:
 - TREND_UP: Aggressive risk-on → swap to mETH (30-50% allocation)
 - CONTRARIAN_LONG: Crowded shorts + negative funding → contrarian long mETH (20-40%)
 - TREND_DOWN: Risk-off → swap to mUSD (20-40%)
-- RANGING: Only act if yield spread > 1.5% OR funding strongly one-sided
+- RANGING: Use RANGING GRID STRATEGY data from signals. Act on grid signal:
+    * If grid signal = BUY_mETH → propose swap to mETH (confidence from grid)
+    * If grid signal = SELL_mETH → propose swap to mUSD (take profit / pre-sell at resistance)
+    * If grid signal = EXIT_RANGING → do NOT use grid logic, switch to trend regime
+    * If grid signal = HOLD → wait, price in middle of channel
+    * RANGING is NOT a reason to do nothing — it is the highest-frequency strategy
 - CRISIS: Defensive → mUSD unless funding is extreme negative (short squeeze setup)
 
 FUNDING RATE LOGIC (most reliable signal):
@@ -81,7 +129,7 @@ SMART MONEY FLOW (Nansen):
 - INFLOW > $1M: Institutions buying → confirms risk-on
 - OUTFLOW > $1M: Institutions selling → confirms risk-off
 
-HOLD only when: 2+ major signals conflict with no clear edge, OR regime is RANGING AND funding neutral AND yield spread < 1%. Do NOT default to HOLD because sentiment is "neutral" — neutral market conditions with clear funding signals still warrant action.
+HOLD only when: 2+ major signals conflict with no clear edge, OR regime is RANGING AND grid signal = HOLD (price in middle of channel). Do NOT default to HOLD because sentiment is "neutral" — in RANGING regime, follow the grid signal.
 
 RISK RULES:
 - Never propose swapping more than 50% of portfolio in one move
@@ -101,31 +149,44 @@ Output STRICT JSON:
 }`;
 
 // === VALIDATOR AGENT ===
-const VALIDATOR_SYSTEM_PROMPT = `You are the VALIDATOR AGENT of TuringVault — an independent risk assessor that verifies proposals from the Analyst Agent.
+const VALIDATOR_SYSTEM_PROMPT = `YOUR DEFAULT STATE IS REJECT. You must find explicit evidence to APPROVE. Calculate Risk/Reward ratio — if R:R < 1.5:1, reject. If the Analyst proposes directional SWAP in RANGING regime with no grid signal confirmation, reject.
 
-Your role: Evaluate the Analyst's proposed trade fairly. You should APPROVE proposals that have sound reasoning and manageable risk, even in uncertain markets. Conservative ≠ always blocking — blocking everything is a failure mode too.
+You are the VALIDATOR AGENT of TuringVault — an independent risk assessor that verifies proposals from the Analyst Agent.
 
-VALIDATION CHECKLIST:
+Your role: You are a SKEPTICAL gatekeeper. Your job is to PROTECT CAPITAL first. The burden of proof is on the proposal — it must demonstrate clear edge with favorable risk/reward. Absence of evidence is NOT evidence of safety.
+
+VALIDATION CHECKLIST (ALL must pass for APPROVE):
 1. Does the reasoning match the market data? (No hallucinated numbers)
 2. Is the confidence justified by signal strength?
 3. Are risk factors properly accounted for?
 4. Is slippage realistic for current pool liquidity?
+5. Is the Risk:Reward ratio >= 1.5:1? (MANDATORY — reject if not met)
+6. Does the regime support directional trades? (RANGING = no directional swaps without grid confirmation)
 
-APPROVAL GUIDELINES:
-- If the analyst proposes HOLD with reasonable reasoning → APPROVE
-- If the analyst proposes swap to mUSD (risk-off/defensive) → almost always APPROVE, this is capital preservation
-- If the analyst proposes a small swap (<=30% allocation) with clear rationale → APPROVE if risk is manageable
-- Only REJECT if there are clear logical errors, hallucinated data, or extreme risk
+REJECTION TRIGGERS (any ONE of these = automatic REJECT):
+- R:R ratio below 1.5:1
+- Directional SWAP proposed in RANGING regime without grid signal confirmation
+- Analyst confidence not backed by at least 2 confirming signals
+- Position size > 40% in unclear regime
+- Contradictory signals without explicit acknowledgment
+- Any hallucinated or unverifiable data points
+
+APPROVAL CONDITIONS (ALL required):
+- Clear directional edge supported by multiple confirming signals
+- R:R >= 1.5:1 with defined stop-loss logic
+- Regime supports the proposed action type
+- If HOLD with reasonable reasoning → APPROVE (low risk)
+- If swap to mUSD (risk-off/defensive) → APPROVE only if signals justify de-risking
 
 RISK SCORING (0-100):
-- 0-30: Low risk (routine rebalance, strong signals)
-- 31-60: Medium risk (mixed signals, moderate position)
-- 61-80: High risk (contradictory signals, large position)
+- 0-30: Low risk (routine rebalance, strong multi-signal confirmation)
+- 31-60: Medium risk (mixed signals — default REJECT unless R:R > 2:1)
+- 61-80: High risk (REJECT — contradictory signals, unclear edge)
 - 81-100: Extreme risk (REJECT — likely hallucination or panic)
 
 CRITICAL: You MUST respond with ONLY a JSON object. No markdown, no explanation outside JSON, no headers.
 Output this exact structure:
-{"approved": true, "validatorConfidence": 0.75, "riskScore": 40, "reasoning": "...", "flaggedIssues": [], "recommendation": "execute"}`;
+{"approved": false, "validatorConfidence": 0.45, "riskScore": 65, "reasoning": "...", "flaggedIssues": ["insufficient R:R", "regime mismatch"], "recommendation": "reject"}`;
 
 // Validation schema for Validator output
 const ValidatorSchema = z.object({
@@ -374,7 +435,8 @@ async function getMultiAgentDecision(marketData) {
 - Funding rate: ${marketData.structuredSignals.signals?.funding?.value?.toFixed(2) || 'n/a'}% annualised → ${marketData.structuredSignals.signals?.funding?.label} (strength ${marketData.structuredSignals.signals?.funding?.strength || 'n/a'})
 - Smart money flow: ${marketData.structuredSignals.signals?.onchainFlow?.direction || 'n/a'} $${((marketData.structuredSignals.signals?.onchainFlow?.netUsd || 0)/1e6).toFixed(1)}M → ${marketData.structuredSignals.signals?.onchainFlow?.label}
 - Yield spread: ${marketData.structuredSignals.signals?.yieldSpread?.spread?.toFixed(2) || 'n/a'}% → ${marketData.structuredSignals.signals?.yieldSpread?.label}
-- Liq risk: ${marketData.structuredSignals.signals?.liquidation?.riskType || 'n/a'}`
+- Liq risk: ${marketData.structuredSignals.signals?.liquidation?.riskType || 'n/a'}
+${marketData.structuredSignals.signals?.ranging ? `- RANGING GRID: action=${marketData.structuredSignals.signals.ranging.action} | channel=$${marketData.structuredSignals.signals.ranging.channel?.support}-$${marketData.structuredSignals.signals.ranging.channel?.resistance} | position=${(marketData.structuredSignals.signals.ranging.channel?.channelPosition * 100).toFixed(0)}% | confidence=${(marketData.structuredSignals.signals.ranging.confidence * 100).toFixed(0)}%` : ''}`
     : '';
 
   const validatorPrompt = `${marketPrompt}${rawSignalsSummary}
@@ -406,10 +468,13 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
 
   const validator = validatorResult.data;
 
-  // STEP 3: Determine consensus
+  // STEP 3: Determine consensus (with dynamic confidence threshold)
+  const confidenceThreshold = getDynamicConfidenceThreshold();
+  console.log(`  [THRESHOLD] Active confidence threshold: ${confidenceThreshold}`);
+  
   const consensus = validator.approved
-    && analystDecision.confidence >= 0.60   // hackathon: allow moderate confidence
-    && validator.validatorConfidence >= 0.55
+    && analystDecision.confidence >= confidenceThreshold
+    && validator.validatorConfidence >= (confidenceThreshold - 0.05)  // validator threshold tracks analyst
     && validator.riskScore <= 75;
 
   return {

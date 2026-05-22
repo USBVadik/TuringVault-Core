@@ -30,6 +30,8 @@
 
 const { ExecutionEngine } = require('../execution/executionEngine');
 const { NansenMCPClient } = require('../mcp/nansenMCP');
+const { buildRangingContext, getGridSignal } = require('../strategies/rangingGrid');
+const { applyPositionAwareness, tickCycle, updateHWM } = require('../strategies/positionState');
 
 const CACHE = {};
 const TTL = 5 * 60 * 1000; // 5 min
@@ -55,25 +57,50 @@ async function fetchJson(url, timeout = 8000) {
 // Byreal already gives us fundingAnnualized per coin.
 // We extract ETH specifically and classify it.
 
+async function getHyperliquidFunding() {
+  try {
+    const r = await fetchJson('https://api.hyperliquid.xyz/info', 8000, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'metaAndAssetCtxs' }),
+    });
+    const assets = r[0]?.universe;
+    const ctxs = r[1];
+    if (!assets || !ctxs) return null;
+    const idx = assets.findIndex(a => a.name === 'ETH');
+    if (idx === -1) return null;
+    const fr = parseFloat(ctxs[idx]?.funding || 0);
+    return fr * 3 * 365 * 100; // annualized %
+  } catch { return null; }
+}
+
 async function getFundingSignal() {
   return cached('funding_signal', async () => {
     try {
-      const engine = new ExecutionEngine({ dryRun: true });
-      const signals = await engine.getSignals();
+      // Try Byreal first (has more signals), fallback to Hyperliquid
+      let funding = null;
 
-      // Find ETH signal
-      let ethSignal = null;
-      for (const items of Object.values(signals)) {
-        if (!Array.isArray(items)) continue;
-        const eth = items.find(s =>
-          s.coin?.toUpperCase() === 'ETH' || s.symbol?.toUpperCase()?.includes('ETH')
-        );
-        if (eth) { ethSignal = eth; break; }
+      try {
+        const engine = new ExecutionEngine({ dryRun: true });
+        const signals = await engine.getSignals();
+        let ethSignal = null;
+        for (const items of Object.values(signals)) {
+          if (!Array.isArray(items)) continue;
+          const eth = items.find(s =>
+            s.coin?.toUpperCase() === 'ETH' || s.symbol?.toUpperCase()?.includes('ETH')
+          );
+          if (eth) { ethSignal = eth; break; }
+        }
+        if (ethSignal) funding = parseFloat(ethSignal.fundingAnnualized || 0);
+      } catch {}
+
+      // Fallback: Hyperliquid public API (no auth needed)
+      if (funding === null) {
+        funding = await getHyperliquidFunding();
       }
 
-      if (!ethSignal) return { available: false, source: 'byreal' };
+      if (funding === null) return { available: false, source: 'byreal' };
 
-      const funding = parseFloat(ethSignal.fundingAnnualized || 0);
       // Funding interpretation:
       //   < -20%  = extreme negative → shorts paying longs → contrarian LONG
       //   -20% to -5% = negative → mild long bias
@@ -288,9 +315,23 @@ function detectRegime({ fearGreed, ethChange24h, fundingSignal, flowSignal }) {
       implication: 'Crowded shorts. Potential reversal. Small mETH position may be justified.' };
   }
 
-  // RANGING: everything mixed
-  return { regime: 'RANGING', confidence: 0.55,
-    implication: 'Mixed signals. HOLD is correct. Wait for cleaner regime.' };
+  // RANGING: confirmed only if price movement is small AND no clear directional pressure
+  // Not a catch-all — requires absence of trend evidence
+  const weakTrend = Math.abs(change) < 1.5 && fg > 30 && fg < 65 && Math.abs(funding) < 8;
+  if (weakTrend) {
+    return { regime: 'RANGING', confidence: 0.55,
+      implication: 'Low volatility, no directional pressure. Mean-reversion grid strategy active.' };
+  }
+
+  // Soft TREND_DOWN: mild bearish but not crisis
+  if (change < -1 || (fg < 40 && funding > 5)) {
+    return { regime: 'TREND_DOWN', confidence: 0.60,
+      implication: 'Mild bearish. Reduce risk exposure, rotate toward mUSD.' };
+  }
+
+  // Default: UNCERTAIN — do NOT default to RANGING (dangerous to grid-trade in unknown regime)
+  return { regime: 'HOLD', confidence: 0.35,
+    implication: 'Mixed/unclear signals. No regime confirmed. HOLD until clarity. Grid strategy NOT active.' };
 }
 
 // ─── Main export ───────────────────────────────────────────────────
@@ -330,6 +371,33 @@ async function getStructuredSignals(marketCtx = {}) {
   const bearish = signals.filter(s => s?.signal === 'BEARISH').length;
   const consensus = bullish > bearish ? 'BULLISH' : bearish > bullish ? 'BEARISH' : 'NEUTRAL';
 
+  // ── RANGING: enrich with grid/channel data ──────────────────────
+  let rangingData = null;
+  let rangingContext = '';
+  if (regime.regime === 'RANGING') {
+    try {
+      const rawGridSignal = await getGridSignal(currentPrice || undefined);
+      // Apply position awareness — prevents double-buying, handles TP/SL
+      const gridSignal = applyPositionAwareness(rawGridSignal, currentPrice || rawGridSignal.channel?.currentPrice);
+      // Tick cycle counter if we're in a position
+      tickCycle();
+      // Update high water mark for trailing stop
+      if (currentPrice) updateHWM(currentPrice);
+      const ctx = await buildRangingContext();
+      rangingData = gridSignal;
+      rangingContext = ctx;
+      // Annotate context with position state
+      if (gridSignal.positionState?.status !== 'FLAT') {
+        rangingContext += `\n  Position: ${gridSignal.positionState.status} since $${gridSignal.positionState.entryPrice} (cycle ${gridSignal.positionState.cycleCount})`;
+      }
+      if (gridSignal.overrideReason) {
+        rangingContext += `\n  Override: ${gridSignal.overrideReason}`;
+      }
+    } catch (e) {
+      rangingContext = `RANGING GRID: unavailable — ${e.message}`;
+    }
+  }
+
   return {
     timestamp: new Date().toISOString(),
     regime,
@@ -341,13 +409,14 @@ async function getStructuredSignals(marketCtx = {}) {
       onChainFlow: flowData,
       yieldSpread: yieldData,
       liquidationMap: liqMap,
+      ranging: rangingData,
     },
     // Compact prompt string for injection into analyst prompt
-    promptSummary: buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, liqMap, currentPrice }),
+    promptSummary: buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, liqMap, currentPrice, rangingContext }),
   };
 }
 
-function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, liqMap, currentPrice }) {
+function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, liqMap, currentPrice, rangingContext }) {
   const lines = [];
   lines.push(`[STRUCTURED SIGNALS — ${new Date().toISOString().slice(0, 16)}]`);
   lines.push(`Regime: ${regime.regime} (confidence ${(regime.confidence * 100).toFixed(0)}%) — ${regime.implication}`);
@@ -371,6 +440,12 @@ function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldDat
     lines.push(`Liquidation risk: ${liqMap.primaryRisk}`);
     lines.push(`Key liq levels below: $${liqMap.longLiquidations?.map(l => l.price).join(', $')}`);
     lines.push(`Key liq levels above: $${liqMap.shortLiquidations?.map(l => l.price).join(', $')}`);
+  }
+
+  // Inject ranging grid data when in RANGING regime
+  if (rangingContext) {
+    lines.push('');
+    lines.push(rangingContext);
   }
 
   return lines.join('\n');

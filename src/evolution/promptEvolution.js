@@ -166,9 +166,36 @@ class PromptEvolution {
 
   /**
    * Step 3: Determine if evolution is needed
+   * 
+   * GUARD: Evolution only triggers after 20+ settled trades AND specific
+   * performance triggers are met. This prevents overfitting on noise from
+   * timer-based evolution (previously every ~4h).
+   * 
+   * Triggers (any one is sufficient):
+   *   - Win Rate < 40%
+   *   - Max Drawdown > 5%
+   *   - 10+ consecutive HOLDs while asset moved > 3%
    */
   shouldEvolve(performance) {
-    // Check cooldown
+    // ─── GUARD 1: Minimum settled trades (from outcomeTracker) ───────
+    let settledCount = 0;
+    let outcomeData = null;
+    try {
+      const { getOutcomeHistory } = require("../orchestrator/outcomeTracker");
+      outcomeData = getOutcomeHistory(100); // get up to 100 for drawdown calc
+      settledCount = outcomeData.total;
+    } catch (e) {
+      console.log("  [EVOLUTION] outcomeTracker not available for guard check");
+    }
+
+    const MIN_SETTLED_TRADES = 20;
+    if (settledCount < MIN_SETTLED_TRADES) {
+      const msg = `Evolution skipped: only ${settledCount}/20 trades settled`;
+      console.log(`  [EVOLUTION] ${msg}`);
+      return { should: false, reason: msg };
+    }
+
+    // ─── GUARD 2: Check cooldown ────────────────────────────────────
     if (fs.existsSync(EVOLUTION_LOG_PATH)) {
       const log = JSON.parse(fs.readFileSync(EVOLUTION_LOG_PATH));
       const lastEvolution = log.evolutions?.[log.evolutions.length - 1];
@@ -179,19 +206,71 @@ class PromptEvolution {
         }
       }
     }
-    
-    // Check minimum decisions
-    if (performance.totalDecisions < this.config.minDecisionsForReflection) {
-      return { should: false, reason: `Need ${this.config.minDecisionsForReflection} decisions, have ${performance.totalDecisions}` };
+
+    // ─── TRIGGER EVALUATION ─────────────────────────────────────────
+    // Only evolve if at least one trigger condition is met
+    const triggers = [];
+
+    // Trigger 1: Win Rate < 40%
+    if (outcomeData && outcomeData.total > 0) {
+      const wins = (outcomeData.summary.correctBlocks || 0) + (outcomeData.summary.goodCalls || 0);
+      const winRate = (wins / outcomeData.total) * 100;
+      if (winRate < 40) {
+        triggers.push(`Win Rate ${winRate.toFixed(1)}% < 40%`);
+      }
     }
-    
-    // Check performance threshold
-    if (performance.score > this.config.performanceThreshold) {
-      // Allow evolution even with good score for improvement  
-      return { should: true, reason: `Performance score: ${performance.score} — seeking optimization` };
+
+    // Trigger 2: Max Drawdown > 5%
+    if (outcomeData && outcomeData.raw && outcomeData.raw.length > 0) {
+      // Calculate max drawdown from sequential PnL
+      let cumPnl = 0;
+      let peak = 0;
+      let maxDrawdown = 0;
+      // Process in chronological order (raw is most-recent-first)
+      const chronological = [...outcomeData.raw].reverse();
+      for (const entry of chronological) {
+        const pnlPct = (entry.pnlBps || 0) / 100; // bps to percent
+        cumPnl += pnlPct;
+        if (cumPnl > peak) peak = cumPnl;
+        const drawdown = peak - cumPnl;
+        if (drawdown > maxDrawdown) maxDrawdown = drawdown;
+      }
+      if (maxDrawdown > 5) {
+        triggers.push(`Max Drawdown ${maxDrawdown.toFixed(2)}% > 5%`);
+      }
     }
-    
-    return { should: true, reason: `Poor performance (score: ${performance.score}) — evolution triggered` };
+
+    // Trigger 3: 10+ consecutive HOLDs while asset moved > 3%
+    if (outcomeData && outcomeData.raw && outcomeData.raw.length >= 10) {
+      const chronological = [...outcomeData.raw].reverse();
+      let consecutiveHolds = 0;
+      let holdWithBigMove = 0;
+      for (const entry of chronological) {
+        const isHold = (entry.action || "").toLowerCase().includes("hold") ||
+                       entry.outcome === "CORRECT_BLOCK" || entry.outcome === "MISSED_ALPHA";
+        if (isHold) {
+          consecutiveHolds++;
+          if (Math.abs(entry.pricePct || 0) > 3) {
+            holdWithBigMove++;
+          }
+        } else {
+          // Reset on non-HOLD
+          if (consecutiveHolds >= 10 && holdWithBigMove > 0) break; // already triggered
+          consecutiveHolds = 0;
+          holdWithBigMove = 0;
+        }
+      }
+      if (consecutiveHolds >= 10 && holdWithBigMove > 0) {
+        triggers.push(`${consecutiveHolds} consecutive HOLDs with asset moving >3%`);
+      }
+    }
+
+    // ─── DECISION ───────────────────────────────────────────────────
+    if (triggers.length === 0) {
+      return { should: false, reason: `No evolution triggers met (${settledCount} trades settled, performance acceptable)` };
+    }
+
+    return { should: true, reason: `Evolution triggered: ${triggers.join(" | ")}` };
   }
 
   /**

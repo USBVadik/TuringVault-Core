@@ -393,16 +393,18 @@ async function runIntegratedCycle(options = {}) {
   const totalApproved = await registry.totalApproved();
   const totalRejected = await registry.totalRejected();
 
-  console.log(`\n╔══════════════════════════════════════════════════════════════╗`);
-  console.log(`║  CYCLE COMPLETE — INTEGRATED v2                             ║`);
-  console.log(`╠══════════════════════════════════════════════════════════════╣`);
-  console.log(`║  Consensus: ${(decision.consensus ? "APPROVED ✅" : "BLOCKED ❌ ").padEnd(12)}  VaR: ${String(var_bps).padEnd(4)} bps              ║`);
-  console.log(`║  Autonomy:  ${autonomyLevel.padEnd(12)}  Mode: ${mode.padEnd(10)}            ║`);
-  console.log(`║  RWA:       ${allocation.action.padEnd(12)}  Target: ${allocation.targetRWAAllocation.toFixed(0)}%               ║`);
-  console.log(`║  DEX:       1 MNT = $${(mntQuote?.estimatedOut || 0).toFixed(4).padEnd(8)}                         ║`);
-  console.log(`║  On-chain:  ${totalApproved} approved / ${totalRejected} rejected                  ║`);
-  console.log(`║  KMS:       ${kmsSig.simulated ? "simulated" : "HARDWARE "}  DER: ${kmsSig.derRoundTrip ? "✅" : "mock"}                ║`);
-  console.log(`╚══════════════════════════════════════════════════════════════╝\n`);
+  const boxW = 60; // inner width between ║ chars
+  const pad = (s) => s.padEnd(boxW);
+  console.log(`\n╔${'═'.repeat(boxW)}╗`);
+  console.log(`║${pad('  CYCLE COMPLETE — INTEGRATED v2')}║`);
+  console.log(`╠${'═'.repeat(boxW)}╣`);
+  console.log(`║${pad(`  Consensus: ${decision.consensus ? "APPROVED ✅" : "BLOCKED ❌"}  VaR: ${var_bps} bps`)}║`);
+  console.log(`║${pad(`  Autonomy:  ${autonomyLevel}  Mode: ${mode}`)}║`);
+  console.log(`║${pad(`  RWA:       ${allocation.action}  Target: ${allocation.targetRWAAllocation.toFixed(0)}%`)}║`);
+  console.log(`║${pad(`  DEX:       1 MNT = $${(mntQuote?.estimatedOut || 0).toFixed(4)}`)}║`);
+  console.log(`║${pad(`  On-chain:  ${totalApproved} approved / ${totalRejected} rejected`)}║`);
+  console.log(`║${pad(`  KMS:       ${kmsSig.simulated ? "simulated" : "HARDWARE"}  DER: ${kmsSig.derRoundTrip ? "✅" : "mock"}`)}║`);
+  console.log(`╚${'═'.repeat(boxW)}╝\n`);
 
   return {
     decision,

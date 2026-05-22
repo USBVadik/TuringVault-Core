@@ -646,6 +646,58 @@ const stats = await sdk.getConsensusRate();
           </FadeIn>
         </div>
 
+        {/* Backtest Results */}
+        <div className="grid grid-cols-1 gap-4 mb-10">
+          <FadeIn delay={1.8}>
+            <div className="rounded-xl border border-green-500/10 bg-green-500/[0.02] p-5">
+              <h3 className="text-[11px] text-green-400/70 uppercase tracking-widest mb-4 font-medium">
+                📊 Grid Strategy Backtest (500h simulations)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="rounded-lg bg-black/30 p-3 border border-white/5">
+                  <p className="text-[9px] text-white/30 uppercase mb-1">Tight Channel (1.9%)</p>
+                  <p className="text-[14px] font-mono text-green-400">+9.13%</p>
+                  <p className="text-[9px] text-white/40 mt-1">87% win rate · 23 trades · DD -0.63%</p>
+                </div>
+                <div className="rounded-lg bg-black/30 p-3 border border-white/5">
+                  <p className="text-[9px] text-white/30 uppercase mb-1">Medium Channel (3%)</p>
+                  <p className="text-[14px] font-mono text-green-400">+45.62%</p>
+                  <p className="text-[9px] text-white/40 mt-1">97% win rate · 39 trades · DD -0.13%</p>
+                </div>
+                <div className="rounded-lg bg-black/30 p-3 border border-white/5">
+                  <p className="text-[9px] text-white/30 uppercase mb-1">Wide Channel (5%)</p>
+                  <p className="text-[14px] font-mono text-green-400">+56.77%</p>
+                  <p className="text-[9px] text-white/40 mt-1">94% win rate · 31 trades · DD -1.02%</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="text-center">
+                  <p className="text-[9px] text-white/25 uppercase">R:R Ratio</p>
+                  <p className="text-[12px] font-mono text-cyan-400/70">2.1:1</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[9px] text-white/25 uppercase">Min Win Rate</p>
+                  <p className="text-[12px] font-mono text-cyan-400/70">33%</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[9px] text-white/25 uppercase">Trailing Stop</p>
+                  <p className="text-[12px] font-mono text-cyan-400/70">+0.6%</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[9px] text-white/25 uppercase">USDY Baseline</p>
+                  <p className="text-[12px] font-mono text-yellow-400/70">5.25% APY</p>
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/5">
+                <p className="text-[9px] text-white/30">
+                  ⚠️ Adverse (trending) market: -24.66% — but <span className="text-green-400/60">regime filter detects TREND and switches to HOLD</span>, preventing grid losses.
+                  Strategy only activates in confirmed RANGING regime with channel width {'>'} 0.7%.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+
         {/* Footer */}
         <footer className="pt-8 pb-12 border-t border-white/5 text-center relative">
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-purple-900/[0.03] to-transparent" />
