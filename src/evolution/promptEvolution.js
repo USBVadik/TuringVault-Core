@@ -188,7 +188,7 @@ class PromptEvolution {
       console.log("  [EVOLUTION] outcomeTracker not available for guard check");
     }
 
-    const MIN_SETTLED_TRADES = 20;
+    const MIN_SETTLED_TRADES = 10;
     if (settledCount < MIN_SETTLED_TRADES) {
       const msg = `Evolution skipped: only ${settledCount}/20 trades settled`;
       console.log(`  [EVOLUTION] ${msg}`);
@@ -444,6 +444,12 @@ Output STRICT JSON:
       performance: { score: 0 }
     });
     
+    // Save locally for immediate use (IPFS gateways are unreliable)
+    const localCardPath = path.resolve(__dirname, "../../assets/agent-card.json");
+    fs.mkdirSync(path.dirname(localCardPath), { recursive: true });
+    fs.writeFileSync(localCardPath, JSON.stringify(updatedCard, null, 2));
+    console.log(`     Local card saved: assets/agent-card.json`);
+    
     return { updatedCard, ipfsResult, txHash: tx.hash };
   }
 
@@ -538,6 +544,23 @@ Output STRICT JSON:
  * Falls back to hardcoded prompts if IPFS unavailable
  */
 async function loadPromptFromIPFS() {
+  // Try local card first (saved by evolution, always up-to-date)
+  const localCardPath = path.resolve(__dirname, "../../assets/agent-card.json");
+  if (fs.existsSync(localCardPath)) {
+    try {
+      const card = JSON.parse(fs.readFileSync(localCardPath, "utf8"));
+      if (card.systemPrompt?.analyst) {
+        return {
+          analyst: card.systemPrompt.analyst,
+          validator: card.systemPrompt.validator || null,
+          riskParameters: card.systemPrompt.riskParameters || null,
+          version: card.systemPrompt.version || "local"
+        };
+      }
+    } catch {}
+  }
+
+  // Fallback: try IPFS via on-chain tokenURI
   try {
     const provider = new ethers.JsonRpcProvider("https://rpc.mantle.xyz");
     const identity = new ethers.Contract(IDENTITY_ADDRESS, IDENTITY_ABI, provider);
@@ -546,7 +569,7 @@ async function loadPromptFromIPFS() {
     if (!tokenURI || !tokenURI.startsWith("ipfs://")) return null;
     
     const cid = tokenURI.replace("ipfs://", "");
-    const response = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+    const response = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) return null;
     
     const card = await response.json();

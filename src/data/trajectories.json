@@ -183,5 +183,89 @@
       "toolCallsValidator": 0,
       "dataPointsUsed": 5
     }
+  },
+  {
+    "id": "traj_1779470271601",
+    "timestamp": "2026-05-22T17:17:51.601Z",
+    "proposalId": 65,
+    "analyst": {
+      "decision": "HOLD",
+      "confidence": 0.25,
+      "reasoning": "Multiple conflicting signals prevent SWAP recommendation. ETH shows -0.62% 24h decline, indicating trend continuation per rule (1) — not reversal. Extreme funding rates (1.4% on ETH/BTC) suggest crowded short positioning, which historically supports contrarian LONG bias, contradicting the bearish consensus. The structured signals show BEARISH consensus, but with only 35% regime confidence and neutral smart money flow, conviction is weak. Most critically, with approved SWAPs at 13% accuracy, a -20% confidence penalty applies to any consensus-aligned trade. The yield spread (-1% mETH vs USDY) is bearish but not actionable alone. No 2+ independent high-conviction signals align. Better to preserve capital than force a low-probability trade.",
+      "signals": [
+        {
+          "type": "trend",
+          "direction": "BEARISH",
+          "strength": "weak",
+          "detail": "ETH -0.62% 24h indicates continuation, not reversal opportunity"
+        },
+        {
+          "type": "funding",
+          "direction": "BULLISH",
+          "strength": "strong",
+          "detail": "Extreme funding 1.4% on ETH perps suggests crowded shorts — contrarian LONG bias"
+        },
+        {
+          "type": "sentiment",
+          "direction": "NEUTRAL",
+          "strength": "weak",
+          "detail": "Fear & Greed at 28 (Fear) — historically supportive of bottoms but not timing signal"
+        },
+        {
+          "type": "smart_money",
+          "direction": "NEUTRAL",
+          "strength": "weak",
+          "detail": "24h outflow $0.0M — no directional conviction from whales"
+        },
+        {
+          "type": "yield_spread",
+          "direction": "BEARISH",
+          "strength": "moderate",
+          "detail": "mETH vs USDY spread at -1% indicates relative weakness"
+        },
+        {
+          "type": "accuracy_penalty",
+          "direction": "NEUTRAL",
+          "strength": "strong",
+          "detail": "13% SWAP accuracy triggers -20% confidence penalty on consensus trades"
+        }
+      ],
+      "action": "hold",
+      "direction": "neutral",
+      "targetAsset": "mUSD",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.78,
+      "riskScore": 18,
+      "reasoning": "The Analyst proposes HOLD with 25% confidence — a defensive, capital-preserving action. This passes validation. Key checks: (1) Regime is HOLD at only 35% confidence — undefined/mixed. No directional SWAP is proposed, so the 'no directional swap in ranging regime' rule is not triggered. (2) The Analyst correctly identifies the contradiction between bearish consensus and crowded short positioning (ETH/BTC funding at 1.4% annualized suggesting potential squeeze). This contradiction is explicitly acknowledged, satisfying the contradictory-signals requirement. (3) R:R check is not applicable to a HOLD action — no capital is being deployed into a directional trade. (4) Smart money flow is neutral ($0.0M outflow), yield spread is -1% bearish but weak standalone signal, regime confidence is low — the Analyst's conclusion that no 2+ independent high-conviction signals align is accurate and matches the raw structured signals. (5) The 20% allocation reference to mUSD appears to be a pre-existing or partial defensive position, not a new SWAP proposal — the action is explicitly 'hold', not 'swap'. No new capital is being risked. (6) One minor flag: the Analyst lists empty risk factors [], which is sloppy — key risks include ETH downside continuation toward $2017 liquidity level and potential short squeeze. However, this does not invalidate a HOLD recommendation. (7) The -20% confidence penalty for consensus-aligned trades is correctly applied and further justifies inaction. Overall: HOLD is the correct, low-risk action given undefined regime, weak signal conviction, and contradictory directional indicators. Capital preservation is the appropriate default.",
+      "flaggedIssues": [
+        "Risk factors array is empty — Analyst should have listed $2017 liquidation level as downside risk and short squeeze potential as upside risk",
+        "Allocation field shows 20% to mUSD but action is HOLD — ambiguous whether this represents a new swap or existing position; no new swap is being executed so not a rejection trigger",
+        "Regime confidence of 35% is extremely low — Analyst correctly treats this as undefined but should have flagged it more explicitly as a primary rejection reason for any directional trade"
+      ],
+      "recommendation": "approve"
+    },
+    "consensus": false,
+    "regime": "HOLD",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2122.91,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 9
+    }
   }
 ]

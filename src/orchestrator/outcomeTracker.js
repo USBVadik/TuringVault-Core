@@ -27,8 +27,8 @@ const fs = require('fs');
 const { ethers } = require('ethers');
 
 const OUTCOMES_PATH = path.resolve(__dirname, '../data/outcomes.json');
-const SETTLE_DELAY_MS = 4 * 60 * 60 * 1000; // 4 hours
-const MIN_PRICE_MOVE_PCT = 0.3; // ignore sub-0.3% moves (noise)
+const SETTLE_DELAY_MS = 1 * 60 * 60 * 1000; // 1 hour (ranging markets need faster feedback)
+const MIN_PRICE_MOVE_PCT = 0.1; // 0.1% threshold (was 0.3% — too strict for ranging/L2)
 
 const REPUTATION_ABI = [
   'function recordPnL(uint256 agentId, int128 pnlBps, bytes32 reasoningHash) external',
