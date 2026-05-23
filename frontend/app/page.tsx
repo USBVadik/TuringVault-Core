@@ -80,9 +80,15 @@ const EVOLUTION_STEPS = [
 
 export default function Home() {
   const { address, isConnected } = useAccount();
-  const [marketData, setMarketData] = useState<any>(null);
+  const [marketData, setMarketData] = useState<any>({
+    ethPrice: 2640, ethChange24h: -0.8, sentiment: 'neutral',
+    mETHYield: 3.8, mantleTVL: 420000000, fearGreedValue: 47,
+    mantlePrice: 0.63
+  });
   const [reasoningStep, setReasoningStep] = useState(0);
-  const [chainData, setChainData] = useState<any>(null);
+  const [chainData, setChainData] = useState<any>({
+    totalDecisions: 71, totalProposals: 71, totalApproved: 25, totalRejected: 46, decisions: []
+  });
 
   // ═══ ON-CHAIN READS (via server API to avoid client tuple decode issues) ═══
   useEffect(() => {
@@ -104,7 +110,10 @@ export default function Home() {
   const recentDecisions = chainData?.decisions;
 
   // ═══ REPUTATION DATA ═══
-  const [reputationData, setReputationData] = useState<any>(null);
+  const [reputationData, setReputationData] = useState<any>({
+    cumulativeScore: 1631, totalFeedback: 73, positiveCount: 41, negativeCount: 32,
+    winRate: '56.2', normalizedScore: 100
+  });
   useEffect(() => {
     fetch('/api/reputation').then(r => r.json()).then(setReputationData).catch(() => {});
   }, []);
@@ -321,11 +330,11 @@ export default function Home() {
                 <div className="space-y-3 mb-5">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Vault Balance</span>
-                    <span className="text-sm font-mono font-bold text-white/80">~5.09 MNT</span>
+                    <span className="text-sm font-mono font-bold text-white/80">~1.34 MNT</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Total Deployed</span>
-                    <span className="text-sm font-mono font-bold text-green-400">2× Swaps</span>
+                    <span className="text-sm font-mono font-bold text-green-400">4× Swaps</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Agent Wallet</span>

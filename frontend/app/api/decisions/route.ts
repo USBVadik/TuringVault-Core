@@ -2,18 +2,38 @@ import { NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
 const DECISION_LOG_ADDR = "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5";
-const ABI = [
+const VALIDATION_REGISTRY = "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6";
+
+const DECISION_ABI = [
   "event DecisionLogged(uint256 indexed decisionId, string action, string targetAsset, uint256 confidence, string reasoningHash)",
   "function totalDecisions() view returns (uint256)"
+];
+
+const REGISTRY_ABI = [
+  "function totalProposals() view returns (uint256)",
+  "function totalApproved() view returns (uint256)",
+  "function totalRejected() view returns (uint256)"
 ];
 
 export async function GET() {
   try {
     const provider = new ethers.JsonRpcProvider("https://rpc.mantle.xyz");
-    const contract = new ethers.Contract(DECISION_LOG_ADDR, ABI, provider);
+    const contract = new ethers.Contract(DECISION_LOG_ADDR, DECISION_ABI, provider);
+    const registry = new ethers.Contract(VALIDATION_REGISTRY, REGISTRY_ABI, provider);
     
-    const total = Number(await contract.totalDecisions());
-    const events = await contract.queryFilter("DecisionLogged", -200000);
+    // Get stats from ValidationRegistry (source of truth)
+    const [totalProposals, totalApproved, totalRejected] = await Promise.all([
+      registry.totalProposals(),
+      registry.totalApproved(),
+      registry.totalRejected(),
+    ]);
+    
+    const total = Number(totalProposals);
+    
+    // Get recent decision events for the log table
+    const currentBlock = await provider.getBlockNumber();
+    const fromBlock = Math.max(0, currentBlock - 500000);
+    const events = await contract.queryFilter("DecisionLogged", fromBlock);
     
     const decisions = events.slice(-20).map((e: any) => ({
       id: Number(e.args[0]),
@@ -29,16 +49,12 @@ export async function GET() {
       amountIn: "1000000000000000000",
     })).reverse();
 
-    // Stats
-    const swaps = events.filter((e: any) => e.args[1] === 'swap').length;
-    const holds = events.filter((e: any) => e.args[1] === 'hold').length;
-
     return NextResponse.json({ 
       total,
       totalDecisions: total,
       totalProposals: total,
-      totalApproved: swaps,
-      totalRejected: holds,
+      totalApproved: Number(totalApproved),
+      totalRejected: Number(totalRejected),
       decisions,
       contract: DECISION_LOG_ADDR,
       chain: "Mantle Mainnet (5000)"

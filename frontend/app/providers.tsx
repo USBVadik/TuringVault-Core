@@ -41,7 +41,7 @@ const mantleMainnet = defineChain({
 const config = getDefaultConfig({
   appName: 'TuringVault',
   projectId: '4bbc4a3e3e36d2e28cf769726eb36313',
-  chains: [mantleSepolia, mantleMainnet],
+  chains: [mantleMainnet, mantleSepolia],
   ssr: true,
 });
 

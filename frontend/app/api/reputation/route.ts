@@ -17,7 +17,7 @@ export async function GET() {
       address: REPUTATION,
       abi,
       functionName: 'getReputation',
-      args: [BigInt(1)],
+      args: [BigInt(0)],
     });
 
     return NextResponse.json({

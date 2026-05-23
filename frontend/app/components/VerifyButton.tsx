@@ -14,8 +14,8 @@ const REGISTRY_ABI = [
 ] as const;
 
 const REPUTATION_ABI = [
-  { name: 'agentScores', type: 'function', stateMutability: 'view', inputs: [{ name: 'agentId', type: 'uint256' }], outputs: [{ type: 'int128' }] },
-  { name: 'totalFeedbacks', type: 'function', stateMutability: 'view', inputs: [{ name: 'agentId', type: 'uint256' }], outputs: [{ type: 'uint256' }] },
+  { name: 'getReputation', type: 'function', stateMutability: 'view', inputs: [{ name: 'agentId', type: 'uint256' }], outputs: [{ type: 'int128' }] },
+  { name: 'getFeedbackCount', type: 'function', stateMutability: 'view', inputs: [{ name: 'agentId', type: 'uint256' }], outputs: [{ type: 'uint256' }] },
 ] as const;
 
 export function VerifyButton() {
@@ -23,19 +23,19 @@ export function VerifyButton() {
   const [verified, setVerified] = useState(false);
 
   const { data: totalProposals } = useReadContract({
-    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalProposals',
+    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalProposals', chainId: 5000,
   });
   const { data: totalApproved } = useReadContract({
-    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalApproved',
+    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalApproved', chainId: 5000,
   });
   const { data: totalRejected } = useReadContract({
-    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalRejected',
+    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalRejected', chainId: 5000,
   });
   const { data: agentScore } = useReadContract({
-    address: REPUTATION_REGISTRY, abi: REPUTATION_ABI, functionName: 'agentScores', args: [BigInt(0)],
+    address: REPUTATION_REGISTRY, abi: REPUTATION_ABI, functionName: 'getReputation', args: [BigInt(0)], chainId: 5000,
   });
   const { data: totalFeedbacks } = useReadContract({
-    address: REPUTATION_REGISTRY, abi: REPUTATION_ABI, functionName: 'totalFeedbacks', args: [BigInt(0)],
+    address: REPUTATION_REGISTRY, abi: REPUTATION_ABI, functionName: 'getFeedbackCount', args: [BigInt(0)], chainId: 5000,
   });
 
   const handleVerify = () => {
