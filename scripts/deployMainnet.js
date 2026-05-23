@@ -29,7 +29,7 @@ async function main() {
   // Merchant Moe LB Router: 0x1E2A72DE26Ba630a4C71B87C5d5A2E1bb5DD2E8d (placeholder)
   console.log("Deploying TuringVaultRouter...");
   const Router = await ethers.getContractFactory("TuringVaultRouter");
-  const router = await Router.deploy();
+  const router = await Router.deploy(ethers.ZeroAddress);
   await router.waitForDeployment();
   const rAddr = await router.getAddress();
   console.log("✅ Router:", rAddr);

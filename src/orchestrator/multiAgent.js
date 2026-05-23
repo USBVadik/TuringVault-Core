@@ -23,12 +23,19 @@ const path = require("path");
 const { BedrockRuntimeClient, ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
 const { validateDecision } = require("./validator");
 const { z } = require("zod");
+const {
+  BASE_CONFIDENCE_THRESHOLD,
+  ELEVATED_CONFIDENCE_THRESHOLD,
+  VALIDATOR_TOLERANCE,
+  DEFAULT_CONFIDENCE_FALLBACK,
+  MAX_RISK_SCORE,
+  MAX_TOKENS_VALIDATOR,
+  VALIDATOR_TEMPERATURE,
+} = require("../config/constants");
 
 // === DYNAMIC CONFIDENCE THRESHOLD ===
 // Reads outcome history and raises threshold after consecutive losses
 const OUTCOME_HISTORY_PATH = path.resolve(__dirname, "../../data/outcome_history.json");
-const BASE_CONFIDENCE_THRESHOLD = 0.60;
-const ELEVATED_CONFIDENCE_THRESHOLD = 0.85;
 const CONSECUTIVE_LOSS_TRIGGER = 3;
 
 function getDynamicConfidenceThreshold() {
@@ -250,7 +257,7 @@ function normalizeAnalystResponse(raw) {
   // confidence
   if (r.confidence === undefined && r.conf !== undefined) r.confidence = r.conf;
   r.confidence = Number(r.confidence);
-  if (isNaN(r.confidence)) r.confidence = 0.5;
+  if (isNaN(r.confidence)) r.confidence = DEFAULT_CONFIDENCE_FALLBACK;
   // If given as percentage (>1), convert to 0-1
   if (r.confidence > 1 && r.confidence <= 100) r.confidence = r.confidence / 100;
   if (r.confidence > 1) r.confidence = 1;
@@ -284,7 +291,7 @@ function normalizeValidatorResponse(raw) {
   if (r.validatorConfidence === undefined && r.validator_confidence !== undefined) r.validatorConfidence = r.validator_confidence;
   if (r.validatorConfidence === undefined && r.confidence !== undefined) r.validatorConfidence = r.confidence;
   r.validatorConfidence = Number(r.validatorConfidence);
-  if (isNaN(r.validatorConfidence)) r.validatorConfidence = 0.5;
+  if (isNaN(r.validatorConfidence)) r.validatorConfidence = DEFAULT_CONFIDENCE_FALLBACK;
   if (r.validatorConfidence > 1 && r.validatorConfidence <= 100) r.validatorConfidence = r.validatorConfidence / 100;
   if (r.validatorConfidence > 1) r.validatorConfidence = 1;
   
@@ -327,7 +334,7 @@ async function callAgent(systemPrompt, userMessage, modelId) {
     modelId: modelId || MODELS.analyst,
     system: [{ text: systemPrompt }],
     messages: [{ role: "user", content: [{ text: userMessage }] }],
-    inferenceConfig: { maxTokens: 1024, temperature: 0.1 }
+    inferenceConfig: { maxTokens: MAX_TOKENS_VALIDATOR, temperature: VALIDATOR_TEMPERATURE }
   });
 
   const response = await client.send(command);
@@ -484,8 +491,8 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
   
   const analystWantsAction = analystDecision.confidence >= confidenceThreshold && analystDecision.action !== "hold";
   const validatorApproves = validator.approved
-    && validator.validatorConfidence >= (confidenceThreshold - 0.05)
-    && validator.riskScore <= 75;
+    && validator.validatorConfidence >= (confidenceThreshold - VALIDATOR_TOLERANCE)
+    && validator.riskScore <= MAX_RISK_SCORE;
 
   let consensus = analystWantsAction && validatorApproves;
   let arbiterVote = null;
@@ -540,4 +547,4 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
   };
 }
 
-module.exports = { getMultiAgentDecision, callAgent };
+module.exports = { getMultiAgentDecision, callAgent, normalizeAnalystResponse, normalizeValidatorResponse, getDynamicConfidenceThreshold };

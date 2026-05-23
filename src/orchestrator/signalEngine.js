@@ -79,11 +79,11 @@ async function getFundingSignal() {
     try {
       // Try Byreal first (has more signals), fallback to Hyperliquid
       let funding = null;
+      let ethSignal = null;
 
       try {
         const engine = new ExecutionEngine({ dryRun: true });
         const signals = await engine.getSignals();
-        let ethSignal = null;
         for (const items of Object.values(signals)) {
           if (!Array.isArray(items)) continue;
           const eth = items.find(s =>
@@ -126,8 +126,8 @@ async function getFundingSignal() {
         value: funding,
         signal,
         strength,
-        rsi: parseFloat(ethSignal.rsi || 50),
-        openInterest: ethSignal.openInterest || null,
+        rsi: parseFloat(ethSignal?.rsi || 50),
+        openInterest: ethSignal?.openInterest || null,
         source: 'byreal',
         raw: ethSignal,
       };

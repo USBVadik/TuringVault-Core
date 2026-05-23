@@ -14,7 +14,7 @@ async function main() {
   // 3. Router
   console.log("\nDeploying TuringVaultRouter...");
   const Router = await ethers.getContractFactory("TuringVaultRouter");
-  const router = await Router.deploy();
+  const router = await Router.deploy(ethers.ZeroAddress); // will link registry after
   await router.waitForDeployment();
   const rAddr = await router.getAddress();
   console.log("✅ Router:", rAddr);
@@ -27,7 +27,13 @@ async function main() {
   const regAddr = await registry.getAddress();
   console.log("✅ ValidationRegistry:", regAddr);
 
-  // 5. Mint AI Agent Identity NFT
+  // 5. Link Router <-> ValidationRegistry
+  console.log("\nLinking Router to ValidationRegistry...");
+  const linkTx = await router.setValidationRegistry(regAddr);
+  await linkTx.wait();
+  console.log("✅ Router linked to ValidationRegistry");
+
+  // 6. Mint AI Agent Identity NFT
   console.log("\nMinting AI Agent Identity NFT...");
   const identity = await ethers.getContractAt("TuringVaultIdentity", "0x582E6a649B99784829193E14bB7Af8c4A482E165");
   const tx = await identity.mintAgentIdentity(

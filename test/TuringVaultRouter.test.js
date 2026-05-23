@@ -21,7 +21,7 @@ describe("TuringVaultRouter", function () {
 
     // Deploy TuringVaultRouter
     const Router = await ethers.getContractFactory("TuringVaultRouter");
-    router = await Router.deploy();
+    router = await Router.deploy(ethers.ZeroAddress);
     await router.waitForDeployment();
 
     // Mint tokens to owner for deposit testing
@@ -110,9 +110,10 @@ describe("TuringVaultRouter", function () {
         await tokenA.getAddress(),
         await tokenB.getAddress(),
         swapAmount,
-        0,
+        1,
         [15],
-        [2]
+        [2],
+        0
       )).to.be.revertedWith("Exceeds max swap size");
     });
 
@@ -122,10 +123,24 @@ describe("TuringVaultRouter", function () {
         await tokenA.getAddress(),
         await tokenB.getAddress(),
         swapAmount,
+        1,
+        [15],
+        [2],
+        0
+      )).to.be.revertedWith("Exceeds balance");
+    });
+
+    it("should reject swap with zero amountOutMin", async () => {
+      const swapAmount = ethers.parseEther("100");
+      await expect(router.executeSwap(
+        await tokenA.getAddress(),
+        await tokenB.getAddress(),
+        swapAmount,
         0,
         [15],
-        [2]
-      )).to.be.revertedWith("Exceeds balance");
+        [2],
+        0
+      )).to.be.revertedWith("amountOutMin cannot be zero");
     });
   });
 

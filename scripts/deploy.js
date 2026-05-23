@@ -22,7 +22,7 @@ async function main() {
   // 3. Deploy TuringVaultRouter
   console.log("\n--- Deploying TuringVaultRouter ---");
   const Router = await ethers.getContractFactory("TuringVaultRouter");
-  const router = await Router.deploy();
+  const router = await Router.deploy(ethers.ZeroAddress);
   await router.waitForDeployment();
   console.log("TuringVaultRouter deployed to:", await router.getAddress());
 

@@ -211,6 +211,17 @@ contract TuringVaultValidationRegistry is Ownable {
     }
 
     /**
+     * @notice Mark expired proposals as Expired (cleanup)
+     */
+    function expireProposal(uint256 proposalId) external {
+        require(proposalId < proposals.length, "Invalid proposal ID");
+        Proposal storage p = proposals[proposalId];
+        require(p.status == ValidationStatus.Pending, "Not pending");
+        require(block.timestamp - p.timestamp > proposalTTL, "Not yet expired");
+        p.status = ValidationStatus.Expired;
+    }
+
+    /**
      * @notice Get consensus rate (approved / total)
      */
     function getConsensusRate() external view returns (uint256 approved, uint256 rejected, uint256 total) {

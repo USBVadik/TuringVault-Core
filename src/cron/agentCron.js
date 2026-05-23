@@ -29,6 +29,24 @@ let lastDayReset = new Date().toDateString();
 process.on('SIGTERM', () => { running = false; console.log('\n⏹️  SIGTERM received — stopping after current cycle'); });
 process.on('SIGINT', () => { running = false; console.log('\n⏹️  SIGINT received — stopping after current cycle'); });
 
+// Process-level error handlers — prevent silent crashes
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Unhandled Promise Rejection:', reason);
+  console.error('   Promise:', promise);
+  consecutiveErrors++;
+  if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+    console.error('💀 Too many unhandled rejections — shutting down safely');
+    running = false;
+  }
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('🚨 Uncaught Exception:', error.message);
+  console.error('   Stack:', error.stack);
+  console.error('💀 Shutting down after uncaught exception');
+  process.exit(1);
+});
+
 async function runCycle() {
   const startTime = Date.now();
   cycleCount++;

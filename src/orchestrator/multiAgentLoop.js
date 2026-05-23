@@ -259,7 +259,7 @@ async function runMultiAgentCycle() {
         
         // USDY idle parking — don't let cash sit at 0% yield
         const { getIdleParkingSignal } = require('../strategies/idleParking');
-        const parkSignal = getIdleParkingSignal(signals?.regime?.regime || 'HOLD');
+        const parkSignal = getIdleParkingSignal(market.structuredSignals?.regime?.regime || 'HOLD');
         if (parkSignal) {
           console.log(`   💰 ${parkSignal.reason}`);
           console.log(`   💰 Route: ${parkSignal.route}`);
