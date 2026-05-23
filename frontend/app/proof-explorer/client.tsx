@@ -348,6 +348,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                 { label: 'Market Data', sub: 'Nansen MCP + CoinGecko + DeFiLlama', color: 'from-blue-500/20 to-blue-500/5' },
                 { label: 'GLM-5 Analyst', sub: 'Tencent Cloud reasoning', color: 'from-purple-500/20 to-purple-500/5' },
                 { label: 'Claude 4.6 Validator', sub: 'Adversarial check', color: 'from-orange-500/20 to-orange-500/5' },
+                { label: 'Gemini 3.5 Arbiter', sub: 'Flash tie-breaker', color: 'from-pink-500/20 to-pink-500/5' },
                 { label: 'VaR Gate', sub: '<50 auto · 50-150 supervised · >150 blocked', color: 'from-red-500/20 to-red-500/5' },
                 { label: 'KMS Sign', sub: 'Tencent Cloud HSM', color: 'from-yellow-500/20 to-yellow-500/5' },
                 { label: 'Execution', sub: 'Merchant Moe LB + Odos', color: 'from-green-500/20 to-green-500/5' },
@@ -358,7 +359,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                     <span className="text-[10px] font-medium text-white/80 text-center leading-tight">{s.label}</span>
                     <span className="text-[8px] text-white/30 text-center mt-1">{s.sub}</span>
                   </div>
-                  {i < 6 && (
+                  {i < 7 && (
                     <div className="mx-1 arrow-animate hidden md:block" style={{ animationDelay: `${i * 0.3}s` }}>
                       <svg className="w-4 h-4 text-white/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </div>
@@ -385,6 +386,7 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
                 { name: 'Mantle', role: 'Immutable proof layer', detail: '4 Sourcify-verified contracts', proof: 'https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5', proofLabel: 'DecisionLog contract' },
                 { name: 'Pinata', role: 'Reasoning artifact storage', detail: 'IPFS-pinned Agent Cards', proof: 'https://gateway.pinata.cloud/ipfs/QmYqTNXxtYyNPxkSuaeeoBbbDGjZBv6rqVQy5RFJ3rJmRQ', proofLabel: 'Agent Card JSON' },
                 { name: 'Anthropic', role: 'Adversarial validation model', detail: 'Claude 4.6 via Bedrock', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js#L1', proofLabel: 'Validator logic' },
+                { name: 'Google', role: 'Arbiter tie-breaker model', detail: 'Gemini 3.5 Flash via Vertex AI', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js#L1', proofLabel: 'Arbiter logic' },
                 { name: 'OpenCheck', role: 'Contract verification & audit', detail: 'On-chain code integrity', proof: 'https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6', proofLabel: 'ValidationRegistry' },
                 { name: 'Mirana', role: 'Institutional-grade strategy design', detail: 'Risk framework advisory', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/docs/ARCHITECTURE.md', proofLabel: 'Architecture docs' },
               ].map((p, i) => (

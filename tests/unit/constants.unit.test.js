@@ -2,7 +2,7 @@
  * Validate trading constants are sane and consistent.
  */
 
-const constants = require('../src/config/constants');
+const constants = require('../../src/config/constants');
 
 describe('Trading Constants', () => {
   describe('sanity checks', () => {

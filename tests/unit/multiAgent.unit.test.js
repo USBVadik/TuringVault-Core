@@ -5,8 +5,8 @@
  * unpredictable AI output into structured trading decisions.
  */
 
-const { normalizeAnalystResponse, normalizeValidatorResponse, getDynamicConfidenceThreshold } = require('../src/orchestrator/multiAgent');
-const { DEFAULT_CONFIDENCE_FALLBACK } = require('../src/config/constants');
+const { normalizeAnalystResponse, normalizeValidatorResponse, getDynamicConfidenceThreshold } = require('../../src/orchestrator/multiAgent');
+const { DEFAULT_CONFIDENCE_FALLBACK } = require('../../src/config/constants');
 
 describe('normalizeAnalystResponse', () => {
   describe('action normalization', () => {
@@ -333,7 +333,7 @@ describe('getDynamicConfidenceThreshold', () => {
   });
 
   it('should return at least BASE_CONFIDENCE_THRESHOLD', () => {
-    const { BASE_CONFIDENCE_THRESHOLD } = require('../src/config/constants');
+    const { BASE_CONFIDENCE_THRESHOLD } = require('../../src/config/constants');
     const threshold = getDynamicConfidenceThreshold();
     expect(threshold).toBeGreaterThanOrEqual(BASE_CONFIDENCE_THRESHOLD);
   });

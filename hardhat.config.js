@@ -11,6 +11,12 @@ module.exports = {
       evmVersion: "cancun"
     }
   },
+  paths: {
+    tests: "./test",
+  },
+  mocha: {
+    ignore: ["**/test/unit/**"],
+  },
   networks: {
     hardhat: {},
     mantleSepolia: {
