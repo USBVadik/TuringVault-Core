@@ -370,11 +370,11 @@ export default function Home() {
                 <div className="space-y-3 mb-5">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Vault Balance</span>
-                    <span className="text-sm font-mono font-bold text-white/80">~1.34 MNT</span>
+                    <span className="text-sm font-mono font-bold text-white/80">~57.4 MNT</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Total Deployed</span>
-                    <span className="text-sm font-mono font-bold text-green-400">4× Swaps</span>
+                    <span className="text-sm font-mono font-bold text-green-400">91× Decisions</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Agent Wallet</span>
