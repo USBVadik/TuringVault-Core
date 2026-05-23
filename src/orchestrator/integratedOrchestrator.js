@@ -379,6 +379,48 @@ async function runIntegratedCycle(options = {}) {
     console.log(`   ⚠️  Reputation: ${e.message?.slice(0, 50)}`);
   }
 
+  // ─── Step 8: EXECUTE SWAP (if consensus + autonomous) ───
+  let executionResult = null;
+  if (decision.consensus && autonomyLevel === "AUTONOMOUS" && decision.analyst?.action === "swap") {
+    console.log("\n💱 [8/8] Executing real swap on Merchant Moe...");
+    try {
+      const targetAsset = decision.analyst?.targetAsset;
+      const allocationPct = Math.min(decision.analyst?.allocationPct || 30, CONFIG.maxSwapSizeUSD);
+      
+      // Calculate swap amount based on portfolio
+      const mntBalance = balances.MNT || 0;
+      const swapAmountMNT = Math.min(
+        mntBalance * (allocationPct / 100),
+        CONFIG.maxSwapSizeUSD / (market.mntPrice || 0.72) // Cap at $100
+      );
+      
+      if (swapAmountMNT < 1) {
+        console.log(`   ⚠️  Swap amount too small (${swapAmountMNT.toFixed(2)} MNT). Skipping.`);
+      } else {
+        const tokenIn = targetAsset === "mETH" ? "WMNT" : "WMNT";
+        const tokenOut = targetAsset === "mETH" ? "mETH" : "USDT";
+        const amountWei = ethers.parseEther(swapAmountMNT.toFixed(6));
+        
+        console.log(`   Swapping ${swapAmountMNT.toFixed(2)} MNT → ${tokenOut} (${allocationPct}% allocation)`);
+        executionResult = await dex.executeSwap(tokenIn, tokenOut, amountWei);
+        
+        if (executionResult.executed) {
+          console.log(`   ✅ SWAP EXECUTED: ${executionResult.txHash}`);
+          console.log(`   Gas: ${executionResult.gasUsed} | Block: ${executionResult.blockNumber}`);
+        } else {
+          console.log(`   ⚠️  Swap not executed: ${executionResult.reason}`);
+        }
+      }
+    } catch (execErr) {
+      console.log(`   ❌ Execution failed: ${execErr.message?.slice(0, 100)}`);
+      executionResult = { executed: false, error: execErr.message };
+    }
+  } else if (decision.consensus && decision.analyst?.action === "hold") {
+    console.log("\n📌 [8/8] HOLD — no swap needed.");
+  } else {
+    console.log("\n⛔ [8/8] No execution — consensus not reached or VaR blocked.");
+  }
+
   // ─── Update Agent Card on IPFS ───
   try {
     const { uploadAndUpdateAgentCard } = require("../../scripts/uploadAgentCard");
