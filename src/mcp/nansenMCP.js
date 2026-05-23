@@ -114,8 +114,16 @@ class NansenMCPClient {
    */
   async getSmartMoneyBalances(params = {}) {
     return this.callTool("smart_traders_and_funds_token_balances", {
-      chain: "ethereum",
-      ...params
+      request: {
+        chains: params.chains || ["all"],
+        includeStablecoin: params.includeStablecoin ?? true,
+        includeNativeTokens: params.includeNativeTokens ?? true,
+        orderBy: params.orderBy || "value_usd",
+        orderByDirection: params.orderByDirection || "DESC",
+        minHolders: params.minHolders || 2,
+        page: params.page || 1,
+        ...params.request
+      }
     });
   }
 
@@ -124,7 +132,13 @@ class NansenMCPClient {
    * Credits: 5 per call
    */
   async getSmartMoneyPerpTrades(params = {}) {
-    return this.callTool("smart_traders_and_funds_perp_trades", params);
+    return this.callTool("smart_traders_and_funds_perp_trades", {
+      request: {
+        order_by: "valueUsd",
+        order_by_direction: "desc",
+        ...params
+      }
+    });
   }
 
   /**
@@ -133,8 +147,11 @@ class NansenMCPClient {
    */
   async getTokenTopHolders(tokenAddress, chain = "ethereum") {
     return this.callTool("token_current_top_holders", {
-      token_address: tokenAddress,
-      chain
+      request: {
+        tokenAddress,
+        chain,
+        labelType: "top_100_holders"
+      }
     });
   }
 
@@ -144,14 +161,16 @@ class NansenMCPClient {
    */
   async getTokenDexTrades(tokenAddress, chain = "ethereum") {
     return this.callTool("token_dex_trades", {
-      token_address: tokenAddress,
-      chain
+      request: {
+        tokenAddress,
+        chain
+      }
     });
   }
 
   /**
    * General search — entities, smart money, tokens
-   * Credits: 5 per call
+   * Credits: FREE
    */
   async search(query) {
     return this.callTool("general_search", { query });
@@ -161,10 +180,13 @@ class NansenMCPClient {
    * Wallet PnL summary
    * Credits: 5 per call
    */
-  async getWalletPnL(address, chain = "ethereum") {
+  async getWalletPnL(address, chain = "evm") {
     return this.callTool("wallet_pnl_summary", {
-      address,
-      chain
+      request: {
+        walletAddress: address,
+        dateRange: { from: "30D_AGO", to: "NOW" },
+        chain
+      }
     });
   }
 
@@ -172,10 +194,13 @@ class NansenMCPClient {
    * Address portfolio — full DeFi positions
    * Credits: 5 per call
    */
-  async getAddressPortfolio(address, chain = "ethereum") {
+  async getAddressPortfolio(address, chain = "all") {
     return this.callTool("address_portfolio", {
-      address,
-      chain
+      request: {
+        walletAddress: address,
+        chain,
+        mode: "fast-mode-default"
+      }
     });
   }
 
@@ -185,8 +210,10 @@ class NansenMCPClient {
    */
   async getTokenAnalysis(tokenAddress, chain = "ethereum") {
     return this.callTool("token_god_mode", {
-      token_address: tokenAddress,
-      chain
+      request: {
+        tokenAddress,
+        chain
+      }
     });
   }
 
@@ -200,28 +227,32 @@ class NansenMCPClient {
 
   /**
    * Aggregate Smart Money intelligence for agent prompt context
-   * Uses 2-3 calls (10-15 credits) — call sparingly
+   * Uses 1 call (5 credits) — cached for 2 hours to save credits
    * Returns formatted string for LLM prompt injection
    */
   async getSmartMoneyContext() {
-    const [balances, perpTrades] = await Promise.all([
-      this.getSmartMoneyBalances(),
-      this.getSmartMoneyPerpTrades()
-    ]);
+    // Check 2-hour cache to save credits (100 credits budget)
+    const cacheKey = "_smartMoneyContext";
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < 7200000) { // 2 hours
+      return cached.data;
+    }
+
+    // Only call balances (5 credits) — skip perps to save budget
+    const balances = await this.getSmartMoneyBalances({ chains: ["ethereum", "mantle"] });
 
     let context = "=== NANSEN SMART MONEY INTELLIGENCE ===\n";
     
     if (balances) {
       context += "\n[Smart Money Token Holdings - 24h Changes]\n";
       context += typeof balances === "string" ? balances : JSON.stringify(balances, null, 2).slice(0, 2000);
-    }
-    
-    if (perpTrades) {
-      context += "\n\n[Smart Money Perpetual Positions (Hyperliquid)]\n";
-      context += typeof perpTrades === "string" ? perpTrades : JSON.stringify(perpTrades, null, 2).slice(0, 2000);
+    } else {
+      context += "\n[Smart Money data unavailable — using cached/fallback]\n";
     }
     
     context += "\n=== END NANSEN DATA ===";
+    
+    this.cache.set(cacheKey, { data: context, ts: Date.now() });
     return context;
   }
 
