@@ -64,7 +64,11 @@ async function callGeminiArbiter(systemPrompt, userMessage) {
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt }] },
       contents: [{ role: "user", parts: [{ text: userMessage }] }],
-      generationConfig: { maxOutputTokens: 1024 }
+      generationConfig: { 
+        maxOutputTokens: 512,
+        responseMimeType: "application/json",
+        thinkingConfig: { thinkingBudget: 1024 }
+      }
     })
   });
   

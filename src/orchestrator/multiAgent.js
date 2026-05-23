@@ -414,16 +414,12 @@ async function getMultiAgentDecision(marketData) {
 
   // STEP 1: Analyst proposes (try evolved prompt from IPFS first)
   const evolved = await getEvolvedPrompts();
-  // Use evolved prompt from IPFS if available AND it's not a fallback placeholder
-  const activeAnalystPrompt = (evolved?.analyst && evolved.analyst.length > 100) 
-    ? evolved.analyst 
-    : ANALYST_SYSTEM_PROMPT;
-  // Validator always uses local prompt — evolved versions may lack strict JSON enforcement
+  // DISABLED: evolved prompts cause format issues (SOL targets, markdown output)
+  // Use base prompt which enforces JSON + correct Mantle assets
+  const activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;
   const activeValidatorPrompt = VALIDATOR_SYSTEM_PROMPT;
-  if (evolved?.analyst && evolved.analyst.length > 100) {
-    console.log(`  [EVOLUTION] ✅ Using evolved analyst prompt v${evolved.version} from IPFS`);
-  } else if (evolved) {
-    console.log(`  [EVOLUTION] Evolved prompt v${evolved.version} too short, using local`);
+  if (evolved?.analyst) {
+    console.log(`  [EVOLUTION] Evolved prompt v${evolved.version} available but BYPASSED (format stability)`);
   }
   
   console.log(`  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`);

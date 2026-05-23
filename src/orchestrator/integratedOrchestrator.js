@@ -27,6 +27,7 @@ const { ethers } = require("ethers");
 const { getMultiAgentDecision } = require("./multiAgent");
 const { getUnifiedMarketContext } = require("./unifiedMarketData");
 const { MerchantMoeDEX } = require("../dex/merchantMoe");
+const { OpenOceanDEX } = require("../dex/openOcean");
 const { RWAModule } = require("../rwa/usdyModule");
 const { TencentKMSCrypto } = require("../kms/tencentKMS");
 
@@ -34,9 +35,9 @@ const { TencentKMSCrypto } = require("../kms/tencentKMS");
 const CONFIG = {
   // VaR threshold for Human vs AI autonomy
   varThreshold: {
-    autonomous: 50,   // VaR < 50 bps → AI acts alone
-    supervised: 150,  // 50 < VaR < 150 → AI proposes, human reviews
-    blocked: 300,     // VaR > 300 → no action (too risky)
+    autonomous: 200,  // VaR < 200 bps → AI acts alone
+    supervised: 350,  // 200 < VaR < 350 → AI proposes, human reviews
+    blocked: 500,     // VaR > 500 → no action (too risky)
   },
   // Execution limits
   maxSwapSizeUSD: 100,     // Max $100 per swap (hackathon demo)
@@ -170,8 +171,9 @@ async function runIntegratedCycle(options = {}) {
     provider
   );
 
-  // Initialize modules
-  const dex = new MerchantMoeDEX({ privateKey: wallet.privateKey, dryRun: mode !== "autonomous" });
+  // Initialize modules — OpenOcean for live execution, MerchantMoe for quotes
+  const dex = new OpenOceanDEX(provider, wallet, { dryRun: mode !== "autonomous" });
+  const dexQuoter = new MerchantMoeDEX({ privateKey: wallet.privateKey, dryRun: true });
   const rwa = new RWAModule({ privateKey: wallet.privateKey });
   const kms = new TencentKMSCrypto({ simulate: true }); // Always simulate until real KMS
   const intentQueue = new IntentQueue();

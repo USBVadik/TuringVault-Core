@@ -14,6 +14,8 @@
 require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
 const { NansenMCPClient } = require("../mcp/nansenMCP");
 const { ExecutionEngine } = require("../execution/executionEngine");
+const { getDerivativesContext } = require("../data/coinGlass");
+const { getFullTechnicalContext } = require("../data/technicalAnalysis");
 
 const CACHE = {};
 const CACHE_TTL = 5 * 60 * 1000; // 5 min for price data
@@ -164,6 +166,53 @@ async function getUnifiedMarketContext() {
       context += `  ${sig.coin} ${sig.direction} (RSI=${sig.rsi}, funding=${sig.fundingAnnualized}, score=${sig.score})\n`;
     }
     context += "\n";
+  }
+
+  // ─── DERIVATIVES (Funding + Liquidations) ───
+  try {
+    const derivatives = await getDerivativesContext();
+    if (derivatives.funding) {
+      context += `[DERIVATIVES / FUNDING]\n`;
+      context += `Avg Funding Rate: ${(derivatives.funding.avgFundingRate * 100).toFixed(3)}%\n`;
+      context += `Signal: ${derivatives.funding.fundingSignal}\n`;
+      context += `${derivatives.funding.interpretation}\n`;
+      if (derivatives.funding.topExchanges?.length > 0) {
+        context += `Top exchanges: ${derivatives.funding.topExchanges.map(e => `${e.exchange}:${(e.funding*100).toFixed(3)}%`).join(", ")}\n`;
+      }
+      context += "\n";
+    }
+    if (derivatives.liquidations) {
+      context += `[VOLATILITY / LIQUIDATION ZONES]\n`;
+      context += `Intraday vol: ${derivatives.liquidations.avgIntradayRange?.toFixed(2)}% (${derivatives.liquidations.volatilitySignal})\n`;
+      context += `Est. long liquidation zone: $${derivatives.liquidations.estimatedLiquidationZones?.longLiquidation}\n`;
+      context += `Est. short liquidation zone: $${derivatives.liquidations.estimatedLiquidationZones?.shortLiquidation}\n\n`;
+    }
+  } catch (e) {
+    context += `[DERIVATIVES] Error: ${e.message}\n\n`;
+  }
+
+  // ─── TECHNICAL ANALYSIS (RSI, EMA, MACD, Bollinger) ───
+  try {
+    const ta = await getFullTechnicalContext();
+    if (ta.ethereum) {
+      context += `[TECHNICAL ANALYSIS — ETH]\n`;
+      context += `Overall: ${ta.ethereum.overallSignal} (score: ${ta.ethereum.score})\n`;
+      context += `RSI(14): ${ta.ethereum.indicators.rsi.value} (${ta.ethereum.indicators.rsi.trend})\n`;
+      context += `EMA: 9=${ta.ethereum.indicators.ema.ema9} / 21=${ta.ethereum.indicators.ema.ema21} (${ta.ethereum.indicators.ema.trend})\n`;
+      context += `MACD: histogram ${ta.ethereum.indicators.macd.histogram} (${ta.ethereum.indicators.macd.trend})\n`;
+      if (ta.ethereum.indicators.bollinger) {
+        context += `Bollinger: position ${ta.ethereum.indicators.bollinger.position} (band width ${ta.ethereum.indicators.bollinger.bandwidth})\n`;
+      }
+      context += `Signals: ${ta.ethereum.signals.map(s => `${s.indicator}=${s.strength}`).join(", ")}\n\n`;
+    }
+    if (ta.mantle) {
+      context += `[TECHNICAL ANALYSIS — MNT]\n`;
+      context += `Overall: ${ta.mantle.overallSignal} (score: ${ta.mantle.score})\n`;
+      context += `RSI(14): ${ta.mantle.indicators.rsi.value} (${ta.mantle.indicators.rsi.trend})\n`;
+      context += `EMA: ${ta.mantle.indicators.ema.trend} | MACD: ${ta.mantle.indicators.macd.trend}\n\n`;
+    }
+  } catch (e) {
+    context += `[TECHNICAL ANALYSIS] Error: ${e.message}\n\n`;
   }
 
   context += `=== END MARKET DATA ===`;

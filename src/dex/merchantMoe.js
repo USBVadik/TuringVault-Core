@@ -180,7 +180,7 @@ class MerchantMoeDEX {
         versions: [2],
         tokenPath: [tokenInAddr, tokenOutAddr]
       },
-      viable: priceImpact < 5 // Less than 5% impact = viable
+      viable: priceImpact < 10 // Less than 10% impact = viable (Mantle pools thin)
     };
   }
 
