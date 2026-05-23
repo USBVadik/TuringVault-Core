@@ -267,5 +267,306 @@
       "toolCallsValidator": 0,
       "dataPointsUsed": 9
     }
+  },
+  {
+    "id": "traj_1779519695121",
+    "timestamp": "2026-05-23T07:01:35.121Z",
+    "proposalId": 66,
+    "analyst": {
+      "decision": "HOLD",
+      "confidence": 0.25,
+      "reasoning": "Multiple red flags prevent SWAP recommendation. (1) MNT down -4.96% in 24h — per rule, assume trend continuation not reversal. (2) Only 1 independent signal (yield spread -1%) supports bearish thesis; smart money flows are NEUTRAL, not confirming. (3) Funding rates on multiple perps (LIT, NEAR, WLD at 1.4%) are extreme — this typically supports contrarian positioning, undermining the bearish consensus. (4) Historical SWAP accuracy at 13% imposes heavy skepticism. (5) Fear & Greed at 28 (extreme fear) is historically a contrarian indicator suggesting potential bottom, not continuation. (6) No actionable mETH/Mantle smart money movement detected. With insufficient signal convergence, high funding rates suggesting crowded shorts, and extreme fear conditions, the defensive stance is to wait for clearer confirmation rather than chase the downside.",
+      "signals": [
+        "Price momentum: MNT -4.96% (24h) → trend continuation expected",
+        "Yield spread: mETH vs USDY at -1% → BEARISH",
+        "Smart money 24h: OUTFLOW $0.0M → NEUTRAL (no confirmation)",
+        "Funding rates: Multiple assets at 1.4% (LIT, NEAR, WLD) → extreme, supports contrarian",
+        "Sentiment: Fear & Greed 28 → extreme fear (contrarian indicator)",
+        "Regime: TREND_DOWN 60% confidence → mild bearish",
+        "Historical SWAP accuracy: 13% → high skepticism required"
+      ],
+      "action": "hold",
+      "direction": "neutral",
+      "targetAsset": "mUSD",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.78,
+      "riskScore": 18,
+      "reasoning": "The Analyst proposes HOLD (no swap, no directional trade) with 20% mUSD allocation and 25% confidence. This is a defensive, low-action proposal that passes validation. Key checks: (1) HOLD is not a directional SWAP, so the RANGING/TREND_DOWN regime restriction on directional swaps does not apply. (2) R:R ratio is not applicable to a HOLD — capital is preserved, not risked. (3) The Analyst's reasoning is internally consistent and well-argued: correctly identifies that only 1 independent signal (yield spread -1%) supports the bearish thesis, while smart money flows are NEUTRAL and funding rates on LIT/NEAR/WLD at 1.4% suggest crowded shorts — a legitimate contrarian flag. (4) Fear & Greed at 28 is correctly identified as a historically contrarian indicator. (5) The 13% historical SWAP accuracy caveat is a valid institutional prior that justifies inaction. (6) Cross-checking against raw signals: Regime is TREND_DOWN at 60% confidence (note: the structured signal block labels this as '0.6% confidence' which appears to be a data formatting anomaly — the narrative block states 60%, which is the operative figure). Signal consensus is BEARISH but supported by only one quantified signal (yield spread). Smart money flow is explicitly NEUTRAL at $0.0M outflow. Funding rate is listed as n/a in raw signals, though perps data shows elevated rates on specific assets — Analyst correctly synthesizes this. No hallucinated data points detected. (7) The only minor flag is that the Analyst lists Risk Factors as empty array — a HOLD in a TREND_DOWN regime with Fear at 28 carries residual opportunity cost risk and potential for continued drawdown, which should have been noted. However, this does not constitute a rejection trigger for a HOLD action. Overall: HOLD with partial defensive allocation is the appropriate low-risk response given signal ambiguity. APPROVE.",
+      "flaggedIssues": [
+        "Risk Factors array is empty — opportunity cost of holding during confirmed TREND_DOWN and potential continued ETH/MNT drawdown should have been documented",
+        "Raw signal block shows regime confidence as '0.6%' which conflicts with narrative '60%' — possible data formatting bug, not Analyst hallucination, but worth flagging for system integrity",
+        "Analyst does not explicitly address the 20% mUSD allocation rationale — unclear if this is existing allocation or a proposed partial rotation; if it implies a swap action, that would require re-evaluation"
+      ],
+      "recommendation": "approve — HOLD is low-risk, signal convergence is insufficient for directional action, and the Analyst correctly identifies contradictory indicators that undermine a confident SWAP recommendation"
+    },
+    "consensus": false,
+    "regime": "TREND_DOWN",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2059.19,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 14
+    }
+  },
+  {
+    "id": "traj_1779521462518",
+    "timestamp": "2026-05-23T07:31:02.518Z",
+    "proposalId": 67,
+    "analyst": {
+      "decision": "HOLD",
+      "confidence": 0.25,
+      "reasoning": "Insufficient confluence for SWAP recommendation. Single bearish signal (yield spread -1%) does not meet 2+ independent signal threshold. Price action shows clear downtrend (-3.44% ETH, -5.06% MNT 24h), which per rules suggests trend continuation rather than reversal opportunity. Smart money flow is NEUTRAL ($0.0M), providing no directional conviction. Fear & Greed at 28 indicates fear but not extreme capitulation. No actionable funding rate data available for MNT/mETH to apply contrarian positioning. With approved SWAPs showing only 13% accuracy historically, the bar for action is intentionally high. Key liquidation levels ($1953, $1850 below; $2158, $2261 above) provide context but no timing signal. Better to preserve capital than chase weak signals in a downtrend.",
+      "signals": [
+        {
+          "type": "trend",
+          "direction": "BEARISH",
+          "strength": "moderate",
+          "detail": "ETH -3.44%, MNT -5.06% in 24h; TREND_DOWN regime (60% confidence) suggests continuation"
+        },
+        {
+          "type": "yield_spread",
+          "direction": "BEARISH",
+          "strength": "weak",
+          "detail": "mETH vs USDY spread at -1%, modest bearish indicator"
+        },
+        {
+          "type": "smart_money",
+          "direction": "NEUTRAL",
+          "strength": "none",
+          "detail": "24h outflow $0.0M — no directional conviction from on-chain wallets"
+        },
+        {
+          "type": "sentiment",
+          "direction": "NEUTRAL",
+          "strength": "weak",
+          "detail": "Fear & Greed at 28 (Fear) — not extreme enough for contrarian play"
+        },
+        {
+          "type": "funding",
+          "direction": "unknown",
+          "strength": "none",
+          "detail": "No MNT/mETH funding rate data available; cannot apply funding-based contrarian signal"
+        }
+      ],
+      "action": "hold",
+      "direction": "neutral",
+      "targetAsset": "mUSD",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.82,
+      "riskScore": 18,
+      "reasoning": "Analyst proposes HOLD with 20% mUSD allocation — a defensive, capital-preserving posture. This is a low-risk action type that warrants approval under the HOLD clause. Cross-checking analyst reasoning against raw signals: (1) TREND_DOWN regime at 60% confidence — correctly identified. (2) Signal consensus BEARISH — correctly cited. (3) Smart money flow NEUTRAL at $0.0M — correctly noted, no directional conviction. (4) Yield spread -1% BEARISH — correctly flagged as single signal, insufficient alone for SWAP. (5) Funding rate listed as n/a — analyst correctly notes absence of actionable funding data. (6) Fear & Greed 28 — correctly characterized as fear but not extreme capitulation. No hallucinated data points detected. Analyst did not fabricate signals or misread values. The 25% confidence is appropriately conservative given only one confirmed bearish signal (yield spread) against neutral smart money flow. The HOLD recommendation avoids the directional SWAP trap in a regime with only 60% trend confidence. No R:R calculation required for HOLD — capital is not being deployed into a directional bet. The 20% mUSD allocation is a partial defensive rotation, not an aggressive repositioning. Risk factors array being empty is a minor concern — liquidation levels and downtrend velocity should have been listed — but this does not invalidate the conservative action. The analyst's self-referential note about 13% historical SWAP accuracy demonstrates appropriate epistemic humility. No rejection triggers are met.",
+      "flaggedIssues": [
+        "Risk factors array is empty — liquidation levels at $1953/$1850 and -3.44% ETH / -5.06% MNT drawdown should have been explicitly listed as active risk factors",
+        "Regime confidence notation inconsistency: structured signals show '0.6%' confidence in raw field but '60%' in narrative — likely a formatting artifact, analyst used 60% which appears correct contextually",
+        "Smart money volume ($23.1k–$23.8k 24h on mETH) is very thin — analyst did not flag this as a liquidity risk for any future swap execution"
+      ],
+      "recommendation": "approve — HOLD with partial mUSD rotation is appropriate capital preservation in TREND_DOWN regime with insufficient multi-signal confluence for directional action"
+    },
+    "consensus": false,
+    "regime": "TREND_DOWN",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2055.71,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 14
+    }
+  },
+  {
+    "id": "traj_1779523258445",
+    "timestamp": "2026-05-23T08:00:58.445Z",
+    "proposalId": 68,
+    "analyst": {
+      "decision": "HOLD",
+      "confidence": 0.25,
+      "reasoning": "Strong bearish trend continuation with ETH down -4.78% in 24h — per rule, assume trend continuation not reversal. Single bearish signal (yield spread -1%) insufficient for SWAP; require 2+ independent signals. No extreme funding rate data available for contrarian positioning. Fear & Greed at 28 confirms bearish sentiment but doesn't provide actionable divergence. Smart money flows neutral, not providing directional conviction. With approved SWAPs at 13% accuracy, making a bearish call here would be fighting the trend without adequate confirmation. Key support at $1925-$1823 not yet tested. Better to await clearer reversal signals or extreme funding conditions before acting.",
+      "signals": [
+        {
+          "type": "TREND",
+          "direction": "BEARISH",
+          "strength": 75,
+          "note": "ETH -4.78% in 24h; assume continuation per defensive rules"
+        },
+        {
+          "type": "YIELD_SPREAD",
+          "direction": "BEARISH",
+          "strength": 40,
+          "note": "mETH vs USDY spread at -1%, modest bearish signal"
+        },
+        {
+          "type": "SENTIMENT",
+          "direction": "NEUTRAL",
+          "strength": 20,
+          "note": "Fear & Greed at 28 (Fear) — confirms bearishness but no divergence"
+        },
+        {
+          "type": "SMART_MONEY",
+          "direction": "NEUTRAL",
+          "strength": 10,
+          "note": "24h outflow $0.0M — no directional conviction"
+        },
+        {
+          "type": "FUNDING",
+          "direction": "INSUFFICIENT_DATA",
+          "strength": 0,
+          "note": "No ETH/MNT funding rate provided; cannot assess contrarian opportunity"
+        }
+      ],
+      "action": "hold",
+      "direction": "neutral",
+      "targetAsset": "mUSD",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.78,
+      "riskScore": 18,
+      "reasoning": "The Analyst proposes HOLD with 20% mUSD allocation at 25% confidence. This is a conservative, capital-protective stance that warrants approval under the HOLD exception rule. Cross-checking analyst reasoning against raw signals: (1) TREND_DOWN regime at 60% confidence — correctly identified. (2) Signal consensus BEARISH — correctly cited. (3) Yield spread -1% BEARISH — correctly noted as single signal, insufficient alone for directional SWAP. (4) Smart money flow $0.0M NEUTRAL — correctly characterized. (5) Funding rate data marked n/a — analyst correctly flags absence of extreme funding conditions that would support contrarian positioning. (6) Fear & Greed 28 (Fear) — correctly identified as sentiment confirmation but not actionable divergence signal. The analyst's self-restraint is the correct call: TREND_DOWN regime with only 1 confirmed independent bearish signal (yield spread) does not meet the 2+ signal threshold for a directional SWAP. No hallucinated data detected — all cited figures match raw market data. ETH -4.78%, MNT -4.74% are verified. The 13% SWAP accuracy self-reference is a reasonable internal calibration note. Key support levels $1925/$1823 correctly identified from structured signals. The proposed action is NOT a directional SWAP in a ranging regime — it is a HOLD with existing partial mUSD exposure, which is appropriate risk-off behavior in TREND_DOWN. No R:R calculation required for HOLD actions. Risk score is LOW (18) because capital is being preserved, not deployed into an unclear directional bet. One minor flag: the analyst lists empty risk factors array, which is sloppy — risks include regime confidence only at 60% and potential for sharp reversal if $1925 support holds. These do not invalidate the HOLD recommendation.",
+      "flaggedIssues": [
+        "Risk factors array is empty — analyst should have documented downside risks including 60% regime confidence uncertainty and potential V-reversal at $1925 support",
+        "Regime confidence listed as 0.6% in raw signals but interpreted as 60% — likely a formatting artifact, not a hallucination, but warrants notation",
+        "mETH price on Nansen ($2245.6) diverges from ETH spot ($2025.87) — analyst did not address this spread, though it may reflect staking premium and is not necessarily an error"
+      ],
+      "recommendation": "approve"
+    },
+    "consensus": false,
+    "regime": "TREND_DOWN",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2025.87,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 11
+    }
+  },
+  {
+    "id": "traj_1779525079040",
+    "timestamp": "2026-05-23T08:31:19.040Z",
+    "proposalId": 69,
+    "analyst": {
+      "decision": "HOLD",
+      "confidence": 0.75,
+      "reasoning": "Multiple bearish signals align (regime DOWN, negative yield spread, Fear sentiment, -5% 24h price action), but critical gaps prevent SWAP recommendation: (1) No funding rate data for ETH/MNT to confirm extreme positioning for contrarian play; (2) 24h price dropped >0.1% so must assume trend continuation not reversal; (3) Recent SWAP accuracy at 13% imposes heavy skepticism on any directional call; (4) Only one strong signal (yield spread -1%) with regime confirmation, but smart money shows NEUTRAL flows ($0.0M) — no whale conviction. Liquidation levels suggest $1925-1824 downside risk zone. Better to wait for funding rate extremes (>0.05%) or smart money OUTFLOW confirmation before positioning.",
+      "signals": [
+        {
+          "name": "trend_continuation",
+          "value": "bearish",
+          "confidence": 70,
+          "notes": "ETH -4.78%, MNT -5.03% in 24h — assume continuation per rule"
+        },
+        {
+          "name": "regime",
+          "value": "TREND_DOWN",
+          "confidence": 60,
+          "notes": "Mild bearish, reduce risk exposure"
+        },
+        {
+          "name": "yield_spread",
+          "value": "bearish",
+          "confidence": 65,
+          "notes": "mETH vs USDY at -1% spread"
+        },
+        {
+          "name": "sentiment",
+          "value": "extreme_fear",
+          "confidence": 55,
+          "notes": "Fear & Greed at 28 — potential contrarian but not extreme enough"
+        },
+        {
+          "name": "smart_money",
+          "value": "neutral",
+          "confidence": 50,
+          "notes": "24h flows at $0.0M — no conviction either direction"
+        },
+        {
+          "name": "funding_rate",
+          "value": "missing",
+          "confidence": 0,
+          "notes": "No ETH/MNT funding data provided — cannot assess positioning extremes"
+        },
+        {
+          "name": "swap_accuracy_penalty",
+          "value": "bearish",
+          "confidence": 80,
+          "notes": "13% accuracy on approved SWAPs mandates -20% confidence penalty on any directional call"
+        }
+      ],
+      "action": "hold",
+      "direction": "neutral",
+      "targetAsset": "mUSD",
+      "allocationPct": 20,
+      "riskFactors": []
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.78,
+      "riskScore": 22,
+      "reasoning": "The Analyst proposes HOLD with 20% allocation to mUSD — a defensive, risk-off posture. This is a low-risk action type that does not require directional edge justification. Validating against raw signals: (1) Regime TREND_DOWN at 60% confidence is correctly cited — minor note: the raw signal shows '0.6%' which appears to be a formatting artifact (likely 60%), Analyst correctly interprets as 60% confidence. (2) Signal consensus BEARISH is correctly acknowledged. (3) Yield spread -1% bearish is correctly flagged. (4) Smart money NEUTRAL ($0.0M outflow) is correctly noted — Analyst does not overstate this as bearish, which is accurate. (5) Fear & Greed at 28 (Fear) is correctly incorporated. (6) ETH -4.78% and MNT -5.03% 24h declines are correctly cited. (7) Funding rate listed as 'n/a' in raw signals — Analyst correctly identifies this gap and uses it as a reason to withhold a directional SWAP call. (8) Liquidation levels $1925/$1824 downside correctly cited. No hallucinated data points detected. The Analyst's self-restraint in NOT recommending a directional SWAP despite bearish signals is sound — SWAP accuracy at 13% is a legitimate prior that justifies caution. The HOLD action with partial mUSD rotation (20%) is proportionate to the signal strength. R:R requirement does not apply to HOLD actions. No rejection triggers are met. The reasoning is internally consistent and matches the raw data. One minor flag: the Analyst states 'only one strong signal (yield spread -1%)' but the regime confirmation and sentiment Fear reading together constitute at least two corroborating bearish signals — this is a slight undercount but does not invalidate the conclusion, it actually makes the HOLD more conservative than necessary, which is acceptable given the stated low SWAP accuracy prior.",
+      "flaggedIssues": [
+        "Regime confidence raw value shows '0.6%' which may be a data formatting error — Analyst interprets as 60%, which is the reasonable reading but source data should be verified",
+        "Analyst slightly undercounts confirming bearish signals (Fear sentiment + regime + yield spread = 3 signals, not 1), but this leads to more conservative action, not less — acceptable direction of error",
+        "Funding rate listed as n/a in raw signals — this is a genuine data gap that correctly prevents a directional call, but the absence of this data point should be flagged as an infrastructure issue"
+      ],
+      "recommendation": "approve — HOLD with 20% mUSD rotation is a defensible, capital-protective action consistent with TREND_DOWN regime, bearish consensus, and acknowledged data gaps. No directional swap is proposed, no R:R threshold applies. Analyst reasoning matches raw signals with no hallucinated data."
+    },
+    "consensus": false,
+    "regime": "TREND_DOWN",
+    "analystDuration": 0,
+    "validatorDuration": 0,
+    "onchainDuration": 0,
+    "marketSnapshot": {
+      "ethPrice": 2026.22,
+      "fearGreed": 28
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 0,
+      "timeToValidation_ms": 0,
+      "timeToOnchain_ms": 0,
+      "totalCycle_ms": 0,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 12
+    }
   }
 ]

@@ -192,7 +192,7 @@ export default function Home() {
             <div className="flex-1 text-center lg:text-left">
               <div className="flex items-center gap-3 justify-center lg:justify-start mb-3">
                 <Shield className="w-4 h-4 text-purple-400" />
-                <span className="text-xs font-mono text-purple-300/60">ERC-8004 Identity · GLM-5 × Claude 4.6 · Mantle Mainnet</span>
+                <span className="text-xs font-mono text-purple-300/60">ERC-8004 Identity · GLM-5 × Claude 4.6 × Gemini 3.5 · Mantle Mainnet</span>
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-3">
                 <span className="bg-gradient-to-r from-purple-400 to-green-400 bg-clip-text text-transparent">Proof-of-Reasoning</span>
@@ -280,7 +280,7 @@ export default function Home() {
               <div className="text-green-400 text-lg">🟢</div>
               <h3 className="text-sm font-bold text-white/90">Our Solution</h3>
               <p className="text-xs text-white/40 leading-relaxed">
-                Multi-model consensus (GLM-5 proposes → Claude 4.6 challenges → VaR gate validates) 
+                Multi-model consensus (GLM-5 proposes → Claude 4.6 challenges → Gemini 3.5 Flash arbitrates) 
                 with every reasoning step hashed to IPFS and anchored on Mantle.
               </p>
             </div>

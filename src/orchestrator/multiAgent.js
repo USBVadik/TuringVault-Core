@@ -316,8 +316,11 @@ function normalizeValidatorResponse(raw) {
 // Model configuration — multi-model for diverse perspectives
 const MODELS = {
   analyst: process.env.ANALYST_MODEL || "zai.glm-5",          // Z.ai GLM-5 (latest, hackathon partner)
-  validator: process.env.VALIDATOR_MODEL || "us.anthropic.claude-sonnet-4-6" // Claude as independent validator
+  validator: process.env.VALIDATOR_MODEL || "us.anthropic.claude-sonnet-4-6", // Claude as independent validator
+  arbiter: "gemini-3.5-flash" // Google Gemini 3.5 Flash via Vertex AI (tiebreaker)
 };
+
+const { callGeminiArbiter } = require("./geminiArbiter");
 
 async function callAgent(systemPrompt, userMessage, modelId) {
   const command = new ConverseCommand({
@@ -479,18 +482,58 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
   const confidenceThreshold = getDynamicConfidenceThreshold();
   console.log(`  [THRESHOLD] Active confidence threshold: ${confidenceThreshold}`);
   
-  const consensus = validator.approved
-    && analystDecision.confidence >= confidenceThreshold
-    && validator.validatorConfidence >= (confidenceThreshold - 0.05)  // validator threshold tracks analyst
+  const analystWantsAction = analystDecision.confidence >= confidenceThreshold && analystDecision.action !== "hold";
+  const validatorApproves = validator.approved
+    && validator.validatorConfidence >= (confidenceThreshold - 0.05)
     && validator.riskScore <= 75;
+
+  let consensus = analystWantsAction && validatorApproves;
+  let arbiterVote = null;
+
+  // STEP 3b: ARBITER (3rd agent) — called when analyst and validator DISAGREE
+  if (analystWantsAction !== validatorApproves) {
+    console.log(`  [ARBITER] Disagreement detected — calling arbiter (model: ${MODELS.arbiter})...`);
+    const arbiterPrompt = `You are the ARBITER AGENT — a neutral tiebreaker in a multi-agent trading system.
+
+The ANALYST proposed: ${analystDecision.action} ${analystDecision.targetAsset} with ${(analystDecision.confidence * 100).toFixed(0)}% confidence.
+Analyst reasoning: "${analystDecision.reasoning}"
+
+The VALIDATOR ${validator.approved ? 'APPROVED' : 'REJECTED'} with ${(validator.validatorConfidence * 100).toFixed(0)}% confidence, risk=${validator.riskScore}.
+Validator reasoning: "${validator.reasoning}"
+
+Market context: ETH $${md.ethPrice}, 24h change ${md.ethChange24h.toFixed(2)}%, sentiment: ${md.sentiment}, Fear&Greed: ${md.fearGreedIndex}/100
+
+YOUR TASK: Break the tie. Should this trade execute?
+Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1-sentence reasoning", "confidence": 0.0-1.0}`;
+
+    try {
+      const arbiterRaw = await callGeminiArbiter(
+        "You are a neutral arbiter in a multi-agent trading system. You ONLY output valid JSON. No markdown, no explanation outside JSON.",
+        arbiterPrompt
+      );
+      arbiterVote = arbiterRaw;
+      console.log(`  [ARBITER] Vote: ${arbiterRaw.vote} (${(arbiterRaw.confidence * 100).toFixed(0)}% conf)`);
+      
+      // 2/3 voting: analyst + arbiter approve = execute, or validator + arbiter reject = block
+      if (arbiterRaw.vote === "approve" && analystWantsAction) {
+        consensus = true; // analyst + arbiter = 2/3
+      } else {
+        consensus = false; // validator + arbiter = 2/3 reject
+      }
+    } catch (e) {
+      console.log(`  [ARBITER] Error: ${e.message} — defaulting to conservative (block)`);
+      consensus = false;
+    }
+  }
 
   return {
     consensus,
     reason: consensus 
-      ? "Both agents agree — executing" 
-      : `Blocked: ${!validator.approved ? "Validator rejected" : validator.riskScore > 60 ? "Risk too high" : "Confidence threshold not met"}`,
+      ? "Multi-agent consensus (2/3 or 3/3) — executing" 
+      : `Blocked: ${!validatorApproves ? "Validator rejected" : validator.riskScore > 60 ? "Risk too high" : "Confidence threshold not met"}${arbiterVote ? ` | Arbiter: ${arbiterVote.vote}` : ""}`,
     analyst: analystDecision,
     validator: validator,
+    arbiter: arbiterVote,
     action: consensus ? analystDecision.action : "hold",
     targetAsset: analystDecision.targetAsset,
     finalConfidence: Math.min(analystDecision.confidence, validator.validatorConfidence)
