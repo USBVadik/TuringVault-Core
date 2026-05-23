@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Zap, Shield, BarChart3 } from 'lucide-react';
+import { Zap, Shield, BarChart3, Swords } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Dashboard', icon: BarChart3 },
+  { href: '/challenge', label: 'Challenge', icon: Swords },
   { href: '/proof-explorer', label: 'Proof Explorer', icon: Shield },
 ];
 
