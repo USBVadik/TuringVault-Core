@@ -223,7 +223,7 @@ async function settle(opts = {}) {
           ethers.toUtf8Bytes(`${entry.id}_${outcome}_${pnlBps}`)
         );
         const tx = await reputation.recordPnL(
-          0, // agentId (NFT #0)
+          1, // agentId (NFT #1)
           pnlBps,
           reasoningHash
         );

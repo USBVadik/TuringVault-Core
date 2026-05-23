@@ -103,6 +103,12 @@ export default function Home() {
   const totalRejected = chainData?.totalRejected;
   const recentDecisions = chainData?.decisions;
 
+  // ═══ REPUTATION DATA ═══
+  const [reputationData, setReputationData] = useState<any>(null);
+  useEffect(() => {
+    fetch('/api/reputation').then(r => r.json()).then(setReputationData).catch(() => {});
+  }, []);
+
   // ═══ WRITE CONTRACT ═══  (kept for future deposit feature)
   // const { writeContract, data: txHash } = useWriteContract();
   // const { isLoading: isTxPending, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
@@ -213,6 +219,46 @@ export default function Home() {
                 <div className="stat-number stat-number-green">{totalProposals ? `${Math.round((totalRejected || 0) / totalProposals * 100)}%` : '—'}</div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">Safety Rate</div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ PERFORMANCE & REPUTATION ═══ */}
+        <section className="glass-card p-8 mb-8 anim-fade-up" style={{ animationDelay: '0.25s' }}>
+          <div className="flex items-center gap-2 mb-6">
+            <span className="text-lg">📈</span>
+            <h2 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em]">Agent Performance</h2>
+            <span className="ml-auto text-[10px] font-mono text-green-300/40">LIVE · on-chain metrics</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]">
+              <div className="text-xl font-bold text-green-400">{reputationData?.normalizedScore || '—'}</div>
+              <div className="text-[9px] text-white/30 mt-1 uppercase">Reputation Score</div>
+            </div>
+            <div className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]">
+              <div className="text-xl font-bold text-white/90">{reputationData?.winRate || '—'}%</div>
+              <div className="text-[9px] text-white/30 mt-1 uppercase">Win Rate</div>
+            </div>
+            <div className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]">
+              <div className="text-xl font-bold text-white/90">{reputationData?.totalFeedback || '—'}</div>
+              <div className="text-[9px] text-white/30 mt-1 uppercase">Settled Outcomes</div>
+            </div>
+            <div className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]">
+              <div className="text-xl font-bold text-green-400">+{reputationData?.cumulativeScore || 0}</div>
+              <div className="text-[9px] text-white/30 mt-1 uppercase">Cumulative PnL</div>
+            </div>
+            <div className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]">
+              <div className="text-xl font-bold text-yellow-400">{reputationData ? `${reputationData.positiveCount}/${reputationData.negativeCount}` : '—'}</div>
+              <div className="text-[9px] text-white/30 mt-1 uppercase">W/L Ratio</div>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-white/[0.04]">
+            <div className="flex items-center gap-4 text-[10px] text-white/30">
+              <span>⚡ Reputation grows with each settled outcome</span>
+              <span>·</span>
+              <span>Score starts at 50, adjusted by ±PnL basis points</span>
+              <span>·</span>
+              <span className="text-green-400/60">↑ {reputationData?.positiveCount || 0} profitable decisions verified on-chain</span>
             </div>
           </div>
         </section>

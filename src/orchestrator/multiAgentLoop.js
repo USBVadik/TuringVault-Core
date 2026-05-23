@@ -304,6 +304,19 @@ async function runMultiAgentCycle() {
     console.log(`   ⚠️  Trajectory logging failed: ${trajErr.message?.slice(0, 60)}`);
   }
 
+  // Record NAV snapshot for performance metrics
+  try {
+    const perfTracker = require("../metrics/performanceTracker");
+    const mntPrice = unified?.prices?.mnt || 0.72;
+    const ethPrice = unified?.prices?.eth || 2600;
+    const mntBal = parseFloat(ethers.formatEther(await provider.getBalance(wallet.address)));
+    const mETHContract = new ethers.Contract('0xcDA86A272531e8640cD7F1a92c01839911B90bb0', ['function balanceOf(address) view returns (uint256)'], provider);
+    const mETHBal = parseFloat(ethers.formatEther(await mETHContract.balanceOf(wallet.address)));
+    const navUsd = mntBal * mntPrice + mETHBal * ethPrice;
+    const metrics = perfTracker.recordSnapshot(navUsd, { mnt: mntBal, meth: mETHBal });
+    console.log(`  📊 NAV: $${navUsd.toFixed(2)} | Sharpe: ${metrics.sharpe} | MaxDD: ${metrics.maxDrawdown}%`);
+  } catch (e) { console.log(`  ⚠️ Perf tracking skipped: ${e.message}`); }
+
   // Summary
   const totalApproved = await registry.totalApproved();
   const totalRejected = await registry.totalRejected();
