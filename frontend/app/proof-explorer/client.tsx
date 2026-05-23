@@ -356,11 +356,11 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
             <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-2 md:gap-1 overflow-x-auto pb-2 relative">
               {[
                 { label: 'Market Data', sub: 'Nansen MCP + CoinGecko + DeFiLlama', color: 'from-blue-500/20 to-blue-500/5' },
-                { label: 'GLM-5 Analyst', sub: 'Z.ai reasoning', color: 'from-purple-500/20 to-purple-500/5' },
+                { label: 'GLM-5 Analyst', sub: 'Tencent Cloud reasoning', color: 'from-purple-500/20 to-purple-500/5' },
                 { label: 'Claude 4.6 Validator', sub: 'Adversarial check', color: 'from-orange-500/20 to-orange-500/5' },
                 { label: 'VaR Gate', sub: '<50 auto · 50-150 supervised · >150 blocked', color: 'from-red-500/20 to-red-500/5' },
                 { label: 'KMS Sign', sub: 'Tencent Cloud HSM', color: 'from-yellow-500/20 to-yellow-500/5' },
-                { label: 'Execution', sub: 'Merchant Moe LB + Byreal Perps', color: 'from-green-500/20 to-green-500/5' },
+                { label: 'Execution', sub: 'Merchant Moe LB + Odos', color: 'from-green-500/20 to-green-500/5' },
                 { label: 'On-Chain', sub: 'Mantle · IPFS Pinata', color: 'from-cyan-500/20 to-cyan-500/5' },
               ].map((s, i) => (
                 <div key={i} className="flex items-center">
@@ -387,14 +387,16 @@ export function ProofExplorerClient({ decisions, validation, totalDecisions, age
               {[
                 { name: 'Nansen', role: 'Detects smart money & wallet signals', detail: 'MCP Protocol · 36 analytics tools', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/mcp/nansenMCP.js', proofLabel: 'src/mcp/nansenMCP.js' },
                 { name: 'Merchant Moe', role: 'Approved execution route', detail: 'Liquidity Book Router v2.1', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/execution/executionEngine.js', proofLabel: 'executionEngine.js' },
-                { name: 'Byreal', role: 'Perps funding/OI risk signal', detail: 'RSI + funding rate data feed', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/unifiedMarketData.js', proofLabel: 'unifiedMarketData.js' },
+                { name: 'Elfa', role: 'Social sentiment & alpha signals', detail: 'Real-time social intelligence', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/unifiedMarketData.js', proofLabel: 'unifiedMarketData.js' },
                 { name: 'Bybit', role: 'Agentic wallet & trading UX target', detail: 'Web3 ecosystem connector', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/frontend/app/providers.tsx', proofLabel: 'RainbowKit config' },
-                { name: 'Z.ai', role: 'GLM-5 primary analyst reasoning', detail: 'Aggressive alpha identification', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js', proofLabel: 'multiAgentLoop.js' },
+                { name: 'Surf', role: 'GLM-5 primary analyst reasoning', detail: 'AI model orchestration layer', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js', proofLabel: 'multiAgentLoop.js' },
                 { name: 'Tencent Cloud', role: 'KMS signing pipeline', detail: 'SECP256K1 hardware HSM', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/execution/executionEngine.js#L1', proofLabel: 'KMS pipeline' },
                 { name: 'Ondo Finance', role: 'RWA yield allocation target', detail: 'USDY tokenized T-Bills', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/integratedOrchestrator.js', proofLabel: 'integratedOrchestrator.js' },
                 { name: 'Mantle', role: 'Immutable proof layer', detail: '4 Sourcify-verified contracts', proof: 'https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5', proofLabel: 'DecisionLog contract' },
                 { name: 'Pinata', role: 'Reasoning artifact storage', detail: 'IPFS-pinned Agent Cards', proof: 'https://gateway.pinata.cloud/ipfs/QmYqTNXxtYyNPxkSuaeeoBbbDGjZBv6rqVQy5RFJ3rJmRQ', proofLabel: 'Agent Card JSON' },
                 { name: 'Anthropic', role: 'Adversarial validation model', detail: 'Claude 4.6 via Bedrock', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgentLoop.js#L1', proofLabel: 'Validator logic' },
+                { name: 'OpenCheck', role: 'Contract verification & audit', detail: 'On-chain code integrity', proof: 'https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6', proofLabel: 'ValidationRegistry' },
+                { name: 'Mirana', role: 'Institutional-grade strategy design', detail: 'Risk framework advisory', proof: 'https://github.com/USBVadik/TuringVault-Core/blob/main/docs/ARCHITECTURE.md', proofLabel: 'Architecture docs' },
               ].map((p, i) => (
                 <a key={i} href={p.proof} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg border border-white/5 bg-white/[0.02] hover:border-purple-500/40 hover:bg-purple-500/[0.04] transition-all duration-200 card-hover group">
                   <p className="text-xs font-semibold text-white/80 mb-0.5">{p.name}</p>
