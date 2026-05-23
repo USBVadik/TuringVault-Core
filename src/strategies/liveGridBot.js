@@ -91,21 +91,30 @@ class LiveGridBot {
   }
 
   async getMntPrice() {
-    // Get MNT/USD price from Odos quote (1 WMNT → USDT)
-    const resp = await fetch("https://api.odos.xyz/sor/quote/v2", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chainId: 5000,
-        inputTokens: [{ tokenAddress: ADDRESSES.WMNT, amount: "1000000000000000000" }],
-        outputTokens: [{ tokenAddress: ADDRESSES.USDT, proportion: 1 }],
-        userAddr: this.wallet.address,
-        slippageLimitPercent: 1,
-        compact: true,
-      }),
-    });
-    const data = await resp.json();
-    return parseInt(data.outAmounts[0]) / 1e6;
+    // Primary: Odos quote (1 WMNT → USDT)
+    try {
+      const resp = await fetch("https://api.odos.xyz/sor/quote/v2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chainId: 5000,
+          inputTokens: [{ tokenAddress: ADDRESSES.WMNT, amount: "1000000000000000000" }],
+          outputTokens: [{ tokenAddress: ADDRESSES.USDT, proportion: 1 }],
+          userAddr: this.wallet.address,
+          slippageLimitPercent: 1,
+          compact: true,
+        }),
+      });
+      const data = await resp.json();
+      if (data?.outAmounts?.[0]) return parseInt(data.outAmounts[0]) / 1e6;
+    } catch {}
+    // Fallback: CoinGecko
+    try {
+      const resp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=mantle&vs_currencies=usd");
+      const data = await resp.json();
+      if (data?.mantle?.usd) return data.mantle.usd;
+    } catch {}
+    return 0.72; // hardcoded fallback
   }
 
   /**

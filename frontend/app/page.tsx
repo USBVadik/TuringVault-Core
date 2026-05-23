@@ -254,9 +254,11 @@ export default function Home() {
           </div>
           <div className="mt-4 pt-4 border-t border-white/[0.04]">
             <div className="flex items-center gap-4 text-[10px] text-white/30">
-              <span>⚡ Reputation grows with each settled outcome</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block"></span> Circuit Breaker: ACTIVE</span>
               <span>·</span>
-              <span>Score starts at 50, adjusted by ±PnL basis points</span>
+              <span>Kill Switch: -5% NAV triggers full stop</span>
+              <span>·</span>
+              <span>VaR Gate: 150 bps max</span>
               <span>·</span>
               <span className="text-green-400/60">↑ {reputationData?.positiveCount || 0} profitable decisions verified on-chain</span>
             </div>
