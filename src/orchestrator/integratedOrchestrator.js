@@ -456,6 +456,7 @@ async function runIntegratedCycle(options = {}) {
     dexQuote: mntQuote,
     kmsSig,
     proposalId: Number(proposalId),
+    execution: executionResult,
     mode,
   };
 }
