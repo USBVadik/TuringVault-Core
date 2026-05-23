@@ -62,14 +62,14 @@ async function getLiveEthPrice() {
 }
 
 /**
- * Fetch hourly OHLC candles for ETH from CoinGecko (free, no key needed)
+ * Fetch hourly OHLC candles for MNT from CoinGecko (free, no key needed)
  * Returns last N hours of price data
  */
 async function fetchEthCandles(hours = 48) {
-  return cached(`eth_candles_${hours}`, async () => {
-    // CoinGecko market_chart returns prices as [timestamp, price] pairs
+  return cached(`mnt_candles_${hours}`, async () => {
+    // CoinGecko market_chart for Mantle (MNT)
     const days = Math.ceil(hours / 24);
-    const url = `https://api.coingecko.com/api/v3/coins/ethereum/market_chart?vs_currency=usd&days=${days}&interval=hourly`;
+    const url = `https://api.coingecko.com/api/v3/coins/mantle/market_chart?vs_currency=usd&days=${days}&interval=hourly`;
     const data = await fetchJson(url, 10000);
     if (!data?.prices) throw new Error('No price data');
 
@@ -136,7 +136,7 @@ async function detectChannel(hours = 48, channelPct = 0.05) {
   // Trend check: linear regression slope on last 24h
   const slope = linearSlope(prices.slice(-24));
   const slopePct = Math.abs(slope) / channelMid; // normalized slope per hour
-  const hasTrend = slopePct > 0.0005; // >0.05% per hour = trending
+  const hasTrend = slopePct > 0.0015; // >0.15% per hour = trending (relaxed for low-cap assets)
 
   return {
     valid: isRanging,

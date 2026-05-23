@@ -350,15 +350,15 @@ export default function Home() {
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">Grid Channel</span>
-                    <span className="text-[10px] font-mono text-white/50">$2,110 – $2,140</span>
+                    <span className="text-[10px] font-mono text-white/50">$0.631 – $0.654</span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">Position</span>
-                    <span className="text-[10px] font-mono text-green-400/70">IN_mETH @ $2,118</span>
+                    <span className="text-[10px] font-mono text-green-400/70">IN_WMNT @ $0.636</span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">TP / SL</span>
-                    <span className="text-[10px] font-mono text-white/50">$2,133 / $2,112 (R:R 2.1:1)</span>
+                    <span className="text-[10px] font-mono text-white/50">$0.649 / $0.628 (R:R 2.3:1)</span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">Risk Gate</span>
@@ -577,15 +577,15 @@ function RiskMascot({ varLevel }: { varLevel: number }) {
 /* ═══ REASONING LINES (simulated live feed) ═══ */
 const REASONING_LINES = [
   '→ Detecting market regime (RANGING/TREND/HOLD)...',
-  '→ Fetching 48h ETH price channel from CoinGecko...',
+  '→ Fetching 48h MNT price channel from CoinGecko...',
   '→ Computing support/resistance (10th/90th percentile)...',
-  '→ Channel: $2,110 – $2,140 | Width: 1.42% (> 0.7% min ✓)',
-  '→ Live price via Hyperliquid: $2,118 (pos: 27% — BUY zone)',
-  '→ Grid signal: BUY_mETH | R:R = 2.1:1 | Adaptive SL',
+  '→ Channel: $0.631 – $0.654 | Width: 3.6% (> 0.7% min ✓)',
+  '→ Live price via CoinGecko: $0.636 (pos: 22% — BUY zone)',
+  '→ Grid signal: BUY_WMNT | R:R = 2.3:1 | Adaptive SL',
   '→ Checking position state: FLAT → entry allowed',
   '→ Nansen: smart money net inflow +$1.8M (4h)',
   '→ Funding rate: +0.003% (neutral, no squeeze)',
   '→ Validator: R:R confirmed, trailing stop armed at +0.6%',
-  '⚡ Decision: SWAP mUSD→mETH — confidence 81%',
-  '✓ Entry $2,118 | TP $2,133 (75% ch) | SL $2,112 | Trail +0.6%',
+  '⚡ Decision: SWAP USDT→WMNT — confidence 78%',
+  '✓ Entry $0.636 | TP $0.649 (75% ch) | SL $0.628 | Trail +0.8%',
 ];
