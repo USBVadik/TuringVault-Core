@@ -334,3 +334,58 @@
 ║  Registry stats: 26 approved / 46 rejected             ║
 ╚════════════════════════════════════════════════════════╝
 
+
+╔══════════════════════════════════════════════════════════╗
+║  TURINGVAULT MULTI-AGENT CYCLE                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📊 [STEP 1] Fetching unified market intelligence (5 sources)...
+📡 [STEP 1.5] Computing structured signals...
+   Regime: TREND_DOWN | Consensus: BEARISH | Funding: n/a%
+⚖️  [STEP 1.6] Settling pending outcome evaluations...
+  [OUTCOME] Settling 1 decision(s)...
+  [OUTCOME] 525079037_69 | hold→mUSD | consensus=false | ETH -0.02% | NEUTRAL | score+0
+  [OUTCOME] Settled 1 decision(s)
+   2 decision(s) still pending settlement (< 4h old)
+   ETH: $2025.4 | Sentiment: neutral | F&G: 28
+   Nansen: fallback | Byreal: 0 signals | TVL: $0M
+
+🧠 [STEP 2] Multi-agent consensus process...
+  [EVOLUTION] Loaded evolved prompt v2.0.1 from IPFS
+  [EVOLUTION] ✅ Using evolved analyst prompt v2.0.1 from IPFS
+  [ANALYST] Analyzing market data... (model: zai.glm-5)
+  [VALIDATOR] Verifying proposal... (model: us.anthropic.claude-sonnet-4-6)
+  [THRESHOLD] Active confidence threshold: 0.6
+  [ARBITER] Disagreement detected — calling arbiter (model: gemini-3.5-flash)...
+  [ARBITER] Vote: approve (95% conf)
+
+   ANALYST: hold mUSD (25%)
+   VALIDATOR: ✅ (82% conf, risk=18)
+   CONSENSUS: ❌ BLOCKED
+
+📁 [STEP 3] Uploading Proof-of-Reasoning to IPFS...
+   ✅ IPFS: ipfs://QmPv7r8kuDT3gvHf9HKSY3EBh4N8PsibsAq2QNW21AVWri
+🛡️  [STEP 3.5] Pre-Action Validation Check...
+   Request hash: 0x73d293a69d662ab6...
+   Validator confidence: 82%
+   Pre-Action Score: 0/100 — ❌ BLOCKED
+
+   ⛔ ACTION BLOCKED by Pre-Action Check. Recording rejection only.
+⛓️  [STEP 4] Recording on-chain...
+   ✅ Proposal #72 submitted (tx: 0xdc917f332d114abe...)
+   ✅ Validation recorded (tx: 0x5eceae0bee87a730...)
+   ✅ Decision logged to DecisionLog
+   ✅ Reputation updated: +0 (hold_mUSD_conf2500)
+🔮 [STEP 6] Recording outcome for settlement in 4h...
+  [OUTCOME] Recorded decision 1779530477273_72 for settlement at 2026-05-23T11:01:17.273Z
+   ✅ Will settle vs ETH price in 4h (now: $2025.4)
+   ✅ Trajectory logged (consistency: consistent, data points: 10)
+  📊 NAV: $3.06 | Sharpe: -1758.74 | MaxDD: 9.13%
+
+╔════════════════════════════════════════════════════════╗
+║  CYCLE COMPLETE                                        ║
+╠════════════════════════════════════════════════════════╣
+║  Consensus: BLOCKED ❌                                  ║
+║  Registry stats: 26 approved / 47 rejected             ║
+╚════════════════════════════════════════════════════════╝
+

@@ -3,7 +3,7 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import 'viem';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Shield, Brain, TrendingUp, Activity, Wallet, ArrowRightLeft, Cpu, GitBranch, BarChart3, ExternalLink, Terminal } from 'lucide-react';
 import { LiveTerminal } from './components/LiveTerminal';
 import { VerifyButton } from './components/VerifyButton';
@@ -91,15 +91,33 @@ export default function Home() {
   });
   const [reasoningStep, setReasoningStep] = useState(0);
   const [chainData, setChainData] = useState<any>({
-    totalDecisions: 71, totalProposals: 71, totalApproved: 25, totalRejected: 46, decisions: []
+    totalDecisions: 73, totalProposals: 73, totalApproved: 25, totalRejected: 48, decisions: null
   });
+  const [liveNotification, setLiveNotification] = useState<any>(null);
+  const prevTotalRef = useRef(73);
 
   // ═══ ON-CHAIN READS (via server API to avoid client tuple decode issues) ═══
   useEffect(() => {
     async function fetchChainData() {
       try {
         const res = await fetch('/api/decisions');
-        if (res.ok) setChainData(await res.json());
+        if (res.ok) {
+          const data = await res.json();
+          // Detect new decision
+          if (data.totalDecisions > prevTotalRef.current && prevTotalRef.current > 0) {
+            const latest = data.decisions?.[0];
+            setLiveNotification({
+              id: data.totalDecisions,
+              action: latest?.action || 'decision',
+              asset: latest?.targetAsset || 'MNT',
+              confidence: latest?.confidence ? (latest.confidence / 100).toFixed(0) : '??',
+              timestamp: Date.now(),
+            });
+            setTimeout(() => setLiveNotification(null), 6000);
+          }
+          prevTotalRef.current = data.totalDecisions;
+          setChainData(data);
+        }
       } catch {}
     }
     fetchChainData();
@@ -158,6 +176,24 @@ export default function Home() {
 
   return (
     <>
+      {/* ═══ LIVE NOTIFICATION TOAST ═══ */}
+      {liveNotification && (
+        <div className="fixed top-20 right-6 z-[9999] animate-in slide-in-from-right duration-300">
+          <div className="glass-card border border-green-500/30 bg-green-500/5 px-5 py-3 rounded-xl shadow-[0_0_30px_rgba(34,197,94,0.15)] flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <div>
+              <p className="text-[11px] font-bold text-green-400">
+                ⚡ New Decision #{liveNotification.id}
+              </p>
+              <p className="text-[10px] text-white/50">
+                {liveNotification.action.toUpperCase()} {liveNotification.asset} · {liveNotification.confidence}% confidence
+              </p>
+            </div>
+            <div className="text-[9px] text-white/20 font-mono ml-3">LIVE</div>
+          </div>
+        </div>
+      )}
+
       {/* Background */}
       <div className="orb-bg">
         <div className="orb orb-1" />
@@ -480,7 +516,20 @@ export default function Home() {
             <div className="table-v2-header grid-cols-6">
               <span>Time</span><span>Action</span><span>Asset</span><span>Amount</span><span>Confidence</span><span>Reasoning</span>
             </div>
-            {recentDecisions && recentDecisions.length > 0 ? (
+            {recentDecisions === null ? (
+              <div className="space-y-1 animate-pulse">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="table-v2-row grid-cols-6">
+                    <span className="h-3 w-12 bg-white/5 rounded" />
+                    <span className="h-3 w-10 bg-white/5 rounded" />
+                    <span className="h-3 w-14 bg-white/5 rounded" />
+                    <span className="h-3 w-16 bg-white/5 rounded" />
+                    <span className="h-3 w-10 bg-white/5 rounded" />
+                    <span className="h-3 w-32 bg-white/5 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : recentDecisions && recentDecisions.length > 0 ? (
               recentDecisions.map((d: any, i: number) => (
                 <div key={i} className="table-v2-row grid-cols-6">
                   <span className="text-white/40 font-mono text-[11px]">

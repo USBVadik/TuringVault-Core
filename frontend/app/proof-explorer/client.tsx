@@ -93,31 +93,21 @@ function FadeIn({ children, delay = 0, className = '' }: { children: ReactNode; 
 function AnimatedCounter({ value, className = '' }: { value: number; className?: string }) {
   const [count, setCount] = useState(value); // start at real value (SSR-safe)
   const ref = useRef<HTMLSpanElement>(null);
-  const started = useRef(false);
+  const animated = useRef(false);
 
   useEffect(() => {
-    // Reset to 0 and animate up on client
+    if (animated.current || value === 0) { setCount(value); return; }
+    animated.current = true;
     setCount(0);
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started.current) {
-          started.current = true;
-          const duration = 1000;
-          const steps = 20;
-          let current = 0;
-          const timer = setInterval(() => {
-            current += value / steps;
-            if (current >= value) { setCount(value); clearInterval(timer); }
-            else setCount(Math.floor(current));
-          }, duration / steps);
-        }
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    const duration = 1000;
+    const steps = 20;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += value / steps;
+      if (current >= value) { setCount(value); clearInterval(timer); }
+      else setCount(Math.floor(current));
+    }, duration / steps);
+    return () => clearInterval(timer);
   }, [value]);
 
   return <span ref={ref} className={className}>{count}</span>;
