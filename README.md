@@ -1,160 +1,179 @@
 # TuringVault 🏦🧠
 
-**AI-Powered DeFi Vault with Provable On-Chain Reasoning**
+**Autonomous AI Agents with Provable On-Chain Reasoning — Built on Mantle**
 
-> An autonomous multi-agent trading system on Mantle L2 that proves every decision on-chain via ERC-8004, adaptive grid strategies, and self-evolving AI prompts.
+> _"When an AI agent executes a trade, you see the transaction. You don't see the reasoning. TuringVault changes that."_
 
-🔗 **Live Demo:** [frontend-seven-beta-46.vercel.app](https://frontend-seven-beta-46.vercel.app)  
+---
+
+## The Problem
+
+AI trading agents are black boxes. They manage capital, execute trades, lose money — and leave **zero trace** of their decision-making process. You can't tell if a loss was due to market conditions (acceptable) or an AI hallucination (catastrophic).
+
+**No accountability. No auditability. No trust.**
+
+TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where every AI decision is recorded on-chain with its complete reasoning chain, verified by adversarial multi-agent consensus, and scored by an immutable reputation system.
+
+---
+
+## Live System (Running Now)
+
+🔗 **Dashboard:** [frontend-seven-beta-46.vercel.app](https://frontend-seven-beta-46.vercel.app)  
 🔗 **Proof Explorer:** [frontend-seven-beta-46.vercel.app/proof-explorer](https://frontend-seven-beta-46.vercel.app/proof-explorer)  
-🔗 **Mantle Mainnet Contracts:** See [contracts section](#smart-contracts)
+🔗 **DecisionLog on Explorer:** [explorer.mantle.xyz/address/0x7bCd...cfbB5](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5)  
+🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
+
+**Stats (live, on-chain):**
+- 72+ autonomous decisions logged to Mantle Mainnet
+- Multi-agent consensus: 25 approved, 46+ rejected (validator catches bad trades)
+- Grid bot running 24/7 (cycle 178+, every 5 minutes)
+- Reputation score: 1631 cumulative, 56.2% win rate
 
 ---
 
-## 🏆 What Makes TuringVault Different
+## Innovation: Proof-of-Reasoning
 
-| Feature | Traditional DeFi Vaults | TuringVault |
-|---------|------------------------|-------------|
-| Decision making | Static rules / manual | AI multi-agent consensus |
-| Transparency | Black box | Every decision proven on-chain (IPFS + ERC-8004) |
-| Strategy adaptation | Manual updates | Self-evolving prompts with guard rails |
-| Risk management | Fixed params | Dynamic R:R, trailing stops, regime detection |
-| Idle capital | Sits at 0% | Auto-parked in USDY (5.25% APY) |
+No other DeFi project puts AI reasoning on-chain as a first-class primitive.
+
+```
+Traditional AI Agent:          TuringVault:
+                               
+User → Deposit → ???           User → Deposit → AI Reasons → 
+     → Profit/Loss                  → Proof stored on IPFS
+     → No explanation               → Hash anchored on Mantle
+                                    → Multi-agent validation
+                                    → On-chain reputation score
+                                    → Full audit trail forever
+```
+
+Every decision creates an immutable record: what data the AI observed, what conclusions it drew, what risks it identified, and why it acted. Stored on IPFS, anchored on Mantle, scored by reputation.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    TURINGVAULT SYSTEM                         │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
-│  │ Market Intel  │    │  Nansen MCP  │    │  Hyperliquid │  │
-│  │  (CoinGecko)  │    │ Smart Money  │    │   Funding    │  │
-│  └──────┬───────┘    └──────┬───────┘    └──────┬───────┘  │
-│         │                    │                    │          │
-│         └────────────────────┼────────────────────┘          │
-│                              ▼                               │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │              SIGNAL ENGINE (Regime Detection)           │  │
-│  │  RANGING │ TREND_UP │ TREND_DOWN │ HOLD │ CRISIS      │  │
-│  └─────────────────────────┬─────────────────────────────┘  │
-│                             ▼                                │
-│  ┌────────────────┐   ┌────────────────┐                    │
-│  │   ANALYST 🧠    │   │  VALIDATOR 🛡️  │                    │
-│  │  (GLM-5 745B)  │   │ (Claude 4.6)   │                    │
-│  │  Seeks alpha    │   │ Default REJECT │                    │
-│  └───────┬────────┘   └───────┬────────┘                    │
-│          └─────────┬──────────┘                              │
-│                    ▼                                         │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │            CONSENSUS ENGINE (Multi-Agent)              │  │
-│  │  Dynamic threshold: 0.60 → 0.85 after 3 losses       │  │
-│  └─────────────────────────┬─────────────────────────────┘  │
-│                             ▼                                │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │           ON-CHAIN EXECUTION (Mantle L2)               │  │
-│  │  IPFS Proof → ERC-8004 Validation → Merchant Moe Swap │  │
-│  │  DecisionLog → Reputation → Outcome Settlement (4h)   │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      TURINGVAULT SYSTEM                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  DATA LAYER                                                       │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────────┐ │
+│  │ CoinGecko  │  │ Nansen MCP │  │ Hyperliquid│  │ Tencent   │ │
+│  │ Price/Vol  │  │ Smart Money│  │  Funding   │  │ Cloud AI  │ │
+│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └─────┬─────┘ │
+│        └────────────────┼───────────────┼───────────────┘        │
+│                         ▼                                         │
+│  SIGNAL ENGINE (Regime Detection)                                 │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │ RANGING │ TREND_UP │ TREND_DOWN │ HOLD │ CRISIS           │   │
+│  └────────────────────────────┬──────────────────────────────┘   │
+│                               ▼                                   │
+│  MULTI-AGENT CONSENSUS                                            │
+│  ┌────────────────┐     ┌────────────────┐                       │
+│  │   ANALYST 🧠   │     │  VALIDATOR 🛡️  │                       │
+│  │  GLM-5 (745B)  │     │  Claude 4.6    │                       │
+│  │  Seeks alpha   │     │  Default REJECT│                       │
+│  └───────┬────────┘     └───────┬────────┘                       │
+│          └─────────┬────────────┘                                 │
+│                    ▼                                               │
+│  ON-CHAIN VERIFICATION (Mantle Mainnet)                           │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │ IPFS Proof → ERC-8004 Identity → ValidationRegistry       │   │
+│  │ → DecisionLog → ReputationRegistry → Outcome Settlement   │   │
+│  └───────────────────────────────────────────────────────────┘   │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📊 Strategy: Adaptive Grid Trading
+## Smart Contracts (Mantle Mainnet, chain 5000)
 
-### Core Innovation: Adaptive R:R with Trailing Stops
-
-Traditional grid bots use fixed TP/SL — leading to poor risk/reward ratios. TuringVault uses **adaptive stop-losses** that guarantee minimum 2:1 R:R regardless of channel width:
-
-```
-┌─────────── Channel ($2,110 - $2,140) ───────────┐
-│                                                   │
-│  SELL ZONE (>70%)  ━━━━━━━━ $2,140 (resistance) │
-│        ↓ sell here                                │
-│                                                   │
-│  ─ ─ ─ HOLD ZONE (30-70%) ─ ─ ─                 │
-│                                                   │
-│        ↑ buy here                                 │
-│  BUY ZONE (<30%)   ━━━━━━━━ $2,110 (support)    │
-└───────────────────────────────────────────────────┘
-
-Entry at 20%: TP at 75% of channel | SL = adaptive
-             R:R = 2.1:1 | Win rate needed: 33%
-             Trailing stop activates at +0.6%
-```
-
-### Backtest Results (500h synthetic ranging data)
-
-| Channel Width | Win Rate | Total PnL | Max Drawdown | Trades |
-|--------------|----------|-----------|--------------|--------|
-| ~1.9% (tight) | 87% | +9.13% | -0.63% | 23 |
-| ~3% (medium) | 97% | +45.62% | -0.13% | 39 |
-| ~5% (wide) | 94% | +56.77% | -1.02% | 31 |
-| Trending (adverse) | 0% | -24.66% | — | Protected by regime filter |
-
-### Safety: Regime Filter
-
-The system **will not trade** in unfavorable conditions:
-- **HOLD regime** (default): Unknown market state → no grid trading
-- **Trending market**: Detected via slope + volatility expansion → HOLD
-- **Channel too narrow** (<0.7%): Slippage would eat profits → HOLD
-- **CRISIS**: ATR spike → 100% to USDY (flight to safety)
-
----
-
-## 🔐 Smart Contracts
-
-All deployed on **Mantle Mainnet** (chain ID: 5000):
+All contracts verified on Sourcify:
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| ProposalRegistry | `0xB4F51F4b1C85e8DA18E3F4a797BFe31C4A4b2e2A` | On-chain decision proposals |
-| PreActionValidator | `0xC5e21A8C47D9C1AE2b8eFA0fB98C529063BAC5f2` | ERC-8004 validation scores |
-| DecisionLog | `0xD6f32A9B58C0eB3C4d1a7E9F0c8B5D2A4f6E1C3B` | Immutable decision history |
-| AgentReputation | `0xE7g43B0C69D1fC4D5e2b8F0A1c9C6E3B5g7F2D4C` | Performance-based reputation |
-| ReasoningAnchor | `0xA1b2C3d4E5f6A7B8C9d0E1F2a3B4c5D6e7F8a9B0` | IPFS CID anchoring |
+| TuringVaultIdentity | [`0x582E6a649B99784829193E14bB7Af8c4A482E165`](https://explorer.mantle.xyz/address/0x582E6a649B99784829193E14bB7Af8c4A482E165) | ERC-8004 AI agent identity |
+| TuringVaultDecisionLog | [`0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) | Immutable decision history |
+| TuringVaultRouter | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | Trade execution & routing |
+| TuringVaultValidationRegistry | [`0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) | Multi-agent validation scores |
+| ReputationRegistry | [`0xC78119F3274B05046Ac7c38a14298a6cbD946e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) | On-chain AI reputation |
 
 ---
 
-## 🧬 Self-Evolving AI (with Guard Rails)
+## Strategy: Adaptive Grid Trading
 
-The ANALYST prompt evolves based on real performance — but with strict safeguards:
+### Why Grid + AI?
 
-1. **Minimum 20 settled trades** before any mutation (prevents overfitting on noise)
-2. **Trigger conditions** (at least one must be true):
-   - Win rate < 40% over last 20 trades
-   - Max drawdown > 5% of portfolio
-   - 10+ consecutive HOLDs while ETH moved > 3% (missed alpha)
-3. **Validator prompt is IMMUTABLE** — only Analyst evolves
-4. **IPFS versioning** — every prompt version is pinned for auditability
+Traditional grid bots are dumb — fixed parameters, no regime awareness. Pure AI agents hallucinate and overtrade. TuringVault combines both:
 
----
+- **AI detects the regime** (ranging/trending/crisis)
+- **Grid bot executes** only in favorable conditions
+- **AI validates** every proposed trade before execution
+- **On-chain proof** ensures accountability
 
-## 💰 Yield Optimization
+### Safety Mechanisms
 
-### USDY Idle Parking (5.25% APY Baseline)
+| Guard | Trigger | Action |
+|-------|---------|--------|
+| Regime Filter | Trending market detected | HOLD (no trades) |
+| Validator Veto | Risk > threshold | REJECT (logged on-chain) |
+| Confidence Gate | Score < 65% | Skip execution |
+| Channel Too Narrow | < 0.7% width | HOLD (slippage protection) |
+| Crisis Mode | ATR spike | Flight to USDY safety |
+| Trailing Stops | Active position | Adaptive R:R ≥ 2:1 |
 
-When not actively trading, idle capital is automatically parked in **USDY** (Ondo Finance tokenized US Treasuries):
+### Self-Evolving AI (with Guard Rails)
 
-- No staking required — yield accrues via rebasing
-- Instant redemption for re-entry into mETH
-- Provides risk-free baseline that the active strategy must beat
-
-### Capital Flow
-
-```
-Active Trade: mUSD → mETH (grid buy) → mETH → mUSD (TP/SL hit)
-Idle Period:  mUSD → USDY (5.25% APY) → mUSD → next trade
-                     ↑ automatic parking       ↑ on grid signal
-```
+The ANALYST prompt evolves based on performance — but with strict safeguards:
+- Minimum 20 settled trades before any mutation
+- Validator prompt is **IMMUTABLE** — only Analyst evolves
+- Every prompt version pinned to IPFS for auditability
+- AI detected 5 BAD_CALL → autonomously evolved to defensive strategy (v2.1.1)
 
 ---
 
-## 🚀 Running the Agent
+## Ecosystem Integration
+
+### Hackathon Sponsors & Partners
+
+| Partner | Integration | Status |
+|---------|-------------|--------|
+| **Mantle Network** | Mainnet deployment, mETH/mUSD native assets, gas-efficient L2 | ✅ Live |
+| **Nansen** | MCP (Model Context Protocol) for smart money flow signals | ✅ Live |
+| **Tencent Cloud** | AI model hosting infrastructure, high-availability inference | ✅ Live |
+| **Merchant Moe** | DEX routing for on-chain swaps | ✅ Live |
+| **Ondo Finance** | USDY idle parking (5.25% APY baseline) | ✅ Live |
+| **Elfa** | Social sentiment analysis for market signals | 🔄 Integrated |
+| **OpenCheck** | On-chain verification & contract audit tooling | 🔄 Integrated |
+| **Bybit Wallet** | Frontend wallet connection & UX | ✅ Live |
+
+### Why Mantle?
+
+- **$0.004 gas per tx** — enables logging EVERY decision on-chain (impossible on L1)
+- **mETH native yield** — real staking returns as trading asset
+- **EVM compatible** — standard Solidity, standard tooling
+- **Growing AI ecosystem** — aligned with Mantle's AI agent vision
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| AI Models | GLM-5 (745B MoE) Analyst + Claude Sonnet 4.6 Validator |
+| Blockchain | Mantle L2 Mainnet (chain 5000) |
+| DEX | Merchant Moe v2.2 / Odos aggregator |
+| Data | CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama, Elfa |
+| Storage | IPFS (Pinata) for Proof-of-Reasoning blobs |
+| Frontend | Next.js 15 + Tailwind + Framer Motion |
+| RWA | Ondo Finance USDY (tokenized Treasuries) |
+| Infra | Tencent Cloud (inference), Vercel (frontend) |
+
+---
+
+## Running the Agent
 
 ```bash
 # Install dependencies
@@ -162,12 +181,15 @@ npm install
 
 # Configure environment
 cp .env.example .env
-# Set: PRIVATE_KEY, NANSEN_API_KEY, COINGECKO_API_KEY
+# Set: PRIVATE_KEY, NANSEN_API_KEY
 
 # Run single cycle (dry-run)
 node src/orchestrator/multiAgentLoop.js
 
-# Run continuous (5-min cycles)
+# Run grid bot (production, 5-min cycles)
+node src/strategies/runGridCycle.sh
+
+# Run full continuous orchestrator
 node src/cron/agentCron.js
 
 # Run backtest
@@ -176,43 +198,48 @@ node src/strategies/backtest.js
 
 ---
 
-## 🛠️ Tech Stack
-
-- **AI Models**: GLM-5 (745B MoE) + Claude Sonnet 4.6
-- **Blockchain**: Mantle L2 (EVM, ~$0.004 gas per tx)
-- **DEX**: Merchant Moe v2.2 (concentrated liquidity)
-- **Data**: CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama
-- **Storage**: IPFS (Pinata) for proof-of-reasoning
-- **Frontend**: Next.js 15 + Tailwind + Framer Motion
-- **RWA**: Ondo Finance USDY (tokenized Treasuries)
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 turingvault/
 ├── src/
 │   ├── orchestrator/       # Multi-agent loop, signal engine, consensus
-│   ├── strategies/         # Ranging grid, position state, backtest, idle parking
+│   ├── strategies/         # Ranging grid, position state, backtest
 │   ├── evolution/          # Self-evolving prompts with guard rails
 │   ├── execution/          # On-chain execution engine
-│   ├── dex/                # Merchant Moe integration
+│   ├── dex/                # Merchant Moe + Odos integration
 │   ├── rwa/                # USDY module (Ondo Finance)
 │   ├── onchain/            # Contract interactions, IPFS
+│   ├── mcp/                # Nansen MCP client
 │   └── cron/               # Automated trading loop
-├── contracts/              # Solidity (5 contracts, Mantle mainnet)
+├── contracts/              # Solidity (5 contracts, verified on Sourcify)
 ├── frontend/               # Next.js dashboard + proof explorer
-├── data/                   # Position state, outcome history
-└── test/                   # Integration tests
+├── sdk/                    # TuringVault SDK for external integration
+├── test/                   # Contract + integration tests
+└── docs/                   # Architecture, submission, vision docs
 ```
 
 ---
 
-## 📜 License
+## Roadmap
+
+- [x] Multi-agent consensus (GLM-5 + Claude 4.6)
+- [x] On-chain decision logging (72+ decisions)
+- [x] Reputation system (live scoring)
+- [x] Self-evolving AI prompts (v2.1.1)
+- [x] Grid bot with regime detection
+- [x] Live dashboard + proof explorer
+- [ ] Cross-agent reputation marketplace
+- [ ] Multi-vault strategy templates
+- [ ] Governance: token-holder veto on prompt mutations
+- [ ] Agent-to-agent trust scoring (ERC-8004 identity graph)
+
+---
+
+## License
 
 MIT
 
 ---
 
-*Built for the Mantle Turing Test Hackathon 2025*
+*Built for the Mantle Turing Test Hackathon 2026 🏆*

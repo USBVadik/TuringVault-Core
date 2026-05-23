@@ -59,13 +59,17 @@ const ROUTER_ABI = [
 // ═══ PARTNERS ═══
 const PARTNERS = [
   { name: 'Nansen', url: 'https://nansen.ai' },
-  { name: 'Byreal', url: 'https://byreal.io' },
   { name: 'Tencent Cloud', url: 'https://cloud.tencent.com' },
-  { name: 'Z.ai', url: 'https://z.ai' },
-  { name: 'Merchant Moe', url: 'https://merchantmoe.com' },
-  { name: 'Ondo Finance', url: 'https://ondo.finance' },
+  { name: 'Elfa', url: 'https://elfa.ai' },
+  { name: 'Surf', url: 'https://surf.tech' },
+  { name: 'Orbit AI', url: 'https://orbitai.finance' },
+  { name: 'Minds', url: 'https://minds.com' },
+  { name: 'Mirana', url: 'https://mirana.xyz' },
+  { name: 'OpenCheck', url: 'https://opencheck.ai' },
   { name: 'Bybit', url: 'https://bybit.com' },
   { name: 'Mantle Network', url: 'https://mantle.xyz' },
+  { name: 'Merchant Moe', url: 'https://merchantmoe.com' },
+  { name: 'Ondo Finance', url: 'https://ondo.finance' },
 ];
 
 // ═══ EVOLUTION DATA ═══
