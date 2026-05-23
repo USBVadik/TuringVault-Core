@@ -227,27 +227,37 @@ class NansenMCPClient {
 
   /**
    * Aggregate Smart Money intelligence for agent prompt context
-   * Uses 1 call (5 credits) — cached for 2 hours to save credits
+   * Uses 2 calls (20 credits) — cached for 1 hour to save credits
+   * Budget: 1000 credits, 10 per call → ~50 cycles max
    * Returns formatted string for LLM prompt injection
    */
   async getSmartMoneyContext() {
-    // Check 2-hour cache to save credits (100 credits budget)
+    // Check 1-hour cache to save credits (1000 credits budget, 10/call)
     const cacheKey = "_smartMoneyContext";
     const cached = this.cache.get(cacheKey);
-    if (cached && Date.now() - cached.ts < 7200000) { // 2 hours
+    if (cached && Date.now() - cached.ts < 3600000) { // 1 hour
       return cached.data;
     }
 
-    // Only call balances (5 credits) — skip perps to save budget
-    const balances = await this.getSmartMoneyBalances({ chains: ["ethereum", "mantle"] });
+    const [balances, perpTrades] = await Promise.all([
+      this.getSmartMoneyBalances({ chains: ["ethereum", "mantle"] }),
+      this.getSmartMoneyPerpTrades({})
+    ]);
 
     let context = "=== NANSEN SMART MONEY INTELLIGENCE ===\n";
     
     if (balances) {
       context += "\n[Smart Money Token Holdings - 24h Changes]\n";
       context += typeof balances === "string" ? balances : JSON.stringify(balances, null, 2).slice(0, 2000);
-    } else {
-      context += "\n[Smart Money data unavailable — using cached/fallback]\n";
+    }
+    
+    if (perpTrades) {
+      context += "\n\n[Smart Money Perpetual Positions (Hyperliquid)]\n";
+      context += typeof perpTrades === "string" ? perpTrades : JSON.stringify(perpTrades, null, 2).slice(0, 2000);
+    }
+
+    if (!balances && !perpTrades) {
+      context += "\n[Smart Money data unavailable — using fallback sources]\n";
     }
     
     context += "\n=== END NANSEN DATA ===";
