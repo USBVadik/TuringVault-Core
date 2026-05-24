@@ -2,6 +2,7 @@
  * OpenOcean DEX Aggregator — Live Execution on Mantle
  * Replaces Merchant Moe direct router (which has liquidity issues)
  */
+/* global URLSearchParams */
 const { ethers } = require("ethers");
 
 const ADDRESSES = {
