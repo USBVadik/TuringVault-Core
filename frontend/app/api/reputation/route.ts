@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createPublicClient, http, parseAbi } from 'viem';
 import { mantle } from 'viem/chains';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const REPUTATION = '0xC78119F3274B05046Ac7c38a14298a6cbD946e1a' as const;
 const VALIDATION_REGISTRY = '0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6' as const;
 

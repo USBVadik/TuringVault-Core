@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { ethers } from 'ethers';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const DECISION_LOG_ADDR = "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5";
 const VALIDATION_REGISTRY = "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6";
 

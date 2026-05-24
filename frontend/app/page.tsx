@@ -143,8 +143,10 @@ export default function Home() {
 
   // ═══ VAULT PERFORMANCE (live wallet balance) ═══
   const [vaultData, setVaultData] = useState<any>(null);
+  const [strategyData, setStrategyData] = useState<any>(null);
   useEffect(() => {
     fetch('/api/performance').then(r => r.ok ? r.json() : null).then(setVaultData).catch(() => {});
+    fetch('/api/strategy').then(r => r.ok ? r.json() : null).then(setStrategyData).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -391,23 +393,23 @@ export default function Home() {
                   <p className="text-[10px] text-white/25 uppercase tracking-widest mb-2">Active Strategy</p>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">Regime</span>
-                    <span className="text-[10px] font-mono text-yellow-400/70">RANGING</span>
+                    <span className="text-[10px] font-mono text-yellow-400/70">{strategyData?.regime || '...'}</span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">Grid Channel</span>
-                    <span className="text-[10px] font-mono text-white/50">$0.631 – $0.654</span>
+                    <span className="text-[10px] font-mono text-white/50">{strategyData ? `$${strategyData.channel.support} – $${strategyData.channel.resistance}` : '...'}</span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">Position</span>
-                    <span className="text-[10px] font-mono text-green-400/70">IN_WMNT @ $0.636</span>
+                    <span className="text-[10px] font-mono text-green-400/70">{strategyData?.position || '...'}</span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">TP / SL</span>
-                    <span className="text-[10px] font-mono text-white/50">$0.649 / $0.628 (R:R 2.3:1)</span>
+                    <span className="text-[10px] font-mono text-white/50">{strategyData?.tp && strategyData?.sl ? `${strategyData.tp} / ${strategyData.sl}${strategyData.riskReward ? ` (R:R ${strategyData.riskReward}:1)` : ''}` : 'N/A (FLAT)'}</span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">Risk Gate</span>
-                    <span className="text-[10px] font-mono text-green-400/70">VaR &lt; 150 bps</span>
+                    <span className="text-[10px] font-mono text-green-400/70">VaR {strategyData?.varGate || '< 150 bps'}</span>
                   </div>
                 </div>
                 {/* CTA */}

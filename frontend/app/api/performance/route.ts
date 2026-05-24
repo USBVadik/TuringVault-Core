@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createPublicClient, http } from 'viem';
 import { mantle } from 'viem/chains';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const WALLET = '0xDC783CDBfA993f3FC299460627b204E83bf4fb5a';
 
 export async function GET() {
