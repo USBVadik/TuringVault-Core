@@ -24,9 +24,9 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
 **Stats (live, on-chain — verified via contract calls):**
-- **93 autonomous decisions** logged to Mantle Mainnet with full reasoning
-- **65.6% rejection rate** — Validator blocks 2 out of 3 proposals (capital protection)
-- **32 approved, 61 rejected** — adversarial consensus working as designed
+- **94+ autonomous decisions** logged to Mantle Mainnet with full reasoning
+- **65%+ rejection rate** — Validator blocks 2 out of 3 proposals (capital protection)
+- **32 approved, 61+ rejected** — adversarial consensus working as designed
 - **+1216 bps cumulative PnL** on real capital (net positive over 37 settled trades)
 - Grid bot running 24/7 with adaptive regime detection
 - Zero catastrophic losses — max single-trade exposure capped at $100
@@ -96,7 +96,7 @@ All contracts verified on Sourcify:
 
 | Contract | Address | Purpose |
 |----------|---------|---------|
-| TuringVaultIdentity | [`0x582E6a649B99784829193E14bB7Af8c4A482E165`](https://explorer.mantle.xyz/address/0x582E6a649B99784829193E14bB7Af8c4A482E165) | ERC-8004 AI agent identity |
+| TuringVaultIdentity | [`0x6f862802e0d5463DF18d267e422347BeCacc28bD`](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) | ERC-8004 AI agent identity |
 | TuringVaultDecisionLog | [`0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) | Immutable decision history |
 | TuringVaultRouter | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | Trade execution & routing |
 | TuringVaultValidationRegistry | [`0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) | Multi-agent validation scores |
@@ -125,6 +125,18 @@ Traditional grid bots are dumb — fixed parameters, no regime awareness. Pure A
 | Channel Too Narrow | < 0.7% width | HOLD (slippage protection) |
 | Crisis Mode | ATR spike | Flight to USDY safety |
 | Trailing Stops | Active position | Adaptive R:R ≥ 2:1 |
+
+### Discipline Layer (Post-Execution Verification)
+
+Inspired by [Synrail](https://github.com/USBVadik/synrail) — a generalized discipline framework for autonomous agents. After every swap execution, a three-gate verification runs:
+
+1. **Proof Gate** — TX exists on-chain, sender matches vault wallet, confirmed ≥ 2 blocks
+2. **Freshness Gate** — Price data used was < 60s old at decision time (rejects stale/cached)
+3. **Drift Detection** — Flags when action pattern diverges from declared market regime
+
+If any gate fails → outcome settlement is blocked, bounded repair step triggered. This prevents "false-green" scenarios where the agent claims success without verifiable proof.
+
+See [`docs/discipline-layer.md`](./docs/discipline-layer.md) for full architecture.
 
 ### Self-Evolving AI (with Guard Rails)
 

@@ -70,8 +70,8 @@ export default async function ProofExplorerPage() {
   return (
     <ProofExplorerClient 
       decisions={data.decisions || []}
-      validation={(data.validation || { totalApproved: 32, totalRejected: 61, totalProposals: 93, consensusRate: 34.4 }) as any}
-      totalDecisions={data.totalDecisions || 93}
+      validation={data.validation || { totalApproved: 0, totalRejected: 0, totalProposals: 0, consensusRate: 0 }}
+      totalDecisions={data.totalDecisions || 0}
       agentCard={data.agentCard}
       contracts={CONTRACTS}
       blockedCases={BLOCKED_CASES}

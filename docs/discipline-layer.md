@@ -123,11 +123,11 @@ Domains beyond coding and trading:
 
 ## Status
 
-**Roadmap item** — not yet implemented. Current TuringVault relies on:
+**IMPLEMENTED** ✅ — Active in production pipeline (`src/orchestrator/disciplineLayer.js`). Current TuringVault includes:
 - Pre-execution validation (adversarial consensus) ✅
 - On-chain logging (immutable audit trail) ✅
 - PnL tracking (outcome measurement) ✅
-- **Post-execution proof verification** ❌ ← This is what Discipline Layer adds
+- **Post-execution proof verification (Discipline Layer)** ✅
 
 ## Priority
 

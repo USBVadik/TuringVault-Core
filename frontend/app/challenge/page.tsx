@@ -121,9 +121,26 @@ export default function ChallengePage() {
               <div className="font-mono text-xs space-y-1 text-white/50">
                 <div>Contract: <span className="text-purple-300">{result.verification.contract}</span></div>
                 <div>Method: <span className="text-blue-300">{result.verification.method}</span></div>
-                <div>Would Revert: <span className="text-red-300">{result.verification.would_revert ? 'YES' : 'NO'}</span></div>
-                <div>Reason: <span className="text-yellow-300">{result.verification.revert_reason}</span></div>
+                <div>VaR of Attack: <span className="text-red-300">{result.verification.var_bps} bps</span> → Max Allowed: <span className="text-green-300">{result.verification.max_allowed_bps} bps</span></div>
+                <div>Would Revert: <span className="text-red-300">{result.verification.would_revert ? 'YES — BLOCKED' : 'NO'}</span></div>
+                <div>Reason: <span className="text-yellow-300">{result.verification.reason || result.verification.revert_reason}</span></div>
               </div>
+              {result.verification.on_chain_proof?.verified && (
+                <div className="mt-4 pt-3 border-t border-white/5 space-y-1 text-[10px]">
+                  <div className="text-green-400/80 font-bold uppercase">✓ Live Contract Verified</div>
+                  <div className="text-white/30">
+                    ValidationRegistry: {result.verification.on_chain_proof.totalProposals} proposals, {result.verification.on_chain_proof.totalRejected} rejected ({result.verification.on_chain_proof.blockRate} block rate)
+                  </div>
+                  <div className="text-white/20">Network: {result.verification.on_chain_proof.network}</div>
+                </div>
+              )}
+            </div>
+
+            {/* Mode indicator */}
+            <div className="p-3 rounded-lg border border-white/[0.04] bg-white/[0.01] text-center">
+              <span className="text-[10px] text-white/25 font-mono">
+                MODE: {result.mode} · These are the SAME rules enforced on every live decision
+              </span>
             </div>
           </div>
         )}

@@ -2,7 +2,6 @@
 
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
-import 'viem';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Shield, Brain, TrendingUp, Activity, Wallet, ArrowRightLeft, Cpu, GitBranch, BarChart3, ExternalLink, Terminal } from 'lucide-react';
 import { LiveTerminal } from './components/LiveTerminal';
@@ -84,17 +83,11 @@ const EVOLUTION_STEPS = [
 
 export default function Home() {
   const { address, isConnected } = useAccount();
-  const [marketData, setMarketData] = useState<any>({
-    ethPrice: 2640, ethChange24h: -0.8, sentiment: 'neutral',
-    mETHYield: 3.8, mantleTVL: 420000000, fearGreedValue: 47,
-    mantlePrice: 0.63
-  });
+  const [marketData, setMarketData] = useState<any>(null);
   const [reasoningStep, setReasoningStep] = useState(0);
-  const [chainData, setChainData] = useState<any>({
-    totalDecisions: 73, totalProposals: 73, totalApproved: 25, totalRejected: 48, decisions: null
-  });
+  const [chainData, setChainData] = useState<any>(null);
   const [liveNotification, setLiveNotification] = useState<any>(null);
-  const prevTotalRef = useRef(73);
+  const prevTotalRef = useRef(0);
 
   // ═══ ON-CHAIN READS (via server API to avoid client tuple decode issues) ═══
   useEffect(() => {
@@ -132,10 +125,7 @@ export default function Home() {
   const recentDecisions = chainData?.decisions;
 
   // ═══ REPUTATION DATA ═══
-  const [reputationData, setReputationData] = useState<any>({
-    cumulativeScore: 1631, totalFeedback: 94, positiveCount: 41, negativeCount: 53,
-    winRate: '43.6', normalizedScore: 100
-  });
+  const [reputationData, setReputationData] = useState<any>(null);
   useEffect(() => {
     fetch('/api/reputation').then(r => r.json()).then(setReputationData).catch(() => {});
   }, []);
@@ -150,6 +140,12 @@ export default function Home() {
     mETHYield: 3.41, mantleTVL: 4200000000, fearGreedValue: 42,
     lastUpdated: '2026-05-20T18:30:00Z',
   };
+
+  // ═══ VAULT PERFORMANCE (live wallet balance) ═══
+  const [vaultData, setVaultData] = useState<any>(null);
+  useEffect(() => {
+    fetch('/api/performance').then(r => r.ok ? r.json() : null).then(setVaultData).catch(() => {});
+  }, []);
 
   useEffect(() => {
     async function fetchMarket() {
@@ -370,11 +366,11 @@ export default function Home() {
                 <div className="space-y-3 mb-5">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Vault Balance</span>
-                    <span className="text-sm font-mono font-bold text-white/80">~57.4 MNT</span>
+                    <span className="text-sm font-mono font-bold text-white/80">{vaultData ? `${vaultData.mnt} MNT` : '...'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Total Deployed</span>
-                    <span className="text-sm font-mono font-bold text-green-400">91× Decisions</span>
+                    <span className="text-sm font-mono font-bold text-green-400">{totalProposals ? `${totalProposals}× Decisions` : '...'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Agent Wallet</span>
