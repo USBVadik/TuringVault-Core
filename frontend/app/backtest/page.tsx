@@ -9,7 +9,7 @@ export default function BacktestPage() {
     fetch('/api/backtest').then(r => r.json()).then(setData);
   }, []);
 
-  if (!data) return <div className="min-h-screen bg-[#0a0a0f] text-white p-8 flex items-center justify-center"><span className="animate-pulse text-white/30">Loading backtest...</span></div>;
+  if (!data) return <div className="min-h-screen bg-[#0a0a0f] text-white p-8 flex items-center justify-center"><span className="animate-pulse text-white/30">Loading performance data...</span></div>;
 
   const { summary, equityCurve, trades } = data;
   const maxNav = Math.max(...equityCurve.map((p: any) => p.nav));
@@ -19,24 +19,25 @@ export default function BacktestPage() {
     <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
       <div className="max-w-5xl mx-auto">
         <a href="/" className="text-xs text-white/30 hover:text-white/60 mb-4 block">← Back to Dashboard</a>
-        <h1 className="text-3xl font-bold mb-2">📊 Backtest Results</h1>
-        <p className="text-white/40 text-sm mb-8">30-day simulated performance · ETH ranging channel {summary.channel}</p>
+        <h1 className="text-3xl font-bold mb-2">📊 Live Performance</h1>
+        <p className="text-white/40 text-sm mb-2">{summary.period} · Real on-chain execution results</p>
+        <p className="text-[10px] text-white/20 mb-8">Source: {summary.dataSource}</p>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          <StatCard label="Cumulative PnL" value={`+${summary.cumulativeBps} bps`} color="green" />
           <StatCard label="Total Return" value={`+${summary.totalReturn}%`} color="green" />
-          <StatCard label="Sharpe Ratio" value={summary.sharpe.toFixed(2)} color="purple" />
-          <StatCard label="Max Drawdown" value={`-${summary.maxDrawdown}%`} color="red" />
-          <StatCard label="Win Rate" value={`${summary.winRate}%`} color="blue" />
-          <StatCard label="Total Trades" value={summary.totalTrades} color="white" />
-          <StatCard label="Avg Trade" value={`+${summary.avgTradeReturn}%`} color="green" />
-          <StatCard label="ETH Hold" value={`${summary.ethHold}%`} color="red" />
-          <StatCard label="Alpha vs Hold" value={`+${(summary.totalReturn - summary.ethHold).toFixed(1)}%`} color="green" />
+          <StatCard label="Max Drawdown" value={`-${summary.maxDrawdownBps} bps`} color="red" />
+          <StatCard label="Avg Trade" value={`${summary.avgTradeBps > 0 ? '+' : ''}${summary.avgTradeBps} bps`} color="purple" />
+          <StatCard label="Settled Trades" value={summary.totalTrades} color="white" />
+          <StatCard label="Positive" value={summary.positiveTrades} color="green" />
+          <StatCard label="Negative" value={summary.negativeTrades} color="red" />
+          <StatCard label="Neutral" value={summary.neutralTrades} color="blue" />
         </div>
 
         {/* Equity Curve */}
         <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02] mb-6">
-          <h3 className="text-xs font-bold text-white/60 uppercase mb-4">Equity Curve (normalized $100 start)</h3>
+          <h3 className="text-xs font-bold text-white/60 uppercase mb-4">Equity Curve (normalized $100 start · real execution)</h3>
           <div className="relative h-48 w-full">
             <svg viewBox={`0 0 ${equityCurve.length} 100`} className="w-full h-full" preserveAspectRatio="none">
               {/* Grid lines */}
@@ -65,10 +66,10 @@ export default function BacktestPage() {
               />
               
               {/* Trade markers */}
-              {equityCurve.filter((p: any) => p.trade).map((p: any, i: number) => {
+              {equityCurve.filter((p: any) => p.action).map((p: any, i: number) => {
                 const idx = equityCurve.indexOf(p);
                 const y = 100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
-                return <circle key={i} cx={idx} cy={y} r="1.5" fill={p.trade === 'BUY' ? '#4ade80' : '#f87171'} />;
+                return <circle key={i} cx={idx} cy={y} r="1.5" fill={p.action === 'swap' ? '#4ade80' : '#a78bfa'} />;
               })}
               
               <defs>
@@ -84,29 +85,28 @@ export default function BacktestPage() {
             </svg>
             
             {/* Y axis labels */}
-            <div className="absolute top-0 left-0 text-[9px] text-white/20">${maxNav.toFixed(0)}</div>
-            <div className="absolute bottom-0 left-0 text-[9px] text-white/20">${minNav.toFixed(0)}</div>
-            <div className="absolute top-0 right-0 text-[9px] text-white/20">Day 30</div>
+            <div className="absolute top-0 left-0 text-[9px] text-white/20">${maxNav.toFixed(2)}</div>
+            <div className="absolute bottom-0 left-0 text-[9px] text-white/20">${minNav.toFixed(2)}</div>
             <div className="absolute bottom-0 right-2 text-[9px] text-green-400/60">
-              ● BUY &nbsp; <span className="text-red-400/60">● SELL</span>
+              ● SWAP &nbsp; <span className="text-purple-400/60">● HOLD</span>
             </div>
           </div>
         </div>
 
         {/* Trade Table */}
         <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-          <h3 className="text-xs font-bold text-white/60 uppercase mb-4">Recent Trades (sample)</h3>
+          <h3 className="text-xs font-bold text-white/60 uppercase mb-4">Recent Settled Decisions</h3>
           <div className="space-y-1 font-mono text-xs">
             <div className="grid grid-cols-5 text-white/30 pb-2 border-b border-white/[0.04]">
-              <span>HOUR</span><span>TYPE</span><span>ENTRY</span><span>EXIT</span><span>PNL</span>
+              <span>#</span><span>ACTION</span><span>ASSET</span><span>PRICE</span><span>PNL (bps)</span>
             </div>
             {trades.map((t: any, i: number) => (
-              <div key={i} className={`grid grid-cols-5 py-1 ${t.pnl > 0 ? 'text-green-400/70' : 'text-red-400/70'}`}>
-                <span className="text-white/40">h{t.hour}</span>
-                <span>{t.type}</span>
-                <span>${t.entry}</span>
-                <span>${t.exit}</span>
-                <span>{t.pnl > 0 ? '+' : ''}{t.pnl.toFixed(2)}%</span>
+              <div key={i} className={`grid grid-cols-5 py-1 ${t.pnlBps > 0 ? 'text-green-400/70' : t.pnlBps < 0 ? 'text-red-400/70' : 'text-white/40'}`}>
+                <span className="text-white/40">#{t.idx}</span>
+                <span className="uppercase">{t.action}</span>
+                <span>{t.asset}</span>
+                <span>${t.price?.toFixed(2) || '—'}</span>
+                <span>{t.pnlBps > 0 ? '+' : ''}{t.pnlBps}</span>
               </div>
             ))}
           </div>
@@ -115,10 +115,10 @@ export default function BacktestPage() {
         {/* Methodology */}
         <div className="mt-6 p-4 rounded-lg border border-white/[0.04] bg-white/[0.01]">
           <p className="text-[10px] text-white/20 leading-relaxed">
-            <strong className="text-white/30">Methodology:</strong> Ranging grid strategy backtested over 720 hourly candles (30 days). 
-            Buy zone: bottom 30% of channel. Sell zone: top 70%. Adaptive SL with trailing stop. 
-            Slippage: 0.15% (MerchantMoe v2.2). Gas: $0.02/swap (Mantle L2). 
-            No look-ahead bias — channel computed from rolling 48h lookback window.
+            <strong className="text-white/30">Data Source:</strong> All results from actual on-chain execution via ValidationRegistry contract. 
+            Each decision goes through multi-agent consensus (GLM-5 analyst + Claude Sonnet 4.6 validator), 
+            logged to Mantle L1 with IPFS reasoning anchoring. PnL measured at next decision cycle vs entry price.
+            No simulation, no backtesting — pure live performance.
           </p>
         </div>
       </div>

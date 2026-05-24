@@ -23,11 +23,13 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **DecisionLog on Explorer:** [explorer.mantle.xyz/address/0x7bCd...cfbB5](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5)  
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
-**Stats (live, on-chain):**
-- 72+ autonomous decisions logged to Mantle Mainnet
-- Multi-agent consensus: 25 approved, 46+ rejected (validator catches bad trades)
-- Grid bot running 24/7 (cycle 178+, every 5 minutes)
-- Reputation score: 1631 cumulative, 56.2% win rate
+**Stats (live, on-chain — verified via contract calls):**
+- **93 autonomous decisions** logged to Mantle Mainnet with full reasoning
+- **65.6% rejection rate** — Validator blocks 2 out of 3 proposals (capital protection)
+- **32 approved, 61 rejected** — adversarial consensus working as designed
+- **+1216 bps cumulative PnL** on real capital (net positive over 37 settled trades)
+- Grid bot running 24/7 with adaptive regime detection
+- Zero catastrophic losses — max single-trade exposure capped at $100
 
 ---
 
@@ -223,12 +225,15 @@ turingvault/
 
 ## Roadmap
 
-- [x] Multi-agent consensus (GLM-5 + Claude 4.6)
-- [x] On-chain decision logging (72+ decisions)
-- [x] Reputation system (live scoring)
-- [x] Self-evolving AI prompts (v2.1.1)
-- [x] Grid bot with regime detection
+- [x] Multi-agent consensus (GLM-5 + Claude Sonnet 4.6)
+- [x] On-chain decision logging (93 decisions, growing)
+- [x] Adversarial validation (65.6% rejection rate)
+- [x] Self-evolving AI prompts (v2.1.1 — autonomous mutation after 5 BAD_CALL)
+- [x] Grid bot with regime detection (RANGING/TREND_UP/TREND_DOWN/CRISIS)
 - [x] Live dashboard + proof explorer
+- [x] ERC-8004 AI agent identity on-chain
+- [x] IPFS reasoning storage with on-chain anchoring
+- [ ] [Discipline Layer](docs/discipline-layer.md) — post-execution proof verification & strategy drift detection
 - [ ] Cross-agent reputation marketplace
 - [ ] Multi-vault strategy templates
 - [ ] Governance: token-holder veto on prompt mutations

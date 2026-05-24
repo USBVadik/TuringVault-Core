@@ -220,6 +220,25 @@ async function runMultiAgentCycle() {
 
   // Step 6: Record outcome for future settlement (the real learning loop)
   console.log("🔮 [STEP 6] Recording outcome for settlement in 4h...");
+  
+  // Discipline Layer: verify execution proof before recording
+  let disciplineStatus = "SKIPPED";
+  try {
+    const disciplineLayer = require("./disciplineLayer");
+    const action = decision.analyst?.action || "hold";
+    const proofResult = await disciplineLayer.verify({
+      txHash: decision.executionTxHash || null,
+      action,
+      priceAtDecision: market.ethPrice,
+      decisionTimestamp: Date.now(),
+      priceTimestamp: market.timestamp || (Date.now() - 5000),
+      regime: market.structuredSignals?.signals?.ranging?.regime || "RANGING",
+    });
+    disciplineStatus = proofResult.status;
+  } catch (discErr) {
+    console.log(`   ⚠️  [DISCIPLINE] Non-fatal: ${discErr.message?.slice(0, 60)}`);
+  }
+  
   try {
     outcomeTracker.record({
       decisionId: Number(proposalId),
@@ -229,6 +248,7 @@ async function runMultiAgentCycle() {
       confidence: decision.analyst?.confidence || 0.5,
       priceAtDecision: market.ethPrice,
       ipfsCid: ipfsResult.cid,
+      disciplineStatus,
     });
     console.log(`   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`);
   } catch (e) {

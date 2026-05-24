@@ -133,8 +133,8 @@ export default function Home() {
 
   // ═══ REPUTATION DATA ═══
   const [reputationData, setReputationData] = useState<any>({
-    cumulativeScore: 1631, totalFeedback: 73, positiveCount: 41, negativeCount: 32,
-    winRate: '56.2', normalizedScore: 100
+    cumulativeScore: 1631, totalFeedback: 94, positiveCount: 41, negativeCount: 53,
+    winRate: '43.6', normalizedScore: 100
   });
   useEffect(() => {
     fetch('/api/reputation').then(r => r.json()).then(setReputationData).catch(() => {});

@@ -409,6 +409,26 @@ async function runIntegratedCycle(options = {}) {
         if (executionResult.executed) {
           console.log(`   ✅ SWAP EXECUTED: ${executionResult.txHash}`);
           console.log(`   Gas: ${executionResult.gasUsed} | Block: ${executionResult.blockNumber}`);
+          
+          // ─── Discipline Layer: Post-Execution Proof Verification ───
+          try {
+            const disciplineLayer = require("./disciplineLayer");
+            const proofResult = await disciplineLayer.verify({
+              txHash: executionResult.txHash,
+              action: "swap",
+              priceAtDecision: market.ethPrice,
+              decisionTimestamp: Date.now(),
+              priceTimestamp: market.timestamp || (Date.now() - 5000), // fallback: assume 5s old
+              regime: mode,
+            });
+            executionResult.disciplineStatus = proofResult.status;
+            if (proofResult.status === "BLOCKED") {
+              executionResult.disciplineBlock = proofResult.blockReason;
+              executionResult.disciplineRepair = proofResult.repairStep;
+            }
+          } catch (discErr) {
+            console.log(`   ⚠️  [DISCIPLINE] Check failed (non-fatal): ${discErr.message?.slice(0, 80)}`);
+          }
         } else {
           console.log(`   ⚠️  Swap not executed: ${executionResult.reason}`);
         }
