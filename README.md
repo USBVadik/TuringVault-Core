@@ -24,7 +24,7 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
 **Stats (live, on-chain — verified via contract calls):**
-- **94+ autonomous decisions** logged to Mantle Mainnet with full reasoning
+- **97+ autonomous decisions** logged to Mantle Mainnet with full reasoning
 - **65%+ rejection rate** — Validator blocks 2 out of 3 proposals (capital protection)
 - **32 approved, 61+ rejected** — adversarial consensus working as designed
 - **+1216 bps cumulative PnL** on real capital (net positive over 37 settled trades)

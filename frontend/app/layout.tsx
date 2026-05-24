@@ -18,7 +18,32 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "TuringVault — Proof-of-Reasoning Trust Firewall",
-  description: "Autonomous AI agent managing real-world assets on Mantle Network",
+  description: "Autonomous AI agents make verifiable on-chain DeFi decisions via Proof-of-Reasoning — dual-agent consensus on Mantle Mainnet, fully auditable.",
+  metadataBase: new URL("https://frontend-seven-beta-46.vercel.app"),
+  openGraph: {
+    title: "TuringVault — Proof-of-Reasoning Trust Firewall",
+    description: "Autonomous AI agents make verifiable on-chain DeFi decisions via Proof-of-Reasoning — dual-agent consensus on Mantle Mainnet, fully auditable.",
+    url: "https://frontend-seven-beta-46.vercel.app",
+    siteName: "TuringVault",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "TuringVault — AI-Driven DeFi on Mantle",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TuringVault — Proof-of-Reasoning Trust Firewall",
+    description: "Autonomous AI agents make verifiable on-chain DeFi decisions via Proof-of-Reasoning — dual-agent consensus on Mantle Mainnet.",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
