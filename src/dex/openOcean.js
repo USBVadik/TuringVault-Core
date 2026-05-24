@@ -67,8 +67,24 @@ class OpenOceanDEX {
       return { ...quote, executed: false, reason: "DRY_RUN mode", wouldExecute: true };
     }
 
-    // Approve
+    // Auto-wrap MNT → WMNT if needed
     const inAddr = ADDRESSES[tokenIn] || tokenIn;
+    if (tokenIn === "WMNT") {
+      const wmntContract = new ethers.Contract(ADDRESSES.WMNT, [
+        "function balanceOf(address) view returns (uint256)",
+        "function deposit() payable"
+      ], this.wallet);
+      const wmntBal = await wmntContract.balanceOf(this.wallet.address);
+      if (wmntBal < amountIn) {
+        const deficit = amountIn - wmntBal;
+        console.log(`   Wrapping ${ethers.formatEther(deficit)} MNT → WMNT...`);
+        const wrapTx = await wmntContract.deposit({ value: deficit });
+        await wrapTx.wait();
+        console.log(`   ✅ Wrapped successfully`);
+      }
+    }
+
+    // Approve
     const tokenContract = new ethers.Contract(inAddr, [
       "function approve(address,uint256) returns (bool)",
       "function allowance(address,address) view returns (uint256)"

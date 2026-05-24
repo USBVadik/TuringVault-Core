@@ -35,13 +35,13 @@ const { TencentKMSCrypto } = require("../kms/tencentKMS");
 const CONFIG = {
   // VaR threshold for Human vs AI autonomy
   varThreshold: {
-    autonomous: 200,  // VaR < 200 bps → AI acts alone
-    supervised: 350,  // 200 < VaR < 350 → AI proposes, human reviews
-    blocked: 500,     // VaR > 500 → no action (too risky)
+    autonomous: 600,  // VaR < 600 bps → AI acts alone (relaxed for live test)
+    supervised: 800,  // 600 < VaR < 800 → AI proposes, human reviews
+    blocked: 1000,    // VaR > 1000 → no action (too risky)
   },
   // Execution limits
-  maxSwapSizeUSD: 100,     // Max $100 per swap (hackathon demo)
-  maxDailySwaps: 10,       // Max 10 swaps per day
+  maxSwapSizeUSD: 50,      // Max $50 per swap
+  maxDailySwaps: 5,        // Max 5 swaps per day
   minConfidence: 0.6,      // Minimum AI confidence to proceed
   // Mode
   mode: process.env.ORCHESTRATOR_MODE || "autonomous", // autonomous | supervised | paper
@@ -383,11 +383,11 @@ async function runIntegratedCycle(options = {}) {
 
   // ─── Step 8: EXECUTE SWAP (if consensus + autonomous) ───
   let executionResult = null;
-  if (decision.consensus && autonomyLevel === "AUTONOMOUS" && decision.analyst?.action === "swap") {
+  if ((decision.consensus || decision.analyst?.confidence >= 0.7) && autonomyLevel === "AUTONOMOUS" && decision.analyst?.action === "swap") {
     console.log("\n💱 [8/8] Executing real swap on Merchant Moe...");
     try {
       const targetAsset = decision.analyst?.targetAsset;
-      const allocationPct = Math.min(decision.analyst?.allocationPct || 30, CONFIG.maxSwapSizeUSD);
+      const allocationPct = Math.min(decision.analyst?.allocationPct || 15, 15);
       
       // Calculate swap amount based on portfolio
       const mntBalance = balances.MNT || 0;
