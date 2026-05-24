@@ -512,7 +512,7 @@ export default function Home() {
             <div className="table-v2-header grid-cols-6">
               <span>Time</span><span>Action</span><span>Asset</span><span>Amount</span><span>Confidence</span><span>Reasoning</span>
             </div>
-            {recentDecisions === null ? (
+            {recentDecisions == null ? (
               <div className="space-y-1 animate-pulse">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="table-v2-row grid-cols-6">
