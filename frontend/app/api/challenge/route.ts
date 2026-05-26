@@ -29,7 +29,7 @@ export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const RATE_LIMIT_PER_IP_PER_HOUR = 5;
+const RATE_LIMIT_PER_IP_PER_HOUR = 10;
 const ipBuckets = new Map<string, number[]>();   // soft, in-memory across warm invocations
 
 const KNOWN_ATTACKS = ['flash_crash', 'pump_signal', 'oracle_conflict', 'sybil_consensus'];
@@ -215,17 +215,23 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'unknown attack type', available: KNOWN_ATTACKS }, { status: 400 });
   }
 
-  // Rate-limit (per-IP, soft)
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json(
-      { error: 'rate-limited', retryAfter: 3600, perIpHourly: RATE_LIMIT_PER_IP_PER_HOUR },
-      { status: 429 },
-    );
+  // Rate-limit only applies in LIVE mode — PREVIEW is free (no model
+  // calls, no spend). In PREVIEW we let the user click as much as they
+  // want; the on-chain liveness probe is still throttled by Vercel
+  // function concurrency anyway.
+  const liveMode = process.env.CHALLENGE_LIVE_ENABLED === 'true';
+  if (liveMode) {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json(
+        { error: 'rate-limited', retryAfter: 3600, perIpHourly: RATE_LIMIT_PER_IP_PER_HOUR },
+        { status: 429 },
+      );
+    }
   }
 
   // Mode dispatch
-  if (process.env.CHALLENGE_LIVE_ENABLED !== 'true') {
+  if (!liveMode) {
     const r = await buildDeterministicResponse(type);
     return NextResponse.json(r.body, { status: r.status });
   }
