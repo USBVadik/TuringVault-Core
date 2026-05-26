@@ -655,20 +655,29 @@ export default function Home() {
                 ))}
               </div>
             ) : recentDecisions && recentDecisions.length > 0 ? (
-              recentDecisions.map((d: any, i: number) => (
-                <div key={i} className="table-v2-row grid-cols-6">
-                  <span className="text-white/40 font-mono text-[11px]">
-                    {new Date(d.timestamp * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                  <span className={`font-bold text-[11px] ${d.action === 'swap' ? 'text-green-400' : 'text-purple-400'}`}>
-                    {d.action.toUpperCase()}
-                  </span>
-                  <span className="text-white/80 font-medium">{d.targetAsset}</span>
-                  <span className="text-white/50 font-mono text-[11px]">{(Number(d.amountIn) / 1e18).toFixed(3)} MNT</span>
-                  <span className="text-white/70 font-mono">{(d.confidence / 100).toFixed(1)}%</span>
-                  <span className="text-white/25 truncate font-mono text-[10px]">{parseReasoning(d.reasoningHash)}</span>
-                </div>
-              ))
+              recentDecisions.map((d: any, i: number) => {
+                const tsLabel = d.timestamp
+                  ? new Date(d.timestamp * 1000).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
+                  : '—';
+                const amount = d.amountIn != null && d.amountIn !== '0'
+                  ? `${(Number(d.amountIn) / 1e18).toFixed(3)} ${d.targetAsset}`
+                  : '—';
+                return (
+                  <div key={i} className="table-v2-row grid-cols-6">
+                    <span className="text-white/40 font-mono text-[11px]">{tsLabel}</span>
+                    <span className={`font-bold text-[11px] ${d.action === 'swap' ? 'text-green-400' : 'text-purple-400'}`}>
+                      {d.action.toUpperCase()}
+                    </span>
+                    <span className="text-white/80 font-medium">{d.targetAsset}</span>
+                    <span className="text-white/50 font-mono text-[11px]">{amount}</span>
+                    <span className="text-white/70 font-mono">{(d.confidence / 100).toFixed(1)}%</span>
+                    <span className="text-white/25 truncate font-mono text-[10px]">{parseReasoning(d.reasoningHash)}</span>
+                  </div>
+                );
+              })
             ) : (
               <div className="px-6 py-16 text-center">
                 <div className="text-white/15 text-sm">No decisions recorded yet</div>
