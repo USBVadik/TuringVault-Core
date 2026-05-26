@@ -60,12 +60,12 @@ Every decision creates an immutable record: what data the AI observed, what conc
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                    │
 │    DATA LAYER                                                      │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌──────────────┐  │
-│  │ CoinGecko  │  │ Nansen MCP │  │ Hyperliquid│  │ DeFiLlama    │  │
-│  │ Price/Vol  │  │ Smart Money│  │  Funding   │  │ Mantle TVL   │  │
-│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └──────┬───────┘  │
-│        └───────────────┼───────────────┼────────────────┘          │
-│                        ▼                                           │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │
+│  │CoinGecko │ │Nansen MCP│ │Hyperliquid│ │DeFiLlama │ │Elfa REST │  │
+│  │Price/Vol │ │SmartMoney│ │Funding/OI│ │Mantle TVL│ │Mindshare │  │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘  │
+│       └───────────┴────────────┼────────────┴────────────┘         │
+│                                ▼                                   │
 │    SIGNAL ENGINE (Regime Detection)                                │
 │  ┌────────────────────────────────────────────────────────────┐    │
 │  │ RANGING    │ TREND_UP   │ TREND_DOWN  │  HOLD   │ CRISIS   │    │
@@ -217,18 +217,25 @@ The ANALYST prompt evolves based on performance, gated by safeguards:
 
 ## Ecosystem Integration
 
-### Hackathon Sponsors & Partners
+### Partners & Integrations
 
-| Partner | Integration | Status |
-|---------|-------------|--------|
-| **Mantle Network** | Mainnet deployment, mETH/mUSD native assets, gas-efficient L2 | ✅ Live |
-| **Nansen** | MCP (Model Context Protocol) for smart money flow signals | ✅ Live |
-| **Tencent Cloud** | AI model hosting infrastructure, high-availability inference | ✅ Live |
-| **Merchant Moe** | DEX routing for on-chain swaps | ✅ Live |
-| **Ondo Finance** | USDY idle parking (5.25% APY baseline) | ✅ Live |
-| **Elfa** | Social sentiment analysis for market signals | 🔄 Integrated |
-| **OpenCheck** | On-chain verification & contract audit tooling | 🔄 Integrated |
-| **Bybit Wallet** | Frontend wallet connection & UX | ✅ Live |
+Every entry below points to a verifiable code path or on-chain artefact. Removed
+from earlier drafts: Tencent Cloud KMS, Elfa (now reinstated with real code),
+OpenCheck, Surf, Orbit AI, Minds, Mirana — all had zero implementation behind
+them per `.kiro/steering/no-lying-about-state.md`.
+
+| Partner | Integration | Code path / artefact | Status |
+|---------|-------------|----------------------|--------|
+| **Mantle Network** | Mainnet deployment (chain 5000), gas-paid in MNT, RPC via `rpc.mantle.xyz` | [`frontend/app/providers.tsx`](frontend/app/providers.tsx) + 5 deployed contracts | ✅ Live |
+| **Z.ai** | GLM-5 analyst model via AWS Bedrock (`zai.glm-5`) | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.analyst` | ✅ Live |
+| **Anthropic** | Claude Sonnet 4.6 validator via AWS Bedrock | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.validator` | ✅ Live |
+| **Google** | Gemini 3.5 Flash arbiter via Vertex AI | [`src/orchestrator/geminiArbiter.js`](src/orchestrator/geminiArbiter.js) | ✅ Live |
+| **Nansen** | Smart-money intelligence via JSON-RPC 2.0 MCP client (36 analytics tools) | [`src/mcp/nansenMCP.js`](src/mcp/nansenMCP.js) — used in `unifiedMarketData.js` every cycle | ✅ Live |
+| **Elfa** | Social intelligence — mindshare, smart-account mentions, entity-graph sentiment | [`src/data/elfa.js`](src/data/elfa.js) — wired into `signalEngine.js` as 5th signal + `/api/elfa-snapshot` | ✅ Live (free tier, REST API v2) |
+| **Merchant Moe** | DEX execution via Liquidity Book v2.2 router | [`src/dex/merchantMoe.js`](src/dex/merchantMoe.js) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) | ✅ Live |
+| **Ondo Finance** | USDY tokenized Treasuries metadata (paper-ready; pool currently dry on Mantle) | [`src/rwa/usdyModule.js`](src/rwa/usdyModule.js) — guarded behind `RWA_POOL_INACTIVE` | 🟡 Paper-ready |
+| **Bybit** | Wallet connector — primary recommended in RainbowKit `connectorsForWallets` | [`frontend/app/providers.tsx`](frontend/app/providers.tsx) — `bybitWallet` from `@rainbow-me/rainbowkit/wallets` | ✅ Live |
+| **Pinata** | IPFS pinning for Proof-of-Reasoning blobs and agent card auto-refresh | [`src/ipfs/storage.js`](src/ipfs/storage.js) | ✅ Live |
 
 ### Why Mantle?
 
@@ -243,14 +250,14 @@ The ANALYST prompt evolves based on performance, gated by safeguards:
 
 | Layer | Technology |
 |-------|-----------|
-| AI Models | GLM-5 Analyst (Z.ai) + Claude Sonnet 4.6 Validator (Anthropic) + Gemini 3.5 Flash Arbiter (Google) |
+| AI Models | Z.ai GLM-5 Analyst (via AWS Bedrock) + Anthropic Claude Sonnet 4.6 Validator (via AWS Bedrock) + Google Gemini 3.5 Flash Arbiter (via Vertex AI) |
 | Blockchain | Mantle L2 Mainnet (chain 5000) |
-| DEX | Merchant Moe v2.2 / Odos aggregator |
-| Data | CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama, Elfa |
+| DEX | Merchant Moe Liquidity Book v2.2 |
+| Data | CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama, Elfa REST v2 |
 | Storage | IPFS (Pinata) for Proof-of-Reasoning blobs |
-| Frontend | Next.js 15 + Tailwind + Framer Motion |
-| RWA | Ondo Finance USDY (tokenized Treasuries) |
-| Infra | Tencent Cloud (inference), Vercel (frontend) |
+| Frontend | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary) |
+| RWA | Ondo Finance USDY metadata (paper-ready) + USDT0 LayerZero (active) |
+| Infra | GitHub Actions cron (hourly), Vercel (frontend), Pinata (IPFS pinning) |
 
 ---
 
@@ -339,6 +346,8 @@ turingvault/
 - [x] [Discipline Layer](docs/discipline-layer.md) — post-execution proof verification (live; surfaced on dashboard)
 - [x] RWA allocation active (USDT0 Treasury-collateralised, first swap on Mantlescan)
 - [x] Adversarial Challenge page (preview-rules mode live; LIVE multi-agent mode in v3 spec)
+- [x] Elfa social intelligence integrated as 5th structured signal (mindshare, smart-account mentions, entity-graph sentiment)
+- [ ] Tencent Cloud KMS migration (stub at `src/kms/tencentKMS.js` runs in `simulate: true`; pending verification of secp256k1 support on their international tier)
 - [ ] Cross-agent reputation marketplace
 - [ ] Multi-vault strategy templates
 - [ ] Governance: token-holder veto on prompt mutations

@@ -59,19 +59,21 @@ const ROUTER_ABI = [
 ] as const;
 
 // ═══ PARTNERS ═══
+// Honesty rule (.kiro/steering/no-lying-about-state.md §5) — every entry must
+// have a verifiable code path. Removed: Tencent Cloud (KMS = simulate stub),
+// Elfa (replaced when Elfa client lives in src/data/elfa.js), Surf, OpenCheck,
+// Orbit AI, Minds, Mirana — all had zero code paths.
 const PARTNERS = [
-  { name: 'Nansen', url: 'https://nansen.ai' },
-  { name: 'Tencent Cloud', url: 'https://cloud.tencent.com' },
-  { name: 'Elfa', url: 'https://elfa.ai' },
-  { name: 'Surf', url: 'https://surf.tech' },
-  { name: 'Orbit AI', url: 'https://orbitai.finance' },
-  { name: 'Minds', url: 'https://minds.com' },
-  { name: 'Mirana', url: 'https://mirana.xyz' },
-  { name: 'OpenCheck', url: 'https://opencheck.ai' },
-  { name: 'Bybit', url: 'https://bybit.com' },
   { name: 'Mantle Network', url: 'https://mantle.xyz' },
+  { name: 'Z.ai', url: 'https://z.ai' },
+  { name: 'Anthropic', url: 'https://anthropic.com' },
+  { name: 'Google', url: 'https://cloud.google.com/vertex-ai' },
+  { name: 'Nansen', url: 'https://nansen.ai' },
+  { name: 'Elfa', url: 'https://elfa.ai' },
   { name: 'Merchant Moe', url: 'https://merchantmoe.com' },
   { name: 'Ondo Finance', url: 'https://ondo.finance' },
+  { name: 'Bybit', url: 'https://bybit.com' },
+  { name: 'Pinata', url: 'https://pinata.cloud' },
 ];
 
 // ═══ EVOLUTION TIMELINE removed in T14 (ui-honesty-pass) ═══
@@ -182,10 +184,12 @@ export default function Home() {
   const [perfData, setPerfData] = useState<any>(null);
   const [strategyData, setStrategyData] = useState<any>(null);
   const [disciplineData, setDisciplineData] = useState<any>(null);
+  const [elfaData, setElfaData] = useState<any>(null);
   useEffect(() => {
     fetch('/api/performance').then(r => r.ok ? r.json() : null).then(setPerfData).catch(() => {});
     fetch('/api/strategy').then(r => r.ok ? r.json() : null).then(setStrategyData).catch(() => {});
     fetch('/api/discipline').then(r => r.ok ? r.json() : null).then(setDisciplineData).catch(() => {});
+    fetch('/api/elfa-snapshot').then(r => r.ok ? r.json() : null).then(setElfaData).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -585,6 +589,9 @@ export default function Home() {
                     </>
                   ) : null}
 
+                  {/* Elfa social signal strip — Elfa REST v2 (src/data/elfa.js) */}
+                  <ElfaSocialStripRow data={elfaData} />
+
                   {/* Discipline Layer strip — discipline-layer-ui R3 */}
                   <DisciplineStripRow data={disciplineData} />
                 </div>
@@ -905,6 +912,94 @@ function CardSourceBadge({ card }: { card: any }) {
     );
   }
   return null;
+}
+
+/* ═══ ELFA SOCIAL STRIP — Elfa REST v2, src/data/elfa.js ═══ */
+function ElfaSocialStripRow({ data }: { data: any }) {
+  // Honest empty/error states first — never fabricate.
+  if (!data) {
+    return (
+      <div className="funding-strategy-row" title="Elfa social snapshot loading...">
+        <span className="text-[10px] font-mono text-purple-400/70">Elfa Social</span>
+        <span className="text-[10px] font-mono text-white/30">—</span>
+      </div>
+    );
+  }
+
+  if (!data.available) {
+    const reason = data.reason ?? 'unavailable';
+    const isMissingKey = /no_api_key|not configured/i.test(reason);
+    return (
+      <div
+        className="funding-strategy-row"
+        title={
+          isMissingKey
+            ? 'ELFA_API_KEY not set on this deployment. Source: src/data/elfa.js'
+            : `Elfa API: ${reason}`
+        }
+      >
+        <span className="text-[10px] font-mono text-purple-400/70">Elfa Social</span>
+        <span className="text-[10px] font-mono text-white/30">
+          {isMissingKey ? 'API key not set' : 'unavailable'}
+        </span>
+      </div>
+    );
+  }
+
+  const sig = data.signal as 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+  const sigColor =
+    sig === 'BULLISH'
+      ? 'text-emerald-400/80'
+      : sig === 'BEARISH'
+        ? 'text-red-400/80'
+        : 'text-white/50';
+
+  const ms = data.mindshare != null ? Number(data.mindshare).toFixed(2) : null;
+  const dms = data.mindshareChange != null ? Number(data.mindshareChange).toFixed(0) : null;
+  const sentimentStr = data.sentiment != null ? Number(data.sentiment).toFixed(2) : '—';
+  const smart = data.smartAccountMentions ?? 0;
+  const sym = data.symbol ?? 'ETH';
+  const win = data.windowHours ?? 24;
+
+  // Stale check: any snapshot older than the cycle period (90 min) is stale.
+  const fetchedAt = data.fetchedAt ? Date.parse(data.fetchedAt) : null;
+  const ageMs = fetchedAt ? Date.now() - fetchedAt : null;
+  const stale = ageMs != null && ageMs > 90 * 60 * 1000;
+
+  return (
+    <>
+      <div
+        className="funding-strategy-row"
+        title={`Elfa REST v2 · ${win}h window · entity-graph-filtered. Sentiment range -1..+1 (current ${sentimentStr}). Source: src/data/elfa.js`}
+      >
+        <span className="text-[10px] font-mono text-purple-400/70">Elfa Social ({sym})</span>
+        <span className="text-[10px] font-mono flex items-center gap-2">
+          <span className={sigColor}>{sig}</span>
+          {ms != null && (
+            <span className="text-white/40">
+              mindshare {ms}%
+              {dms != null && (
+                <span className={Number(dms) >= 0 ? 'text-emerald-400/60' : 'text-red-400/60'}>
+                  {' '}
+                  ({Number(dms) >= 0 ? '+' : ''}
+                  {dms}%)
+                </span>
+              )}
+            </span>
+          )}
+          {stale && <span className="text-yellow-400/80 ml-1">stale</span>}
+        </span>
+      </div>
+      <div className="funding-strategy-row">
+        <span className="text-[10px] font-mono text-purple-400/70"></span>
+        <span className="text-[10px] font-mono text-white/30">
+          smart-account mentions: <span className="text-white/55">{smart}</span>
+          {' · '}
+          sentiment <span className="text-white/55">{sentimentStr}</span>
+        </span>
+      </div>
+    </>
+  );
 }
 
 /* ═══ DISCIPLINE LAYER STRIP — discipline-layer-ui R3/R5 ═══ */

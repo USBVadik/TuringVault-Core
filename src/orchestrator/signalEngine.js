@@ -30,6 +30,7 @@
 
 const { ExecutionEngine } = require('../execution/executionEngine');
 const { NansenMCPClient } = require('../mcp/nansenMCP');
+const { getSocialSignal: getElfaSignal } = require('../data/elfa');
 const { buildRangingContext, getGridSignal } = require('../strategies/rangingGrid');
 const { applyPositionAwareness, tickCycle, updateHWM } = require('../strategies/positionState');
 
@@ -343,15 +344,17 @@ function detectRegime({ fearGreed, ethChange24h, fundingSignal, flowSignal }) {
  * @param {object} marketCtx - from getUnifiedMarketContext()
  */
 async function getStructuredSignals(marketCtx = {}) {
-  const [funding, flow, yieldSpread] = await Promise.allSettled([
+  const [funding, flow, yieldSpread, social] = await Promise.allSettled([
     getFundingSignal(),
     getOnChainFlowSignal(),
     getYieldSpreadSignal(marketCtx.mETHYield || 3.5),
+    getElfaSignal(marketCtx.symbol || 'ETH', { hours: 24 }),
   ]);
 
   const fundingData  = funding.status  === 'fulfilled' ? funding.value  : { available: false };
   const flowData     = flow.status     === 'fulfilled' ? flow.value     : { available: false };
   const yieldData    = yieldSpread.status === 'fulfilled' ? yieldSpread.value : { available: false };
+  const socialData   = social.status   === 'fulfilled' ? social.value   : { available: false };
 
   const currentPrice = marketCtx.ethPrice || 0;
   const liqMap = currentPrice > 0
@@ -366,7 +369,7 @@ async function getStructuredSignals(marketCtx = {}) {
   });
 
   // Count bullish vs bearish signals for quick summary
-  const signals = [fundingData, flowData, yieldData];
+  const signals = [fundingData, flowData, yieldData, socialData];
   const bullish = signals.filter(s => s?.signal === 'BULLISH').length;
   const bearish = signals.filter(s => s?.signal === 'BEARISH').length;
   const consensus = bullish > bearish ? 'BULLISH' : bearish > bullish ? 'BEARISH' : 'NEUTRAL';
@@ -408,15 +411,16 @@ async function getStructuredSignals(marketCtx = {}) {
       funding: fundingData,
       onChainFlow: flowData,
       yieldSpread: yieldData,
+      social: socialData,
       liquidationMap: liqMap,
       ranging: rangingData,
     },
     // Compact prompt string for injection into analyst prompt
-    promptSummary: buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, liqMap, currentPrice, rangingContext }),
+    promptSummary: buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, socialData, liqMap, currentPrice, rangingContext }),
   };
 }
 
-function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, liqMap, currentPrice, rangingContext }) {
+function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldData, socialData, liqMap, currentPrice, rangingContext }) {
   const lines = [];
   lines.push(`[STRUCTURED SIGNALS — ${new Date().toISOString().slice(0, 16)}]`);
   lines.push(`Regime: ${regime.regime} (confidence ${(regime.confidence * 100).toFixed(0)}%) — ${regime.implication}`);
@@ -434,6 +438,13 @@ function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldDat
 
   if (yieldData?.available) {
     lines.push(`Yield spread (mETH vs USDY): ${yieldData.spread > 0 ? '+' : ''}${yieldData.spread}% → ${yieldData.signal}`);
+  }
+
+  if (socialData?.available) {
+    const ms = socialData.mindshare != null ? socialData.mindshare.toFixed(2) : '—';
+    const dms = socialData.mindshareChange != null ? `${socialData.mindshareChange > 0 ? '+' : ''}${socialData.mindshareChange.toFixed(0)}%` : '—';
+    const sm = socialData.smartAccountMentions ?? 0;
+    lines.push(`Social (Elfa, ${socialData.windowHours}h): mindshare ${ms}% (${dms}), smart-account mentions ${sm} → ${socialData.signal} (strength ${(socialData.strength * 100).toFixed(0)}%)`);
   }
 
   if (liqMap?.available) {
