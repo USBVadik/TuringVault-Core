@@ -177,64 +177,33 @@ async function buildDeterministicResponse(type: string) {
 }
 
 // ─── Live invocation ──────────────────────────────────────────────
-async function buildLiveResponse(type: string, params: Record<string, unknown>) {
-  const anchor = process.env.CHALLENGE_ANCHOR_ENABLED === 'true';
-
-  // Lazy import — keeps cold start cheap when in preview mode.
-  const { runChallenge, challengeBudget } = await import('@/lib/runChallenge');
-
-  // Budget gate (CP4)
-  let budgetState;
-  try {
-    budgetState = challengeBudget.read();
-    if (budgetState.remaining <= 0) {
-      return {
-        status: 429,
-        body: {
-          error: 'daily challenge budget exhausted',
-          resetAt: budgetState.resetAt,
-          used: budgetState.used,
-          cap: budgetState.cap,
-        },
-      };
-    }
-  } catch {
-    // budget read failure isn't fatal — fall back to live invocation
-  }
-
-  let result;
-  try {
-    result = await runChallenge({ type, params, anchorOnChain: anchor });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return {
-      status: 503,
-      body: {
-        error: 'live pipeline failed',
-        message: msg.slice(0, 200),
-        retryAfter: 60,
-      },
-    };
-  }
-
-  // Increment budget on successful invocation
-  try {
-    const updated = challengeBudget.increment({
-      type,
-      mode: result.mode,
-      blocked: result.verdict.blocked,
-    });
-    result.budget = {
-      used: updated.used,
-      cap: updated.cap,
-      remaining: updated.remaining,
-      resetAt: updated.resetAt,
-    };
-  } catch {
-    /* best-effort */
-  }
-
-  return { status: 200, body: result };
+//
+// LIVE mode requires running the full multi-agent pipeline (Bedrock,
+// Vertex, ethers, IPFS) which is too heavy to bundle into a Vercel
+// function (cold-start cost + 50MB function size limit risk).
+//
+// LIVE mode is implemented but routed through GitHub Actions in a
+// separate spec (human-vs-ai-challenge-v3). For now this branch
+// returns a structured 503 so the frontend can show a clear "Live
+// mode not yet wired into Vercel — operator runs locally or via
+// workflow_dispatch" message.
+//
+// To run a live challenge today: `node scripts/demo-challenge.js
+// flash_crash` (writes result to data/challenge-results/*.json,
+// committed by cron).
+//
+// Spec: human-vs-ai-challenge-v3 (planned).
+async function buildLiveResponse(_type: string, _params: Record<string, unknown>) {
+  return {
+    status: 503,
+    body: {
+      error: 'live mode not available on Vercel runtime',
+      message:
+        'LIVE multi-agent reasoning runs on the backend cron, not the Vercel function. ' +
+        'See .kiro/runbooks/challenge-operations.md for the v3 plan.',
+      mode_available_on_vercel: 'DETERMINISTIC_RULES',
+    },
+  };
 }
 
 // ─── Handlers ──────────────────────────────────────────────────────
