@@ -85,7 +85,10 @@ function persistRawOutput(text, modelId, agentRole) {
   try {
     ensureDirs();
     const ts = new Date().toISOString().replace(/[:.]/g, '-');
-    const fn = path.join(RAW_DIR, `${ts}_${agentRole}.txt`);
+    // 4-char random suffix prevents collisions when multiple calls land
+    // within the same millisecond (rare in prod, common in tests).
+    const suffix = Math.random().toString(36).slice(2, 6);
+    const fn = path.join(RAW_DIR, `${ts}_${agentRole}_${suffix}.txt`);
     const header =
       `# model=${modelId || 'unknown'} ` +
       `agent=${agentRole} ` +

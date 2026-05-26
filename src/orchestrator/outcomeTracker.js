@@ -47,14 +47,29 @@ const SCORE = {
 
 // ─── DB helpers ────────────────────────────────────────────────────
 
+const SCHEMA_VERSION = 2;
+
 function loadDB() {
-  if (!fs.existsSync(OUTCOMES_PATH)) return { pending: [], settled: [] };
-  try { return JSON.parse(fs.readFileSync(OUTCOMES_PATH, 'utf8')); }
-  catch { return { pending: [], settled: [] }; }
+  if (!fs.existsSync(OUTCOMES_PATH)) {
+    return { schemaVersion: SCHEMA_VERSION, pending: [], settled: [] };
+  }
+  try {
+    const db = JSON.parse(fs.readFileSync(OUTCOMES_PATH, 'utf8'));
+    // Tag pre-existing v1 files; migration script upgrades to v2.
+    db.schemaVersion = db.schemaVersion ?? 1;
+    db.pending = db.pending ?? [];
+    db.settled = db.settled ?? [];
+    return db;
+  } catch {
+    return { schemaVersion: SCHEMA_VERSION, pending: [], settled: [] };
+  }
 }
 
 function saveDB(db) {
   fs.mkdirSync(path.dirname(OUTCOMES_PATH), { recursive: true });
+  // Always write the current schema version on save so newly-recorded
+  // entries (which carry v2 fields from multiAgentLoop) are tagged.
+  db.schemaVersion = SCHEMA_VERSION;
   fs.writeFileSync(OUTCOMES_PATH, JSON.stringify(db, null, 2));
 }
 

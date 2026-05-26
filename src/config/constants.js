@@ -23,7 +23,7 @@ module.exports = {
 
   // === AI Model Config ===
   ANALYST_TEMPERATURE: 0.3,             // Higher = more creative trades
-  VALIDATOR_TEMPERATURE: 0.1,           // Lower = more conservative validation
+  VALIDATOR_TEMPERATURE: 0.05,          // Lower = more conservative validation
   ARBITER_TEMPERATURE: 0.1,             // Tiebreaker temperature
   MAX_TOKENS_ANALYST: 2048,             // Token budget for analyst response
   MAX_TOKENS_VALIDATOR: 1024,           // Token budget for validator response

@@ -7,8 +7,27 @@
 const crypto = require("crypto");
 const fs = require("fs");
 
-const KEY_PATH = "/root/delusion_key.json";
-const PROJECT_ID = "lina-494709";
+// Path resolution order:
+//   1. GOOGLE_APPLICATION_CREDENTIALS env var (standard for Vertex AI)
+//   2. ./gemini-service-account.json in repo root
+//   3. /root/delusion_key.json (legacy VM path)
+// If none exist, callGeminiArbiter throws and the orchestrator
+// catches it (defaulting to conservative=block).
+const KEY_PATH = (() => {
+  const path = require('path');
+  const candidates = [
+    process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    path.resolve(__dirname, '../../gemini-service-account.json'),
+    '/root/delusion_key.json',
+  ].filter(Boolean);
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch {}
+  }
+  return candidates[candidates.length - 1]; // last fallback path; will ENOENT if missing
+})();
+const PROJECT_ID = process.env.GEMINI_PROJECT_ID || "lina-494709";
 const MODEL = "gemini-3.5-flash";
 const ENDPOINT = `https://aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/global/publishers/google/models/${MODEL}:generateContent`;
 

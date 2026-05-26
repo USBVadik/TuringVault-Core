@@ -140,11 +140,19 @@ See [`docs/discipline-layer.md`](./docs/discipline-layer.md) for full architectu
 
 ### Self-Evolving AI (with Guard Rails)
 
-The ANALYST prompt evolves based on performance — but with strict safeguards:
+The ANALYST prompt evolves based on performance, gated by safeguards:
 - Minimum 20 settled trades before any mutation
 - Validator prompt is **IMMUTABLE** — only Analyst evolves
 - Every prompt version pinned to IPFS for auditability
-- AI detected 5 BAD_CALL → autonomously evolved to defensive strategy (v2.1.1)
+- An immutable `FORMAT_GUARD_SUFFIX` is appended to every loaded
+  evolved prompt so format drift can't break the JSON output contract
+  (see `src/orchestrator/multiAgent.js`)
+- Default-off behind `EVOLVED_PROMPTS_ENABLED=true` env flag while
+  smoke tests confirm parse stability cycle-over-cycle (≥ 95% target;
+  current measurements at 100% on representative sampling — see
+  `npm run smoke:reasoning`)
+- AI detected 5 BAD_CALL → autonomously evolved to defensive strategy
+  (v2.1.1; current pinned IPFS prompt v3.0.0)
 
 ---
 

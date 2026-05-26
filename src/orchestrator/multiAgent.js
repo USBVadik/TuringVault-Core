@@ -34,21 +34,48 @@ const {
 } = require("../config/constants");
 
 // === DYNAMIC CONFIDENCE THRESHOLD ===
-// Reads outcome history and raises threshold after consecutive losses
+// Reads outcome history and raises threshold after consecutive losses.
+// State is persisted to src/data/threshold_state.json so /api/health
+// can surface thresholdMode = 'base' | 'elevated' (T8).
 const OUTCOME_HISTORY_PATH = path.resolve(__dirname, "../../data/outcome_history.json");
+const THRESHOLD_STATE_PATH = path.resolve(__dirname, "../../src/data/threshold_state.json");
 const CONSECUTIVE_LOSS_TRIGGER = 3;
+
+function persistThresholdState(consecutiveLosses, activeThreshold) {
+  try {
+    const elevated = activeThreshold === ELEVATED_CONFIDENCE_THRESHOLD;
+    const state = {
+      consecutiveLosses,
+      activeThreshold,
+      mode: elevated ? 'elevated' : 'base',
+      triggeredAt: elevated ? new Date().toISOString() : null,
+      recoveryRule: '1 GOOD_CALL or CORRECT_BLOCK resets to base',
+      updatedAt: new Date().toISOString(),
+    };
+    fs.mkdirSync(path.dirname(THRESHOLD_STATE_PATH), { recursive: true });
+    const tmp = THRESHOLD_STATE_PATH + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(state, null, 2));
+    fs.renameSync(tmp, THRESHOLD_STATE_PATH);
+  } catch {
+    // Best-effort — don't break a cycle on threshold-state write.
+  }
+}
 
 function getDynamicConfidenceThreshold() {
   try {
     if (!fs.existsSync(OUTCOME_HISTORY_PATH)) {
+      persistThresholdState(0, BASE_CONFIDENCE_THRESHOLD);
       return BASE_CONFIDENCE_THRESHOLD;
     }
     const raw = fs.readFileSync(OUTCOME_HISTORY_PATH, "utf8");
     const history = JSON.parse(raw);
     const outcomes = Array.isArray(history) ? history : (history.outcomes || history.decisions || []);
-    
-    if (outcomes.length === 0) return BASE_CONFIDENCE_THRESHOLD;
-    
+
+    if (outcomes.length === 0) {
+      persistThresholdState(0, BASE_CONFIDENCE_THRESHOLD);
+      return BASE_CONFIDENCE_THRESHOLD;
+    }
+
     // Count consecutive losses from most recent
     let consecutiveLosses = 0;
     for (let i = outcomes.length - 1; i >= 0; i--) {
@@ -59,15 +86,18 @@ function getDynamicConfidenceThreshold() {
         break; // stop at first non-loss
       }
     }
-    
+
     if (consecutiveLosses >= CONSECUTIVE_LOSS_TRIGGER) {
       console.log(`  [RISK] ⚠️ ${consecutiveLosses} consecutive losses detected — raising confidence threshold to ${ELEVATED_CONFIDENCE_THRESHOLD} (from ${BASE_CONFIDENCE_THRESHOLD})`);
+      persistThresholdState(consecutiveLosses, ELEVATED_CONFIDENCE_THRESHOLD);
       return ELEVATED_CONFIDENCE_THRESHOLD;
     }
-    
+
+    persistThresholdState(consecutiveLosses, BASE_CONFIDENCE_THRESHOLD);
     return BASE_CONFIDENCE_THRESHOLD;
   } catch (err) {
     console.log(`  [RISK] Could not read outcome history: ${err.message} — using base threshold`);
+    persistThresholdState(0, BASE_CONFIDENCE_THRESHOLD);
     return BASE_CONFIDENCE_THRESHOLD;
   }
 }
@@ -163,7 +193,23 @@ Output STRICT JSON:
 }`;
 
 // === VALIDATOR AGENT ===
-const VALIDATOR_SYSTEM_PROMPT = `YOUR DEFAULT STATE IS REJECT. You must find explicit evidence to APPROVE. Calculate Risk/Reward ratio — if R:R < 1.5:1, reject. If the Analyst proposes directional SWAP in RANGING regime with no grid signal confirmation, reject.
+const VALIDATOR_SYSTEM_PROMPT = `OUTPUT CONTRACT (strict, immutable):
+You MUST respond with EXACTLY one JSON object. No markdown fences. No prose
+before or after. No explanations outside JSON. If you violate this contract,
+the parser discards your response and the agent loses an audit entry.
+
+Required keys (all present, no extras):
+  approved (bool),
+  validatorConfidence (number 0..1),
+  riskScore (number 0..100),
+  reasoning (string ≤ 400 chars),
+  flaggedIssues (string[] ≤ 5),
+  recommendation (string ≤ 80 chars).
+
+Reference shape (values illustrative only):
+{"approved": false, "validatorConfidence": 0.45, "riskScore": 65, "reasoning": "...", "flaggedIssues": ["insufficient R:R", "regime mismatch"], "recommendation": "reject"}
+
+YOUR DEFAULT STATE IS REJECT. You must find explicit evidence to APPROVE. Calculate Risk/Reward ratio — if R:R < 1.5:1, reject. If the Analyst proposes directional SWAP in RANGING regime with no grid signal confirmation, reject.
 
 You are the VALIDATOR AGENT of TuringVault — an independent risk assessor that verifies proposals from the Analyst Agent.
 
@@ -198,9 +244,7 @@ RISK SCORING (0-100):
 - 61-80: High risk (REJECT — contradictory signals, unclear edge)
 - 81-100: Extreme risk (REJECT — likely hallucination or panic)
 
-CRITICAL: You MUST respond with ONLY a JSON object. No markdown, no explanation outside JSON, no headers.
-Output this exact structure:
-{"approved": false, "validatorConfidence": 0.45, "riskScore": 65, "reasoning": "...", "flaggedIssues": ["insufficient R:R", "regime mismatch"], "recommendation": "reject"}`;
+REMINDER: Respond with ONLY the JSON object. No code fences, no commentary.`;
 
 // Validation schema for Validator output
 const ValidatorSchema = z.object({
@@ -254,14 +298,22 @@ function normalizeAnalystResponse(raw) {
   if (r.allocationPct > 100) r.allocationPct = 100;
   if (r.allocationPct < 0) r.allocationPct = 0;
   
-  // confidence
+  // confidence (R4: track which path produced the final value)
   if (r.confidence === undefined && r.conf !== undefined) r.confidence = r.conf;
+  let _confidencePath = 'native_unit';
   r.confidence = Number(r.confidence);
-  if (isNaN(r.confidence)) r.confidence = DEFAULT_CONFIDENCE_FALLBACK;
+  if (isNaN(r.confidence)) {
+    r.confidence = DEFAULT_CONFIDENCE_FALLBACK;
+    _confidencePath = 'fallback_default';
+  }
   // If given as percentage (>1), convert to 0-1
-  if (r.confidence > 1 && r.confidence <= 100) r.confidence = r.confidence / 100;
+  if (r.confidence > 1 && r.confidence <= 100) {
+    r.confidence = r.confidence / 100;
+    _confidencePath = 'percent_scaled';
+  }
   if (r.confidence > 1) r.confidence = 1;
   if (r.confidence < 0) r.confidence = 0;
+  r._confidencePath = _confidencePath;
   
   // reasoning
   if (!r.reasoning && r.reason) r.reasoning = r.reason;
@@ -287,13 +339,21 @@ function normalizeValidatorResponse(raw) {
   if (typeof r.approved === 'string') r.approved = r.approved.toLowerCase() === 'true' || r.approved.toLowerCase() === 'yes';
   if (r.approved === undefined) r.approved = false;
   
-  // validatorConfidence
+  // validatorConfidence (R4: track path)
   if (r.validatorConfidence === undefined && r.validator_confidence !== undefined) r.validatorConfidence = r.validator_confidence;
   if (r.validatorConfidence === undefined && r.confidence !== undefined) r.validatorConfidence = r.confidence;
+  let _confidencePath = 'native_unit';
   r.validatorConfidence = Number(r.validatorConfidence);
-  if (isNaN(r.validatorConfidence)) r.validatorConfidence = DEFAULT_CONFIDENCE_FALLBACK;
-  if (r.validatorConfidence > 1 && r.validatorConfidence <= 100) r.validatorConfidence = r.validatorConfidence / 100;
+  if (isNaN(r.validatorConfidence)) {
+    r.validatorConfidence = DEFAULT_CONFIDENCE_FALLBACK;
+    _confidencePath = 'fallback_default';
+  }
+  if (r.validatorConfidence > 1 && r.validatorConfidence <= 100) {
+    r.validatorConfidence = r.validatorConfidence / 100;
+    _confidencePath = 'percent_scaled';
+  }
   if (r.validatorConfidence > 1) r.validatorConfidence = 1;
+  r._confidencePath = _confidencePath;
   
   // riskScore
   if (r.riskScore === undefined && r.risk_score !== undefined) r.riskScore = r.risk_score;
@@ -328,10 +388,12 @@ const MODELS = {
 };
 
 const { callGeminiArbiter } = require("./geminiArbiter");
+const { recordParseMetric, persistRawOutput } = require("./parseMetrics");
 
-async function callAgent(systemPrompt, userMessage, modelId) {
+async function callAgent(systemPrompt, userMessage, modelId, agentRole = 'unknown') {
+  const resolvedModelId = modelId || MODELS.analyst;
   const command = new ConverseCommand({
-    modelId: modelId || MODELS.analyst,
+    modelId: resolvedModelId,
     system: [{ text: systemPrompt }],
     messages: [{ role: "user", content: [{ text: userMessage }] }],
     inferenceConfig: { maxTokens: MAX_TOKENS_VALIDATOR, temperature: VALIDATOR_TEMPERATURE }
@@ -339,7 +401,10 @@ async function callAgent(systemPrompt, userMessage, modelId) {
 
   const response = await client.send(command);
   const text = response.output.message.content[0].text;
-  
+
+  // R2: persist raw output for diagnostics (best-effort).
+  try { persistRawOutput(text, resolvedModelId, agentRole); } catch {}
+
   // Extract JSON — handle markdown code blocks and raw JSON
   let jsonStr = text;
   const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -349,10 +414,12 @@ async function callAgent(systemPrompt, userMessage, modelId) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) jsonStr = jsonMatch[0];
   }
-  
+
   // Try JSON parse first
   try {
-    return JSON.parse(jsonStr);
+    const parsed = JSON.parse(jsonStr);
+    recordParseMetric(agentRole, 'json_ok');
+    return parsed;
   } catch (e) {
     // GLM-5 sometimes returns YAML-like format: "action: swap\nconfidence: 0.85"
     // Try to convert YAML-like key: value pairs to JSON
@@ -375,12 +442,52 @@ async function callAgent(systemPrompt, userMessage, modelId) {
       }
     }
     if (Object.keys(obj).length >= 2) {
-      console.log(`  [PARSE] Recovered YAML-like response from model (${Object.keys(obj).length} fields)`);
+      recordParseMetric(agentRole, 'yaml_ok');
+      console.log(`  [PARSE] Recovered YAML-like response from model (role=${agentRole}, ${Object.keys(obj).length} fields)`);
       return obj;
     }
+    recordParseMetric(agentRole, 'failed');
     throw new Error(`Cannot parse model response: ${text.substring(0, 100)}`);
   }
 }
+
+/**
+ * Call the validator with one retry on parse failure.
+ * The retry uses a stricter system-prompt addendum and tags its
+ * parse metric under role='validator-retry' so first-attempt rates
+ * stay clean (R5).
+ */
+async function callValidatorWithRetry(systemPrompt, userMessage, modelId) {
+  try {
+    return await callAgent(systemPrompt, userMessage, modelId, 'validator');
+  } catch (e) {
+    console.log(`  [VALIDATOR-RETRY] First attempt failed: ${e.message?.slice(0, 60)}`);
+    const stricter =
+      systemPrompt +
+      '\n\n' +
+      'Your previous response was not valid JSON. Reply with ONLY a single ' +
+      'minified JSON object now. No markdown. No prose.';
+    return callAgent(stricter, userMessage, modelId, 'validator-retry');
+  }
+}
+
+// === Evolved-prompts gate (T7) ===
+//
+// Operator opts in by setting EVOLVED_PROMPTS_ENABLED=true. When opted in,
+// the analyst prompt loaded from IPFS is appended with FORMAT_GUARD_SUFFIX,
+// which is NOT subject to evolution — it re-asserts the JSON output contract
+// every cycle so model drift can't change the output shape.
+const EVOLVED_PROMPTS_ENABLED = process.env.EVOLVED_PROMPTS_ENABLED === 'true';
+const FORMAT_GUARD_SUFFIX = `
+
+=== STRICT OUTPUT CONTRACT (immutable, do not deviate) ===
+You MUST respond with EXACTLY one minified JSON object. No markdown fences.
+No prose before or after. No "Here is my analysis…" preambles.
+Required keys (no extras): action ("swap" | "hold"), direction ("risk_on" | "risk_off" | "neutral"),
+targetAsset ("mUSD" | "mETH"), allocationPct (number 0..100), confidence (number 0..1),
+reasoning (string ≤ 1000 chars), riskFactors (string[]).
+The schema is non-negotiable. Output failures are discarded by the parser
+and the agent loses an audit entry on Mantle.`;
 
 /**
  * MULTI-AGENT DECISION PIPELINE
@@ -412,18 +519,27 @@ async function getMultiAgentDecision(marketData) {
 - Mantle TVL: $${((md.mantleTVL || 0) / 1e6).toFixed(0)}M
 - Pool Liquidity (mETH/mUSD): sufficient for <$50k swaps`;
 
-  // STEP 1: Analyst proposes (try evolved prompt from IPFS first)
+  // STEP 1: Analyst proposes (T7: evolved prompt gate)
+  // The evolved-prompt path was previously bypassed unconditionally because
+  // mutated prompts drifted into bad output formats (SOL targets, markdown).
+  // We now load evolved prompts ONLY when EVOLVED_PROMPTS_ENABLED=true and
+  // append a non-evolvable FORMAT_GUARD_SUFFIX that re-asserts the JSON
+  // contract. The validator prompt is intentionally NEVER evolved — it is
+  // the safety floor.
   const evolved = await getEvolvedPrompts();
-  // DISABLED: evolved prompts cause format issues (SOL targets, markdown output)
-  // Use base prompt which enforces JSON + correct Mantle assets
-  const activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;
+  let activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;
   const activeValidatorPrompt = VALIDATOR_SYSTEM_PROMPT;
-  if (evolved?.analyst) {
-    console.log(`  [EVOLUTION] Evolved prompt v${evolved.version} available but BYPASSED (format stability)`);
+  let promptSource = 'static';
+  if (EVOLVED_PROMPTS_ENABLED && evolved?.analyst) {
+    activeAnalystPrompt = evolved.analyst + FORMAT_GUARD_SUFFIX;
+    promptSource = `evolved-v${evolved.version || '?'}`;
+    console.log(`  [EVOLUTION] Active analyst prompt: ${promptSource}`);
+  } else if (evolved?.analyst) {
+    console.log(`  [EVOLUTION] Evolved v${evolved.version || '?'} available but disabled (EVOLVED_PROMPTS_ENABLED=false)`);
   }
   
   console.log(`  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`);
-  const analystRaw = await callAgent(activeAnalystPrompt, marketPrompt, MODELS.analyst);
+  const analystRaw = await callAgent(activeAnalystPrompt, marketPrompt, MODELS.analyst, 'analyst');
   
   // Normalize GLM-5 field names to match AnalystSchema
   const analystDecision = normalizeAnalystResponse(analystRaw);
@@ -465,7 +581,7 @@ ANALYST'S PROPOSAL TO VERIFY:
 Cross-check: does the Analyst's reasoning actually match the raw signals above? Is there a signal they ignored or misread?`;
 
   console.log(`  [VALIDATOR] Verifying proposal... (model: ${MODELS.validator})`);
-  const validatorRaw = await callAgent(activeValidatorPrompt, validatorPrompt, MODELS.validator);
+  const validatorRaw = await callValidatorWithRetry(activeValidatorPrompt, validatorPrompt, MODELS.validator);
   const validatorNorm = normalizeValidatorResponse(validatorRaw);
   const validatorResult = ValidatorSchema.safeParse(validatorNorm);
   
@@ -539,7 +655,9 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
     arbiter: arbiterVote,
     action: consensus ? analystDecision.action : "hold",
     targetAsset: analystDecision.targetAsset,
-    finalConfidence: Math.min(analystDecision.confidence, validator.validatorConfidence)
+    finalConfidence: Math.min(analystDecision.confidence, validator.validatorConfidence),
+    _promptSource: promptSource,
+    _activeThreshold: confidenceThreshold,
   };
 }
 

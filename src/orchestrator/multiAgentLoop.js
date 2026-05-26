@@ -55,7 +55,11 @@ const VALIDATION_ABI = [
   "function authorizedValidators(address) view returns (bool)"
 ];
 
-async function runMultiAgentCycle() {
+async function runMultiAgentCycle(opts = {}) {
+  const dryRun = opts.dryRun === true;
+  if (dryRun) {
+    console.log('  [DRY-RUN] No on-chain TX, no IPFS pin, no reputation feedback.');
+  }
   const provider = new ethers.JsonRpcProvider("https://rpc.mantle.xyz");
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const registry = new ethers.Contract(REGISTRY_ADDR, REGISTRY_ABI, wallet);
@@ -110,10 +114,41 @@ async function runMultiAgentCycle() {
   console.log(`   VALIDATOR: ${decision.validator?.approved ? "✅" : "❌"} (${(decision.validator?.validatorConfidence * 100).toFixed(0)}% conf, risk=${decision.validator?.riskScore})`);
   console.log(`   CONSENSUS: ${decision.consensus ? "✅ REACHED" : "❌ BLOCKED"}\n`);
 
+  // T9: Decision tier classification — single source of truth for *why*
+  // a cycle ended in HOLD vs SWAP. Tier is woven into the IPFS payload,
+  // on-chain reasoning text (as `[TIER]` prefix), and outcomes.json.
+  const { classifyDecisionTier } = require('./decisionTier');
+  const decisionTier = classifyDecisionTier(decision, market);
+  console.log(`   TIER: ${decisionTier}`);
+
+  // T9.5: disagreement signal — analyst confident but validator vetoed.
+  // This is the data point a Turing Test judge wants: same data, different
+  // conclusions.
+  const disagreementSignal =
+    (decision.analyst?.confidence ?? 0) > 0.6 &&
+    decision.validator?.approved === false;
+  if (disagreementSignal) {
+    console.log(`   [DISAGREEMENT] Analyst conf ${(decision.analyst?.confidence ?? 0).toFixed(2)} vs Validator REJECT`);
+  }
+
+  // T9.7 dryRun: skip IPFS pin, on-chain TX, reputation feedback,
+  // outcomes record, agent-card refresh. Return decision so smoke
+  // tests can introspect tier distribution without spending gas.
+  if (dryRun) {
+    return {
+      decision,
+      decisionTier,
+      disagreementSignal,
+      market,
+      _dryRun: true,
+    };
+  }
+
   // Step 3: Upload reasoning to IPFS
   console.log("📁 [STEP 3] Uploading Proof-of-Reasoning to IPFS...");
   const { uploadReasoningProof } = require("../ipfs/storage");
-  const ipfsResult = await uploadReasoningProof(decision, market);
+  // Embed tier in IPFS payload so the proof carries tier provenance.
+  const ipfsResult = await uploadReasoningProof({ ...decision, decisionTier, disagreementSignal }, market);
   console.log(`   ✅ IPFS: ${ipfsResult.uri}`);
 
   // Step 3.5: PRE-ACTION CHECK (ERC-8004 Validation Registry)
@@ -183,14 +218,16 @@ async function runMultiAgentCycle() {
   const receipt2 = await tx2.wait();
   console.log(`   ✅ Validation recorded (tx: ${receipt2.hash.substring(0, 18)}...)`);
 
-  // Also log to DecisionLog for backward compatibility
+  // Also log to DecisionLog for backward compatibility (tier-prefixed reasoning per T9)
+  const tierTag = `[${decisionTier}]`;
+  const reasoningText = `${tierTag} Analyst: ${decision.analyst?.reasoning?.substring(0, 60) || ''} | Validator: ${decision.validator?.approved ? "APPROVED" : "REJECTED"} (risk=${riskScore})`.substring(0, 200);
   const tx3 = await decisionLog.logDecision(
     decision.action,
     decision.analyst?.targetAsset || "mUSD",
     ethers.parseEther("0"),
     ethers.parseEther("0"),
     confidenceBps,
-    `[MULTI-AGENT] Analyst: ${decision.analyst?.reasoning?.substring(0, 80)} | Validator: ${decision.validator?.approved ? "APPROVED" : "REJECTED"} (risk=${riskScore})`.substring(0, 200),
+    reasoningText,
     ethers.keccak256(ethers.toUtf8Bytes(ipfsResult.cid)),
     { nonce: currentNonce + 2 }
   );
@@ -249,6 +286,18 @@ async function runMultiAgentCycle() {
       priceAtDecision: market.ethPrice,
       ipfsCid: ipfsResult.cid,
       disciplineStatus,
+      // T9 v2 fields:
+      decisionTier,
+      tierSource: 'live',
+      confidencePath: decision.analyst?._confidencePath ?? 'unknown',
+      promptSource: decision._promptSource ?? 'static',
+      disagreementSignal,
+      validatorReasoning: decision.validator?.reasoning?.substring(0, 400) || null,
+      validatorFlaggedIssues: Array.isArray(decision.validator?.flaggedIssues)
+        ? decision.validator.flaggedIssues.slice(0, 5)
+        : [],
+      arbiterVote: decision.arbiter?.vote ?? null,
+      arbiterReasoning: decision.arbiter?.reasoning?.substring(0, 400) || null,
     });
     console.log(`   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`);
   } catch (e) {

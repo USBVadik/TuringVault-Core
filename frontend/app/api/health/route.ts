@@ -48,6 +48,10 @@ type HealthResponse = {
   mode: string;
   chainBlockHeight: number | null;
   dataScope: 'agent-lifetime';
+  parseSuccessRate24h?: number | null;
+  parseFailureCount24h?: number | null;
+  thresholdMode?: 'base' | 'elevated' | null;
+  consecutiveLosses?: number | null;
   error?: string;
 };
 
@@ -160,6 +164,38 @@ export async function GET(): Promise<NextResponse> {
     // 5. Run mode declaration (operator-set; default unknown)
     const mode = (process.env.AGENT_RUN_MODE ?? 'unknown').slice(0, 32);
 
+    // 6. Parse metrics rolling 24h (T14, agent-reasoning-quality)
+    const parseMetricsPath = backendPath('src', 'data', 'parse_metrics.json');
+    let parseSuccessRate24h: number | null = null;
+    let parseFailureCount24h: number | null = null;
+    const parseMetrics = safeReadJson<{ byDay?: Record<string, Record<string, { json_ok?: number; yaml_ok?: number; failed?: number }>> }>(parseMetricsPath);
+    if (parseMetrics?.byDay) {
+      const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
+      let ok = 0;
+      let failed = 0;
+      for (const [day, bucket] of Object.entries(parseMetrics.byDay)) {
+        const dayEnd = Date.parse(`${day}T23:59:59.999Z`);
+        if (Number.isNaN(dayEnd) || dayEnd < cutoffMs) continue;
+        for (const role of Object.values(bucket)) {
+          ok += (role.json_ok ?? 0) + (role.yaml_ok ?? 0);
+          failed += role.failed ?? 0;
+        }
+      }
+      const total = ok + failed;
+      parseSuccessRate24h = total > 0 ? Math.round((ok / total) * 1000) / 1000 : null;
+      parseFailureCount24h = failed;
+    }
+
+    // 7. Threshold state (T14)
+    const thresholdStatePath = backendPath('src', 'data', 'threshold_state.json');
+    let thresholdMode: 'base' | 'elevated' | null = null;
+    let consecutiveLosses: number | null = null;
+    const thresholdState = safeReadJson<{ mode?: string; consecutiveLosses?: number }>(thresholdStatePath);
+    if (thresholdState) {
+      thresholdMode = thresholdState.mode === 'elevated' ? 'elevated' : 'base';
+      consecutiveLosses = thresholdState.consecutiveLosses ?? null;
+    }
+
     const body: HealthResponse = {
       status: 'ok',
       lastCycleTimestamp,
@@ -169,6 +205,10 @@ export async function GET(): Promise<NextResponse> {
       mode,
       chainBlockHeight,
       dataScope: 'agent-lifetime',
+      parseSuccessRate24h,
+      parseFailureCount24h,
+      thresholdMode,
+      consecutiveLosses,
     };
 
     return NextResponse.json(body, { headers: NO_STORE });
