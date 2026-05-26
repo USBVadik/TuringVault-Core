@@ -12,10 +12,10 @@
 - [ ] GitHub: https://github.com/USBVadik/TuringVault-Core
 - [ ] Demo URL: https://frontend-seven-beta-46.vercel.app
 - [ ] Video Demo: TBD (min 2 min, showing live cycle)
-- [ ] Short description (140 chars): *Autonomous AI agents make verifiable on-chain DeFi decisions via Proof-of-Reasoning — dual-agent consensus, Mantle Mainnet, fully auditable*
+- [ ] Short description (140 chars): *Autonomous AI agents make verifiable on-chain RWA decisions via Proof-of-Reasoning — 3-model consensus, Mantle, fully auditable*
 
 ### AI & RWA Track (Primary)
-- [ ] AI component described: Claude Sonnet 4.6 dual-agent (Analyst + Validator)
+- [ ] AI component described: Three-model adversarial consensus (GLM-5 Analyst + Claude 4.6 Validator + Gemini 3.5 Arbiter)
 - [ ] RWA component: mETH (real staking yield) vs mUSD (stable) rebalancing
 - [ ] On-chain AI output: ValidationRegistry + DecisionLog (verified on Mantle Mainnet)
 

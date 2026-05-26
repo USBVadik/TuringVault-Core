@@ -3,11 +3,11 @@
 ## System Overview
 
 TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle autonomous system where every AI decision is:
-1. Informed by institutional-grade data (Nansen MCP + 4 additional sources)
-2. Debated by independent AI agents (Analyst vs Validator)
-3. Executed deterministically (Byreal Perps CLI)
-4. Signed securely (Tencent Cloud KMS HSM)
-5. Attested immutably (ERC-8004 on Mantle Mainnet)
+1. Informed by institutional-grade data (Nansen MCP + Hyperliquid + CoinGecko + DeFiLlama + Fear&Greed)
+2. Debated by three independent AI agents (Analyst → Validator → Arbiter on disagreement)
+3. Executed deterministically (Merchant Moe LB v2.2 + RWA allocator)
+4. Verified post-execution (Synrail-inspired Discipline Layer: tx_proof + price_freshness + drift_detection)
+5. Attested immutably (ERC-8004 on Mantle Mainnet, 4 TXs per cycle)
 
 ---
 
@@ -39,33 +39,32 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 │                                                                         │
 │   ┌──────────────────────────────────────────────────────────────────┐  │
 │   │                                                                  │  │
-│   │   multiAgent.js — Dual Agent Consensus Engine                    │  │
+│   │   multiAgent.js — Triple-Agent Consensus Engine                  │  │
 │   │                                                                  │  │
-│   │   ┌────────────────┐         ┌────────────────────┐             │  │
-│   │   │  ANALYST AGENT │         │  VALIDATOR AGENT    │             │  │
-│   │   │                │         │                    │             │  │
-│   │   │ Model: Claude  │         │ Model: Claude      │             │  │
-│   │   │ Sonnet 4.6     │         │ Sonnet 4.6         │             │  │
-│   │   │                │         │                    │             │  │
-│   │   │ Input:         │         │ Input:             │             │  │
-│   │   │ - Market data  │ ──────▶ │ - Analyst proposal │             │  │
-│   │   │ - Risk params  │         │ - Original data    │             │  │
-│   │   │ - Strategy     │         │ - Risk mandate     │             │  │
-│   │   │                │         │                    │             │  │
-│   │   │ Output:        │         │ Output:            │             │  │
-│   │   │ - action       │         │ - approved (bool)  │             │  │
-│   │   │ - confidence   │         │ - confidence       │             │  │
-│   │   │ - reasoning    │         │ - riskScore        │             │  │
-│   │   │ - targetAsset  │         │ - challenges       │             │  │
-│   │   └────────────────┘         └────────────────────┘             │  │
+│   │   ┌────────────────┐    ┌────────────────┐    ┌─────────────┐   │  │
+│   │   │  ANALYST       │ →  │  VALIDATOR     │ →  │  ARBITER    │   │  │
+│   │   │  Z.ai GLM-5    │    │  Claude 4.6    │    │  Gemini 3.5 │   │  │
+│   │   │  via Bedrock   │    │  via Bedrock   │    │  via Vertex │   │  │
+│   │   │                │    │                │    │             │   │  │
+│   │   │ Input:         │    │ Input:         │    │ Input:      │   │  │
+│   │   │ - Market data  │    │ - Analyst      │    │ - Analyst + │   │  │
+│   │   │ - Risk params  │    │   proposal     │    │   Validator │   │  │
+│   │   │ - Strategy     │    │ - Original     │    │   tied      │   │  │
+│   │   │                │    │   data         │    │             │   │  │
+│   │   │ Output:        │    │ Output:        │    │ Output:     │   │  │
+│   │   │ - action       │    │ - approved     │    │ - vote      │   │  │
+│   │   │ - confidence   │    │ - confidence   │    │ - confidence│   │  │
+│   │   │ - reasoning    │    │ - riskScore    │    │ - reasoning │   │  │
+│   │   │ - targetAsset  │    │ - challenges   │    │             │   │  │
+│   │   └────────────────┘    └────────────────┘    └─────────────┘   │  │
 │   │                                                                  │  │
 │   │   Consensus Check (Zod-validated):                               │  │
-│   │   - analyst.confidence >= 0.75                                   │  │
-│   │   - validator.confidence >= 0.70                                 │  │
-│   │   - validator.riskScore <= 65                                    │  │
-│   │   - validator.approved === true                                  │  │
+│   │   - 2-of-3 must agree to execute                                 │  │
+│   │   - Validator defaults to REJECT (burden of proof on Analyst)    │  │
+│   │   - Arbiter only fires when Analyst and Validator disagree       │  │
+│   │   - R/R ≥ 1.5:1 mandatory, regime alignment required             │  │
 │   │                                                                  │  │
-│   │   Result: { consensus: true/false, action, analyst, validator }  │  │
+│   │   Result: { consensus, action, analyst, validator, arbiter? }    │  │
 │   │                                                                  │  │
 │   └──────────────────────────────┬───────────────────────────────────┘  │
 │                                  │                                      │
@@ -169,25 +168,34 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 ├─────────────────────────────────────────────┤
 │                                             │
 │  Layer 1: AI-Level                          │
-│  - Dual-agent adversarial consensus         │
+│  - Triple-agent adversarial consensus       │
+│  - Validator defaults to REJECT             │
+│  - Arbiter breaks ties on disagreement      │
 │  - System prompts with hard risk limits     │
 │  - Zod schema validation (no raw LLM out)   │
 │                                             │
 │  Layer 2: Code-Level                        │
-│  - maxLeverage cap (5x)                     │
-│  - maxPositionSize cap (0.1 BTC)            │
-│  - maxDrawdown stop (10%)                   │
-│  - Confidence threshold (80% for execution) │
+│  - R/R ≥ 1.5:1 mandatory to approve         │
+│  - Min confidence threshold (0.6 base,      │
+│    0.7 elevated after consecutive losses)   │
+│  - RWA per-cycle cap ($5) and per-day cap   │
+│    ($25) enforced before any swap broadcast │
+│  - 1% max price impact, 0.5% slippage       │
 │                                             │
-│  Layer 3: Cryptographic                     │
-│  - Tencent KMS HSM (keys never exported)    │
-│  - EIP-1559 transaction signing             │
-│  - All ops require valid signature           │
+│  Layer 3: Post-Execution (Synrail-inspired) │
+│  - Discipline Layer 3 gates per cycle:      │
+│    tx_proof · price_freshness · drift       │
+│  - Outcome blocked if any gate FAILs        │
 │                                             │
 │  Layer 4: On-Chain                          │
 │  - Smart contract access controls           │
-│  - Immutable audit trail                    │
-│  - Public verifiability                     │
+│  - 4 attestation TXs per cycle              │
+│  - Immutable audit trail (Mantle Mainnet)   │
+│  - Public verifiability via Mantlescan      │
+│                                             │
+│  Layer 5 (roadmap): Hardware-backed signing │
+│  - Vault contract pattern + KMS HSM         │
+│  - Currently: ethers.Wallet on cron runner  │
 │                                             │
 └─────────────────────────────────────────────┘
 ```
@@ -199,13 +207,14 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
 | Contracts | Solidity 0.8.28, Hardhat 2, OpenZeppelin v5.1 | Battle-tested, EVM cancun |
-| AI Core | Claude Sonnet 4.6 (AWS Bedrock) | Best reasoning for finance |
+| AI Core | Z.ai GLM-5 (Analyst) + Claude Sonnet 4.6 (Validator) + Gemini 3.5 Flash (Arbiter) | Three-model adversarial consensus |
+| Inference | AWS Bedrock + Google Vertex AI | Provider diversity, hackathon sponsor stack |
 | Validation | Zod schemas | Type-safe LLM output parsing |
-| Execution | Byreal Perps CLI v0.3.7 | Institutional-grade, AI-native |
-| Key Mgmt | Tencent Cloud KMS | HSM-backed, zero-exposure |
-| Analytics | Nansen MCP (24 tools) | Smart Money intelligence |
-| Frontend | Next.js 15, RainbowKit, wagmi v2 | Modern Web3 UX |
-| Wallet | Bybit Wallet + WalletConnect | Hackathon sponsor integration |
+| Execution | Merchant Moe LB v2.2 (concentrated liquidity) | On-chain DEX, RWA allocator routes here |
+| Key Mgmt | ethers.Wallet on cron (vault contract + HSM signing — roadmap) | Honest about current state |
+| Analytics | Nansen MCP, Hyperliquid funding, DeFiLlama | Smart Money + derivatives + TVL |
+| Frontend | Next.js 16, RainbowKit, wagmi, viem | Modern Web3 UX on Vercel |
+| Cron | GitHub Actions hourly schedule | Public verifiable workflow log |
 
 ---
 

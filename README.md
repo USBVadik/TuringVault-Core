@@ -55,37 +55,50 @@ Every decision creates an immutable record: what data the AI observed, what conc
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      TURINGVAULT SYSTEM                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  DATA LAYER                                                       │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────────┐ │
-│  │ CoinGecko  │  │ Nansen MCP │  │ Hyperliquid│  │ Tencent   │ │
-│  │ Price/Vol  │  │ Smart Money│  │  Funding   │  │ Cloud AI  │ │
-│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └─────┬─────┘ │
-│        └────────────────┼───────────────┼───────────────┘        │
-│                         ▼                                         │
-│  SIGNAL ENGINE (Regime Detection)                                 │
-│  ┌───────────────────────────────────────────────────────────┐   │
-│  │ RANGING │ TREND_UP │ TREND_DOWN │ HOLD │ CRISIS           │   │
-│  └────────────────────────────┬──────────────────────────────┘   │
-│                               ▼                                   │
-│  MULTI-AGENT CONSENSUS                                            │
-│  ┌────────────────┐     ┌────────────────┐                       │
-│  │   ANALYST 🧠   │     │  VALIDATOR 🛡️  │                       │
-│  │  GLM-5 (745B)  │     │  Claude 4.6    │                       │
-│  │  Seeks alpha   │     │  Default REJECT│                       │
-│  └───────┬────────┘     └───────┬────────┘                       │
-│          └─────────┬────────────┘                                 │
-│                    ▼                                               │
-│  ON-CHAIN VERIFICATION (Mantle Mainnet)                           │
-│  ┌───────────────────────────────────────────────────────────┐   │
-│  │ IPFS Proof → ERC-8004 Identity → ValidationRegistry       │   │
-│  │ → DecisionLog → ReputationRegistry → Outcome Settlement   │   │
-│  └───────────────────────────────────────────────────────────┘   │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                       TURINGVAULT SYSTEM                              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  DATA LAYER                                                           │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌──────────────┐  │
+│  │ CoinGecko  │  │ Nansen MCP │  │ Hyperliquid│  │ DeFiLlama    │  │
+│  │ Price/Vol  │  │ Smart Money│  │  Funding   │  │ Mantle TVL   │  │
+│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └──────┬───────┘  │
+│        └────────────────┼───────────────┼────────────────┘          │
+│                         ▼                                            │
+│  SIGNAL ENGINE (Regime Detection)                                    │
+│  ┌────────────────────────────────────────────────────────────┐    │
+│  │ RANGING │ TREND_UP │ TREND_DOWN │ HOLD │ CRISIS             │    │
+│  └────────────────────────────┬───────────────────────────────┘    │
+│                               ▼                                      │
+│  TRIPLE-AGENT CONSENSUS                                              │
+│  ┌────────────────┐    ┌────────────────┐    ┌────────────────┐   │
+│  │   ANALYST 🧠   │ →  │  VALIDATOR 🛡  │ →  │   ARBITER ⚖️    │   │
+│  │   GLM-5        │    │  Claude 4.6    │    │  Gemini 3.5     │   │
+│  │   Seeks alpha  │    │  Default REJECT│    │  Tiebreaker     │   │
+│  │                │    │  R:R ≥ 1.5:1   │    │  on disagreement│   │
+│  └───────┬────────┘    └───────┬────────┘    └───────┬────────┘   │
+│          └────────────────┬─────┴────────────────────┘             │
+│                           ▼   2-of-3 consensus required             │
+│  ON-CHAIN VERIFICATION (Mantle Mainnet, 4 TXs per cycle)            │
+│  ┌────────────────────────────────────────────────────────────┐    │
+│  │ submitProposal → validateProposal → logDecision            │    │
+│  │ → submitFeedback (reputation)                               │    │
+│  │ + IPFS pin of full reasoning chain (hash anchored)          │    │
+│  └────────────────────────────┬───────────────────────────────┘    │
+│                               ▼  if consensus reached               │
+│  EXECUTION + DISCIPLINE LAYER (Synrail-inspired)                     │
+│  ┌────────────────────────────────────────────────────────────┐    │
+│  │ RWA Allocator (Path A LLM-driven · Path B idle-parking)    │    │
+│  │ → Merchant Moe LB v2.2 swap                                 │    │
+│  │ → Discipline Layer 3-gate verification:                     │    │
+│  │     ✓ tx_proof  ✓ price_freshness  ✓ regime_drift          │    │
+│  │ → Outcome scheduled for settlement vs price 4h later        │    │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                       │
+└─────────────────────────────────────────────────────────────────────┘
+              ↑
+  Hourly GitHub Actions cron — public verifiable workflow log
 ```
 
 ---
@@ -230,7 +243,7 @@ The ANALYST prompt evolves based on performance, gated by safeguards:
 
 | Layer | Technology |
 |-------|-----------|
-| AI Models | GLM-5 (745B MoE) Analyst + Claude Sonnet 4.6 Validator |
+| AI Models | GLM-5 Analyst (Z.ai) + Claude Sonnet 4.6 Validator (Anthropic) + Gemini 3.5 Flash Arbiter (Google) |
 | Blockchain | Mantle L2 Mainnet (chain 5000) |
 | DEX | Merchant Moe v2.2 / Odos aggregator |
 | Data | CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama, Elfa |

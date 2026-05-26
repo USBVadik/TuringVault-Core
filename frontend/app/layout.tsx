@@ -18,11 +18,11 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "TuringVault — Proof-of-Reasoning Trust Firewall",
-  description: "Autonomous AI agents make verifiable on-chain DeFi decisions via Proof-of-Reasoning — dual-agent consensus on Mantle Mainnet, fully auditable.",
+  description: "Autonomous AI agents make verifiable on-chain RWA decisions via Proof-of-Reasoning — three-model adversarial consensus (GLM-5 + Claude 4.6 + Gemini 3.5) on Mantle Mainnet, fully auditable.",
   metadataBase: new URL("https://frontend-seven-beta-46.vercel.app"),
   openGraph: {
     title: "TuringVault — Proof-of-Reasoning Trust Firewall",
-    description: "Autonomous AI agents make verifiable on-chain DeFi decisions via Proof-of-Reasoning — dual-agent consensus on Mantle Mainnet, fully auditable.",
+    description: "Autonomous AI agents make verifiable on-chain RWA decisions via Proof-of-Reasoning — three-model adversarial consensus on Mantle Mainnet, fully auditable.",
     url: "https://frontend-seven-beta-46.vercel.app",
     siteName: "TuringVault",
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "TuringVault — Proof-of-Reasoning Trust Firewall",
-    description: "Autonomous AI agents make verifiable on-chain DeFi decisions via Proof-of-Reasoning — dual-agent consensus on Mantle Mainnet.",
+    description: "Autonomous AI agents make verifiable on-chain RWA decisions via Proof-of-Reasoning — three-model adversarial consensus on Mantle Mainnet.",
     images: ["/og-image.png"],
   },
   icons: {
