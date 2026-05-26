@@ -138,6 +138,8 @@ If any gate fails → outcome settlement is blocked, bounded repair step trigger
 
 See [`docs/discipline-layer.md`](./docs/discipline-layer.md) for full architecture.
 
+**Live dashboard:** [/discipline](https://frontend-seven-beta-46.vercel.app/discipline) — full per-cycle gate history, aggregate pass rates, click-to-expand drill-down. The strip on the home page shows the latest cycle's gate statuses at a glance.
+
 ### Adversarial Challenge
 
 A live `/challenge` page lets anyone inject 4 canonical attack vectors

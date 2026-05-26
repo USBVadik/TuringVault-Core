@@ -355,8 +355,10 @@ async function runMultiAgentCycle(opts = {}) {
   
   // Discipline Layer: verify execution proof before recording
   let disciplineStatus = "SKIPPED";
+  let disciplineDetail = null;
   try {
     const disciplineLayer = require("./disciplineLayer");
+    const disciplineHistory = require("./disciplineHistory");
     const action = decision.analyst?.action || "hold";
     const proofResult = await disciplineLayer.verify({
       txHash: decision.executionTxHash || null,
@@ -367,8 +369,33 @@ async function runMultiAgentCycle(opts = {}) {
       regime: market.structuredSignals?.signals?.ranging?.regime || "RANGING",
     });
     disciplineStatus = proofResult.status;
+    disciplineDetail = {
+      status: proofResult.status,
+      checks: proofResult.checks ?? [],
+      blockReason: proofResult.blockReason ?? null,
+      repairStep: proofResult.repairStep ?? null,
+      timestamp: proofResult.timestamp ?? Date.now(),
+    };
+
+    // Persist to rolling history for /api/discipline (R1).
+    try {
+      disciplineHistory.append({
+        decisionId: typeof proposalId === 'bigint' ? Number(proposalId) : proposalId,
+        proofResult,
+      });
+    } catch (histErr) {
+      console.log(`   ⚠️  [DISCIPLINE-HIST] Non-fatal: ${histErr.message?.slice(0, 60)}`);
+    }
   } catch (discErr) {
     console.log(`   ⚠️  [DISCIPLINE] Non-fatal: ${discErr.message?.slice(0, 60)}`);
+    // Honesty: degraded states must show up in history, not be silently skipped.
+    try {
+      const disciplineHistory = require("./disciplineHistory");
+      disciplineHistory.appendError({
+        decisionId: typeof proposalId === 'bigint' ? Number(proposalId) : proposalId,
+        error: discErr,
+      });
+    } catch { /* best-effort */ }
   }
   
   try {
@@ -381,6 +408,7 @@ async function runMultiAgentCycle(opts = {}) {
       priceAtDecision: market.ethPrice,
       ipfsCid: ipfsResult.cid,
       disciplineStatus,
+      disciplineDetail,
       // T9 v2 fields:
       decisionTier,
       tierSource: 'live',

@@ -130,7 +130,7 @@ function record(params) {
   // Capture optional T9 v2 / agent-reasoning-quality fields verbatim
   // so we don't lose tier provenance on entries that pass them in.
   for (const k of [
-    'disciplineStatus', 'decisionTier', 'tierSource', 'confidencePath',
+    'disciplineStatus', 'disciplineDetail', 'decisionTier', 'tierSource', 'confidencePath',
     'promptSource', 'disagreementSignal', 'validatorReasoning',
     'validatorFlaggedIssues', 'arbiterVote', 'arbiterReasoning',
   ]) {

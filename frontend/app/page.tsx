@@ -181,9 +181,11 @@ export default function Home() {
   // ═══ VAULT PERFORMANCE (live wallet balance) ═══
   const [perfData, setPerfData] = useState<any>(null);
   const [strategyData, setStrategyData] = useState<any>(null);
+  const [disciplineData, setDisciplineData] = useState<any>(null);
   useEffect(() => {
     fetch('/api/performance').then(r => r.ok ? r.json() : null).then(setPerfData).catch(() => {});
     fetch('/api/strategy').then(r => r.ok ? r.json() : null).then(setStrategyData).catch(() => {});
+    fetch('/api/discipline').then(r => r.ok ? r.json() : null).then(setDisciplineData).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -581,6 +583,9 @@ export default function Home() {
                       ) : null}
                     </>
                   ) : null}
+
+                  {/* Discipline Layer strip — discipline-layer-ui R3 */}
+                  <DisciplineStripRow data={disciplineData} />
                 </div>
                 {/* CTA — honest custody disclosure */}
                 <div className="text-center">
@@ -855,6 +860,117 @@ function parseReasoning(hash: string): string {
 }
 
 /* ═══ RISK STATE MASCOT — moved to ./components/RiskMascot.tsx (T7) ═══ */
+
+/* ═══ DISCIPLINE LAYER STRIP — discipline-layer-ui R3/R5 ═══ */
+function DisciplineStripRow({ data }: { data: any }) {
+  if (!data) {
+    return (
+      <div className="funding-strategy-row">
+        <span className="text-[10px] font-mono text-purple-400/70">Discipline Layer</span>
+        <span className="text-[10px] font-mono text-white/30">—</span>
+      </div>
+    );
+  }
+
+  const latest = data.latest;
+  const latestEntry = data.latestEntry;
+
+  // Honest empty state
+  if (!latest && !latestEntry) {
+    return (
+      <div className="funding-strategy-row" title="Discipline Layer is implemented (src/orchestrator/disciplineLayer.js) but has not yet recorded a cycle. New cycles auto-populate this strip.">
+        <span className="text-[10px] font-mono text-purple-400/70">Discipline Layer</span>
+        <span className="text-[10px] font-mono text-white/30">awaiting first cycle</span>
+      </div>
+    );
+  }
+
+  const verdict = latest?.status ?? latestEntry?.verdict ?? 'UNKNOWN';
+  const checks = latest?.checks ?? latestEntry?.checks ?? [];
+  const blockReason = latest?.blockReason ?? latestEntry?.blockReason ?? null;
+  const at = latestEntry?.at;
+
+  // Stale check (>6h)
+  const ageMs = at ? Date.now() - Date.parse(at) : null;
+  const stale = ageMs != null && ageMs > 6 * 3600 * 1000;
+
+  // Render gate icons
+  const KNOWN: Array<'tx_proof' | 'price_freshness' | 'drift_detection'> = ['tx_proof', 'price_freshness', 'drift_detection'];
+  const labels: Record<string, string> = {
+    tx_proof: 'tx',
+    price_freshness: 'fresh',
+    drift_detection: 'drift',
+  };
+  const fullLabels: Record<string, string> = {
+    tx_proof: 'TX Proof — execution exists on chain, sender matches wallet, status=1',
+    price_freshness: 'Price Freshness — market data <60s old at decision time',
+    drift_detection: 'Drift Detection — action aligns with declared regime',
+  };
+  const checkByName: Record<string, any> = {};
+  for (const c of checks) checkByName[c.name] = c;
+
+  function dot(status: string | undefined): string {
+    const s = (status ?? '').toLowerCase();
+    if (s === 'pass') return 'text-emerald-400';
+    if (s === 'fail') return 'text-red-400';
+    if (s === 'warn') return 'text-yellow-400';
+    if (s === 'skip') return 'text-white/30';
+    return 'text-white/20';
+  }
+  function symbol(status: string | undefined): string {
+    const s = (status ?? '').toLowerCase();
+    if (s === 'pass') return '✓';
+    if (s === 'fail') return '✗';
+    if (s === 'warn') return '⚠';
+    if (s === 'skip') return '○';
+    return '·';
+  }
+
+  return (
+    <>
+      <div
+        className="funding-strategy-row"
+        title={
+          verdict === 'BLOCKED'
+            ? `Last cycle BLOCKED: ${blockReason ?? 'unknown'}`
+            : verdict === 'ERROR'
+              ? 'Last verifier run errored — see /discipline'
+              : stale
+                ? `Last check ${ageMs ? Math.round(ageMs / 3600000) : '?'}h old`
+                : 'Post-execution proof verification (Synrail-inspired). Click View history.'
+        }
+      >
+        <span className="text-[10px] font-mono text-purple-400/70">Discipline Layer</span>
+        <span className="text-[10px] font-mono flex items-center gap-2">
+          {KNOWN.map((g) => {
+            const c = checkByName[g];
+            return (
+              <span key={g} title={fullLabels[g] + (c?.detail ? ` — ${c.detail}` : '')} className={`${dot(c?.status)} font-mono`}>
+                {symbol(c?.status)} {labels[g]}
+              </span>
+            );
+          })}
+          {stale && <span className="text-yellow-400/80 ml-2">stale</span>}
+          {verdict === 'BLOCKED' && <span className="text-red-400/80 ml-2">BLOCKED</span>}
+          {verdict === 'ERROR' && <span className="text-yellow-400/80 ml-2">ERROR</span>}
+        </span>
+      </div>
+      <div className="funding-strategy-row">
+        <span className="text-[10px] font-mono text-purple-400/70"></span>
+        <span className="text-[10px] font-mono text-white/30">
+          last verdict: <span className={
+            verdict === 'ACCEPTED' ? 'text-emerald-400/80'
+            : verdict === 'BLOCKED' ? 'text-red-400/80'
+            : verdict === 'ERROR' ? 'text-yellow-400/80'
+            : 'text-white/50'
+          }>{verdict}</span>
+          {' · '}
+          <a href="/discipline" className="text-purple-300/70 hover:text-purple-200 underline">view history</a>
+        </span>
+      </div>
+    </>
+  );
+}
 
 /* ═══ REASONING LINES (simulated live feed) ═══ */
 const REASONING_LINES = [
