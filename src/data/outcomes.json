@@ -211,6 +211,53 @@
       ],
       "arbiterVote": null,
       "arbiterReasoning": null
+    },
+    {
+      "id": "1779833974757_105",
+      "decisionId": 105,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2068.28,
+      "ipfsCid": "QmZz3RyTYtLRkCu7vvu6PEhUhvGCUYiZYg8zNdJfz5mPyV",
+      "recordedAt": "2026-05-26T22:19:34.757Z",
+      "settleAfter": "2026-05-26T23:19:34.757Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779833974756
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Rotation to mUSD (stable/defensive) in TREND_DOWN regime is appropriate risk-off action. Multiple confirming bearish signals: RSI 36.4 falling, EMA bearish cross, MACD sell, yield spread -1% bearish, signal consensus BEARISH. Funding rate interpretation is slightly overstated (0.510% per 8h annualizes ~550%, not 185%) but directional read is valid. R:R favorable for defensive rotation — downside p",
+      "validatorFlaggedIssues": [
+        "Analyst miscalculated annualized funding rate (stated ~185%, actual ~550%)",
+        "MACD histogram improving is a counter-signal not fully weighted",
+        "Fear & Greed at 34 suggests potential oversold bounce risk",
+        "Regime confidence only 60% — moderate conviction"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null
     }
   ],
   "settled": [
