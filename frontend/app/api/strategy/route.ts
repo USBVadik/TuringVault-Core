@@ -78,6 +78,8 @@ export async function GET() {
       riskReward,
       varGate: '< 150 bps',
       lastUpdated: positionState.lastUpdated || new Date().toISOString(),
+      dataScope: 'agent-lifetime',
+      cached: true,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
