@@ -73,13 +73,7 @@ jobs:
       - name: Run cycle
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ./gemini-service-account.json
-        run: |
-          set -x
-          node --version
-          ls -la scripts/run-cycle.js
-          ls -la ./gemini-service-account.json || echo "no gemini key file"
-          timeout 300 node scripts/run-cycle.js
-          echo "Cycle exit: $?"
+        run: timeout 300 node scripts/run-cycle.js
 
       - name: Commit state changes
         run: |

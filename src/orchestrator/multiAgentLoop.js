@@ -11,10 +11,19 @@
  * 5. If approved + high confidence → executes swap
  */
 require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
-// Force-override AWS credentials from .env (in case system env vars take priority)
-const _env = require("dotenv").parse(require("fs").readFileSync(require("path").resolve(__dirname, "../../.env")));
-process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
-process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
+// Force-override AWS credentials from .env if .env is present and the
+// values aren't already set in the environment. In CI (GitHub Actions)
+// .env is absent and AWS_* come from repo secrets — skip silently.
+try {
+  const _envPath = require("path").resolve(__dirname, "../../.env");
+  if (require("fs").existsSync(_envPath)) {
+    const _env = require("dotenv").parse(require("fs").readFileSync(_envPath));
+    if (_env.AWS_ACCESS_KEY_ID) process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
+    if (_env.AWS_SECRET_ACCESS_KEY) process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
+  }
+} catch (e) {
+  // Best-effort; never block module load on .env parse failure.
+}
 const { ethers } = require("ethers");
 const { getMultiAgentDecision } = require("./multiAgent");
 const { getUnifiedMarketContext } = require("./unifiedMarketData");
