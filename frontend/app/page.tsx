@@ -956,10 +956,11 @@ function ElfaSocialStripRow({ data }: { data: any }) {
 
   const ms = data.mindshare != null ? Number(data.mindshare).toFixed(2) : null;
   const dms = data.mindshareChange != null ? Number(data.mindshareChange).toFixed(0) : null;
-  const sentimentStr = data.sentiment != null ? Number(data.sentiment).toFixed(2) : '—';
   const smart = data.smartAccountMentions ?? 0;
+  const smartRatio = data.smartRatio != null ? Math.round(Number(data.smartRatio) * 100) : null;
+  const mentionCount = data.mentionCount ?? 0;
   const sym = data.symbol ?? 'ETH';
-  const win = data.timeWindow ?? (data.windowHours != null ? `${data.windowHours}h` : '24h');
+  const win = data.timeWindow ?? '24h';
 
   // Stale check: any snapshot older than the cycle period (90 min) is stale.
   const fetchedAt = data.fetchedAt ? Date.parse(data.fetchedAt) : null;
@@ -970,7 +971,7 @@ function ElfaSocialStripRow({ data }: { data: any }) {
     <>
       <div
         className="funding-strategy-row"
-        title={`Elfa REST v1 · ${win} window · entity-graph-filtered. Sentiment range -1..+1 (current ${sentimentStr}). Source: src/data/elfa.js`}
+        title={`Elfa REST v2 · ${win} window · attention signal from mindshare surge + smart-account ratio (V2 strips raw content for ToS compliance, no sentiment field). Source: src/data/elfa.js`}
       >
         <span className="text-[10px] font-mono text-purple-400/70">Elfa Social ({sym})</span>
         <span className="text-[10px] font-mono flex items-center gap-2">
@@ -993,9 +994,13 @@ function ElfaSocialStripRow({ data }: { data: any }) {
       <div className="funding-strategy-row">
         <span className="text-[10px] font-mono text-purple-400/70"></span>
         <span className="text-[10px] font-mono text-white/30">
-          smart-account mentions: <span className="text-white/55">{smart}</span>
-          {' · '}
-          sentiment <span className="text-white/55">{sentimentStr}</span>
+          {mentionCount} mentions
+          {smartRatio != null && (
+            <>
+              {' · '}
+              <span className="text-white/55">{smart}</span> smart ({smartRatio}%)
+            </>
+          )}
         </span>
       </div>
     </>

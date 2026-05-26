@@ -1,14 +1,20 @@
 /**
  * /api/elfa-snapshot — live Elfa social snapshot for the dashboard strip.
  *
+ * Endpoint paths verified against the official V2 migration guide:
+ *   https://docs.elfa.ai/migration-guide
+ *
+ *   GET /v2/data/top-mentions?ticker&timeWindow&page&pageSize
+ *   GET /v2/aggregations/trending-tokens?timeWindow&page&pageSize&minMentions
+ *
+ * V2 strips raw tweet content for ToS compliance — only metadata
+ * (mentioned_at, account_name, like/repost/view counts, account_tags) is
+ * returned. We derive the BULLISH/BEARISH/NEUTRAL classification from the
+ * *attention* signal: mindshare surge + smart-account ratio.
+ *
  * Honesty rule: when ELFA_API_KEY is unset or upstream fails, returns
  * `{ available: false, reason: '...' }` so the UI can render an honest
  * empty state. We never fabricate values.
- *
- * Endpoint paths verified against the open-source AgentiPy client:
- *   https://github.com/niceberginc/agentipy/blob/main/agentipy/tools/use_elfa_ai.py
- *   - GET /v1/top-mentions?ticker&timeWindow
- *   - GET /v1/trending-tokens?timeWindow
  */
 
 import { NextResponse } from 'next/server';
@@ -55,31 +61,25 @@ function summariseMentions(payload: any) {
 
   let smart = 0;
   let total = 0;
-  let sentSum = 0;
-  let sentCount = 0;
+  let viewSum = 0;
+  let likeSum = 0;
+  let repostSum = 0;
 
   for (const m of items) {
     total += 1;
-    const eng = Number(
-      m.smart_engagement_count ?? m.smartEngagementCount ?? 0
-    );
-    if (eng > 0) smart += 1;
-    const s =
-      typeof m.sentiment === 'number'
-        ? m.sentiment
-        : typeof m.sentimentScore === 'number'
-          ? m.sentimentScore
-          : null;
-    if (s != null) {
-      sentSum += s;
-      sentCount += 1;
-    }
+    const tags = Array.isArray(m.account_tags) ? m.account_tags : [];
+    if (tags.includes('smart') || tags.includes('verified')) smart += 1;
+    viewSum += Number(m.view_count ?? 0);
+    likeSum += Number(m.like_count ?? 0);
+    repostSum += Number(m.repost_count ?? 0);
   }
 
   return {
     mentionCount: total,
     smartAccountMentions: smart,
-    sentiment: sentCount ? +(sentSum / sentCount).toFixed(3) : null,
+    avgViews: total ? Math.round(viewSum / total) : 0,
+    avgLikes: total ? Math.round(likeSum / total) : 0,
+    avgReposts: total ? Math.round(repostSum / total) : 0,
   };
 }
 
@@ -97,26 +97,33 @@ function findInTrending(payload: any, ticker: string) {
   const upper = ticker.toUpperCase();
   let totalMentions = 0;
   for (const t of items) {
-    totalMentions += Number(t.mentions ?? t.mentionCount ?? t.count ?? 0);
+    totalMentions += Number(
+      t.current_count ?? t.mentions ?? t.mentionCount ?? t.count ?? 0
+    );
   }
   for (let i = 0; i < items.length; i += 1) {
     const t = items[i];
     const sym = String(t.token ?? t.ticker ?? t.symbol ?? '').toUpperCase();
     if (sym === upper) {
-      const mentions = Number(t.mentions ?? t.mentionCount ?? t.count ?? 0);
+      const mentions = Number(
+        t.current_count ?? t.mentions ?? t.mentionCount ?? t.count ?? 0
+      );
+      const previous = Number(t.previous_count ?? 0);
       const mindshare =
         totalMentions > 0
           ? +(100 * (mentions / totalMentions)).toFixed(2)
           : null;
-      const change =
-        typeof t.mentions_change_percentage === 'number'
-          ? t.mentions_change_percentage
-          : typeof t.changePct === 'number'
-            ? t.changePct
-            : null;
+      let change: number | null = null;
+      if (typeof t.change_percent === 'number') change = t.change_percent;
+      else if (typeof t.mentions_change_percentage === 'number')
+        change = t.mentions_change_percentage;
+      else if (typeof t.changePct === 'number') change = t.changePct;
+      else if (previous > 0)
+        change = +(((mentions - previous) / previous) * 100).toFixed(1);
       return {
         rank: i + 1,
         mentions,
+        previous,
         mindshare,
         mindshareChange: change,
       };
@@ -125,20 +132,19 @@ function findInTrending(payload: any, ticker: string) {
   return null;
 }
 
-function classify(sentiment: number | null, mindshareChange: number | null) {
-  if (sentiment == null) {
-    if (mindshareChange != null && mindshareChange > 30) {
-      return { signal: 'BULLISH', strength: 0.4 };
-    }
-    return { signal: 'NEUTRAL', strength: 0.2 };
-  }
+function classify(mindshareChange: number | null, smartRatio: number) {
   const dms = mindshareChange ?? 0;
-  if (sentiment > 0.20 && dms > 20) return { signal: 'BULLISH', strength: 0.85 };
-  if (sentiment < -0.20 && dms > 20) return { signal: 'BEARISH', strength: 0.85 };
-  if (sentiment > 0.10)
-    return { signal: 'BULLISH', strength: Math.min(0.6, 0.25 + Math.abs(sentiment)) };
-  if (sentiment < -0.10)
-    return { signal: 'BEARISH', strength: Math.min(0.6, 0.25 + Math.abs(sentiment)) };
+  if (dms > 50 && smartRatio >= 0.30) return { signal: 'BULLISH', strength: 0.85 };
+  if (dms > 20)
+    return {
+      signal: 'BULLISH',
+      strength: Math.min(0.6, 0.3 + Math.log10(1 + dms / 5)),
+    };
+  if (dms < -30)
+    return {
+      signal: 'BEARISH',
+      strength: Math.min(0.6, 0.3 + Math.log10(1 + Math.abs(dms) / 5)),
+    };
   return { signal: 'NEUTRAL', strength: 0.2 };
 }
 
@@ -164,7 +170,6 @@ export async function GET(req: Request) {
     timeWindow,
     page: '1',
     pageSize: '10',
-    includeAccountDetails: 'false',
   });
   const trendParams = new URLSearchParams({
     timeWindow,
@@ -174,8 +179,8 @@ export async function GET(req: Request) {
   });
 
   const [mentions, trending] = await Promise.all([
-    fetchElfa(`/v1/top-mentions?${params.toString()}`),
-    fetchElfa(`/v1/trending-tokens?${trendParams.toString()}`),
+    fetchElfa(`/v2/data/top-mentions?${params.toString()}`),
+    fetchElfa(`/v2/aggregations/trending-tokens?${trendParams.toString()}`),
   ]);
 
   const mErr = mentions?.__error;
@@ -197,10 +202,13 @@ export async function GET(req: Request) {
   const mSum = mErr ? null : summariseMentions(mentions);
   const tSum = tErr ? null : findInTrending(trending, symbol);
 
-  const sentiment = mSum?.sentiment ?? null;
   const mindshareChange = tSum?.mindshareChange ?? null;
+  const smartRatio =
+    mSum && mSum.mentionCount > 0
+      ? mSum.smartAccountMentions / mSum.mentionCount
+      : 0;
 
-  const { signal, strength } = classify(sentiment, mindshareChange);
+  const { signal, strength } = classify(mindshareChange, smartRatio);
 
   return NextResponse.json({
     available: true,
@@ -209,12 +217,15 @@ export async function GET(req: Request) {
     fetchedAt: new Date().toISOString(),
     signal,
     strength,
-    sentiment,
+    sentiment: null, // V2 strips raw content
     mentionCount: mSum?.mentionCount ?? null,
     smartAccountMentions: mSum?.smartAccountMentions ?? null,
+    smartRatio: +smartRatio.toFixed(2),
+    avgViews: mSum?.avgViews ?? null,
+    avgLikes: mSum?.avgLikes ?? null,
     mindshare: tSum?.mindshare ?? null,
     mindshareChange,
     mindshareRank: tSum?.rank ?? null,
-    source: 'elfa-rest-v1',
+    source: 'elfa-rest-v2',
   });
 }

@@ -444,7 +444,8 @@ function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldDat
     const ms = socialData.mindshare != null ? socialData.mindshare.toFixed(2) : '—';
     const dms = socialData.mindshareChange != null ? `${socialData.mindshareChange > 0 ? '+' : ''}${socialData.mindshareChange.toFixed(0)}%` : '—';
     const sm = socialData.smartAccountMentions ?? 0;
-    lines.push(`Social (Elfa, ${socialData.windowHours}h): mindshare ${ms}% (${dms}), smart-account mentions ${sm} → ${socialData.signal} (strength ${(socialData.strength * 100).toFixed(0)}%)`);
+    const sr = socialData.smartRatio != null ? `${Math.round(socialData.smartRatio * 100)}%` : '—';
+    lines.push(`Social attention (Elfa, ${socialData.timeWindow || '24h'}): mindshare ${ms}% (${dms}), ${sm} smart-account mentions (${sr} ratio) → ${socialData.signal} (strength ${(socialData.strength * 100).toFixed(0)}%)`);
   }
 
   if (liqMap?.available) {
