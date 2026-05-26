@@ -24,12 +24,12 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
 **Stats (live, on-chain — verified via contract calls):**
-- **97+ autonomous decisions** logged to Mantle Mainnet with full reasoning
-- **65%+ rejection rate** — Validator blocks 2 out of 3 proposals (capital protection)
-- **32 approved, 61+ rejected** — adversarial consensus working as designed
-- **+1216 bps cumulative PnL** on real capital (net positive over 37 settled trades)
+- **104+ autonomous decisions** logged to Mantle Mainnet with full reasoning
+- **61% rejection rate** — Validator blocks ~2 out of 3 proposals (capital protection)
+- **40 approved, 64 rejected** — adversarial consensus working as designed
+- **55%+ of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)
 - Hourly cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
-- Zero catastrophic losses — max single-trade exposure capped at $100
+- Zero catastrophic losses — demo capital, custodial EOA, vault contract pattern in development
 
 ---
 
@@ -194,8 +194,11 @@ The ANALYST prompt evolves based on performance, gated by safeguards:
   smoke tests confirm parse stability cycle-over-cycle (≥ 95% target;
   current measurements at 100% on representative sampling — see
   `npm run smoke:reasoning`)
-- AI detected 5 BAD_CALL → autonomously evolved to defensive strategy
-  (v2.1.1; current pinned IPFS prompt v3.0.0)
+- AI prompt v3.0.0 currently pinned to IPFS; pre-evolution baseline
+  is v2.1.1. Evolution logic is implemented end-to-end (mutation
+  after N BAD_CALL events, validator prompt is immutable as the
+  safety floor) but **default-off** in production until a longer
+  smoke-window confirms cycle-over-cycle parse stability above 95%.
 
 ---
 
@@ -312,15 +315,17 @@ turingvault/
 
 ## Roadmap
 
-- [x] Multi-agent consensus (GLM-5 + Claude Sonnet 4.6)
-- [x] On-chain decision logging (93 decisions, growing)
-- [x] Adversarial validation (65.6% rejection rate)
-- [x] Self-evolving AI prompts (v2.1.1 — autonomous mutation after 5 BAD_CALL)
+- [x] Multi-agent consensus (GLM-5 + Claude Sonnet 4.6 + Gemini 3.5 arbiter)
+- [x] On-chain decision logging (104+ decisions, growing)
+- [x] Adversarial validation (61% rejection rate)
+- [x] Self-evolving AI prompts (v3.0.0 pinned to IPFS, default-off behind env flag while smoke tests confirm parse stability)
 - [x] Grid bot with regime detection (RANGING/TREND_UP/TREND_DOWN/CRISIS)
 - [x] Live dashboard + proof explorer
 - [x] ERC-8004 AI agent identity on-chain
 - [x] IPFS reasoning storage with on-chain anchoring
-- [ ] [Discipline Layer](docs/discipline-layer.md) — post-execution proof verification & strategy drift detection
+- [x] [Discipline Layer](docs/discipline-layer.md) — post-execution proof verification (live; surfaced on dashboard)
+- [x] RWA allocation active (USDT0 Treasury-collateralised, first swap on Mantlescan)
+- [x] Adversarial Challenge page (preview-rules mode live; LIVE multi-agent mode in v3 spec)
 - [ ] Cross-agent reputation marketplace
 - [ ] Multi-vault strategy templates
 - [ ] Governance: token-holder veto on prompt mutations

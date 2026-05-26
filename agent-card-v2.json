@@ -1,78 +1,100 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "TuringVault AI Agent",
-  "description": "Autonomous multi-agent trading system with Proof-of-Reasoning attestation on Mantle. Dual-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator) with VaR-based risk gating, hardware KMS signing, and on-chain reputation tracking. Acts as a Trust Firewall: 19/20 unsafe proposals blocked, saving capital during market panic.",
+  "description": "Autonomous multi-agent RWA portfolio manager on Mantle. Three-model adversarial consensus (Z.ai GLM-5 Analyst + Anthropic Claude 4.6 Validator + Google Gemini 3.5 Arbiter) with on-chain attestation per cycle (proposal, validation, decisionLog, reputation), IPFS-pinned reasoning, ERC-8004 reputation accumulation, Discipline Layer post-execution proof verification. Acts as a Trust Firewall: every allocation must survive adversarial challenge BEFORE execution. Demo capital, custodial EOA, vault contract pattern in development.",
   "image": "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-avatar.png",
   "capabilities": [
     "market_analysis",
     "multi_agent_consensus",
-    "dex_trading",
     "rwa_allocation",
     "risk_assessment",
     "proof_of_reasoning",
+    "post_execution_verification",
     "self_reflection"
   ],
   "models": {
     "analyst": {
       "provider": "Z.ai (via AWS Bedrock)",
       "model": "GLM-5",
-      "role": "Aggressive market analyst — identifies alpha opportunities"
+      "role": "Aggressive market analyst — identifies alpha opportunities and proposes allocations from unified market context"
     },
     "validator": {
       "provider": "Anthropic (via AWS Bedrock)",
-      "model": "Claude 4.6",
-      "role": "Conservative risk manager — validates proposals, assigns risk scores, blocks unsafe trades"
+      "model": "Claude Sonnet 4.6",
+      "role": "Conservative adversarial risk manager — defaults to REJECT, requires evidence of edge with R/R >= 1.5:1 to approve"
+    },
+    "arbiter": {
+      "provider": "Google (via Vertex AI)",
+      "model": "Gemini 3.5 Flash",
+      "role": "Tiebreaker on analyst-validator disagreement; 2-of-3 consensus required to execute"
     }
   },
   "systemPrompt": {
-    "version": "2.1.0",
-    "lastUpdated": "2026-05-21T15:55:00.000Z",
-    "analyst": "You are TuringVault's AI Analyst (GLM-5). Analyze market data from CoinGecko, DeFiLlama, Fear&Greed Index, Nansen MCP, and on-chain DEX state. Output: action (hold/swap/provide_liquidity), targetAsset, confidence (0-1), reasoning (max 200 chars). Be aggressive but data-driven.",
-    "validator": "You are TuringVault's Validator (Claude 4.6). Review the Analyst's proposal against current market conditions. Score risk 0-100, provide validatorConfidence 0-1, and approve/reject. Protect capital above all. Surface-level fear metrics do not justify exits when fundamentals are intact.",
+    "version": "3.0.0",
+    "lastUpdated": "2026-05-26T15:00:00.000Z",
+    "analyst": "You are TuringVault's AI Analyst (GLM-5). Analyze market data from CoinGecko, DeFiLlama, Fear&Greed Index, Nansen MCP, Hyperliquid funding, and structured signal engine. Output STRICT JSON: action (hold/swap/rwa_allocate/rwa_exit), targetAsset, direction, allocationPct, confidence (0-1), reasoning, riskFactors. Be data-driven. Never claim USDT0 yields anything (it's a Treasury-collateralised peg, not a yield token).",
+    "validator": "You are TuringVault's Validator (Claude 4.6). Default state is REJECT. Find explicit evidence to APPROVE. Require R:R >= 1.5:1. Reject directional swaps in RANGING regime without grid-signal confirmation. Reject any reasoning that claims an APY on USDT0 itself.",
+    "arbiter": "You are the neutral arbiter. Break the tie when Analyst and Validator disagree. Output JSON: vote (approve/reject), reasoning, confidence.",
     "riskParameters": {
       "maxPositionSize": "50% of portfolio",
-      "varThreshold": {
-        "autonomous": 50,
-        "supervised": 150,
-        "blocked": 150
-      },
-      "maxDailySwaps": 10,
       "minConfidence": 0.6,
-      "rwaAllocationRange": "10-50%"
-    }
+      "rwaPerCycleCapUsd": 5,
+      "rwaPerDayCapUsd": 25,
+      "maxPriceImpactBps": 100,
+      "defaultSlippageBps": 50,
+      "idleParkingMinFlatHours": 24,
+      "idleParkingCooldownHours": 6
+    },
+    "evolutionStatus": "default-off behind EVOLVED_PROMPTS_ENABLED env flag while smoke tests confirm parse stability cycle-over-cycle (target >= 95%, current measurements at 100%)"
   },
   "contracts": {
     "chain": "Mantle Mainnet (5000)",
     "identity": "0x6f862802e0d5463DF18d267e422347BeCacc28bD",
     "decisionLog": "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5",
     "validationRegistry": "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6",
-    "reputationRegistry": "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a"
+    "reputationRegistry": "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a",
+    "router": "0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001"
   },
   "dataSources": [
     "CoinGecko (ETH/MNT price, 24h change)",
     "DeFiLlama (Mantle TVL)",
     "Fear & Greed Index (market sentiment)",
-    "Nansen MCP (36 analytics tools, smart money signals)",
-    "Merchant Moe LB v2.1 (on-chain DEX state, active bins)",
-    "Byreal (perps funding rate, open interest)",
-    "Ondo Finance USDY (RWA yield rates)"
+    "Nansen MCP (smart money signals)",
+    "Hyperliquid (perps funding rate, open interest)",
+    "Merchant Moe LB v2.2 (on-chain DEX state, active bins)",
+    "Ondo Finance USDY metadata (RWA reference)"
   ],
   "executionPipeline": [
-    "1. Unified market data aggregation (7 sources)",
-    "2. Multi-agent consensus (GLM-5 proposes, Claude 4.6 validates)",
-    "3. VaR calculation → autonomy level: <50 auto, 50-150 supervised, >150 blocked",
-    "4. DEX quote (Merchant Moe LB) + RWA allocation signal (Ondo USDY)",
-    "5. KMS signing (Tencent Cloud SECP256K1 HSM)",
-    "6. On-chain recording (4 TXs: proposal, validation, decision log, reputation)"
+    "1. Unified market data aggregation (multiple sources)",
+    "2. Three-model consensus (GLM-5 proposes, Claude 4.6 validates, Gemini 3.5 arbitrates on disagreement)",
+    "3. Decision-tier classification (EXECUTED_SWAP / BLOCKED_BY_VALIDATOR / BLOCKED_BY_LOW_CONFIDENCE / BLOCKED_BY_REGIME / BLOCKED_BY_PARSE_FAILURE)",
+    "4. IPFS pin of full reasoning chain (Pinata)",
+    "5. On-chain attestation: 4 TXs per cycle (proposal, validation, decisionLog, reputation feedback)",
+    "6. RWA allocator (Path A LLM-driven OR Path B deterministic idle-parking)",
+    "7. Swap execution via Merchant Moe LB v2.2 (when allocator emits intent and RWA_EXECUTE_ENABLED=true)",
+    "8. Discipline Layer post-execution verification (3 gates: tx_proof, price_freshness, drift_detection)",
+    "9. Outcome scheduling (settlement against price 4h later for reputation update)",
+    "10. Agent Card auto-refresh on IPFS + on-chain tokenURI update"
   ],
+  "infrastructure": {
+    "cron": "GitHub Actions hourly schedule (public verifiable log)",
+    "modelInference": "AWS Bedrock + Google Vertex AI",
+    "ipfsPinning": "Pinata",
+    "signing": "ethers.Wallet on the cron runner (vault contract pattern in development; hardware-KMS signing is roadmap, not current production)",
+    "frontend": "Next.js 16 on Vercel"
+  },
   "stats": {
-    "totalDecisions": 20,
-    "proposalsValidated": 20,
-    "safetyBlockedActions": 19,
-    "approvedExecutions": 1,
+    "snapshotAt": "2026-05-26T15:00:00.000Z",
+    "totalDecisions": 104,
+    "proposalsValidated": 104,
+    "safetyBlockedActions": 64,
+    "approvedExecutions": 40,
+    "blockRate": "61.5%",
     "consensusRate": "100%",
-    "avgVaR": "~160 bps",
+    "rwaAllocationPctNav": 55,
+    "firstRwaSwapTx": "0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de",
+    "parseSuccessRate24h": "100%",
     "gasEfficiency": "~0.005 MNT per TX",
-    "narrative": "Trust Firewall blocked 19/20 unsafe proposals during market fear — ETH recovered +1.2% after each block. Safety-first autonomous agent design."
+    "narrative": "Trust Firewall blocked 64/104 unsafe proposals — adversarial 3-model consensus ensures safety-first execution. ~55% NAV currently allocated to tokenized Treasuries (USDT0). NOTE: this snapshot is repository-static; live numbers are auto-refreshed on IPFS and on-chain tokenURI by the cron every cycle."
   }
 }

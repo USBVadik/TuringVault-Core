@@ -31,12 +31,15 @@
 
 | Contract | Address | Sourcify |
 |----------|---------|---------|
-| TuringVaultIdentity | `0x582E6a649B99784829193E14bB7Af8c4A482E165` | ✅ Verified |
-| TuringVaultDecisionLog | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` | ✅ Verified |
-| TuringVaultRouter | `0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001` | ✅ Verified |
-| TuringVaultValidationRegistry | `0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6` | ✅ Verified |
+| TuringVaultIdentity (production) | `0x6f862802e0d5463DF18d267e422347BeCacc28bD` | ✅ Full match |
+| TuringVaultDecisionLog | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` | ✅ Full match |
+| TuringVaultValidationRegistry | `0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6` | ✅ Full match |
+| ReputationRegistry | `0xC78119F3274B05046Ac7c38a14298a6cbD946e1a` | ✅ Full match |
+| TuringVaultValidation (ERC-8004 trustless agents) | `0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705` | ✅ Full match |
+| TuringVaultIdentity (legacy, kept on-chain) | `0x582E6a649B99784829193E14bB7Af8c4A482E165` | ✅ Full match |
+| TuringVaultRouter | `0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001` | ⚠ **not verified** — deployed but bytecode no longer matches the in-repo source. Not wired into the agent execution path; vault contract pattern in development. |
 
-Explorer: https://explorer.mantle.xyz
+Explorer: https://explorer.mantle.xyz · Sourcify status auto-checked via `npm run check:sourcify`.
 
 ### Mantle SEPOLIA (chain 5003) ← TESTNET
 

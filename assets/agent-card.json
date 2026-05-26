@@ -1,7 +1,7 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "TuringVault AI Agent",
-  "description": "Autonomous multi-agent trading system with Proof-of-Reasoning attestation on Mantle. Triple-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator + Gemini 3.5 Flash Arbiter) with VaR-based risk gating, hardware KMS signing, and on-chain reputation tracking. Acts as a Trust Firewall: 58/90 unsafe proposals blocked, protecting capital during market volatility.",
+  "description": "Autonomous multi-agent RWA portfolio manager on Mantle. Triple-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator + Gemini 3.5 Flash Arbiter) with on-chain attestation per cycle, IPFS-pinned reasoning, ERC-8004 reputation, and Synrail-inspired Discipline Layer post-execution proof verification. Acts as a Trust Firewall: every allocation must survive adversarial challenge BEFORE execution. Demo capital, custodial EOA, vault contract pattern in development.",
   "image": "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-avatar.png",
   "capabilities": [
     "market_analysis",
@@ -61,31 +61,39 @@
     "CoinGecko (ETH/MNT price, 24h change)",
     "DeFiLlama (Mantle TVL)",
     "Fear & Greed Index (market sentiment)",
-    "Nansen MCP (36 analytics tools, smart money signals)",
-    "Merchant Moe LB v2.1 (on-chain DEX state, active bins)",
-    "Byreal (perps funding rate, open interest)",
-    "Ondo Finance USDY (RWA yield rates)"
+    "Nansen MCP (smart money signals, on-chain flow)",
+    "Hyperliquid (perps funding rate)",
+    "Merchant Moe LB v2.2 (on-chain DEX state, active bins)",
+    "Ondo Finance USDY metadata (RWA reference)"
   ],
   "executionPipeline": [
-    "1. Unified market data aggregation (7 sources)",
-    "2. GLM-5 market analysis and opportunity identification",
-    "3. Claude 4.6 adversarial validation and risk scoring",
-    "4. Gemini 3.5 Flash arbiter tie-breaking (on disagreement)",
-    "5. VaR calculation → autonomy level assignment",
-    "6. DEX quote via Merchant Moe LB + Odos routing",
-    "7. KMS signing (Tencent Cloud HSM SECP256K1)",
-    "8. On-chain recording (proposal, validation, decision log, reputation)",
-    "9. Agent Card auto-update on IPFS + tokenURI refresh"
+    "1. Unified market data aggregation (multiple sources)",
+    "2. GLM-5 market analysis and proposal generation",
+    "3. Claude 4.6 adversarial validation (default REJECT, R/R >= 1.5:1 to approve)",
+    "4. Gemini 3.5 Flash arbiter tie-breaking on analyst-validator disagreement",
+    "5. Decision-tier classification (EXECUTED_SWAP / BLOCKED_BY_*)",
+    "6. IPFS pin of full reasoning chain (Pinata)",
+    "7. On-chain attestation: 4 TXs per cycle (proposal, validation, decisionLog, reputation)",
+    "8. RWA allocator (Path A LLM-driven OR Path B deterministic idle-parking)",
+    "9. Swap execution via Merchant Moe LB v2.2 (gated by RWA_EXECUTE_ENABLED)",
+    "10. Discipline Layer post-execution verification (3 gates: tx_proof, price_freshness, drift_detection)",
+    "11. Agent Card auto-update on IPFS + on-chain tokenURI refresh"
   ],
+  "infrastructure": {
+    "cron": "GitHub Actions hourly schedule (public verifiable log)",
+    "modelInference": "AWS Bedrock + Google Vertex AI",
+    "ipfsPinning": "Pinata",
+    "signing": "ethers.Wallet on the cron runner; vault contract pattern + hardware-KMS signing are roadmap items, not current production"
+  },
   "stats": {
-    "totalDecisions": 90,
-    "proposalsValidated": 90,
-    "safetyBlockedActions": 58,
-    "approvedExecutions": 32,
-    "blockRate": "64.4%",
+    "totalDecisions": 104,
+    "proposalsValidated": 104,
+    "safetyBlockedActions": 64,
+    "approvedExecutions": 40,
+    "blockRate": "61.5%",
     "consensusRate": "100%",
     "avgVaR": "~100 bps",
     "gasEfficiency": "~0.005 MNT per TX",
-    "narrative": "Trust Firewall blocked 58/90 unsafe proposals — 3-model consensus ensures safety-first execution"
+    "narrative": "Trust Firewall blocked 64/104 unsafe proposals — 3-model consensus ensures safety-first execution. NOTE: this file is a snapshot; live numbers are auto-refreshed on IPFS and on-chain tokenURI every cron cycle."
   }
 }

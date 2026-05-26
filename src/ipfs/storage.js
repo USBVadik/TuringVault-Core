@@ -132,29 +132,31 @@ async function uploadReasoningProof(decision, marketData) {
 async function uploadAgentCard() {
   const agentCard = {
     name: "TuringVault Cognitive Agent",
-    description: "Multi-agent AI trading system with Proof-of-Reasoning on Mantle",
-    version: "2.0.0",
-    
-    // ERC-8004 required fields
+    description: "Multi-agent AI RWA portfolio manager with Proof-of-Reasoning on Mantle",
+    version: "3.0.0",
+
+    // ERC-8004 required fields — three independent models, see assets/agent-card.json for full detail
     models: [
-      { name: "claude-sonnet-4.6", role: "analyst", provider: "aws-bedrock" },
-      { name: "claude-sonnet-4.6", role: "validator", provider: "aws-bedrock" }
+      { name: "zai.glm-5", role: "analyst", provider: "aws-bedrock" },
+      { name: "us.anthropic.claude-sonnet-4-6", role: "validator", provider: "aws-bedrock" },
+      { name: "gemini-3.5-flash", role: "arbiter", provider: "google-vertex-ai" }
     ],
-    
+
     capabilities: [
       "market-analysis",
       "multi-agent-consensus",
       "proof-of-reasoning",
       "risk-management",
-      "concentrated-liquidity",
-      "perpetual-futures"
+      "rwa-allocation",
+      "post-execution-verification"
     ],
-    
+
     protocols: {
-      execution: "byreal-perps-cli",
+      execution: "merchant-moe-lb-v2.2",
       analytics: "nansen-mcp",
-      signing: "tencent-cloud-kms",
-      consensus: "dual-agent-zod-validated"
+      signing: "ethers.Wallet (vault contract pattern + hardware KMS are roadmap)",
+      consensus: "triple-agent-zod-validated",
+      verification: "synrail-inspired-discipline-layer"
     },
     
     wallets: [
