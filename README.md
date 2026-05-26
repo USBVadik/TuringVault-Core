@@ -138,8 +138,24 @@ If any gate fails → outcome settlement is blocked, bounded repair step trigger
 
 See [`docs/discipline-layer.md`](./docs/discipline-layer.md) for full architecture.
 
-### RWA Execution: USDT0 + USDY
+### Adversarial Challenge
 
+A live `/challenge` page lets anyone inject 4 canonical attack vectors
+(flash crash, pump signal, oracle manipulation, sybil consensus) into the
+**real** multi-agent pipeline and watch the agents reason. Each result
+includes verbatim reasoning from GLM-5, Claude Sonnet 4.6, and (on
+disagreement) Gemini 3.5 — the same code path that drives production.
+
+Live mode is gated by `CHALLENGE_LIVE_ENABLED=true` (Vercel env var). When
+off, the page returns a deterministic preview and the banner clearly
+labels it `PREVIEW`. With anchor enabled, each challenge submits one
+`ValidationRegistry.submitProposal` TX with a `[CHALLENGE-*]` action prefix,
+so a judge's session leaves an on-chain trail.
+
+Operator runbook: [`.kiro/runbooks/challenge-operations.md`](.kiro/runbooks/challenge-operations.md).
+Live page: <https://frontend-seven-beta-46.vercel.app/challenge>
+
+### RWA Execution: USDT0 + USDY
 The agent allocates to **on-chain Treasury-collateralised stablecoins**
 through two paths, both routed through Merchant Moe Liquidity Book:
 
