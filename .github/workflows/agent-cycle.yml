@@ -73,17 +73,7 @@ jobs:
       - name: Run cycle
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ./gemini-service-account.json
-        run: |
-          timeout 300 node scripts/run-cycle.js
-          echo "--- post-cycle data/ ---"
-          ls -la data/ 2>&1 | head -20
-          echo "--- post-cycle src/data/ ---"
-          ls -la src/data/ 2>&1 | head -20
-          echo "--- last-cycle-summary head ---"
-          head -c 600 data/last-cycle-summary.json 2>&1 || echo "(no file)"
-          echo ""
-          echo "--- git status ---"
-          git status --short
+        run: timeout 300 node scripts/run-cycle.js
 
       - name: Commit state changes
         run: |
@@ -94,9 +84,13 @@ jobs:
           git config user.name "TuringVault Cron"
           git config user.email "cron@turingvault.ai"
 
-          # Stage only the state files we care about. Other untracked
-          # files (e.g. raw_model_outputs/) stay untracked.
-          git add \
+          # Stage only the state files we care about, and only those
+          # that actually exist on disk. Single-line `git add a b c …`
+          # would fail (exit 1) on any missing file under bash -e and
+          # silently skip the rest because of the `|| true` swallow,
+          # which manifested as "No state changes to commit" even when
+          # the cycle had written real changes.
+          for f in \
             src/data/outcomes.json \
             src/data/parse_metrics.json \
             src/data/threshold_state.json \
@@ -106,7 +100,12 @@ jobs:
             data/loop_progress.json \
             data/last-cycle-summary.json \
             data/cycle-history.json \
-            data/cycle-failures.json 2>/dev/null || true
+            data/cycle-failures.json
+          do
+            [ -f "$f" ] && git add "$f"
+          done
+
+          git status --short
 
           if git diff --cached --quiet; then
             echo "No state changes to commit."
