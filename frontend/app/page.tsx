@@ -537,6 +537,50 @@ export default function Home() {
                     <span className="text-[10px] font-mono text-purple-400/70">Risk Gate</span>
                     <span className="text-[10px] font-mono text-green-400/70">VaR {strategyData?.varGate || '< 150 bps'}</span>
                   </div>
+
+                  {/* RWA allocation row — rwa-allocation-active T12 */}
+                  {strategyData?.rwaAllocation ? (
+                    <>
+                      <div className="funding-strategy-row" title="rwa-treasury class = USDT0 + USDY (paper-ready). % of NAV from on-chain reads. Spec: rwa-allocation-active.">
+                        <span className="text-[10px] font-mono text-purple-400/70">RWA · Treasury</span>
+                        <span className="text-[10px] font-mono text-emerald-400/80">
+                          {strategyData.rwaAllocation.currentPctNav != null
+                            ? `${strategyData.rwaAllocation.currentPctNav}% of NAV${
+                                strategyData.rwaAllocation.rwaUsd != null
+                                  ? ` ($${strategyData.rwaAllocation.rwaUsd.toFixed(2)})`
+                                  : ''
+                              }`
+                            : '—'}
+                        </span>
+                      </div>
+                      <div className="funding-strategy-row" title="USDT0 = LayerZero-bridged Tether (Treasury-collateralised, 1:1 USD peg, no APY claim). USDY = Ondo tokenized Treasuries — paper-ready, Mantle pool currently dry.">
+                        <span className="text-[10px] font-mono text-purple-400/70">RWA assets</span>
+                        <span className="text-[10px] font-mono text-white/50">
+                          USDT0 ·{' '}
+                          <span className={
+                            strategyData.rwaAllocation.executeEnabled
+                              ? 'text-emerald-400/80'
+                              : 'text-yellow-400/60'
+                          }>
+                            {strategyData.rwaAllocation.executeEnabled ? 'live' : 'simulated'}
+                          </span>{' '}
+                          <span className="text-white/30">·</span>{' '}
+                          USDY · <span className="text-white/30">paper-ready</span>
+                        </span>
+                      </div>
+                      {strategyData.rwaAllocation.executeEnabled && strategyData.rwaAllocation.lastRebalanceAt ? (
+                        <div className="funding-strategy-row">
+                          <span className="text-[10px] font-mono text-purple-400/70">Last RWA swap</span>
+                          <span className="text-[10px] font-mono text-white/50">
+                            <RelativeTime ts={strategyData.rwaAllocation.lastRebalanceAt} />
+                            {strategyData.rwaAllocation.source !== 'none' && (
+                              <span className="text-white/30"> · {strategyData.rwaAllocation.source}</span>
+                            )}
+                          </span>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
                 </div>
                 {/* CTA — honest custody disclosure */}
                 <div className="text-center">
