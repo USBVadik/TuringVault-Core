@@ -61,12 +61,12 @@ Each numbered task is a distinct commit. Sub-checkboxes are within-task steps. T
 
 ## T4 — `/api/agent-card` endpoint
 
-- [ ] T4.1 — Create `frontend/app/api/agent-card/route.ts`.
-- [ ] T4.2 — Read `assets/agent-card.json` from `path.resolve(process.cwd(), '../assets/agent-card.json')`.
-- [ ] T4.3 — Extract: `version`, `models.analyst|validator|arbiter`, `ipfsCid` (if present), `stats`.
-- [ ] T4.4 — On error or missing fields, return `{ models: null, version: null, ... }` (HTTP 200) — frontend handles fallback.
-- [ ] T4.5 — Manual test: `curl localhost:3000/api/agent-card`.
-- [ ] T4.6 — Commit: `feat(api): add /api/agent-card endpoint`.
+- [x] T4.1 — Create `frontend/app/api/agent-card/route.ts`.
+- [x] T4.2 — Read `assets/agent-card.json` from `path.resolve(process.cwd(), '..', 'assets', 'agent-card.json')`.
+- [x] T4.3 — Extract: `name`, `models.{analyst,validator,arbiter}.{provider,model}`, `systemPrompt.version`, `systemPrompt.lastUpdated`, `contracts`, `cardStats`. Returned as `cardStatsScope: 'card-author-declared'` so frontend can never confuse them with live counts.
+- [x] T4.4 — On error or missing file, return `{ status: 'missing'|'degraded', models: {…null}, ... }` with HTTP 200 — graceful.
+- [x] T4.5 — Manual test result: returns models trio (Z.ai GLM-5 / Anthropic Claude 4.6 / Google Gemini 3.5 Flash), prompt version `3.0.0`, last update `2026-05-23T12:00Z`. Note: card declares `systemPrompt.version 3.0.0` but `multiAgent.js` runs base prompt (evolved bypassed); discrepancy logged for `agent-reasoning-quality` spec. Card declares 90/58/32 decisions but on-chain reads 97 — drift documented; UI must use on-chain counts for live stats.
+- [x] T4.6 — Commit deferred to T6 batch.
 
 **Acceptance**: endpoint reads `assets/agent-card.json` and returns models map or graceful null.
 
@@ -74,16 +74,16 @@ Each numbered task is a distinct commit. Sub-checkboxes are within-task steps. T
 
 ## T5 — Rewrite `/api/performance`
 
-- [ ] T5.1 — Replace contents of `frontend/app/api/performance/route.ts`.
-- [ ] T5.2 — Keep on-chain reads: MNT balance, mETH balance via ERC20.
-- [ ] T5.3 — Keep CoinGecko price fetch with 5s timeout.
-- [ ] T5.4 — Remove `initialNav = 5 * mntPrice`, remove `totalReturn` field.
-- [ ] T5.5 — Read `src/data/outcomes.json`. Compute: `settledCount`, `goodCallCount`, `correctBlockCount`, `badCallCount`, `missedAlphaCount`, `cumulativePnlBps`, `winRate`, `lastSettlementAt` per design C3.
-- [ ] T5.6 — Remove `sharpe`, `maxDrawdown`, `recoveryHours`, `hoursTracked` fields entirely.
-- [ ] T5.7 — Add `dataScope: 'agent-lifetime'`.
-- [ ] T5.8 — On read error: return all metrics as `null`, keep `nav` if on-chain part succeeded.
-- [ ] T5.9 — Manual test: `curl localhost:3000/api/performance` — verify response shape.
-- [ ] T5.10 — Commit: `refactor(api): rewrite /api/performance — drop hardcoded sharpe/winRate, derive from outcomes.json`.
+- [x] T5.1 — Replace contents of `frontend/app/api/performance/route.ts`.
+- [x] T5.2 — Keep on-chain reads: MNT balance, mETH balance via ERC20.
+- [x] T5.3 — Keep CoinGecko price fetch with 5s timeout.
+- [x] T5.4 — Removed `initialNav = 5 * mntPrice` mock; removed `totalReturn` field.
+- [x] T5.5 — Read `src/data/outcomes.json`. Computes settledCount, goodCallCount, correctBlockCount, badCallCount, missedAlphaCount, cumulativePnlBps, winRate, lastSettlementAt per design C3.
+- [x] T5.6 — Removed `sharpe`, `maxDrawdown`, `recoveryHours`, `hoursTracked` fields entirely.
+- [x] T5.7 — Added `dataScope: 'agent-lifetime'` and `source: { onchain, aggregates }` for traceability.
+- [x] T5.8 — On read error: returns metrics with `null` values + `error` field, keeps any successful on-chain numbers.
+- [x] T5.9 — Live response confirmed: nav $24.85 (33.534 MNT + 0.001405 mETH at $0.645/$2283), settledCount 37, winRate 32.4% (4 GOOD_CALL + 8 CORRECT_BLOCK / 37), cumulativePnlBps +1216, lastSettlementAt 2026-05-23T16:30Z. Honest numbers: winRate is lower than the previous hardcoded 58%, but cumulativePnlBps positive — capital-protection narrative intact.
+- [x] T5.10 — Commit deferred to T6 batch (foundation block).
 
 **Acceptance**: response contains only verifiable numbers; no Sharpe; `winRate` is real.
 
@@ -91,11 +91,11 @@ Each numbered task is a distinct commit. Sub-checkboxes are within-task steps. T
 
 ## T6 — Sourcify status snapshot (build-time)
 
-- [ ] T6.1 — Create `frontend/app/data/contracts.json` with the 6 contract entries per design C5.
-- [ ] T6.2 — Manually `curl -sI` each Sourcify URL `https://repo.sourcify.dev/contracts/full_match/5000/<addr>/`. Set `sourcify: true|false` per result.
-- [ ] T6.3 — Add npm script `check:sourcify` in root `package.json` that re-runs the curl checks and prints diffs (small bash one-liner is fine).
-- [ ] T6.4 — Document in `.kiro/specs/ui-honesty-pass/sourcify-recheck.md` how/when to re-run (mention: only if any contract redeploys).
-- [ ] T6.5 — Commit: `chore: add static Sourcify verification snapshot for footer contract list`.
+- [x] T6.1 — `frontend/app/data/contracts.json` created with 7 entries (5 originally claimed + ERC-8004 ValidationRegistry alt + legacy Identity).
+- [x] T6.2 — All 7 addresses verified against Sourcify server API. **Drift found**: 6 full match, but `0x8187…7001` (Router) is `none` — never verified or bytecode mismatch. Captured honestly with `sourcifyNote` field; README/SUBMISSION docs that claim "5 Sourcify-verified" need fix in submission spec.
+- [x] T6.3 — `npm run check:sourcify` script added in root `package.json`, backed by `scripts/check-sourcify.sh` (bash + jq; exits non-zero on drift).
+- [x] T6.4 — `.kiro/specs/ui-honesty-pass/sourcify-recheck.md` documents when/how to re-run.
+- [x] T6.5 — Commit deferred to T6 batch.
 
 **Acceptance**: `frontend/app/data/contracts.json` exists with verified-status flags; `npm run check:sourcify` works.
 
