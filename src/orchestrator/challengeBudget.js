@@ -1,10 +1,19 @@
 /**
  * Challenge Budget Tracker — daily cap enforcement for /api/challenge.
  *
- * Persists to data/challenge-budget.json so the cron's commit-back step
- * picks it up like any other state file.
+ * Persisted in `data/challenge-budget.json` and committed back by the
+ * cron's commit-back step like any other state file. The budget enforces
+ * a hard daily ceiling so a viral spike on the dashboard can't drain
+ * AWS Bedrock credits.
  *
- * Spec: human-vs-ai-challenge-v2 R4 / design §C6 / CP4.
+ * UTC-based daily reset. When `date` in the file changes, `used` resets
+ * to 0 automatically on the next read.
+ *
+ * Default cap is 100 invocations/day, overridable via env
+ * `CHALLENGE_DAILY_CAP`. Worst case daily spend if cap hit:
+ * 100 × ~$0.15 = ~$15 (covered by AWS Activate credits).
+ *
+ * Spec: human-vs-ai-challenge-v2 (R4.2, design §C6, CP4).
  */
 
 const fs = require('fs');
@@ -13,89 +22,140 @@ const path = require('path');
 const BUDGET_PATH = path.resolve(__dirname, '../../data/challenge-budget.json');
 const HISTORY_LIMIT = 100;
 
-function todayUtc(now = Date.now()) {
-  return new Date(now).toISOString().slice(0, 10); // YYYY-MM-DD
+const DEFAULT_CAP = 100;
+
+class BudgetExhaustedError extends Error {
+  constructor(used, cap, resetAt) {
+    super(`BUDGET_EXHAUSTED: ${used}/${cap} used today. Resets at ${resetAt}.`);
+    this.code = 'BUDGET_EXHAUSTED';
+    this.used = used;
+    this.cap = cap;
+    this.resetAt = resetAt;
+  }
 }
 
-function nextUtcMidnight(now = Date.now()) {
-  const d = new Date(now);
-  d.setUTCHours(24, 0, 0, 0); // tomorrow 00:00 UTC
-  return d.toISOString();
+function todayUtc(now = new Date()) {
+  // YYYY-MM-DD in UTC
+  return now.toISOString().slice(0, 10);
 }
 
-function readBudget(nowMs = Date.now()) {
-  let data;
+function nextUtcMidnight(now = new Date()) {
+  const tomorrow = new Date(now);
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  tomorrow.setUTCHours(0, 0, 0, 0);
+  return tomorrow.toISOString();
+}
+
+function getCap() {
+  const raw = process.env.CHALLENGE_DAILY_CAP;
+  if (raw === undefined || raw === null || raw === '') return DEFAULT_CAP;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_CAP;
+}
+
+function readRaw() {
   try {
-    data = JSON.parse(fs.readFileSync(BUDGET_PATH, 'utf-8'));
+    if (!fs.existsSync(BUDGET_PATH)) {
+      return { date: todayUtc(), used: 0, history: [] };
+    }
+    const data = JSON.parse(fs.readFileSync(BUDGET_PATH, 'utf-8'));
+    return {
+      date: data.date ?? todayUtc(),
+      used: typeof data.used === 'number' ? data.used : 0,
+      history: Array.isArray(data.history) ? data.history : [],
+    };
   } catch {
-    data = { date: todayUtc(nowMs), used: 0, history: [] };
+    return { date: todayUtc(), used: 0, history: [] };
   }
-  // Auto-reset if date rolled over.
-  if (data.date !== todayUtc(nowMs)) {
-    data = { date: todayUtc(nowMs), used: 0, history: data.history || [] };
-  }
-  return data;
 }
 
-function writeBudget(data) {
+function writeRaw(data) {
   fs.mkdirSync(path.dirname(BUDGET_PATH), { recursive: true });
   fs.writeFileSync(BUDGET_PATH, JSON.stringify(data, null, 2) + '\n');
 }
 
 /**
- * Try to consume one slot of the daily budget. If the cap is exceeded,
- * throws BUDGET_EXHAUSTED with `resetAt` ISO string attached.
- *
- * @param {object} entry — metadata about the invocation, persisted to history
- * @param {number} cap — daily cap (default 100; can be overridden via env in callers)
- * @param {number} nowMs — Date.now() override for testing
- * @returns {object} the updated budget object
+ * Read current budget state, applying UTC-day reset if needed.
+ * Returns:
+ *   { date, used, cap, remaining, history, resetAt }
  */
-function increment(entry = {}, cap = 100, nowMs = Date.now()) {
-  const data = readBudget(nowMs);
-  if (data.used >= cap) {
-    const err = new Error('BUDGET_EXHAUSTED');
-    err.code = 'BUDGET_EXHAUSTED';
-    err.resetAt = nextUtcMidnight(nowMs);
-    err.used = data.used;
-    err.cap = cap;
-    throw err;
+function read(now = new Date()) {
+  const raw = readRaw();
+  const today = todayUtc(now);
+  const cap = getCap();
+
+  // Daily reset: when date in file is older than today, zero out `used`.
+  if (raw.date !== today) {
+    const fresh = { date: today, used: 0, history: raw.history };
+    writeRaw(fresh);
+    return {
+      date: today,
+      used: 0,
+      cap,
+      remaining: cap,
+      history: fresh.history.slice(-HISTORY_LIMIT),
+      resetAt: nextUtcMidnight(now),
+    };
   }
-  data.used += 1;
-  data.history = data.history || [];
-  data.history.push({
-    at: new Date(nowMs).toISOString(),
-    ...entry,
-  });
-  // Keep history bounded.
-  if (data.history.length > HISTORY_LIMIT) {
-    data.history.splice(0, data.history.length - HISTORY_LIMIT);
-  }
-  writeBudget(data);
-  return data;
+
+  return {
+    date: raw.date,
+    used: raw.used,
+    cap,
+    remaining: Math.max(0, cap - raw.used),
+    history: raw.history.slice(-HISTORY_LIMIT),
+    resetAt: nextUtcMidnight(now),
+  };
 }
 
 /**
- * Snapshot of current budget without mutating.
+ * Increment the budget by one. Throws BudgetExhaustedError if the cap
+ * would be exceeded (CP4).
+ *
+ * Pass an `entry` object describing the invocation; it appears in
+ * history (capped at HISTORY_LIMIT entries).
+ *
+ * @param {object} entry — { type, mode, blocked, ... }
+ * @returns updated state object (same shape as read())
  */
-function status(cap = 100, nowMs = Date.now()) {
-  const data = readBudget(nowMs);
+function increment(entry = {}, now = new Date()) {
+  const cur = read(now);
+  if (cur.used >= cur.cap) {
+    throw new BudgetExhaustedError(cur.used, cur.cap, cur.resetAt);
+  }
+
+  const newUsed = cur.used + 1;
+  const newHistory = [
+    ...cur.history,
+    {
+      at: now.toISOString(),
+      ...entry,
+    },
+  ];
+  if (newHistory.length > HISTORY_LIMIT) {
+    newHistory.splice(0, newHistory.length - HISTORY_LIMIT);
+  }
+
+  writeRaw({
+    date: cur.date,
+    used: newUsed,
+    history: newHistory,
+  });
+
   return {
-    date: data.date,
-    used: data.used,
-    cap,
-    remaining: Math.max(0, cap - data.used),
-    resetAt: nextUtcMidnight(nowMs),
+    date: cur.date,
+    used: newUsed,
+    cap: cur.cap,
+    remaining: Math.max(0, cur.cap - newUsed),
+    history: newHistory,
+    resetAt: cur.resetAt,
   };
 }
 
 module.exports = {
-  readBudget,
-  writeBudget,
+  read,
   increment,
-  status,
-  todayUtc,
-  nextUtcMidnight,
-  BUDGET_PATH,
-  HISTORY_LIMIT,
+  BudgetExhaustedError,
+  // Exported for unit tests that need to override behaviour.
+  _internal: { BUDGET_PATH, todayUtc, nextUtcMidnight, getCap },
 };

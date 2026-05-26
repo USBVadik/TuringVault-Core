@@ -1,37 +1,32 @@
 /**
- * Backend bridge for the /api/challenge route.
+ * Backend shim for the /api/challenge route.
  *
- * Re-exports `runChallenge` from the orchestrator so the Next.js route can
- * import it via the `@/lib/runChallenge` alias without reaching across the
- * monorepo with a relative path that breaks Vercel's bundler.
+ * Re-exports the JS orchestrator from `src/orchestrator/runChallenge.js`
+ * so the Next.js function can import it without TypeScript declaration
+ * gymnastics. Webpack bundles the backend module into the function.
  *
- * The orchestrator and its dependencies (multiAgent, unifiedMarketData,
- * signalEngine, decisionTier, ipfs/storage, attackVectors) get bundled
- * with the Vercel Lambda. Cold-start cost: ~1s extra. Bundle size: ~3-4MB
- * with Bedrock SDK, comfortably under Vercel's 50MB limit.
+ * This shim is the only place where the frontend bundle reaches outside
+ * the `frontend/` directory; keeping it tiny + isolated makes the cost
+ * obvious if Vercel cold-start latency ever creeps up.
  *
- * Spec: human-vs-ai-challenge-v2 T7 / design §C5.
+ * Spec: human-vs-ai-challenge-v2 design §C5, T7.
  */
 
+// Path traversal: from frontend/lib up to repo root, then into src/.
+// Webpack resolves this at build time and bundles the dep tree.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const orchestrator = require('../../src/orchestrator/runChallenge');
+const backend = require('../../src/orchestrator/runChallenge');
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const budget = require('../../src/orchestrator/challengeBudget');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { KNOWN_ATTACKS: KA } = require('../../src/orchestrator/attackVectors');
 
-export type ChallengeAgent = {
+type ChallengeAgentTrace = {
   model: string;
-  action?: string | null;
-  targetAsset?: string | null;
-  approved?: boolean | null;
-  vote?: string | null;
   confidence: number | null;
   reasoning: string | null;
-  riskFactors?: string[];
-  flaggedIssues?: string[];
-  recommendation?: string | null;
-  riskScore?: number | null;
+  timing_ms: number | null;
+  // role-specific fields are present on validator/analyst/arbiter
+  // but typed loosely here to keep the shim minimal.
+  [key: string]: unknown;
 };
 
 export type ChallengeResponse = {
@@ -39,12 +34,17 @@ export type ChallengeResponse = {
   challenge: {
     type: string;
     params: Record<string, unknown>;
-    injected?: { type: string; params: object; appliedAt: string; originalEthPrice: number };
+    injected: {
+      type: string;
+      params: Record<string, unknown>;
+      appliedAt: string;
+      originalEthPrice: number | null;
+    };
   };
   agents: {
-    analyst: ChallengeAgent;
-    validator: ChallengeAgent;
-    arbiter: ChallengeAgent | null;
+    analyst: ChallengeAgentTrace;
+    validator: ChallengeAgentTrace;
+    arbiter: ChallengeAgentTrace | null;
   };
   pipelinePath: 'analyst-validator' | 'analyst-validator-arbiter';
   consensus: boolean;
@@ -57,20 +57,22 @@ export type ChallengeResponse = {
     | { anchored: true; txHash: string; blockNumber: number; mantlescan: string }
     | { skipped: true; reason: string; error?: string };
   timing_ms: { decision: number; total: number };
+  budget?: { used: number; cap: number; remaining: number; resetAt: string };
 };
 
-export const KNOWN_ATTACKS: string[] = KA;
-
-export async function runChallenge(opts: {
+export async function runChallenge(args: {
   type: string;
   params?: Record<string, unknown>;
   anchorOnChain?: boolean;
 }): Promise<ChallengeResponse> {
-  return orchestrator.runChallenge(opts);
+  return backend.runChallenge(args);
 }
 
 export const challengeBudget = {
-  read: () => budget.readBudget(),
-  status: (cap?: number) => budget.status(cap ?? 100),
-  increment: (entry: object, cap?: number) => budget.increment(entry, cap ?? 100),
+  read: budget.read,
+  increment: budget.increment,
+  BudgetExhaustedError: budget.BudgetExhaustedError,
 };
+
+export const ATTACK_TYPES: readonly string[] = backend.ATTACK_TYPES
+  ?? ['flash_crash', 'pump_signal', 'oracle_conflict', 'sybil_consensus'];

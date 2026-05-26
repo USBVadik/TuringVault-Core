@@ -1,37 +1,52 @@
 'use client';
 
+/**
+ * /challenge — Adversarial Challenge page (v2).
+ *
+ * Two modes:
+ *   • LIVE_MULTI_AGENT — full timeline with verbatim reasoning from
+ *     GLM-5 / Claude / Gemini, optional Mantlescan TX link.
+ *   • DETERMINISTIC_RULES — preview mode with the original deterministic
+ *     payload + yellow PREVIEW badge.
+ *
+ * Honesty rule: badge reflects reality (live vs preview) and no copy
+ * claims "live" when the response says preview.
+ *
+ * Spec: human-vs-ai-challenge-v2 (R5, R6, R8).
+ */
+
 import { useState } from 'react';
 
-type ChallengeType = 'flash_crash' | 'pump_signal' | 'oracle_conflict' | 'sybil_consensus';
-
-const CHALLENGE_TYPES: { id: ChallengeType; label: string; color: string }[] = [
-  { id: 'flash_crash', label: '⚡ Flash Crash', color: 'red' },
-  { id: 'pump_signal', label: '🚀 Pump & Dump', color: 'green' },
-  { id: 'oracle_conflict', label: '🔮 Oracle Manipulation', color: 'purple' },
-  { id: 'sybil_consensus', label: '🤖 Sybil Consensus', color: 'yellow' },
+const CHALLENGE_TYPES = [
+  { id: 'flash_crash',     label: '⚡ Flash Crash',          tone: 'red'    },
+  { id: 'pump_signal',     label: '🚀 Pump & Dump',          tone: 'green'  },
+  { id: 'oracle_conflict', label: '🔮 Oracle Manipulation',  tone: 'purple' },
+  { id: 'sybil_consensus', label: '🤖 Sybil Consensus',      tone: 'yellow' },
 ];
 
-// ─── Response shapes ──────────────────────────────────────────────────
-
-type LiveAgent = {
+type LiveAgentTrace = {
   model: string;
+  confidence?: number | null;
+  reasoning?: string | null;
+  timing_ms?: number | null;
   action?: string | null;
   targetAsset?: string | null;
-  approved?: boolean | null;
-  vote?: string | null;
-  confidence: number | null;
-  reasoning: string | null;
   riskFactors?: string[];
-  flaggedIssues?: string[];
-  recommendation?: string | null;
+  approved?: boolean | null;
   riskScore?: number | null;
+  flaggedIssues?: string[];
+  vote?: string | null;
 };
 
 type LiveResponse = {
   mode: 'LIVE_MULTI_AGENT';
-  challenge: { type: string; params: Record<string, unknown>; injected: { type: string; appliedAt: string; originalEthPrice: number } };
-  agents: { analyst: LiveAgent; validator: LiveAgent; arbiter: LiveAgent | null };
-  pipelinePath: 'analyst-validator' | 'analyst-validator-arbiter';
+  challenge: { type: string; injected?: { originalEthPrice?: number | null; appliedAt?: string } };
+  agents: {
+    analyst: LiveAgentTrace;
+    validator: LiveAgentTrace;
+    arbiter: LiveAgentTrace | null;
+  };
+  pipelinePath: string;
   consensus: boolean;
   decisionTier: string;
   disagreementSignal: boolean;
@@ -40,102 +55,94 @@ type LiveResponse = {
   ipfsCid: string | null;
   onChain:
     | { anchored: true; txHash: string; blockNumber: number; mantlescan: string }
-    | { skipped: true; reason: string };
+    | { skipped: true; reason: string; error?: string };
   timing_ms: { decision: number; total: number };
-  on_chain_proof?: { verified: boolean; totalProposals?: number; totalRejected?: number; blockRate?: string; network?: string };
-  budget?: { used: number; cap: number; remaining: number };
+  budget?: { used: number; cap: number; remaining: number; resetAt: string };
 };
 
 type PreviewResponse = {
   mode: 'DETERMINISTIC_RULES';
-  challenge: { name: string; description: string; attack_vector: string; fake_signal: object; expected_behavior: string; var_bps: number };
+  challenge: { name: string; description: string; fake_signal: unknown; var_bps?: number };
   result: { blocked: boolean; confidence: number; reasoning: string; gates: string[]; revert_reason: string };
-  agent_response: { detected: boolean; action: string; reasoning: string; confidence_in_block: number; safety_gates_triggered: string[] };
-  verification: { contract: string; method: string; would_revert: boolean; reason: string; var_bps: number; max_allowed_bps: number };
-  on_chain_proof?: { verified: boolean; totalProposals?: number; totalRejected?: number; blockRate?: string; network?: string };
+  verification?: {
+    contract?: string;
+    method?: string;
+    max_allowed_bps?: number;
+    on_chain_proof?: { verified?: boolean; totalProposals?: number; totalRejected?: number; blockRate?: string; network?: string };
+  };
   note?: string;
 };
 
-type ApiError = { error: string; message?: string; retryAfter?: number };
+type ApiError = { error: string; message?: string; retryAfter?: number; available?: string[] };
+
 type ApiResponse = LiveResponse | PreviewResponse | ApiError;
 
 function isLive(r: ApiResponse): r is LiveResponse {
-  return 'mode' in r && r.mode === 'LIVE_MULTI_AGENT';
+  return (r as LiveResponse).mode === 'LIVE_MULTI_AGENT';
 }
 function isPreview(r: ApiResponse): r is PreviewResponse {
-  return 'mode' in r && r.mode === 'DETERMINISTIC_RULES';
+  return (r as PreviewResponse).mode === 'DETERMINISTIC_RULES';
 }
 function isError(r: ApiResponse): r is ApiError {
-  return 'error' in r;
+  return typeof (r as ApiError).error === 'string';
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────
-
-function fmtPct(n: number | null | undefined, decimals = 0): string {
-  if (n == null) return '—';
-  return `${(n * 100).toFixed(decimals)}%`;
-}
-
-function fmtMs(ms: number | undefined): string {
-  if (ms == null) return '—';
-  if (ms < 1000) return `${ms} ms`;
-  return `${(ms / 1000).toFixed(2)} s`;
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────
 
 export default function ChallengePage() {
   const [result, setResult] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [selectedType, setSelectedType] = useState<ChallengeType | ''>('');
+  const [stage, setStage] = useState<'analyst' | 'validator' | 'arbiter' | null>(null);
+  const [selectedType, setSelectedType] = useState('');
 
-  async function runChallenge(type: ChallengeType) {
+  async function runChallenge(type: string) {
     setSelectedType(type);
     setLoading(true);
     setResult(null);
+    setStage('analyst');
+    // Animate stages so user knows pipeline is alive — actual stages run server-side.
+    const t1 = setTimeout(() => setStage('validator'), 4000);
+    const t2 = setTimeout(() => setStage('arbiter'), 8000);
     try {
       const res = await fetch(`/api/challenge?type=${type}`);
-      const data = await res.json();
+      const data: ApiResponse = await res.json();
       setResult(data);
     } catch {
-      setResult({ error: 'Failed to reach agent' });
+      setResult({ error: 'failed to reach agent' });
+    } finally {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      setLoading(false);
+      setStage(null);
     }
-    setLoading(false);
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+        <div className="mb-10">
           <a href="/" className="text-xs text-white/30 hover:text-white/60 mb-4 block">← Back to Dashboard</a>
           <h1 className="text-3xl font-bold mb-2">
             <span className="text-red-400">⚔️</span> Adversarial Challenge
           </h1>
           <p className="text-white/40 text-sm">
-            Inject adversarial market signals into the agent&apos;s pipeline. Watch the same multi-agent reasoning
-            chain that drives production decisions.
+            Inject fake market signals and watch the multi-agent pipeline react.
             <br />
-            <span className="text-white/20">Human vs AI — can you trick it into a bad allocation?</span>
+            <span className="text-white/20">
+              Live mode: GLM-5 → Claude 4.6 → Gemini 3.5 Flash, full reasoning verbatim.
+              Preview mode: deterministic-rules simulation.
+            </span>
           </p>
         </div>
 
-        {/* Mode banner — pulled from the response when present */}
-        {result && !isError(result) && (
-          <ModeBanner mode={isLive(result) ? 'LIVE_MULTI_AGENT' : 'DETERMINISTIC_RULES'} />
-        )}
-
-        {/* Challenge Buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 mt-4">
-          {CHALLENGE_TYPES.map(c => (
+        {/* Attack buttons */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {CHALLENGE_TYPES.map((c) => (
             <button
               key={c.id}
               onClick={() => runChallenge(c.id)}
               disabled={loading}
               className={`p-4 rounded-lg border transition-all text-left
                 ${selectedType === c.id ? 'border-white/30 bg-white/[0.06]' : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]'}
-                ${loading ? 'opacity-50 cursor-wait' : 'cursor-pointer'}
-              `}
+                ${loading ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
             >
               <div className="text-lg mb-1">{c.label}</div>
               <div className="text-[10px] text-white/30 uppercase">Attack Vector</div>
@@ -143,44 +150,38 @@ export default function ChallengePage() {
           ))}
         </div>
 
-        {/* Loading */}
+        {/* Loading with 3-stage progress */}
         {loading && (
-          <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
-            <div className="animate-pulse text-white/50">
-              Running attack through live multi-agent pipeline…
+          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-6">
+            <div className="text-white/50 text-sm mb-4">
+              Running attack through live multi-agent pipeline (this is a real round-trip, takes ~10s)…
             </div>
-            <div className="text-[11px] text-white/25 mt-3 font-mono">
-              analyst (GLM-5) → validator (Claude 4.6) → arbiter (Gemini 3.5)
-            </div>
-            <div className="text-[10px] text-white/20 mt-1">
-              Real model calls. ~8–12s round-trip.
-            </div>
+            <ProgressTimeline current={stage} />
           </div>
         )}
 
-        {/* Error */}
-        {result && isError(result) && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/[0.04] p-6">
-            <div className="text-red-400 text-sm font-bold mb-1">⚠ {result.error}</div>
-            {result.message && <div className="text-white/40 text-xs">{result.message}</div>}
-            {result.retryAfter && (
-              <div className="text-white/30 text-[11px] mt-2">Retry after ~{result.retryAfter}s</div>
+        {/* Result */}
+        {result && !loading && (
+          <div className="space-y-4">
+            {isError(result) && (
+              <div className="p-6 rounded-lg border border-red-500/30 bg-red-500/[0.03]">
+                <div className="text-red-400 font-bold mb-1">⚠ {result.error}</div>
+                {result.message && <div className="text-xs text-white/50 font-mono">{result.message}</div>}
+                {result.retryAfter && (
+                  <div className="text-xs text-white/40 mt-2">Retry after {result.retryAfter}s</div>
+                )}
+              </div>
             )}
+
+            {isLive(result) && <LiveResultBlock result={result} />}
+            {isPreview(result) && <PreviewResultBlock result={result} type={selectedType} />}
           </div>
         )}
 
-        {/* Live result */}
-        {result && isLive(result) && <LiveResultPanel data={result} />}
-
-        {/* Preview / deterministic-rules result */}
-        {result && isPreview(result) && <PreviewResultPanel data={result} />}
-
-        {/* Default explanation */}
         {!result && !loading && (
           <div className="p-8 rounded-lg border border-white/[0.04] bg-white/[0.01] text-center">
             <p className="text-white/30 text-sm">
-              Select an attack vector above to challenge the agent.<br />
-              The pipeline must detect and block every adversarial signal — proving its reasoning is sound.
+              Select an attack vector above. The agent must detect and block every adversarial signal.
             </p>
           </div>
         )}
@@ -189,236 +190,246 @@ export default function ChallengePage() {
   );
 }
 
-// ─── Subcomponents ────────────────────────────────────────────────────
+// ─── Live result rendering ───────────────────────────────────────
 
-function ModeBanner({ mode }: { mode: 'LIVE_MULTI_AGENT' | 'DETERMINISTIC_RULES' }) {
-  if (mode === 'LIVE_MULTI_AGENT') {
-    return (
-      <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/[0.04] p-3 mb-2 flex items-center gap-3">
-        <span className="text-lg">🟢</span>
-        <div>
-          <div className="text-emerald-300 text-xs font-bold uppercase tracking-wider">LIVE · multi-agent pipeline</div>
-          <div className="text-white/40 text-[11px]">Verbatim reasoning from GLM-5, Claude 4.6, Gemini 3.5. Same code as production.</div>
-        </div>
-      </div>
-    );
-  }
+function LiveResultBlock({ result }: { result: LiveResponse }) {
+  const blocked = result.verdict.blocked;
   return (
-    <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/[0.04] p-3 mb-2 flex items-center gap-3">
-      <span className="text-lg">🟡</span>
-      <div>
-        <div className="text-yellow-300 text-xs font-bold uppercase tracking-wider">PREVIEW · deterministic rules</div>
-        <div className="text-white/40 text-[11px]">Live multi-agent mode is paused. The gates shown are the same rules enforced in production.</div>
-      </div>
-    </div>
-  );
-}
+    <>
+      <ModeBadge mode="LIVE_MULTI_AGENT" />
 
-function VerdictBanner({ blocked, label, tier }: { blocked: boolean; label: string; tier?: string }) {
-  return (
-    <div className={`p-6 rounded-lg border ${blocked ? 'border-emerald-500/30 bg-emerald-500/[0.03]' : 'border-red-500/30 bg-red-500/[0.03]'}`}>
-      <div className="flex items-center gap-3 mb-1">
-        <span className="text-2xl">{blocked ? '🛡️' : '💀'}</span>
-        <div className={`text-lg font-bold ${blocked ? 'text-emerald-400' : 'text-red-400'}`}>{label}</div>
-      </div>
-      {tier && (
-        <div className="text-[11px] text-white/35 font-mono ml-9">decisionTier: {tier}</div>
-      )}
-    </div>
-  );
-}
-
-function AgentCard({
-  role,
-  highlight,
-  children,
-}: {
-  role: string;
-  highlight?: 'disagree' | 'consensus' | null;
-  children: React.ReactNode;
-}) {
-  const borderClass =
-    highlight === 'disagree'
-      ? 'border-yellow-500/30 bg-yellow-500/[0.03]'
-      : highlight === 'consensus'
-      ? 'border-emerald-500/20'
-      : 'border-white/[0.06]';
-  return (
-    <div className={`relative pl-8 pb-4`}>
-      <div className="absolute left-2 top-1.5 w-2 h-2 rounded-full bg-white/30" />
-      <div className="absolute left-[11px] top-3 bottom-0 w-px bg-white/10" />
-      <div className={`rounded-lg border ${borderClass} bg-white/[0.02] p-4`}>
-        <div className="text-[10px] text-white/40 uppercase tracking-wider mb-2 font-bold">{role}</div>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function LiveResultPanel({ data }: { data: LiveResponse }) {
-  return (
-    <div className="space-y-3">
-      <VerdictBanner blocked={data.verdict.blocked} label={data.verdict.label} tier={data.decisionTier} />
-
-      {data.disagreementSignal && data.disagreementSummary && (
-        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/[0.04] p-3">
-          <div className="text-yellow-300 text-xs font-bold uppercase mb-1">Models disagreed</div>
-          <div className="text-white/60 text-[11px]">{data.disagreementSummary}</div>
-        </div>
-      )}
-
-      {/* Injected attack summary */}
-      {data.challenge.injected && (
-        <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
-          <div className="text-[10px] text-white/40 uppercase tracking-wider mb-2 font-bold">Injected Attack</div>
-          <div className="text-[11px] font-mono text-white/50 space-y-0.5">
-            <div>type: <span className="text-red-300">{data.challenge.injected.type}</span></div>
-            <div>baseline ETH: <span className="text-white/70">${data.challenge.injected.originalEthPrice?.toFixed(2)}</span></div>
-            <div>at: <span className="text-white/70">{data.challenge.injected.appliedAt}</span></div>
-          </div>
-        </div>
-      )}
-
-      {/* Pipeline timeline */}
-      <div className="rounded-lg border border-white/[0.06] bg-white/[0.01] p-4">
-        <div className="text-[10px] text-white/40 uppercase tracking-wider mb-3 font-bold">
-          Pipeline · {data.pipelinePath}
-        </div>
-
-        <AgentCard role={`ANALYST · ${data.agents.analyst.model}`}>
-          <div className="text-[11px] font-mono text-white/40 mb-1">
-            {data.agents.analyst.action} {data.agents.analyst.targetAsset} · confidence {fmtPct(data.agents.analyst.confidence)}
-          </div>
-          <p className="text-sm text-white/70 leading-relaxed">{data.agents.analyst.reasoning}</p>
-        </AgentCard>
-
-        <AgentCard
-          role={`VALIDATOR · ${data.agents.validator.model}`}
-          highlight={data.disagreementSignal ? 'disagree' : null}
-        >
-          <div className="text-[11px] font-mono text-white/40 mb-1">
-            {data.agents.validator.approved ? '✅ APPROVED' : '❌ REJECTED'} · confidence {fmtPct(data.agents.validator.confidence)} · risk {data.agents.validator.riskScore}
-          </div>
-          <p className="text-sm text-white/70 leading-relaxed mb-2">{data.agents.validator.reasoning}</p>
-          {data.agents.validator.flaggedIssues && data.agents.validator.flaggedIssues.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {data.agents.validator.flaggedIssues.map((f, i) => (
-                <span key={i} className="px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-300 font-mono">
-                  ⚠ {f}
-                </span>
-              ))}
+      {/* Verdict */}
+      <div className={`p-6 rounded-lg border ${blocked ? 'border-green-500/30 bg-green-500/[0.03]' : 'border-red-500/30 bg-red-500/[0.03]'}`}>
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-2xl">{blocked ? '🛡️' : '💀'}</span>
+          <div>
+            <div className={`text-lg font-bold ${blocked ? 'text-green-400' : 'text-red-400'}`}>
+              {result.verdict.label}
             </div>
-          )}
-        </AgentCard>
-
-        {data.agents.arbiter && (
-          <AgentCard role={`ARBITER · ${data.agents.arbiter.model}`}>
-            <div className="text-[11px] font-mono text-white/40 mb-1">
-              vote: {data.agents.arbiter.vote} · confidence {fmtPct(data.agents.arbiter.confidence)}
+            <div className="text-xs text-white/40 font-mono">
+              tier: {result.decisionTier} · path: {result.pipelinePath} · {result.timing_ms.total}ms total
             </div>
-            <p className="text-sm text-white/70 leading-relaxed">{data.agents.arbiter.reasoning}</p>
-          </AgentCard>
+          </div>
+        </div>
+        {result.disagreementSignal && result.disagreementSummary && (
+          <div className="mt-3 px-3 py-2 rounded bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-300/80">
+            ⚠ Models disagreed — {result.disagreementSummary}
+          </div>
         )}
       </div>
 
-      {/* On-chain anchor */}
-      {data.onChain && 'anchored' in data.onChain && data.onChain.anchored && (
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/[0.04] p-4">
-          <div className="text-emerald-300 text-xs font-bold uppercase mb-2">✓ Anchored on Mantle</div>
-          <a href={data.onChain.mantlescan} target="_blank" rel="noopener noreferrer" className="text-[11px] font-mono text-emerald-300/80 underline break-all">
-            {data.onChain.txHash}
-          </a>
-          <div className="text-[10px] text-white/30 mt-1">block {data.onChain.blockNumber}</div>
+      {/* Injected signal */}
+      {result.challenge.injected && (
+        <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+          <h3 className="text-xs font-bold text-white/60 uppercase mb-3">Attack injected</h3>
+          <div className="bg-black/30 rounded p-3 font-mono text-xs text-red-300/80">
+            <pre>{JSON.stringify(result.challenge.injected, null, 2)}</pre>
+          </div>
         </div>
       )}
-      {data.onChain && 'skipped' in data.onChain && (
-        <div className="rounded-lg border border-white/[0.04] bg-white/[0.01] p-3 text-center">
-          <span className="text-[11px] text-white/30">On-chain anchor: {data.onChain.reason}</span>
+
+      {/* Agent timeline */}
+      <AgentCard role="ANALYST" tone="purple" agent={result.agents.analyst} />
+      <AgentCard role="VALIDATOR" tone="cyan" agent={result.agents.validator} disagreed={result.disagreementSignal} />
+      {result.agents.arbiter && (
+        <AgentCard role="ARBITER" tone="amber" agent={result.agents.arbiter} />
+      )}
+
+      {/* On-chain anchor */}
+      {'anchored' in result.onChain && result.onChain.anchored ? (
+        <div className="p-6 rounded-lg border border-emerald-500/30 bg-emerald-500/[0.03]">
+          <h3 className="text-xs font-bold text-emerald-400/80 uppercase mb-2">✓ Anchored on-chain</h3>
+          <div className="font-mono text-xs space-y-1 text-white/60">
+            <div>tx: <a href={result.onChain.mantlescan} className="text-emerald-300 hover:text-emerald-200 underline" target="_blank" rel="noopener noreferrer">{result.onChain.txHash.slice(0, 18)}…</a></div>
+            <div>block: {result.onChain.blockNumber}</div>
+          </div>
+        </div>
+      ) : (
+        <div className="p-3 rounded-lg border border-white/[0.04] bg-white/[0.01] text-center">
+          <span className="text-[10px] text-white/30 font-mono">
+            on-chain anchor: skipped ({'skipped' in result.onChain ? result.onChain.reason : 'unknown'})
+          </span>
         </div>
       )}
 
       {/* IPFS pin */}
-      {data.ipfsCid && (
-        <div className="text-[10px] text-white/25 font-mono text-center">
-          IPFS proof: {data.ipfsCid}
+      {result.ipfsCid && (
+        <div className="p-3 rounded-lg border border-white/[0.04] bg-white/[0.01] text-center">
+          <span className="text-[10px] text-white/30 font-mono">
+            IPFS reasoning blob: <a href={`https://gateway.pinata.cloud/ipfs/${result.ipfsCid}`} className="text-purple-300 hover:text-purple-200" target="_blank" rel="noopener noreferrer">{result.ipfsCid.slice(0, 14)}…</a>
+          </span>
         </div>
       )}
 
-      {/* On-chain verification block (live read of ValidationRegistry) */}
-      {data.on_chain_proof?.verified && (
-        <div className="rounded-lg border border-white/[0.04] bg-white/[0.01] p-3 text-center">
-          <div className="text-[10px] text-white/30">
-            ValidationRegistry · {data.on_chain_proof.totalProposals} proposals · {data.on_chain_proof.totalRejected} rejected ({data.on_chain_proof.blockRate} block rate)
-          </div>
-          <div className="text-[10px] text-white/20 mt-0.5">Network: {data.on_chain_proof.network}</div>
+      {/* Footer: budget */}
+      {result.budget && (
+        <div className="pt-3 text-center">
+          <span className="text-[10px] text-white/20 font-mono">
+            daily challenge budget: {result.budget.used}/{result.budget.cap} used
+            {result.budget.resetAt ? ` · resets ${new Date(result.budget.resetAt).toLocaleString()}` : ''}
+          </span>
         </div>
       )}
-
-      {/* Timing + budget */}
-      <div className="flex justify-between items-center text-[10px] text-white/25 font-mono px-1 pt-1">
-        <span>round-trip: {fmtMs(data.timing_ms.total)} (decision: {fmtMs(data.timing_ms.decision)})</span>
-        {data.budget && (
-          <span>daily budget: {data.budget.used}/{data.budget.cap} used · {data.budget.remaining} left</span>
-        )}
-      </div>
-    </div>
+    </>
   );
 }
 
-function PreviewResultPanel({ data }: { data: PreviewResponse }) {
-  return (
-    <div className="space-y-3">
-      <VerdictBanner
-        blocked={data.result.blocked}
-        label={data.result.blocked ? 'ATTACK BLOCKED' : 'ATTACK SUCCEEDED'}
-      />
+// ─── Preview (deterministic) result rendering ────────────────────
 
-      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
-        <div className="text-[10px] text-white/40 uppercase tracking-wider mb-2 font-bold">{data.challenge.name}</div>
-        <p className="text-sm text-white/50 mb-3">{data.challenge.description}</p>
-        <div className="bg-black/30 rounded p-3 font-mono text-xs text-red-300/80 mb-3">
-          <div className="text-white/30 mb-1">// Injected fake signal:</div>
-          <pre className="whitespace-pre-wrap break-all">{JSON.stringify(data.challenge.fake_signal, null, 2)}</pre>
+function PreviewResultBlock({ result }: { result: PreviewResponse; type: string }) {
+  return (
+    <>
+      <ModeBadge mode="DETERMINISTIC_RULES" />
+
+      <div className={`p-6 rounded-lg border ${result.result.blocked ? 'border-green-500/30 bg-green-500/[0.03]' : 'border-red-500/30 bg-red-500/[0.03]'}`}>
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl">{result.result.blocked ? '🛡️' : '💀'}</span>
+          <div>
+            <div className={`text-lg font-bold ${result.result.blocked ? 'text-green-400' : 'text-red-400'}`}>
+              {result.result.blocked ? 'ATTACK BLOCKED' : 'ATTACK SUCCEEDED'}
+            </div>
+            <div className="text-xs text-white/40">
+              Confidence: {result.result.confidence}% · preview / deterministic
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
-        <div className="text-[10px] text-white/40 uppercase tracking-wider mb-2 font-bold">Deterministic Reasoning</div>
-        <p className="text-sm text-white/70 leading-relaxed mb-3">{data.result.reasoning}</p>
-        <div className="text-[10px] text-white/40 uppercase mb-2 font-bold">Safety Gates</div>
-        <div className="flex flex-wrap gap-1.5">
-          {data.result.gates.map((g, i) => (
-            <span key={i} className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[10px] text-emerald-300 font-mono">
+      <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+        <h3 className="text-xs font-bold text-white/60 uppercase mb-3">Attack: {result.challenge.name}</h3>
+        <p className="text-sm text-white/50 mb-4">{result.challenge.description}</p>
+        <div className="bg-black/30 rounded p-3 font-mono text-xs text-red-300/80 mb-4">
+          <div className="text-white/30 mb-1">// Injected fake signal:</div>
+          <pre>{JSON.stringify(result.challenge.fake_signal, null, 2)}</pre>
+        </div>
+      </div>
+
+      <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+        <h3 className="text-xs font-bold text-white/60 uppercase mb-3">Deterministic reasoning</h3>
+        <p className="text-sm text-white/70 leading-relaxed mb-4">{result.result.reasoning}</p>
+        <h4 className="text-xs font-bold text-white/40 uppercase mb-2">Gates that would fire:</h4>
+        <div className="flex flex-wrap gap-2">
+          {result.result.gates.map((g, i) => (
+            <span key={i} className="px-2 py-1 bg-green-500/10 border border-green-500/20 rounded text-[10px] text-green-400 font-mono">
               ✓ {g}
             </span>
           ))}
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
-        <div className="text-[10px] text-white/40 uppercase tracking-wider mb-2 font-bold">On-Chain Verification</div>
-        <div className="font-mono text-[11px] space-y-1 text-white/50">
-          <div>contract: <span className="text-purple-300">{data.verification.contract}</span></div>
-          <div>method: <span className="text-blue-300">{data.verification.method}</span></div>
-          <div>VaR of attack: <span className="text-red-300">{data.verification.var_bps} bps</span> → max allowed: <span className="text-emerald-300">{data.verification.max_allowed_bps} bps</span></div>
-          <div>would revert: <span className="text-red-300">{data.verification.would_revert ? 'YES' : 'NO'}</span></div>
-          <div>reason: <span className="text-yellow-300">{data.verification.reason}</span></div>
-        </div>
-      </div>
-
-      {data.on_chain_proof?.verified && (
-        <div className="rounded-lg border border-white/[0.04] bg-white/[0.01] p-3 text-center">
-          <div className="text-[10px] text-emerald-400/80 font-bold uppercase mb-0.5">✓ Live Contract Verified</div>
-          <div className="text-[10px] text-white/30">
-            ValidationRegistry · {data.on_chain_proof.totalProposals} proposals · {data.on_chain_proof.totalRejected} rejected ({data.on_chain_proof.blockRate} block rate)
+      {result.verification?.on_chain_proof?.verified && (
+        <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+          <h3 className="text-xs font-bold text-white/60 uppercase mb-3">On-chain liveness probe</h3>
+          <div className="font-mono text-xs space-y-1 text-white/50">
+            <div>Contract: <span className="text-purple-300">{result.verification.contract}</span></div>
+            <div>Method: <span className="text-blue-300">{result.verification.method}</span></div>
+            <div>ValidationRegistry: {result.verification.on_chain_proof.totalProposals} proposals · {result.verification.on_chain_proof.totalRejected} rejected · block rate {result.verification.on_chain_proof.blockRate}</div>
+            <div>Network: {result.verification.on_chain_proof.network}</div>
           </div>
-          <div className="text-[10px] text-white/20 mt-0.5">Network: {data.on_chain_proof.network}</div>
         </div>
       )}
 
-      <div className="text-[10px] text-white/25 font-mono text-center pt-1">
-        {data.note}
+      {result.note && (
+        <div className="p-3 rounded-lg border border-white/[0.04] bg-white/[0.01] text-center">
+          <span className="text-[10px] text-white/30 font-mono">{result.note}</span>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ─── Reusable bits ───────────────────────────────────────────────
+
+function ModeBadge({ mode }: { mode: 'LIVE_MULTI_AGENT' | 'DETERMINISTIC_RULES' }) {
+  const live = mode === 'LIVE_MULTI_AGENT';
+  return (
+    <div className={`p-3 rounded-lg border text-center ${live ? 'border-emerald-500/30 bg-emerald-500/[0.04]' : 'border-yellow-500/30 bg-yellow-500/[0.04]'}`}>
+      <span className={`text-xs font-mono uppercase tracking-widest ${live ? 'text-emerald-400/90' : 'text-yellow-400/80'}`}>
+        {live ? '🟢 LIVE · multi-agent pipeline' : '🟡 PREVIEW · deterministic rules'}
+      </span>
+    </div>
+  );
+}
+
+function AgentCard({ role, tone, agent, disagreed }: {
+  role: string;
+  tone: 'purple' | 'cyan' | 'amber';
+  agent: LiveAgentTrace;
+  disagreed?: boolean;
+}) {
+  const colors = {
+    purple: { ring: 'border-purple-500/30', glow: 'text-purple-300/90' },
+    cyan:   { ring: 'border-cyan-500/30',   glow: 'text-cyan-300/90'   },
+    amber:  { ring: 'border-amber-500/30',  glow: 'text-amber-300/90'  },
+  }[tone];
+
+  return (
+    <div className={`p-6 rounded-lg border ${colors.ring} bg-white/[0.015] ${disagreed ? 'ring-1 ring-yellow-500/20' : ''}`}>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className={`text-xs font-bold ${colors.glow} uppercase tracking-widest`}>{role}</h3>
+        <span className="text-[10px] text-white/30 font-mono">{agent.model}</span>
       </div>
+      <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
+        {agent.confidence != null && (
+          <Stat label="confidence" value={`${Math.round((agent.confidence ?? 0) * 100)}%`} />
+        )}
+        {agent.timing_ms != null && (
+          <Stat label="latency" value={`${(agent.timing_ms / 1000).toFixed(2)}s`} />
+        )}
+        {agent.action && <Stat label="action" value={agent.action} />}
+        {agent.targetAsset && <Stat label="target" value={agent.targetAsset} />}
+        {agent.approved != null && (
+          <Stat label="approved" value={agent.approved ? '✓' : '✗'} />
+        )}
+        {agent.riskScore != null && <Stat label="risk score" value={`${agent.riskScore}/100`} />}
+        {agent.vote && <Stat label="vote" value={agent.vote} />}
+      </div>
+      {agent.reasoning && (
+        <div className="text-sm text-white/70 leading-relaxed mb-3 whitespace-pre-wrap">
+          {agent.reasoning}
+        </div>
+      )}
+      {agent.flaggedIssues && agent.flaggedIssues.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {agent.flaggedIssues.map((flag, i) => (
+            <span key={i} className="px-2 py-0.5 bg-yellow-500/10 border border-yellow-500/20 rounded text-[10px] text-yellow-400 font-mono">
+              ⚠ {flag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="font-mono">
+      <div className="text-[9px] text-white/30 uppercase tracking-widest">{label}</div>
+      <div className="text-white/80">{value}</div>
+    </div>
+  );
+}
+
+function ProgressTimeline({ current }: { current: 'analyst' | 'validator' | 'arbiter' | null }) {
+  const steps: Array<'analyst' | 'validator' | 'arbiter'> = ['analyst', 'validator', 'arbiter'];
+  const idx = current ? steps.indexOf(current) : -1;
+  return (
+    <div className="flex items-center gap-3">
+      {steps.map((s, i) => {
+        const done = i < idx;
+        const active = i === idx;
+        return (
+          <div key={s} className="flex-1 flex flex-col items-center">
+            <div className={`w-3 h-3 rounded-full mb-1
+              ${done ? 'bg-emerald-400' : active ? 'bg-purple-400 animate-pulse' : 'bg-white/10'}`} />
+            <div className={`text-[10px] uppercase tracking-widest font-mono
+              ${active ? 'text-purple-300' : done ? 'text-emerald-300/70' : 'text-white/30'}`}>
+              {s}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

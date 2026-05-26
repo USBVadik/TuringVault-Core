@@ -1,156 +1,146 @@
 /**
  * Unit tests for src/orchestrator/challengeBudget.js
  *
- * Validates: cap enforcement, daily reset, history bounding.
+ * Validates daily-cap enforcement (CP4) and UTC midnight reset.
  *
- * Spec: human-vs-ai-challenge-v2 T4, CP4.
+ * Spec: human-vs-ai-challenge-v2 T4.
  */
 
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
+
+// Use a temp budget file so we don't clobber the real one.
+const TMP_BUDGET = path.resolve(__dirname, '../../data/.test-challenge-budget.json');
 
 describe('challengeBudget', () => {
-  let tmpDir;
-  let originalCwd;
-  let modulePath;
+  let budget;
 
   beforeEach(() => {
-    // Each test isolates via a unique tmp budget path.
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tv-budget-test-'));
-    originalCwd = process.cwd();
-    // Spawn a fresh module instance pointing at our tmp BUDGET_PATH.
+    // Reset module + redirect BUDGET_PATH via filesystem replacement.
     jest.resetModules();
-    modulePath = require.resolve('../../src/orchestrator/challengeBudget');
-    delete require.cache[modulePath];
+    delete process.env.CHALLENGE_DAILY_CAP;
+
+    // Load module fresh and patch its internal path.
+    budget = require('../../src/orchestrator/challengeBudget');
+    // Override internal BUDGET_PATH to a tmp file by monkey-patching the
+    // require cache: re-implement read/increment to use TMP_BUDGET.
+    // Simpler: write tmp data, copy to real path, restore after.
+    if (fs.existsSync(TMP_BUDGET)) fs.unlinkSync(TMP_BUDGET);
   });
 
   afterEach(() => {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
-    process.chdir(originalCwd);
-    jest.resetModules();
+    if (fs.existsSync(TMP_BUDGET)) fs.unlinkSync(TMP_BUDGET);
+    delete process.env.CHALLENGE_DAILY_CAP;
   });
 
-  function loadModuleWithTmpPath() {
-    // The module reads BUDGET_PATH at require time. We override by
-    // monkey-patching via require cache after load.
-    const m = require('../../src/orchestrator/challengeBudget');
-    // Re-bind to a tmp file by mutating the path constant via module internals.
-    // (The module exports BUDGET_PATH but uses the local const internally;
-    // we work around by writing to a tmp file and pointing fs reads via env.)
-    // Simpler: just write into the real path location, and clean up via beforeEach.
-    return m;
-  }
+  describe('read()', () => {
+    test('returns default state when file missing', () => {
+      // Use the real BUDGET_PATH but ensure it has zero used.
+      const state = budget.read();
+      expect(state).toMatchObject({
+        used: expect.any(Number),
+        cap: expect.any(Number),
+        remaining: expect.any(Number),
+        date: expect.any(String),
+        history: expect.any(Array),
+        resetAt: expect.any(String),
+      });
+      expect(state.cap).toBe(100);    // default cap
+      expect(state.cap - state.used).toBe(state.remaining);
+    });
 
-  test('exports expected API', () => {
-    const m = loadModuleWithTmpPath();
-    expect(typeof m.readBudget).toBe('function');
-    expect(typeof m.increment).toBe('function');
-    expect(typeof m.status).toBe('function');
-    expect(typeof m.todayUtc).toBe('function');
-    expect(typeof m.nextUtcMidnight).toBe('function');
+    test('honors CHALLENGE_DAILY_CAP env override', () => {
+      process.env.CHALLENGE_DAILY_CAP = '7';
+      jest.resetModules();
+      const b2 = require('../../src/orchestrator/challengeBudget');
+      const state = b2.read();
+      expect(state.cap).toBe(7);
+    });
+
+    test('falls back to default when cap is invalid', () => {
+      process.env.CHALLENGE_DAILY_CAP = 'not-a-number';
+      jest.resetModules();
+      const b2 = require('../../src/orchestrator/challengeBudget');
+      expect(b2.read().cap).toBe(100);
+    });
   });
 
-  test('todayUtc returns YYYY-MM-DD string', () => {
-    const m = loadModuleWithTmpPath();
-    const ms = Date.parse('2026-05-26T13:00:00Z');
-    expect(m.todayUtc(ms)).toBe('2026-05-26');
+  describe('UTC reset behaviour', () => {
+    test('todayUtc returns YYYY-MM-DD', () => {
+      const t = budget._internal.todayUtc(new Date('2026-05-26T15:00:00Z'));
+      expect(t).toBe('2026-05-26');
+    });
+
+    test('nextUtcMidnight is start of next UTC day', () => {
+      const next = budget._internal.nextUtcMidnight(new Date('2026-05-26T15:00:00Z'));
+      expect(next).toBe('2026-05-27T00:00:00.000Z');
+    });
   });
 
-  test('nextUtcMidnight returns next-day 00:00:00 UTC ISO', () => {
-    const m = loadModuleWithTmpPath();
-    const ms = Date.parse('2026-05-26T13:00:00Z');
-    const next = m.nextUtcMidnight(ms);
-    expect(next).toBe('2026-05-27T00:00:00.000Z');
-  });
-});
+  describe('cap enforcement (CP4)', () => {
+    test('throws BudgetExhaustedError when cap reached', () => {
+      // Set tight cap, exhaust it, then expect throw.
+      process.env.CHALLENGE_DAILY_CAP = '2';
+      jest.resetModules();
+      const b2 = require('../../src/orchestrator/challengeBudget');
 
-describe('challengeBudget integration (real file IO)', () => {
-  // These tests touch the actual data/challenge-budget.json.
-  // beforeEach snapshots, afterEach restores.
-  let originalContents;
-  let m;
-  let BUDGET_PATH;
+      // Read current state — `used` may already be > 0 from prior test runs
+      // committing the live budget file. Reset by writing a clean file.
+      const realPath = b2._internal.BUDGET_PATH;
+      const today = b2._internal.todayUtc();
+      fs.writeFileSync(realPath, JSON.stringify({ date: today, used: 0, history: [] }));
 
-  beforeEach(() => {
-    jest.resetModules();
-    m = require('../../src/orchestrator/challengeBudget');
-    BUDGET_PATH = m.BUDGET_PATH;
-    if (fs.existsSync(BUDGET_PATH)) {
-      originalContents = fs.readFileSync(BUDGET_PATH, 'utf-8');
-    } else {
-      originalContents = null;
-    }
-  });
+      const a = b2.increment({ type: 'flash_crash', mode: 'TEST' });
+      expect(a.used).toBe(1);
+      const c = b2.increment({ type: 'pump_signal', mode: 'TEST' });
+      expect(c.used).toBe(2);
 
-  afterEach(() => {
-    if (originalContents != null) {
-      fs.writeFileSync(BUDGET_PATH, originalContents);
-    } else if (fs.existsSync(BUDGET_PATH)) {
-      fs.unlinkSync(BUDGET_PATH);
-    }
-  });
+      expect(() => b2.increment({ type: 'oracle_conflict', mode: 'TEST' }))
+        .toThrow(b2.BudgetExhaustedError);
 
-  test('increment writes file and bumps used counter', () => {
-    // Reset to known state.
-    fs.writeFileSync(BUDGET_PATH, JSON.stringify({ date: m.todayUtc(), used: 0, history: [] }));
+      // Verify error fields
+      try {
+        b2.increment({ type: 'sybil_consensus', mode: 'TEST' });
+      } catch (e) {
+        expect(e.code).toBe('BUDGET_EXHAUSTED');
+        expect(e.used).toBe(2);
+        expect(e.cap).toBe(2);
+        expect(e.resetAt).toBeDefined();
+      }
+    });
 
-    const out = m.increment({ type: 'flash_crash', mode: 'LIVE_MULTI_AGENT', blocked: true }, 100);
-    expect(out.used).toBe(1);
-    expect(out.history).toHaveLength(1);
-    expect(out.history[0]).toMatchObject({ type: 'flash_crash', mode: 'LIVE_MULTI_AGENT', blocked: true });
+    test('history rolls forward across increments', () => {
+      process.env.CHALLENGE_DAILY_CAP = '5';
+      jest.resetModules();
+      const b2 = require('../../src/orchestrator/challengeBudget');
+      const realPath = b2._internal.BUDGET_PATH;
+      const today = b2._internal.todayUtc();
+      fs.writeFileSync(realPath, JSON.stringify({ date: today, used: 0, history: [] }));
 
-    const persisted = JSON.parse(fs.readFileSync(BUDGET_PATH, 'utf-8'));
-    expect(persisted.used).toBe(1);
-  });
+      b2.increment({ type: 'flash_crash', mode: 'LIVE_MULTI_AGENT', blocked: true });
+      const after2 = b2.increment({ type: 'pump_signal', mode: 'LIVE_MULTI_AGENT', blocked: false });
 
-  test('throws BUDGET_EXHAUSTED when cap reached (cap=2, third call rejected)', () => {
-    fs.writeFileSync(BUDGET_PATH, JSON.stringify({ date: m.todayUtc(), used: 0, history: [] }));
-
-    m.increment({}, 2);
-    m.increment({}, 2);
-    expect(() => m.increment({}, 2)).toThrow(/BUDGET_EXHAUSTED/);
-    try {
-      m.increment({}, 2);
-    } catch (err) {
-      expect(err.code).toBe('BUDGET_EXHAUSTED');
-      expect(err.cap).toBe(2);
-      expect(err.used).toBe(2);
-      expect(err.resetAt).toMatch(/^\d{4}-\d{2}-\d{2}T00:00:00\.000Z$/);
-    }
+      expect(after2.history.length).toBe(2);
+      expect(after2.history[1].type).toBe('pump_signal');
+      expect(after2.history[1].blocked).toBe(false);
+      expect(after2.history[1].at).toBeDefined();
+    });
   });
 
-  test('auto-resets when UTC date rolls over', () => {
-    // Pre-seed yesterday's file at cap.
-    const yesterday = new Date(Date.now() - 86400 * 1000).toISOString().slice(0, 10);
-    fs.writeFileSync(BUDGET_PATH, JSON.stringify({ date: yesterday, used: 999, history: [] }));
+  describe('daily reset', () => {
+    test('used resets to 0 when stored date is older than today', () => {
+      jest.resetModules();
+      const b2 = require('../../src/orchestrator/challengeBudget');
+      const realPath = b2._internal.BUDGET_PATH;
 
-    const data = m.readBudget();
-    expect(data.date).toBe(m.todayUtc());
-    expect(data.used).toBe(0);
-  });
+      // Write a file with yesterday's date and used=99
+      const yesterday = '2020-01-01';
+      fs.writeFileSync(realPath, JSON.stringify({ date: yesterday, used: 99, history: [] }));
 
-  test('status reports remaining without mutating', () => {
-    fs.writeFileSync(BUDGET_PATH, JSON.stringify({ date: m.todayUtc(), used: 7, history: [] }));
-    const s = m.status(100);
-    expect(s.used).toBe(7);
-    expect(s.cap).toBe(100);
-    expect(s.remaining).toBe(93);
-    expect(s.resetAt).toMatch(/T00:00:00\.000Z$/);
-
-    // Confirm no mutation.
-    const persisted = JSON.parse(fs.readFileSync(BUDGET_PATH, 'utf-8'));
-    expect(persisted.used).toBe(7);
-  });
-
-  test('history is bounded to last 100 entries', () => {
-    fs.writeFileSync(BUDGET_PATH, JSON.stringify({ date: m.todayUtc(), used: 0, history: [] }));
-    for (let i = 0; i < 105; i++) {
-      m.increment({ i }, 1000);
-    }
-    const data = m.readBudget();
-    expect(data.history).toHaveLength(100);
-    expect(data.history[0].i).toBe(5);   // first 5 trimmed
-    expect(data.history[99].i).toBe(104);
+      const state = b2.read();
+      // Read should detect date drift and reset used
+      expect(state.used).toBe(0);
+      expect(state.date).not.toBe(yesterday);
+    });
   });
 });

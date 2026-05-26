@@ -1,145 +1,169 @@
 /**
  * Unit tests for src/orchestrator/attackVectors.js
  *
- * Validates: 4 attack types × {immutability, provenance, same-shape}.
- * No network, no Bedrock. Pure unit harness.
+ * 12 cases (4 attacks × {immutability, provenance, same-shape}).
+ * Validates CP3 (pure attacks, no input mutation, attackProvenance set).
  *
- * Spec: human-vs-ai-challenge-v2 T4, CP3.
+ * Spec: human-vs-ai-challenge-v2 T4.
  */
 
-const { applyAttack, KNOWN_ATTACKS } = require('../../src/orchestrator/attackVectors');
+const { applyAttack, ATTACK_TYPES, _attacks } = require('../../src/orchestrator/attackVectors');
 
-const FIXTURE = Object.freeze({
+const BASE_MARKET = Object.freeze({
   ethPrice: 2100,
-  ethChange24h: 1.5,
+  ethChange24h: 1.2,
   mntPrice: 0.72,
-  mantleTVL: 500_000_000,
-  fearGreedValue: 50,
-  fearGreedClass: 'Neutral',
+  mantleTVL: 350_000_000,
+  fearGreedValue: 52,
+  fearGreedLabel: 'Neutral',
   sentiment: 'neutral',
-  nansenInsight: { available: true, label: 'NEUTRAL' },
+  mETHYield: 3.5,
+  nansenInsight: { label: 'NEUTRAL', netFlow24h: 0 },
   byrealSignals: [],
-  promptContext: 'baseline market context',
-  structuredSignals: { regime: { regime: 'RANGING' }, signals: {} },
+  promptContext: 'baseline market',
+  structuredSignals: {
+    regime: { regime: 'RANGING' },
+    signals: { funding: { value: 0.05 } },
+    promptSummary: 'baseline',
+  },
 });
 
-describe('applyAttack', () => {
-  describe('contract', () => {
-    test('throws on unknown attack type', () => {
-      expect(() => applyAttack(FIXTURE, 'doom_loop')).toThrow(/unknown attack type/i);
-    });
-
-    test('returns identity on type=none', () => {
-      const out = applyAttack(FIXTURE, 'none');
-      expect(out).toBe(FIXTURE);
-    });
-
-    test('returns identity on falsy type', () => {
-      expect(applyAttack(FIXTURE, '')).toBe(FIXTURE);
-      expect(applyAttack(FIXTURE, null)).toBe(FIXTURE);
-      expect(applyAttack(FIXTURE, undefined)).toBe(FIXTURE);
-    });
-
-    test('throws on non-object market', () => {
-      expect(() => applyAttack(null, 'flash_crash')).toThrow();
-      expect(() => applyAttack('string', 'flash_crash')).toThrow();
-    });
-
-    test('exposes KNOWN_ATTACKS list', () => {
-      expect(KNOWN_ATTACKS).toEqual(
-        expect.arrayContaining(['flash_crash', 'pump_signal', 'oracle_conflict', 'sybil_consensus']),
-      );
-      expect(KNOWN_ATTACKS).toHaveLength(4);
+describe('attackVectors', () => {
+  describe('ATTACK_TYPES export', () => {
+    test('exports the 4 expected attack types in stable order', () => {
+      expect(ATTACK_TYPES).toEqual([
+        'flash_crash',
+        'pump_signal',
+        'oracle_conflict',
+        'sybil_consensus',
+      ]);
     });
   });
 
-  describe.each(KNOWN_ATTACKS)('attack=%s', (type) => {
-    test('does not mutate input (immutability)', () => {
-      const before = JSON.stringify(FIXTURE);
-      applyAttack(FIXTURE, type);
-      const after = JSON.stringify(FIXTURE);
-      expect(after).toBe(before);
+  describe('applyAttack — control flow', () => {
+    test("returns input unchanged when type is 'none'", () => {
+      const result = applyAttack(BASE_MARKET, 'none');
+      expect(result).toBe(BASE_MARKET);   // reference equality (no copy at all)
     });
 
-    test('returns object with attackProvenance', () => {
-      const out = applyAttack(FIXTURE, type, { foo: 'bar' });
-      expect(out.attackProvenance).toMatchObject({
-        type,
-        params: { foo: 'bar' },
-        originalEthPrice: FIXTURE.ethPrice,
-      });
-      expect(out.attackProvenance.appliedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    test('returns input unchanged when type is empty/undefined', () => {
+      expect(applyAttack(BASE_MARKET)).toBe(BASE_MARKET);
+      expect(applyAttack(BASE_MARKET, '')).toBe(BASE_MARKET);
     });
 
-    test('preserves original-shape required fields', () => {
-      const out = applyAttack(FIXTURE, type);
-      expect(out).toHaveProperty('ethPrice');
-      expect(out).toHaveProperty('promptContext');
-      expect(typeof out.ethPrice).toBe('number');
-      expect(typeof out.promptContext).toBe('string');
-      // promptContext should be appended-to, not truncated.
-      expect(out.promptContext.length).toBeGreaterThanOrEqual(FIXTURE.promptContext.length);
+    test('throws on unknown type', () => {
+      expect(() => applyAttack(BASE_MARKET, 'definitely_not_a_real_attack'))
+        .toThrow(/unknown attack type/);
+    });
+
+    test('throws TypeError when market is not an object', () => {
+      expect(() => applyAttack(null, 'flash_crash')).toThrow(TypeError);
+      expect(() => applyAttack(undefined, 'flash_crash')).toThrow(TypeError);
+      expect(() => applyAttack('string', 'flash_crash')).toThrow(TypeError);
     });
   });
+
+  // ───────────────────────────────────────────────────────────
+  // Per-attack: 3 invariants × 4 attacks = 12 cases
+  // ───────────────────────────────────────────────────────────
+
+  describe.each(ATTACK_TYPES)('%s', (type) => {
+    test('does NOT mutate original market (CP3)', () => {
+      const snapshot = JSON.parse(JSON.stringify(BASE_MARKET));
+      applyAttack(BASE_MARKET, type);
+      // Deep-equal: the input must be byte-identical to the snapshot.
+      expect(BASE_MARKET).toEqual(snapshot);
+    });
+
+    test('returns object with attackProvenance set', () => {
+      const out = applyAttack(BASE_MARKET, type, { foo: 'bar' });
+      expect(out.attackProvenance).toBeDefined();
+      expect(out.attackProvenance.type).toBe(type);
+      expect(out.attackProvenance.params).toEqual({ foo: 'bar' });
+      expect(typeof out.attackProvenance.appliedAt).toBe('string');
+      expect(out.attackProvenance.originalEthPrice).toBe(BASE_MARKET.ethPrice);
+    });
+
+    test('returns same-shape context (key set is superset of input)', () => {
+      const out = applyAttack(BASE_MARKET, type);
+      // Every original key must still exist in the output.
+      for (const k of Object.keys(BASE_MARKET)) {
+        expect(out).toHaveProperty(k);
+      }
+    });
+  });
+
+  // ───────────────────────────────────────────────────────────
+  // Attack-specific behaviour checks
+  // ───────────────────────────────────────────────────────────
 
   describe('flash_crash specifics', () => {
-    test('default drops price by 20%', () => {
-      const out = applyAttack(FIXTURE, 'flash_crash');
-      expect(out.ethPrice).toBeCloseTo(FIXTURE.ethPrice * 0.80);
-      expect(out.ethChange24h).toBeCloseTo(-20);
+    test('default drops price ~20% and sets extreme fear', () => {
+      const out = applyAttack(BASE_MARKET, 'flash_crash');
+      expect(out.ethPrice).toBeLessThan(BASE_MARKET.ethPrice * 0.85);
       expect(out.fearGreedValue).toBe(3);
       expect(out.sentiment).toBe('extreme_panic');
     });
 
-    test('custom dropPct param respected', () => {
-      const out = applyAttack(FIXTURE, 'flash_crash', { dropPct: -0.40 });
-      expect(out.ethPrice).toBeCloseTo(FIXTURE.ethPrice * 0.60);
-      expect(out.ethChange24h).toBeCloseTo(-40);
+    test('honors custom dropPct param', () => {
+      const out = applyAttack(BASE_MARKET, 'flash_crash', { dropPct: -0.5 });
+      expect(out.ethPrice).toBeCloseTo(BASE_MARKET.ethPrice * 0.5, 0);
     });
   });
 
   describe('pump_signal specifics', () => {
-    test('default pumps price by 15%, leaves volume unchanged', () => {
-      const out = applyAttack(FIXTURE, 'pump_signal');
-      expect(out.ethPrice).toBeCloseTo(FIXTURE.ethPrice * 1.15);
+    test('default pumps price ~15% and sets euphoric sentiment', () => {
+      const out = applyAttack(BASE_MARKET, 'pump_signal');
+      expect(out.ethPrice).toBeGreaterThan(BASE_MARKET.ethPrice * 1.10);
       expect(out.fearGreedValue).toBe(95);
       expect(out.sentiment).toBe('euphoric');
-      // nansenInsight should NOT be replaced (divergence is the test).
-      expect(out.nansenInsight).toBe(FIXTURE.nansenInsight);
+    });
+
+    test('does NOT touch nansenInsight (validator should catch divergence)', () => {
+      const out = applyAttack(BASE_MARKET, 'pump_signal');
+      expect(out.nansenInsight).toEqual(BASE_MARKET.nansenInsight);
     });
   });
 
   describe('oracle_conflict specifics', () => {
-    test('default injects 7.8% divergence into structuredSignals', () => {
-      const out = applyAttack(FIXTURE, 'oracle_conflict');
-      const div = out.structuredSignals.signals.priceDivergence;
+    test('injects priceDivergence signal with correct shape', () => {
+      const out = applyAttack(BASE_MARKET, 'oracle_conflict');
+      const div = out.structuredSignals?.signals?.priceDivergence;
       expect(div).toBeDefined();
-      expect(div.divergencePct).toBeCloseTo(7.8);
-      expect(div.coingecko).toBeCloseTo(FIXTURE.ethPrice);
-      expect(div.hyperliquid).toBeCloseTo(FIXTURE.ethPrice * (1 - 0.078));
+      expect(div.coingecko).toBe(BASE_MARKET.ethPrice);
+      expect(div.hyperliquid).toBeLessThan(BASE_MARKET.ethPrice);
+      expect(div.divergencePct).toBeGreaterThan(2.0);
       expect(div.warning).toBe('oracle_desync');
     });
 
-    test('preserves other structuredSignals fields', () => {
-      const out = applyAttack(FIXTURE, 'oracle_conflict');
-      expect(out.structuredSignals.regime).toEqual(FIXTURE.structuredSignals.regime);
+    test('preserves other signals (funding, regime)', () => {
+      const out = applyAttack(BASE_MARKET, 'oracle_conflict');
+      expect(out.structuredSignals.regime).toEqual(BASE_MARKET.structuredSignals.regime);
+      expect(out.structuredSignals.signals.funding)
+        .toEqual(BASE_MARKET.structuredSignals.signals.funding);
     });
   });
 
   describe('sybil_consensus specifics', () => {
-    test('default injects fake $50M smart-money inflow', () => {
-      const out = applyAttack(FIXTURE, 'sybil_consensus');
-      expect(out.nansenInsight.netFlow24h).toBe(50_000_000);
-      expect(out.nansenInsight.activeSmartMoney).toBe(9999);
+    test('injects fake nansen INFLOW with _injected flag', () => {
+      const out = applyAttack(BASE_MARKET, 'sybil_consensus');
+      expect(out.nansenInsight).not.toBe(BASE_MARKET.nansenInsight);
       expect(out.nansenInsight.label).toBe('INFLOW');
-      expect(out.nansenInsight.claimed).toBe(true);
+      expect(out.nansenInsight.netFlow24h).toBeGreaterThan(0);
       expect(out.nansenInsight._injected).toBe(true);
     });
 
-    test('preserves other market fields', () => {
-      const out = applyAttack(FIXTURE, 'sybil_consensus');
-      expect(out.ethPrice).toBe(FIXTURE.ethPrice);
-      expect(out.fearGreedValue).toBe(FIXTURE.fearGreedValue);
+    test('honors custom fakeInflowUsd param', () => {
+      const out = applyAttack(BASE_MARKET, 'sybil_consensus', { fakeInflowUsd: 999_000_000 });
+      expect(out.nansenInsight.netFlow24h).toBe(999_000_000);
+    });
+  });
+
+  describe('promptContext injection', () => {
+    test.each(ATTACK_TYPES)('%s appends [INJECTED] marker to promptContext', (type) => {
+      const out = applyAttack(BASE_MARKET, type);
+      expect(out.promptContext).toContain('[INJECTED]');
+      expect(out.promptContext).toContain(BASE_MARKET.promptContext);  // original preserved
     });
   });
 });

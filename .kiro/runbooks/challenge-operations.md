@@ -1,139 +1,199 @@
-# Adversarial Challenge — Operator Runbook
+# Challenge Operations Runbook
 
+**Page:** `/challenge` (live: <https://frontend-seven-beta-46.vercel.app/challenge>)
+**API:** `/api/challenge?type=<flash_crash|pump_signal|oracle_conflict|sybil_consensus>`
 **Spec:** `.kiro/specs/human-vs-ai-challenge-v2`
-**Frontend:** `/challenge`
-**API:** `/api/challenge?type={attack}`
-**Backend:** `src/orchestrator/runChallenge.js`
+**Backend:** `src/orchestrator/runChallenge.js`, `src/orchestrator/attackVectors.js`, `src/orchestrator/challengeBudget.js`
 
-The page has two modes:
+The challenge page has two modes:
 
-- **PREVIEW** (default) — deterministic safety-gate preview, no model calls,
-  zero cost. Frontend shows a yellow `PREVIEW · deterministic rules` banner.
-- **LIVE** — real GLM-5 → Claude 4.6 → Gemini 3.5 pipeline. ~$0.15 per call.
-  Frontend shows a green `LIVE · multi-agent pipeline` banner.
+- **PREVIEW** (default) — deterministic-rules response with yellow PREVIEW badge.
+- **LIVE** — real GLM-5 → Claude 4.6 → Gemini 3.5 pipeline, optional Mantle anchor.
 
-Mode is gated by Vercel env vars (NOT GitHub Actions secrets — the route
-runs on Vercel, not in the cron).
+PREVIEW mode is safe to leave on permanently. LIVE mode burns ~$0.15
+per invocation in Bedrock + Vertex calls; daily cap caps total spend.
 
 ---
 
-## 1. Enable live mode
+## 1. Enable LIVE mode
 
-Vercel UI → **Project → Settings → Environment Variables → Production**:
+Live mode flag lives in **Vercel env vars**, not GitHub Actions
+secrets — the route runs on Vercel functions.
 
-| Variable | Value | Required for |
-|---|---|---|
-| `CHALLENGE_LIVE_ENABLED` | `true` | Live pipeline at all |
-| `CHALLENGE_ANCHOR_ENABLED` | `true` | On-chain attestation TXs |
-| `CHALLENGE_DAILY_CAP` | (number, default 100) | Override daily budget |
+1. Open <https://vercel.com/usbvadik/frontend-seven-beta-46/settings/environment-variables>
+2. **Add new** environment variable:
+   - **Key:** `CHALLENGE_LIVE_ENABLED`
+   - **Value:** `true`
+   - **Environments:** check Production
+3. Save.
+4. Redeploy from Vercel dashboard, or push any tiny commit to trigger
+   a deploy. Vercel needs the new env var compiled into the function.
 
-Live mode also reuses these existing Vercel env vars (already set for the
-other API routes):
+To verify: hit `/api/challenge?type=flash_crash`. Response should have
+`mode: "LIVE_MULTI_AGENT"` and 8–12s latency. If you see
+`mode: "DETERMINISTIC_RULES"`, the env var isn't loaded — re-deploy.
+
+While LIVE is on, the function ALSO needs the same secrets the cron
+uses for AWS Bedrock and Google Vertex AI. Ensure these are set in
+Vercel env (not just GitHub):
 
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`
-- `PINATA_JWT` (for IPFS reasoning pin)
-- `PRIVATE_KEY` (only needed when `CHALLENGE_ANCHOR_ENABLED=true`)
-- `MANTLE_RPC_URL`
-- `GEMINI_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS` (or its JSON
-  contents written to a Vercel filesystem path; same approach as cron)
+- `GOOGLE_APPLICATION_CREDENTIALS_JSON` (paste the full JSON content
+  as the value), `GEMINI_PROJECT_ID`
+- `PINATA_JWT` for IPFS pinning
 
-Save and redeploy (Vercel auto-rebuilds on env change).
+These can be the same values as the GitHub Actions secrets.
 
-## 2. Pause live mode mid-event
+---
 
-Set `CHALLENGE_LIVE_ENABLED=false` (or delete the var) in Vercel. The
-next request hitting `/api/challenge` returns the deterministic preview
-without spending Bedrock credits. Frontend banner flips to PREVIEW
-within seconds.
+## 2. Enable on-chain anchor
 
-This is the lever for "viral spike, costs spiking, kill it". No code
-push needed.
+This is **optional and orthogonal** to LIVE mode. When set, each live
+challenge submits one `ValidationRegistry.submitProposal` TX to Mantle
+with action prefix `[CHALLENGE-{type}]`, so judges can verify on
+Mantlescan.
+
+1. Vercel env vars → **Add**:
+   - **Key:** `CHALLENGE_ANCHOR_ENABLED`
+   - **Value:** `true`
+2. Also need `PRIVATE_KEY` and `MANTLE_RPC_URL` env vars (same as cron).
+3. Redeploy.
+
+**Cost:** ~0.005 MNT per anchored challenge (~$0.004 at MNT $0.72).
+At cap of 100/day: ~$0.40/day.
+
+To pause anchor without disabling LIVE: flip
+`CHALLENGE_ANCHOR_ENABLED=false`. Live reasoning still works, no TX.
+
+---
 
 ## 3. Spend monitoring
 
-Check daily spend through:
+| Cost source | Where to check | Alert at |
+|---|---|---|
+| Bedrock (Claude + GLM) | <https://console.aws.amazon.com/cloudwatch/home#metricsV2:graph=~();query=~()> filter Bedrock | $5/day |
+| Vertex AI (Gemini) | <https://console.cloud.google.com/billing/> filter Generative AI | $2/day |
+| Pinata (IPFS) | <https://app.pinata.cloud/billing> | 80% of monthly quota |
+| Vercel functions | <https://vercel.com/usbvadik/frontend-seven-beta-46/usage> | 80% of free tier |
 
-- **AWS Bedrock console** → CloudWatch Metrics → `AWS/Bedrock` →
-  `InvokeModel` (filter by region matching `AWS_REGION`)
-- **AWS Cost Explorer** → filter Service = Bedrock, granularity Daily
+Daily cap (`CHALLENGE_DAILY_CAP`, default 100) is the backstop. At
+100/day worst case: ~$15/day total spend. AWS Activate $10k credits
+cover comfortably.
 
-Each live challenge invocation costs roughly:
-- GLM-5 analyst: ~$0.05
-- Claude Sonnet 4.6 validator: ~$0.07
-- Gemini 3.5 Flash arbiter: ~$0.001 (and it only fires on disagreement)
-- Total: **~$0.12–0.18 per challenge**
+---
 
-At the default daily cap of 100 invocations, worst case spend is ~$15/day.
+## 4. Pause LIVE mode mid-event
 
-## 4. Reset daily budget
+Two ways:
 
-The budget is persisted to `data/challenge-budget.json` and committed
-back by the cron's commit-back step. The file auto-resets when UTC date
-rolls over.
+1. **Soft pause (preserves preview behaviour):** flip
+   `CHALLENGE_LIVE_ENABLED=false` in Vercel env. Redeploy. Page
+   returns to deterministic preview. Takes ~30 s end-to-end.
+2. **Hard pause:** delete the `CHALLENGE_LIVE_ENABLED` env var
+   entirely. Same effect, slightly cleaner.
 
-To force a reset before midnight UTC:
+If a Bedrock or Vertex outage happens during LIVE mode, individual
+calls will return HTTP 503; the frontend shows a clear error. No
+fake-live fallback. The page degrades to "service temporarily
+unavailable" rather than producing fabricated reasoning.
+
+---
+
+## 5. Reset daily budget
+
+The budget file is `data/challenge-budget.json`, committed by the
+cron's commit-back step every hour like any other state file.
+
+To reset early (e.g., before a demo):
 
 ```bash
-# locally, after pulling latest main:
 echo '{"date":"'$(date -u +%F)'","used":0,"history":[]}' > data/challenge-budget.json
 git add data/challenge-budget.json
-git commit -m "chore(challenge): reset daily budget"
-git push origin main
+git commit -m "chore: reset challenge budget for demo"
+git push
 ```
 
-The next scheduled cron picks it up; live `/api/challenge` will see
-`used:0` on the next call (Vercel function cold-start re-reads the file
-from the bundled repo contents — note that this means the reset only
-takes effect after the next Vercel redeploy triggered by the cron's
-push).
+Vercel re-deploys from main, the route reads the fresh file.
 
-## 5. Reading challenge history
+To raise the cap temporarily (e.g., during judging window):
 
-The budget file's `history[]` array carries the last 100 invocations:
+1. Vercel env → set `CHALLENGE_DAILY_CAP=200`
+2. Redeploy
+3. After demo, set back to `100` (or delete the env var)
 
-```bash
-jq '.history[]' data/challenge-budget.json
-```
+---
 
-Each entry has `at`, `type`, `mode`, `blocked`, `decisionTier`,
-`ipfsCid`, `anchored`. Useful for verifying a judge's claimed challenge
-actually ran during their session.
+## 6. Common failures
 
-## 6. Common failure modes
+### Vercel function timeout (60s)
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| `mode: 'DETERMINISTIC_RULES'` despite flag set | Vercel didn't redeploy after env change | Vercel UI → Deployments → Redeploy latest |
-| HTTP 503 "live pipeline failed" | Bedrock 429 / RPC blip / Vertex outage | Wait 60s, retry. If persistent, check AWS region status |
-| HTTP 429 "daily challenge budget exhausted" | Hit `CHALLENGE_DAILY_CAP` for the UTC day | Either wait for `resetAt`, raise the cap via env, or reset budget (section 4) |
-| Vercel function timeout (60s) | Bedrock / Vertex took too long | Frontend shows error; user retries. If persistent, downgrade arbiter or skip Vertex |
-| `onChain.skipped: 'attestation tx failed'` | Wallet ran out of MNT, or nonce gap | Top up wallet (~0.01 MNT covers many anchors), or wait for stuck nonce to clear |
-| Reasoning text identical across calls | Bedrock returned cached/templated output (unlikely) | Verify by running same attack twice — should differ in details |
-| IPFS pin failures (`ipfsCid: null`) | Pinata rate-limit or JWT expired | Non-fatal; the on-chain attestation still anchors. Rotate Pinata JWT if persistent |
+Symptom: frontend shows "live pipeline failed". CloudWatch shows
+Bedrock call still in progress.
 
-## 7. Disable Gemini arbiter temporarily
+Cause: model latency exceeded `maxDuration = 60` (set on the route).
 
-If Vertex AI is down, the arbiter fallback (in `geminiArbiter.js`) returns
-a conservative-block, so challenges still run analyst+validator only.
-`pipelinePath` becomes `analyst-validator` instead of `analyst-validator-arbiter`.
-This is a soft degradation, not a failure.
+Recovery: usually transient. Bedrock TPM throttling can stretch
+analyst+validator+arbiter to >60s. Retry once.
 
-## 8. Bumping the daily cap
+If chronic, consider:
+- Lowering arbiter usage by tightening agreement thresholds in
+  `multiAgent.js` (more decisions resolve at validator stage)
+- Bumping `maxDuration` (Vercel Pro allows up to 300s; check plan)
 
-Edit Vercel env var `CHALLENGE_DAILY_CAP=500` (or whatever). Takes effect
-on next request. No redeploy needed (route reads env on each invocation).
+### Bedrock rate-limit (HTTP 429 from AWS)
+
+Symptom: response 503 with message containing "429" or "ThrottlingException".
+
+Recovery: per-IP rate limit (5/hour) + daily cap should prevent. If
+hit anyway, request a TPM increase in AWS console. Or use a fallback
+region.
+
+### Vertex AI down
+
+Symptom: arbiter step times out, response missing `agents.arbiter`.
+
+Recovery: pipeline degrades gracefully — when arbiter fails, the
+result reflects analyst+validator only, with `pipelinePath:
+'analyst-validator'`. Not a fatal failure; frontend renders 2 cards
+instead of 3.
+
+### Bundle size warning on Vercel
+
+Symptom: deploy log shows "function size near limit (50MB)".
+
+Recovery: backend orchestrator bundles AWS SDK + Vertex SDK + ethers.
+If size grows past limit, lazy-load the heaviest deps inside
+`runChallenge` rather than at module top level. Currently fits
+comfortably.
+
+### Stuck nonce on anchor TX
+
+Same recovery as `cron-operations.md` section 6 — manual self-transfer
+with the stuck nonce.
+
+---
+
+## 7. After hackathon: cleanup
+
+Once judging closes:
+
+1. Delete `CHALLENGE_LIVE_ENABLED` env var (page reverts to PREVIEW)
+2. Optionally delete `CHALLENGE_ANCHOR_ENABLED`
+3. Spend monitoring continues until both flags are off
+
+The budget file stays in repo; deletion not required.
 
 ---
 
 ## Quick reference
 
 ```
-PREVIEW mode          : CHALLENGE_LIVE_ENABLED unset/false
-LIVE mode             : CHALLENGE_LIVE_ENABLED=true
-LIVE + anchor         : both flags true
-Per-IP rate limit     : 5 / hour (in-memory, soft)
-Daily cap (global)    : CHALLENGE_DAILY_CAP, default 100
-Cost per call         : ~$0.15
-Round-trip latency    : 8–12s typical
-Vercel function limit : 60s (set via maxDuration)
+CHALLENGE_LIVE_ENABLED=true    → real multi-agent reasoning
+CHALLENGE_LIVE_ENABLED=false   → preview / deterministic (default)
+
+CHALLENGE_ANCHOR_ENABLED=true  → also submit on-chain TX
+CHALLENGE_ANCHOR_ENABLED=false → IPFS pin only, no TX (default)
+
+CHALLENGE_DAILY_CAP=100        → max LIVE invocations per UTC day
+RATE_LIMIT_PER_IP_PER_HOUR=5   → in-memory soft per-IP limit (hardcoded)
 ```
