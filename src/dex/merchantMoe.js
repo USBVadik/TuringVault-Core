@@ -22,6 +22,8 @@ const ADDRESSES = {
   USDY: "0x5bE26527e817998A7206475496fDE1E68957c5A6",
   mUSD: "0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3",
   USDT: "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE",
+  // LayerZero-bridged Tether — primary RWA target on Mantle (rwa-allocation-active).
+  USDT0: "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
 };
 
 // LB Pair info (binStep determines tick spacing for concentrated liquidity)
@@ -177,7 +179,10 @@ class MerchantMoeDEX {
       pairAddress: pairInfo.LBPair,
       path: {
         pairBinSteps: [BigInt(binStep)],
-        versions: [2],
+        // Merchant Moe LB v2.2 — confirmed via estimateGas probe on
+        // USDT0/USDT and mETH/WMNT (rwa-allocation-active T16 debug).
+        // V1=0, V2=1, V2_1=2, V2_2=3.
+        versions: [3],
         tokenPath: [tokenInAddr, tokenOutAddr]
       },
       // Decimals exposed so executeSwap can convert estimatedOut→wei
@@ -210,7 +215,8 @@ class MerchantMoeDEX {
       ],
       path: {
         pairBinSteps: [BigInt(hop1.binStep), BigInt(hop2.binStep)],
-        versions: [2, 2],
+        // Merchant Moe LB v2.2 (=3) for both hops.
+        versions: [3, 3],
         tokenPath: [tokenInAddr, ADDRESSES.WMNT, tokenOutAddr]
       },
       viable: true,
@@ -330,7 +336,7 @@ class MerchantMoeDEX {
     const addr = address || this.wallet?.address;
     if (!addr) throw new Error("No address");
 
-    const tokens = ["WMNT", "mETH", "USDY", "mUSD", "USDT"];
+    const tokens = ["WMNT", "mETH", "USDY", "mUSD", "USDT", "USDT0"];
     const balances = {};
 
     // Native MNT
