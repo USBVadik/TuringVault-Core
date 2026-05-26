@@ -121,7 +121,21 @@ function record(params) {
     recordedAt: new Date().toISOString(),
     settleAfter: new Date(Date.now() + SETTLE_DELAY_MS).toISOString(),
     settled: false,
+    // RWA allocation result for this cycle, if any. Spec:
+    // rwa-allocation-active R3.3 / design "Data Models". Null when no
+    // RWA action taken; populated by rwaAllocator.evaluate + executeSwap.
+    rwaIntent: params.rwaIntent || null,
   };
+
+  // Capture optional T9 v2 / agent-reasoning-quality fields verbatim
+  // so we don't lose tier provenance on entries that pass them in.
+  for (const k of [
+    'disciplineStatus', 'decisionTier', 'tierSource', 'confidencePath',
+    'promptSource', 'disagreementSignal', 'validatorReasoning',
+    'validatorFlaggedIssues', 'arbiterVote', 'arbiterReasoning',
+  ]) {
+    if (params[k] !== undefined) entry[k] = params[k];
+  }
   db.pending.push(entry);
   saveDB(db);
   console.log(`  [OUTCOME] Recorded decision ${entry.id} for settlement at ${entry.settleAfter}`);
@@ -315,4 +329,23 @@ function getPendingCount() {
   return db.pending.filter(e => !e.settled).length;
 }
 
-module.exports = { record, settle, getOutcomeHistory, getPendingCount };
+/**
+ * Get the ISO timestamp of the most recent successful RWA swap.
+ * Used by the cycle to compute Path B cooldown. Returns null if
+ * there has never been an executed RWA swap.
+ *
+ * Spec: rwa-allocation-active R3.3 / T9.
+ */
+function getLastRwaSwapAt() {
+  const db = loadDB();
+  let latest = null;
+  for (const e of [...(db.pending ?? []), ...(db.settled ?? [])]) {
+    const ri = e?.rwaIntent;
+    if (!ri || !ri.executed) continue;
+    const ts = e.recordedAt ?? e.settledAt ?? null;
+    if (ts && (!latest || Date.parse(ts) > Date.parse(latest))) latest = ts;
+  }
+  return latest;
+}
+
+module.exports = { record, settle, getOutcomeHistory, getPendingCount, getLastRwaSwapAt };

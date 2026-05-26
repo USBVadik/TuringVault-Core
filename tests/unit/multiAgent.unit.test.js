@@ -111,9 +111,26 @@ describe('normalizeAnalystResponse', () => {
       expect(result.targetAsset).toBe('mETH');
     });
 
-    it('should default non-ETH assets to "mUSD"', () => {
+    it('should normalize "USDT" to "USDT" (RWA-aware vocabulary)', () => {
+      // After rwa-allocation-active T7, USDT is a first-class targetAsset
+      // for rwa_exit actions. It is no longer downgraded to mUSD.
       const result = normalizeAnalystResponse({ action: 'swap', confidence: 0.8, targetAsset: 'USDT' });
-      expect(result.targetAsset).toBe('mUSD');
+      expect(result.targetAsset).toBe('USDT');
+    });
+
+    it('should normalize "USDT0" to "USDT0" (LayerZero Tether)', () => {
+      const result = normalizeAnalystResponse({ action: 'rwa_allocate', confidence: 0.8, targetAsset: 'USDT0' });
+      expect(result.targetAsset).toBe('USDT0');
+    });
+
+    it('should default rwa_allocate target to USDT0 when missing', () => {
+      const result = normalizeAnalystResponse({ action: 'rwa_allocate', confidence: 0.8 });
+      expect(result.targetAsset).toBe('USDT0');
+    });
+
+    it('should default rwa_exit target to USDT when missing', () => {
+      const result = normalizeAnalystResponse({ action: 'rwa_exit', confidence: 0.8 });
+      expect(result.targetAsset).toBe('USDT');
     });
 
     it('should use "target_asset" snake_case field', () => {

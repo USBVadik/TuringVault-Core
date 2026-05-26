@@ -104,9 +104,14 @@ function getDynamicConfidenceThreshold() {
 
 // Extended schema for Analyst (has extra fields vs base schema)
 const AnalystSchema = z.object({
-  action: z.enum(["swap", "hold"]),
+  // RWA-aware action vocabulary (rwa-allocation-active spec, T7).
+  // - swap          : mETH ↔ mUSD trade (existing)
+  // - hold          : no action this cycle
+  // - rwa_allocate  : enter Treasury-backed allocation (USDT → USDT0)
+  // - rwa_exit      : exit Treasury-backed allocation (USDT0 → USDT)
+  action: z.enum(["swap", "hold", "rwa_allocate", "rwa_exit"]),
   direction: z.enum(["risk_on", "risk_off", "neutral"]),
-  targetAsset: z.enum(["mUSD", "mETH"]),
+  targetAsset: z.enum(["mUSD", "mETH", "USDT", "USDT0"]),
   allocationPct: z.number().min(0).max(100),
   confidence: z.number().min(0).max(1),
   reasoning: z.string().max(1000),
@@ -180,6 +185,26 @@ Your "action" and "targetAsset" MUST be logically consistent with your "reasonin
 - If reasoning says "wait" or "conflicting signals" → action MUST be "hold", direction MUST be "neutral"
 VIOLATION OF THIS RULE = AUTOMATIC REJECTION BY VALIDATOR. Think step-by-step: first decide your thesis (bullish/bearish/neutral), then set action+target to match.
 
+RWA ALLOCATION (Path A — Treasury-backed allocation):
+You also have access to USDT0, a LayerZero-bridged Tether stablecoin
+backed by US Treasury Bills + cash equivalents. USDT0 is NOT yield-bearing
+on its own (no APY on the token). Use it for:
+
+- action="rwa_allocate" — when:
+  * regime is HOLD / CRISIS / TREND_DOWN, AND
+  * wallet has idle stablecoin (USDT or mUSD), AND
+  * you want explicit Treasury-backed exposure as a transparent
+    risk-off allocation. Set targetAsset="USDT0", direction="risk_off".
+
+- action="rwa_exit" — when:
+  * regime flips to TREND_UP, AND
+  * wallet holds USDT0 > 30% of NAV (we want to redeploy to mETH).
+  * Set targetAsset="USDT" (return to spendable stable),
+    direction="risk_on".
+
+DO NOT claim USDT0 yields anything. Frame it as "transparent
+Treasury-collateralised exposure", not "yield-chasing".
+
 Output STRICT JSON:
 {
   "action": "swap" | "hold",
@@ -231,6 +256,12 @@ REJECTION TRIGGERS (any ONE of these = automatic REJECT):
 - Contradictory signals without explicit acknowledgment
 - Any hallucinated or unverifiable data points
 
+RWA ACTIONS:
+- "rwa_allocate" / "rwa_exit" follow the same gates: R:R clear AND
+  regime supports the action. If R:R unclear or regime mismatch → REJECT.
+  Note: USDT0 is NOT yield-bearing — reject any reasoning that claims
+  an APY on USDT0 itself.
+
 APPROVAL CONDITIONS (ALL required):
 - Clear directional edge supported by multiple confirming signals
 - R:R >= 1.5:1 with defined stop-loss logic
@@ -264,8 +295,9 @@ function normalizeAnalystResponse(raw) {
   
   // action — already consistent usually
   if (!r.action && r.decision) r.action = r.decision;
-  if (r.action) r.action = r.action.toLowerCase().replace(/[^a-z]/g, '');
-  if (r.action !== 'swap' && r.action !== 'hold') r.action = 'hold';
+  if (r.action) r.action = r.action.toLowerCase().replace(/[^a-z_]/g, '');
+  // RWA-aware action vocabulary (rwa-allocation-active T7).
+  if (!['swap', 'hold', 'rwa_allocate', 'rwa_exit'].includes(r.action)) r.action = 'hold';
   
   // direction
   if (!r.direction && r.market_direction) r.direction = r.market_direction;
@@ -278,16 +310,24 @@ function normalizeAnalystResponse(raw) {
     else r.direction = 'neutral';
   }
   
-  // targetAsset
+  // targetAsset (RWA-aware: mETH, mUSD, USDT, USDT0)
   if (!r.targetAsset && r.target_asset) r.targetAsset = r.target_asset;
   if (!r.targetAsset && r.target) r.targetAsset = r.target;
   if (!r.targetAsset && r.asset) r.targetAsset = r.asset;
   if (r.targetAsset) {
-    const t = r.targetAsset.toLowerCase();
-    if (t.includes('eth') || t.includes('meth')) r.targetAsset = 'mETH';
+    const t = String(r.targetAsset).toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (t.includes('meth')) r.targetAsset = 'mETH';
+    else if (t === 'eth') r.targetAsset = 'mETH';
+    else if (t === 'usdt0' || t.includes('usdt0')) r.targetAsset = 'USDT0';
+    else if (t === 'usdt') r.targetAsset = 'USDT';
+    else if (t.includes('musd')) r.targetAsset = 'mUSD';
     else r.targetAsset = 'mUSD';
   } else {
-    r.targetAsset = 'mUSD';
+    // Default depends on action: rwa_allocate → USDT0, rwa_exit → USDT,
+    // anything else → mUSD (legacy default).
+    if (r.action === 'rwa_allocate') r.targetAsset = 'USDT0';
+    else if (r.action === 'rwa_exit') r.targetAsset = 'USDT';
+    else r.targetAsset = 'mUSD';
   }
   
   // allocationPct

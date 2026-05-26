@@ -138,8 +138,33 @@ If any gate fails → outcome settlement is blocked, bounded repair step trigger
 
 See [`docs/discipline-layer.md`](./docs/discipline-layer.md) for full architecture.
 
-### Self-Evolving AI (with Guard Rails)
+### RWA Execution: USDT0 + USDY
 
+The agent allocates to **on-chain Treasury-collateralised stablecoins**
+through two paths, both routed through Merchant Moe Liquidity Book:
+
+- **Path A — LLM-driven.** Analyst's action vocabulary includes
+  `rwa_allocate` and `rwa_exit`. When consensus reaches with one of
+  these (validator + arbiter agree), the orchestrator builds a swap
+  intent and executes against the USDT/USDT0 pool (binStep=1).
+- **Path B — deterministic idle-parking.** When the agent has been
+  FLAT for ≥ 24 h and regime is not `TREND_UP`, a small fraction (20%
+  default) of idle stables auto-routes to USDT0. Cooldown 6 h between
+  events.
+
+**Active target:** USDT0 (LayerZero omnichain Tether,
+Treasury-collateralised, 1:1 USD peg). USDT0 itself is not
+yield-bearing — the dashboard never claims an APY on it.
+
+**Paper-ready target:** USDY (Ondo Finance tokenized Treasuries, 5.25%
+APY). Mantle pool depth is currently zero, so the swap path throws
+`RWA_POOL_INACTIVE` until reactivated. Module is shipped, gated off.
+
+Per-swap and per-day caps are operator-tunable via GitHub Actions
+secrets without redeploy. See
+[`.kiro/runbooks/rwa-operations.md`](.kiro/runbooks/rwa-operations.md).
+
+### Self-Evolving AI (with Guard Rails)
 The ANALYST prompt evolves based on performance, gated by safeguards:
 - Minimum 20 settled trades before any mutation
 - Validator prompt is **IMMUTABLE** — only Analyst evolves

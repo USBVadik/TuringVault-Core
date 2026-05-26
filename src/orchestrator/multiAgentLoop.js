@@ -267,6 +267,89 @@ async function runMultiAgentCycle(opts = {}) {
     console.log(`   ⚠️  Reputation recording failed: ${repErr.message?.slice(0, 60)}`);
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Step 4.5: RWA Allocator — single decision point for "should we
+  // touch RWA this cycle?" (Path A LLM, Path B idle-parking).
+  // Spec: rwa-allocation-active R2/R3 / design §C6.
+  // ─────────────────────────────────────────────────────────────
+  let rwaIntent = null;
+  let rwaResult = null;
+  try {
+    const rwaAllocator = require('./rwaAllocator');
+    const { MerchantMoeDEX } = require('../dex/merchantMoe');
+
+    // Read live wallet balances for allocator gates.
+    const probeDex = new MerchantMoeDEX({ rpcUrl: 'https://rpc.mantle.xyz', dryRun: true });
+    const balances = await probeDex.getBalances(wallet.address);
+
+    // Add USDT0 — getBalances doesn't include it yet (legacy whitelist).
+    try {
+      const { USDT0Module } = require('../rwa/usdt0Module');
+      const usdt0 = new USDT0Module({ privateKey: process.env.PRIVATE_KEY });
+      const pos = await usdt0.getPosition();
+      balances.USDT0 = pos.balance;
+    } catch (e) {
+      balances.USDT0 = 0;
+    }
+
+    const prices = {
+      USDT: 1,
+      USDT0: 1,
+      mUSD: 1,
+      MNT: market.mntPrice,
+      ETH: market.ethPrice,
+    };
+
+    const lastRwaSwapAt = outcomeTracker.getLastRwaSwapAt();
+
+    const intent = rwaAllocator.evaluate({
+      decision,
+      market: { regime: market.structuredSignals?.regime?.regime, structuredSignals: market.structuredSignals },
+      balances,
+      prices,
+      lastSwapAt: lastRwaSwapAt,
+      posState: positionState.getState(),
+    });
+
+    if (intent && !intent.skip) {
+      rwaIntent = intent;
+      console.log(`💼 [STEP 4.5] RWA allocator: ${intent.source} ${intent.from} → ${intent.to} ` +
+                  `($${intent.amountInUsd.toFixed(2)}) — ${intent.reason}`);
+
+      // Step 4.6: Execute (gated by RWA_EXECUTE_ENABLED).
+      if (process.env.RWA_EXECUTE_ENABLED === 'true') {
+        const liveDex = new MerchantMoeDEX({ privateKey: process.env.PRIVATE_KEY, dryRun: false });
+        try {
+          rwaResult = await liveDex.executeSwap(intent.from, intent.to, intent.amountInWei, {
+            maxPriceImpactBps: 100,
+            slippageBps: 50,
+          });
+          if (rwaResult?.executed) {
+            console.log(`   ✅ RWA swap: ${rwaResult.txHash.slice(0, 18)}... (block ${rwaResult.blockNumber})`);
+            // Attach the txHash back into the intent so outcomeTracker
+            // records both the intent and its execution proof.
+            rwaIntent = { ...rwaIntent, txHash: rwaResult.txHash, executed: true };
+          } else {
+            console.log(`   ⚠️  RWA swap blocked: ${rwaResult?.reason || 'unknown'}`);
+            rwaIntent = { ...rwaIntent, executed: false, blockedReason: rwaResult?.reason || 'unknown' };
+          }
+        } catch (swapErr) {
+          console.log(`   ⚠️  RWA swap threw: ${swapErr.message?.slice(0, 100)}`);
+          rwaIntent = { ...rwaIntent, executed: false, error: swapErr.message?.slice(0, 100) };
+        }
+      } else {
+        console.log(`   [DRY] RWA_EXECUTE_ENABLED!='true' — intent logged, no TX`);
+        rwaIntent = { ...rwaIntent, executed: false, blockedReason: 'execute-gate-off' };
+      }
+    } else if (intent?.skip) {
+      console.log(`💼 [STEP 4.5] RWA gate: ${intent._gate}`);
+    } else {
+      console.log(`💼 [STEP 4.5] No RWA intent this cycle`);
+    }
+  } catch (allocErr) {
+    console.log(`   ⚠️  RWA allocator failed: ${allocErr.message?.slice(0, 80)}`);
+  }
+
   // Step 6: Record outcome for future settlement (the real learning loop)
   console.log("🔮 [STEP 6] Recording outcome for settlement in 4h...");
   
@@ -310,6 +393,8 @@ async function runMultiAgentCycle(opts = {}) {
         : [],
       arbiterVote: decision.arbiter?.vote ?? null,
       arbiterReasoning: decision.arbiter?.reasoning?.substring(0, 400) || null,
+      // RWA: rwa-allocation-active T8/T9.
+      rwaIntent: rwaIntent || null,
     });
     console.log(`   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`);
   } catch (e) {
@@ -461,13 +546,16 @@ async function runMultiAgentCycle(opts = {}) {
   // Unified return shape (matches dryRun branch). `consensus` is hoisted
   // to the top level so legacy callers (mainMultiAgent.js, runBatch.js)
   // that read result.consensus keep working.
-  // Spec: continuous-cron-and-health design.md §C3 (T4).
+  // Spec: continuous-cron-and-health design.md §C3 (T4) +
+  // rwa-allocation-active design §C6 (T8) — rwaIntent/rwaResult added.
   return {
     decision,
     decisionTier,
     disagreementSignal,
     consensus: decision.consensus,
     proposalId: typeof proposalId === 'bigint' ? Number(proposalId) : proposalId,
+    rwaIntent: rwaIntent || null,
+    rwaResult: rwaResult || null,
   };
 }
 

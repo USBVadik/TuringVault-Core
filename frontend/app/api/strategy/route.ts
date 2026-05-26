@@ -3,6 +3,38 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+type RwaIntent = { source?: string; executed?: boolean; amountInUsd?: number; from?: string; to?: string };
+type OutcomeRow = { decisionId?: number; recordedAt?: string; settledAt?: string; rwaIntent?: RwaIntent | null };
+
+/**
+ * Read outcomes.json and pull the most recent executed RWA swap.
+ * Returns null when there's never been one.
+ *
+ * Spec: rwa-allocation-active R5, design §C9.
+ */
+async function readLatestRwaSwap(): Promise<{ at: string; source: string } | null> {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const p = path.resolve(process.cwd(), '..', 'src', 'data', 'outcomes.json');
+    if (!fs.existsSync(p)) return null;
+    const db = JSON.parse(fs.readFileSync(p, 'utf-8'));
+    const all: OutcomeRow[] = [...(db.pending ?? []), ...(db.settled ?? [])];
+    let latest: { at: string; source: string } | null = null;
+    for (const e of all) {
+      const ri = e?.rwaIntent;
+      if (!ri || !ri.executed) continue;
+      const at = e.recordedAt ?? e.settledAt ?? null;
+      if (at && (!latest || Date.parse(at) > Date.parse(latest.at))) {
+        latest = { at, source: ri.source ?? 'unknown' };
+      }
+    }
+    return latest;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
   try {
     // Read position state and grid signal from backend data files
@@ -65,6 +97,23 @@ export async function GET() {
       riskReward = risk > 0 ? (reward / risk).toFixed(1) : null;
     }
 
+    // RWA allocation surface (rwa-allocation-active R5, design §C9).
+    const latestRwa = await readLatestRwaSwap();
+    const flatSinceMs = positionState?.flatSince ? Date.parse(positionState.flatSince) : NaN;
+    const daysSinceLastFlatStart = Number.isFinite(flatSinceMs)
+      ? Math.floor((Date.now() - flatSinceMs) / 86400000)
+      : null;
+    const rwaAllocation = {
+      currentPctNav: null as number | null,        // computed downstream by /api/performance consumers
+      target: { min: 10, max: 50 },
+      lastRebalanceAt: latestRwa?.at ?? null,
+      daysSinceLastFlatStart,
+      executeEnabled: process.env.RWA_EXECUTE_ENABLED === 'true',
+      source: (latestRwa?.source ?? 'none') as 'llm' | 'idle-parking' | 'none' | 'unknown',
+      activeAssets: ['USDT0'],
+      paperReadyAssets: ['USDY'],     // pool dry; honest label per no-lying rule
+    };
+
     return NextResponse.json({
       regime,
       position,
@@ -80,6 +129,7 @@ export async function GET() {
       lastUpdated: positionState.lastUpdated || new Date().toISOString(),
       dataScope: 'agent-lifetime',
       cached: true,
+      rwaAllocation,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

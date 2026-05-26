@@ -180,6 +180,10 @@ class MerchantMoeDEX {
         versions: [2],
         tokenPath: [tokenInAddr, tokenOutAddr]
       },
+      // Decimals exposed so executeSwap can convert estimatedOut→wei
+      // correctly without re-fetching them. Spec: rwa-allocation-active C4.
+      _decimalsIn: Number(decimalsIn),
+      _decimalsOut: Number(decimalsOut),
       viable: priceImpact < 10 // Less than 10% impact = viable (Mantle pools thin)
     };
   }
@@ -215,51 +219,98 @@ class MerchantMoeDEX {
   }
 
   /**
-   * Execute swap on-chain (requires wallet + non-dryRun mode)
+   * Lazy allowance setter — sets MaxUint256 once per token per process.
+   * Subsequent calls for the same tokenIn are no-ops, saving the
+   * extra approve TX on every swap.
+   *
+   * Spec: rwa-allocation-active CP7 (allowance is set-once).
    */
-  async executeSwap(tokenIn, tokenOut, amountIn, minAmountOut) {
+  async _ensureAllowance(tokenInAddr) {
+    if (!this.wallet) throw new Error('No wallet configured');
+    if (!this._allowanceCache) this._allowanceCache = new Map();
+    if (this._allowanceCache.get(tokenInAddr) === true) return;
+
+    const tokenContract = new ethers.Contract(tokenInAddr, ERC20_ABI, this.wallet);
+    const current = await tokenContract.allowance(this.wallet.address, ADDRESSES.LB_ROUTER);
+    // If already > 1e30 we treat it as effectively infinite.
+    if (current > 10n ** 30n) {
+      this._allowanceCache.set(tokenInAddr, true);
+      return;
+    }
+    const tx = await tokenContract.approve(ADDRESSES.LB_ROUTER, ethers.MaxUint256);
+    await tx.wait();
+    this._allowanceCache.set(tokenInAddr, true);
+  }
+
+  /**
+   * Execute swap on-chain (requires wallet + non-dryRun mode)
+   *
+   * Options:
+   *   - maxPriceImpactBps  (default 100) — refuse if quote impact > this
+   *   - slippageBps        (default 50)  — applied to minAmountOut
+   *
+   * Spec: rwa-allocation-active R4, design §C4, CP6/CP7/CP8.
+   */
+  async executeSwap(tokenIn, tokenOut, amountIn, options = {}) {
+    // CP6: USDY pool is dry on Mantle. Refuse loudly so nobody silently
+    // re-enables the path before the pool has depth.
+    if (tokenIn === 'USDY' || tokenOut === 'USDY') {
+      const err = new Error('RWA_POOL_INACTIVE: USDY/USDT pool has no active liquidity on Mantle. ' +
+        'Re-enable manually after verifying pool depth (see runbook section "Reactivate USDY").');
+      err.code = 'RWA_POOL_INACTIVE';
+      throw err;
+    }
+
     if (this.dryRun) {
       const quote = await this.getQuote(tokenIn, tokenOut, amountIn);
-      return { 
-        ...quote, 
-        executed: false, 
-        reason: "DRY_RUN mode — simulation only",
-        wouldExecute: quote.viable
+      return {
+        ...quote,
+        executed: false,
+        reason: 'DRY_RUN mode — simulation only',
+        wouldExecute: quote.viable,
       };
     }
 
-    if (!this.wallet) throw new Error("No wallet configured");
+    if (!this.wallet) throw new Error('No wallet configured');
+
+    const maxImpactBps = options.maxPriceImpactBps ?? this.maxSlippageBps ?? 100;
+    const slipBps = options.slippageBps ?? 50;
 
     const tokenInAddr = ADDRESSES[tokenIn] || tokenIn;
-    const tokenOutAddr = ADDRESSES[tokenOut] || tokenOut;
     const quote = await this.getQuote(tokenIn, tokenOut, amountIn);
-    
+
     if (!quote.viable) {
-      return { ...quote, executed: false, reason: "Price impact too high" };
+      return { ...quote, executed: false, reason: quote.error || 'not-viable' };
+    }
+    if (quote.priceImpact * 100 > maxImpactBps) {
+      return {
+        ...quote,
+        executed: false,
+        reason: `impact ${quote.priceImpact.toFixed(3)}% > ${(maxImpactBps / 100).toFixed(3)}%`,
+      };
     }
 
-    // Approve router
-    const tokenContract = new ethers.Contract(tokenInAddr, ERC20_ABI, this.wallet);
-    const allowance = await tokenContract.allowance(this.wallet.address, ADDRESSES.LB_ROUTER);
-    if (allowance < amountIn) {
-      const approveTx = await tokenContract.approve(ADDRESSES.LB_ROUTER, ethers.MaxUint256);
-      await approveTx.wait();
-    }
+    // CP7: ensure allowance (set once per process per token).
+    await this._ensureAllowance(tokenInAddr);
 
-    // Calculate minAmountOut with slippage
-    const slippageMultiplier = (10000 - this.maxSlippageBps) / 10000;
-    const calculatedMin = minAmountOut || BigInt(
-      Math.floor(quote.estimatedOut * slippageMultiplier * (10 ** 18))
-    );
+    // Min-out floor with slippage, using the decimals exposed from getQuote.
+    const decimalsOut = quote._decimalsOut ?? 18;
+    const slippageMultiplier = (10000 - slipBps) / 10000;
+    const minOut = options.minAmountOut ??
+      BigInt(Math.floor(quote.estimatedOut * slippageMultiplier * 10 ** decimalsOut));
 
-    // Execute
+    // CP8: pending nonce so we coexist with the 4 attestation TXs the
+    // cycle has already broadcast.
+    const nonce = await this.provider.getTransactionCount(this.wallet.address, 'pending');
     const deadline = Math.floor(Date.now() / 1000) + 300;
+
     const tx = await this.router.swapExactTokensForTokens(
       amountIn,
-      calculatedMin,
+      minOut,
       quote.path,
       this.wallet.address,
-      deadline
+      deadline,
+      { nonce },
     );
     const receipt = await tx.wait();
 
@@ -268,7 +319,7 @@ class MerchantMoeDEX {
       executed: true,
       txHash: receipt.hash,
       blockNumber: receipt.blockNumber,
-      gasUsed: receipt.gasUsed.toString()
+      gasUsed: receipt.gasUsed.toString(),
     };
   }
 

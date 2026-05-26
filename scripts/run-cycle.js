@@ -128,11 +128,26 @@ async function main() {
     const result = await runMultiAgentCycle({ dryRun: false });
 
     // After T4 patch, runMultiAgentCycle returns:
-    //   { decision, decisionTier, disagreementSignal, consensus, proposalId }
-    // for both dryRun and live paths.
+    //   { decision, decisionTier, disagreementSignal, consensus, proposalId,
+    //     rwaIntent, rwaResult } for both dryRun and live paths.
     summary.decisionId = typeof result?.proposalId === 'number' ? result.proposalId : null;
     summary.decisionTier = result?.decisionTier ?? null;
     summary.consensus = typeof result?.consensus === 'boolean' ? result.consensus : null;
+
+    // RWA execution surface (rwa-allocation-active T10).
+    if (result?.rwaIntent) {
+      summary.rwa = {
+        source: result.rwaIntent.source ?? null,
+        executed: result.rwaIntent.executed === true,
+        amountInUsd: result.rwaIntent.amountInUsd ?? null,
+        from: result.rwaIntent.from ?? null,
+        to: result.rwaIntent.to ?? null,
+        blockedReason: result.rwaIntent.blockedReason ?? null,
+      };
+      if (result.rwaResult?.executed && result.rwaResult.txHash) {
+        summary.txHashes.push(result.rwaResult.txHash);
+      }
+    }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     summary.errors.push(msg.slice(0, 200));

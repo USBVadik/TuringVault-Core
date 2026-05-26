@@ -12,6 +12,8 @@
  */
 
 import { NextResponse } from 'next/server';
+import fs from 'node:fs';
+import path from 'node:path';
 import { ethers } from 'ethers';
 
 export const dynamic = 'force-dynamic';
@@ -35,6 +37,51 @@ const REGISTRY_ABI = [
 
 const RECENT_LIMIT = 20;
 
+type AssetClass =
+  | 'rwa-treasury'
+  | 'eth-staking'
+  | 'stable'
+  | 'native'
+  | 'unknown';
+
+/**
+ * Classify a decision row by asset class so the frontend can colour /
+ * filter RWA swaps separately from mETH/mUSD trades.
+ *
+ * Spec: rwa-allocation-active R5, design §C8.
+ */
+function classifyAsset(targetAsset: string | null, rwaIntent: { source?: string } | null): AssetClass {
+  if (rwaIntent?.source) return 'rwa-treasury';
+  const t = (targetAsset || '').toLowerCase();
+  if (t === 'meth' || t === 'eth') return 'eth-staking';
+  if (t === 'usdt0') return 'rwa-treasury';
+  if (t === 'usdt' || t === 'musd' || t === 'usd' || t === 'usdy') return 'stable';
+  if (t === 'mnt' || t === 'wmnt') return 'native';
+  return 'unknown';
+}
+
+/**
+ * Read outcomes.json once and index by decisionId so we can look up
+ * each event's matching rwaIntent in O(1).
+ */
+function loadOutcomesIndex(): Map<number, { rwaIntent: { source?: string; executed?: boolean } | null }> {
+  const out = new Map<number, { rwaIntent: { source?: string; executed?: boolean } | null }>();
+  try {
+    const p = path.resolve(process.cwd(), '..', 'src', 'data', 'outcomes.json');
+    if (!fs.existsSync(p)) return out;
+    const db = JSON.parse(fs.readFileSync(p, 'utf-8'));
+    const all = [...(db.pending ?? []), ...(db.settled ?? [])];
+    for (const e of all) {
+      if (typeof e?.decisionId === 'number') {
+        out.set(e.decisionId, { rwaIntent: e.rwaIntent ?? null });
+      }
+    }
+  } catch {
+    /* best-effort */
+  }
+  return out;
+}
+
 export async function GET() {
   try {
     const provider = new ethers.JsonRpcProvider('https://rpc.mantle.xyz');
@@ -54,6 +101,8 @@ export async function GET() {
     const fromBlock = Math.max(0, currentBlock - 500_000);
     const events = await contract.queryFilter('DecisionLogged', fromBlock);
     const recentEvents = events.slice(-RECENT_LIMIT);
+
+    const outcomesIndex = loadOutcomesIndex();
 
     // For each event, also fetch the on-chain Decision struct so we get
     // the real timestamp + amounts. This is N reads (≤ 20 in practice)
@@ -77,11 +126,15 @@ export async function GET() {
         } catch {
           onchain = null;
         }
+        const targetAsset = args[2] as string;
+        const outcomeRow = outcomesIndex.get(id);
+        const rwaIntent = outcomeRow?.rwaIntent ?? null;
         return {
           id,
           action: args[1],
-          targetAsset: args[2],
-          asset: args[2],
+          targetAsset,
+          asset: targetAsset,
+          assetClass: classifyAsset(targetAsset, rwaIntent),
           confidence: Number(args[3]),
           reasoningHash: (args[4] as string)?.substring(0, 200),
           reasoning: (args[4] as string)?.substring(0, 200),
@@ -92,6 +145,10 @@ export async function GET() {
           timestamp: onchain?.timestamp ?? null,
           amountIn: onchain?.amountIn ?? null,
           amountOut: onchain?.amountOut ?? null,
+          // RWA-specific surface (rwa-allocation-active R5).
+          rwaIntent: rwaIntent && rwaIntent.executed
+            ? { source: rwaIntent.source ?? null, executed: true }
+            : null,
         };
       }),
     );

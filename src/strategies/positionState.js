@@ -33,6 +33,10 @@ const INITIAL_STATE = {
   highWaterMark: null,  // highest price since entry (for trailing stop)
   allocationPct: null,  // how much % of portfolio was moved
   cycleCount: 0,        // how many cycles in current position (prevent infinite hold)
+  // ISO of when we became FLAT. Used by rwaAllocator (Path B idle-parking)
+  // to know how long the wallet has been idle. Null while in a position.
+  // Spec: rwa-allocation-active R2.3 / design §C5.
+  flatSince: null,
   lastUpdated: null,
 };
 
@@ -75,6 +79,7 @@ function enterPosition({ status, entryPrice, targetExit, stopLoss, allocationPct
     highWaterMark: entryPrice,  // starts at entry
     allocationPct: allocationPct || null,
     cycleCount: 0,
+    flatSince: null,            // not flat anymore
     lastUpdated: null,
   };
   return save(state);
@@ -88,6 +93,7 @@ function exitPosition(reason) {
   const prev = load();
   const state = {
     ...INITIAL_STATE,
+    flatSince: new Date().toISOString(),  // start the FLAT clock for rwaAllocator
     lastExitReason: reason || 'manual',
     lastExitTime: new Date().toISOString(),
     lastEntryPrice: prev.entryPrice,
