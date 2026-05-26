@@ -959,7 +959,7 @@ function ElfaSocialStripRow({ data }: { data: any }) {
   const sentimentStr = data.sentiment != null ? Number(data.sentiment).toFixed(2) : '—';
   const smart = data.smartAccountMentions ?? 0;
   const sym = data.symbol ?? 'ETH';
-  const win = data.windowHours ?? 24;
+  const win = data.timeWindow ?? (data.windowHours != null ? `${data.windowHours}h` : '24h');
 
   // Stale check: any snapshot older than the cycle period (90 min) is stale.
   const fetchedAt = data.fetchedAt ? Date.parse(data.fetchedAt) : null;
@@ -970,7 +970,7 @@ function ElfaSocialStripRow({ data }: { data: any }) {
     <>
       <div
         className="funding-strategy-row"
-        title={`Elfa REST v2 · ${win}h window · entity-graph-filtered. Sentiment range -1..+1 (current ${sentimentStr}). Source: src/data/elfa.js`}
+        title={`Elfa REST v1 · ${win} window · entity-graph-filtered. Sentiment range -1..+1 (current ${sentimentStr}). Source: src/data/elfa.js`}
       >
         <span className="text-[10px] font-mono text-purple-400/70">Elfa Social ({sym})</span>
         <span className="text-[10px] font-mono flex items-center gap-2">
