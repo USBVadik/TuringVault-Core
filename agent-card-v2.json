@@ -3,6 +3,18 @@
   "name": "TuringVault AI Agent",
   "description": "Autonomous multi-agent RWA portfolio manager on Mantle. Three-model adversarial consensus (Z.ai GLM-5 Analyst + Anthropic Claude 4.6 Validator + Google Gemini 3.5 Arbiter) with on-chain attestation per cycle (proposal, validation, decisionLog, reputation), IPFS-pinned reasoning, ERC-8004 reputation accumulation, Discipline Layer post-execution proof verification. Acts as a Trust Firewall: every allocation must survive adversarial challenge BEFORE execution. Demo capital, custodial EOA, vault contract pattern in development.",
   "image": "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-avatar.png",
+  "erc8004": {
+    "role": "reference-implementation",
+    "deployedOn": "Mantle Mainnet (5000)",
+    "components": [
+      "Identity NFT (non-transferable, auto-updating tokenURI per cycle)",
+      "ValidationRegistry (pre-execution attestation)",
+      "ReputationRegistry (settled-outcome accumulation)",
+      "DecisionLog (full reasoning hash anchor)"
+    ],
+    "note": "Drop-in compatible with the upcoming Mantle-issued Agent Identity standard; this submission can interop with or migrate to the official issuer once available.",
+    "sourcify": "all four contracts full-match verified"
+  },
   "capabilities": [
     "market_analysis",
     "multi_agent_consensus",
