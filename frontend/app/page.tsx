@@ -285,9 +285,10 @@ export default function Home() {
 
             {/* Hero Content */}
             <div className="flex-1 text-center lg:text-left">
-              <div className="flex items-center gap-3 justify-center lg:justify-start mb-3">
+              <div className="flex items-center gap-3 justify-center lg:justify-start mb-3 flex-wrap">
                 <Shield className="w-4 h-4 text-purple-400" />
-                <span className="text-xs font-mono text-purple-300/60" title="Models read live from assets/agent-card.json">{heroBadge}</span>
+                <span className="text-xs font-mono text-purple-300/60" title="Models read live from agent identity tokenURI on Mantle Mainnet, fetched fresh from IPFS each load">{heroBadge}</span>
+                <CardSourceBadge card={agentCard} />
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-3">
                 <span className="bg-gradient-to-r from-purple-400 to-green-400 bg-clip-text text-transparent">Proof-of-Reasoning</span>
@@ -860,6 +861,51 @@ function parseReasoning(hash: string): string {
 }
 
 /* ═══ RISK STATE MASCOT — moved to ./components/RiskMascot.tsx (T7) ═══ */
+
+/* ═══ AGENT CARD SOURCE BADGE — surfaces live tokenURI vs repo fallback ═══ */
+function CardSourceBadge({ card }: { card: any }) {
+  if (!card) return null;
+  const source = card.source ?? null;
+  const cid = card.ipfsCid ?? null;
+  const gw = card.fetchedFromGateway ?? null;
+
+  if (source === 'on-chain-tokenURI' && cid) {
+    const short = `${cid.slice(0, 6)}…${cid.slice(-4)}`;
+    const ipfsUrl = gw || `https://gateway.pinata.cloud/ipfs/${cid}`;
+    return (
+      <a
+        href={ipfsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-400/90 hover:text-emerald-300 hover:bg-emerald-500/15 transition-colors"
+        title={`Live from on-chain tokenURI(0) → IPFS ${cid}\nGateway: ${gw}\nClick to open the pinned blob.`}
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        live · IPFS {short}
+      </a>
+    );
+  }
+  if (source === 'repo-snapshot') {
+    return (
+      <span
+        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[10px] font-mono text-amber-400/90"
+        title={card.error || 'On-chain tokenURI unreachable; using repo snapshot. Mascot will turn green when IPFS gateway recovers.'}
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+        repo snapshot
+      </span>
+    );
+  }
+  if (source === 'none') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/30 text-[10px] font-mono text-red-400/90" title="Both tokenURI and snapshot unreachable">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+        unreachable
+      </span>
+    );
+  }
+  return null;
+}
 
 /* ═══ DISCIPLINE LAYER STRIP — discipline-layer-ui R3/R5 ═══ */
 function DisciplineStripRow({ data }: { data: any }) {
