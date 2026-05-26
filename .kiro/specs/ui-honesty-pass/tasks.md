@@ -28,9 +28,9 @@ Each numbered task is a distinct commit. Sub-checkboxes are within-task steps. T
 
 ## T2 — Helpers and shared building blocks
 
-- [ ] T2.1 — Create `frontend/app/lib/time.ts` with `formatRelativeTime(iso)` per design C7.
-- [ ] T2.2 — Add `<RelativeTime ts={...} />` React component (auto-rerender every 30s, cleanup on unmount).
-- [ ] T2.3 — Unit-test the helper informally (run a tiny node script with sample timestamps; verify `7s ago`, `3m ago`, `2h ago`, `5d ago`, `—` for null).
+- [x] T2.1 — Create `frontend/app/lib/time.tsx` with `formatRelativeTime(iso)` per design C7. (Used `.tsx` not `.ts` because React 19 strict typing rejects `JSX.Element` and `<>` fragments inside `.ts`.)
+- [x] T2.2 — Add `<RelativeTime ts={...} />` React component (auto-rerender every 30s, cleanup on unmount).
+- [x] T2.3 — Sanity-check passed: 7/7 cases — `null`, invalid string, 7s, 3m, 2h, 5d, future-clock-skew.
 - [ ] T2.4 — Commit: `feat(frontend): add time helpers (formatRelativeTime, RelativeTime component)`.
 
 **Acceptance**: import in dev console works; component renders without error.
@@ -39,20 +39,20 @@ Each numbered task is a distinct commit. Sub-checkboxes are within-task steps. T
 
 ## T3 — `/api/health` endpoint
 
-- [ ] T3.1 — Create `frontend/app/api/health/route.ts`.
-- [ ] T3.2 — Read `data/loop_progress.json` mtime via `fs.statSync(...).mtimeMs`. Wrap in try/catch.
-- [ ] T3.3 — Read `src/data/outcomes.json`. Compute newest of `pending[*].recordedAt` and `settled[*].settledAt`.
-- [ ] T3.4 — `lastCycleTimestamp = max(progress mtime ISO, latest outcomes ISO)`. If both unavailable → `null`.
-- [ ] T3.5 — `lastCycleAge = (Date.now() - new Date(lastCycleTimestamp).getTime()) / 1000` if available, else `null`.
-- [ ] T3.6 — Mantle RPC `eth_blockNumber` via existing viem client pattern from `/api/decisions`.
-- [ ] T3.7 — Read `process.env.AGENT_RUN_MODE` with fallback `'unknown'`.
-- [ ] T3.8 — Compute `cyclesSucceeded24h` from outcomes union (pending + settled, deduped, filtered to last 24h).
-- [ ] T3.9 — `cyclesFailed24h: null` placeholder.
-- [ ] T3.10 — Response shape per design C2; on error return HTTP 200 with `{ status: 'degraded', error, lastCycleAge: null, mode: 'unknown' }`.
-- [ ] T3.11 — Add `Cache-Control: no-store` header.
-- [ ] T3.12 — `dynamic = 'force-dynamic'`, `revalidate = 0`.
-- [ ] T3.13 — Manually hit `http://localhost:3000/api/health` after `npm run dev`, verify shape.
-- [ ] T3.14 — Verify endpoint never echoes `process.env.PRIVATE_KEY` or AWS creds (grep the response).
+- [x] T3.1 — Create `frontend/app/api/health/route.ts`.
+- [x] T3.2 — Read `data/loop_progress.json` mtime via `fs.statSync(...).mtimeMs`. Wrap in try/catch.
+- [x] T3.3 — Read `src/data/outcomes.json`. Compute newest of `pending[*].recordedAt` and `settled[*].settledAt`.
+- [x] T3.4 — `lastCycleTimestamp = max(progress mtime ISO, latest outcomes ISO)`. If both unavailable → `null`.
+- [x] T3.5 — `lastCycleAge = (Date.now() - new Date(lastCycleTimestamp).getTime()) / 1000` if available, else `null`.
+- [x] T3.6 — Mantle RPC `eth_blockNumber` via existing viem client pattern from `/api/decisions`.
+- [x] T3.7 — Read `process.env.AGENT_RUN_MODE` with fallback `'unknown'`.
+- [x] T3.8 — Compute `cyclesSucceeded24h` from outcomes union (pending + settled, deduped, filtered to last 24h).
+- [x] T3.9 — `cyclesFailed24h: null` placeholder.
+- [x] T3.10 — Response shape per design C2; on error return HTTP 200 with `{ status: 'degraded', error, lastCycleAge: null, mode: 'unknown' }`.
+- [x] T3.11 — Add `Cache-Control: no-store` header.
+- [x] T3.12 — `dynamic = 'force-dynamic'`, `revalidate = 0`.
+- [x] T3.13 — Manual hit returned: `{lastCycleTimestamp: "2026-05-23T17:01:19.815Z", lastCycleAge: 227257, chainBlockHeight: 95826312, mode: "unknown"}` — accurate.
+- [x] T3.14 — Verified no secrets leak (grep for private/aws/nansen/pinata/key/secret on response → empty).
 - [ ] T3.15 — Commit: `feat(api): add /api/health endpoint`.
 
 **Acceptance**: GET /api/health returns valid JSON with all expected fields; never throws 500.
