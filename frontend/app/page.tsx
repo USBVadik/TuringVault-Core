@@ -448,15 +448,41 @@ export default function Home() {
                 <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">Agent Wallet · Operator Account</span>
               </div>
               <div className="glass-card p-5">
-                {/* AUM Stats */}
+                {/* NAV + holdings (T8.1 follow-up: full breakdown after USDT0/USDT/WMNT were missing) */}
                 <div className="space-y-3 mb-5">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] text-white/30 uppercase tracking-wider">Agent EOA Balance</span>
-                    <span className="text-sm font-mono font-bold text-white/80">
-                      {perfData?.mnt != null ? `${perfData.mnt} MNT` : '—'}
-                      {perfData?.meth != null ? ` · ${perfData.meth} mETH` : ''}
+                    <span className="text-[10px] text-white/30 uppercase tracking-wider">NAV (Total)</span>
+                    <span className="text-sm font-mono font-bold text-green-400" title="Sum of MNT + all ERC-20 balances × USD price; on-chain reads">
+                      {perfData?.nav != null ? `~$${perfData.nav.toFixed(2)}` : '—'}
                     </span>
                   </div>
+                  {perfData?.holdings && (
+                    <div className="grid grid-cols-1 gap-1 pl-2 border-l border-white/[0.04]">
+                      {[
+                        ['MNT',         'native'],
+                        ['WMNT',        'wrapped'],
+                        ['mETH',        'staking'],
+                        ['USDT_legacy', 'USDT'],
+                        ['USDT0',       'USDT0'],
+                        ['mUSD',        'mUSD'],
+                        ['USDY',        'USDY · RWA'],
+                      ].map(([sym, label]) => {
+                        const bal = perfData.holdings[sym];
+                        const price = perfData.prices?.[sym];
+                        if (bal == null || bal === 0) return null;
+                        const usd = price != null ? bal * price : null;
+                        return (
+                          <div key={sym} className="flex justify-between items-center text-[10px] font-mono text-white/40">
+                            <span>{label}</span>
+                            <span>
+                              {bal} <span className="text-white/25">·</span>{' '}
+                              <span className="text-white/55">{usd != null ? `$${usd.toFixed(2)}` : '—'}</span>
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-white/30 uppercase tracking-wider">Custody Model</span>
                     <span className="text-sm font-mono text-yellow-300/70" title="Funds held in EOA. Vault contract pattern is in development.">

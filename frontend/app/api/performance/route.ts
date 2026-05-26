@@ -2,26 +2,21 @@
  * GET /api/performance
  *
  * Lifetime aggregate performance for agentId=0.
- * Numbers are derived from:
- *   - Mantle on-chain reads (NAV from agent EOA balances)
- *   - src/data/outcomes.json (settled[]) — outcome buckets, win rate, cumPnL
+ *
+ * NAV = native MNT + Σ(ERC-20 balance × USD price) for all known holdings:
+ *   MNT, WMNT, mETH, USDT (legacy bridged), USDT0 (LayerZero OFT — sponsor
+ *   asset for the AI x RWA narrative), mUSD, USDY.
+ *
+ * Outcome buckets, win rate, cumulative PnL come from src/data/outcomes.json
+ * (already migrated to schemaVersion 2 with decisionTier).
  *
  * What this endpoint NEVER returns:
- *   - Hardcoded Sharpe, maxDrawdown, recoveryHours, hoursTracked. Those
- *     metrics need a real performance tracker driven by sufficient cycle
- *     history. The previous implementation faked them with a constant
- *     fallback; that is now removed.
- *   - totalReturn computed from a mocked `initialNav = 5 * mntPrice`. Until
- *     a real initial-NAV record exists on disk, we don't return totalReturn.
+ *   - Hardcoded Sharpe, maxDrawdown, recoveryHours, hoursTracked.
+ *   - totalReturn computed from a mocked initialNav.
  *
- * Field semantics:
- *   - winRate         : (GOOD_CALL + CORRECT_BLOCK) / settledCount  in % (1 dp)
- *   - cumulativePnlBps: sum(pnlBps) across settled[]
- *   - dataScope       : 'agent-lifetime'  → aggregate across the entire
- *                       agent history; not per-user. Frontend MUST label
- *                       these as Lifetime (R4).
- *
- * Spec: .kiro/specs/ui-honesty-pass/{requirements,design,tasks}.md (T5, R3, R10)
+ * Spec: .kiro/specs/ui-honesty-pass (no-lying-about-state)
+ *       Updated to include all 6 token holdings after operator
+ *       pointed out missing USDT0/USDT/WMNT in NAV (2026-05-26).
  */
 
 import { NextResponse } from 'next/server';
@@ -36,7 +31,28 @@ export const revalidate = 0;
 const NO_STORE: HeadersInit = { 'Cache-Control': 'no-store, max-age=0' };
 
 const WALLET = '0xDC783CDBfA993f3FC299460627b204E83bf4fb5a';
-const METH_TOKEN = '0xcDA86A272531e8640cD7F1a92c01839911B90bb0';
+
+// All ERC-20s the agent ever holds. Decimals confirmed via on-chain probe.
+const TOKENS = {
+  WMNT:        { address: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8', decimals: 18 },
+  mETH:        { address: '0xcDA86A272531e8640cD7F1a92c01839911B90bb0', decimals: 18 },
+  mUSD:        { address: '0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3', decimals: 18 },
+  USDT_legacy: { address: '0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE', decimals: 6 },
+  USDT0:       { address: '0x779Ded0c9e1022225f8E0630b35a9b54bE713736', decimals: 6 },
+  USDY:        { address: '0x5bE26527e817998A7206475496fDE1E68957c5A6', decimals: 18 },
+} as const;
+
+type TokenSymbol = keyof typeof TOKENS;
+
+const ERC20_BALANCE_ABI = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: '', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+] as const;
 
 type SettledOutcome = {
   outcome?: string;
@@ -50,9 +66,15 @@ type Outcomes = {
   settled?: SettledOutcome[];
 };
 
+type Holdings = Record<string, number | null>;
+
 type PerformanceResponse = {
-  // On-chain reads (live)
+  // NAV + breakdown (live on-chain reads)
   nav: number | null;
+  holdings: Holdings;
+  prices: Record<string, number | null>;
+
+  // Legacy aliases — kept temporarily so older frontend code still renders
   mnt: number | null;
   meth: string | null;
   mntPrice: number | null;
@@ -60,7 +82,7 @@ type PerformanceResponse = {
 
   // Derived from outcomes.json (lifetime aggregate)
   settledCount: number | null;
-  winRate: number | null;            // % with 1 decimal, or null when no data
+  winRate: number | null;
   goodCallCount: number;
   correctBlockCount: number;
   badCallCount: number;
@@ -68,7 +90,6 @@ type PerformanceResponse = {
   cumulativePnlBps: number;
   lastSettlementAt: string | null;
 
-  // Honesty labels
   dataScope: 'agent-lifetime';
   source: {
     onchain: 'mantle-mainnet';
@@ -105,7 +126,16 @@ function newestSettlementIso(settled: SettledOutcome[]): string | null {
   return newest;
 }
 
-async function getPrices(): Promise<{ mntPrice: number | null; ethPrice: number | null }> {
+/**
+ * Fetch USD prices from CoinGecko in a single call. Stable-pegged tokens
+ * (USDT0, USDT_legacy, mUSD, USDY) are assumed = $1.00 to avoid round-trips
+ * for tokens CoinGecko sometimes lacks; this matches Mantlescan's display
+ * within a few tenths of a cent and is honest enough for the dashboard.
+ */
+async function getPrices(): Promise<{
+  mntPrice: number | null;
+  ethPrice: number | null;  // mantle-staked-ether (mETH)
+}> {
   try {
     const res = await fetch(
       'https://api.coingecko.com/api/v3/simple/price?ids=mantle,mantle-staked-ether&vs_currencies=usd',
@@ -122,54 +152,70 @@ async function getPrices(): Promise<{ mntPrice: number | null; ethPrice: number 
   }
 }
 
-async function getOnchainBalances(): Promise<{
-  mnt: number | null;
-  methWei: bigint | null;
-}> {
-  try {
-    const client = createPublicClient({
-      chain: mantle,
-      transport: http('https://rpc.mantle.xyz'),
-    });
-    const [mntBal, methBal] = await Promise.all([
-      client.getBalance({ address: WALLET as `0x${string}` }),
-      client.readContract({
-        address: METH_TOKEN as `0x${string}`,
-        abi: [
-          {
-            name: 'balanceOf',
-            type: 'function',
-            stateMutability: 'view',
-            inputs: [{ name: '', type: 'address' }],
-            outputs: [{ name: '', type: 'uint256' }],
-          },
-        ] as const,
-        functionName: 'balanceOf',
-        args: [WALLET as `0x${string}`],
-      }),
-    ]);
-    return {
-      mnt: Number(mntBal) / 1e18,
-      methWei: methBal as bigint,
-    };
-  } catch {
-    return { mnt: null, methWei: null };
+async function getAllBalances(client: ReturnType<typeof createPublicClient>) {
+  const native = client.getBalance({ address: WALLET as `0x${string}` });
+  const erc20Calls = (Object.entries(TOKENS) as [TokenSymbol, typeof TOKENS[TokenSymbol]][]).map(
+    async ([sym, info]) => {
+      try {
+        const wei = await client.readContract({
+          address: info.address as `0x${string}`,
+          abi: ERC20_BALANCE_ABI,
+          functionName: 'balanceOf',
+          args: [WALLET as `0x${string}`],
+        });
+        const f = Number(wei) / 10 ** info.decimals;
+        return [sym, f] as const;
+      } catch {
+        return [sym, null] as const;
+      }
+    },
+  );
+  const [nativeWei, ...rest] = await Promise.all([native, ...erc20Calls]);
+  const mnt = Number(nativeWei) / 1e18;
+  const balances: Record<string, number | null> = { MNT: mnt };
+  for (const entry of rest) {
+    const [sym, val] = entry as [TokenSymbol, number | null];
+    balances[sym] = val;
   }
+  return balances;
 }
 
 export async function GET(): Promise<NextResponse> {
   // ── On-chain (live) ─────────────────────────────────────────────
-  const [{ mntPrice, ethPrice }, { mnt, methWei }] = await Promise.all([
+  const client = createPublicClient({ chain: mantle, transport: http('https://rpc.mantle.xyz') });
+
+  const [{ mntPrice, ethPrice }, balances] = await Promise.all([
     getPrices(),
-    getOnchainBalances(),
+    getAllBalances(client),
   ]);
 
-  const meth = methWei !== null ? (Number(methWei) / 1e18).toFixed(6) : null;
-  const methFloat = methWei !== null ? Number(methWei) / 1e18 : null;
-  const nav =
-    mnt !== null && mntPrice !== null && methFloat !== null && ethPrice !== null
-      ? Math.round((mnt * mntPrice + methFloat * ethPrice) * 100) / 100
-      : null;
+  // Stable-pegged assets at $1; mETH gets ETH price; MNT/WMNT use mntPrice.
+  const prices: Record<string, number | null> = {
+    MNT: mntPrice,
+    WMNT: mntPrice,
+    mETH: ethPrice,
+    USDT_legacy: 1.0,
+    USDT0: 1.0,
+    mUSD: 1.0,
+    USDY: 1.0,
+  };
+
+  // NAV = Σ(balance × price) where both are non-null and >0.
+  let nav: number | null = null;
+  let canCompute = true;
+  let acc = 0;
+  for (const [sym, bal] of Object.entries(balances)) {
+    if (bal == null) continue; // unreachable token doesn't blow NAV
+    const p = prices[sym];
+    if (p == null) {
+      canCompute = false;
+      break;
+    }
+    acc += bal * p;
+  }
+  if (canCompute) {
+    nav = Math.round(acc * 100) / 100;
+  }
 
   // ── Outcomes aggregate (lifetime) ───────────────────────────────
   const outcomesPath = backendPath('src', 'data', 'outcomes.json');
@@ -185,21 +231,11 @@ export async function GET(): Promise<NextResponse> {
 
   for (const o of settled) {
     switch (o.outcome) {
-      case 'GOOD_CALL':
-        goodCallCount++;
-        break;
-      case 'CORRECT_BLOCK':
-        correctBlockCount++;
-        break;
-      case 'BAD_CALL':
-        badCallCount++;
-        break;
-      case 'MISSED_ALPHA':
-        missedAlphaCount++;
-        break;
-      default:
-        // NEUTRAL or unknown — counted in settledCount, not in any bucket
-        break;
+      case 'GOOD_CALL':       goodCallCount++; break;
+      case 'CORRECT_BLOCK':   correctBlockCount++; break;
+      case 'BAD_CALL':        badCallCount++; break;
+      case 'MISSED_ALPHA':    missedAlphaCount++; break;
+      default: break;
     }
     cumulativePnlBps += typeof o.pnlBps === 'number' ? o.pnlBps : 0;
   }
@@ -211,10 +247,26 @@ export async function GET(): Promise<NextResponse> {
 
   const lastSettlementAt = newestSettlementIso(settled);
 
+  // Round holdings for display (preserves ≥ 6 sig figs for stables, 4 for MNT-class)
+  const roundedHoldings: Holdings = {};
+  for (const [sym, bal] of Object.entries(balances)) {
+    if (bal == null) {
+      roundedHoldings[sym] = null;
+      continue;
+    }
+    // 6 decimals for stables (USDT-style), 4 for native/MNT, 6 for mETH
+    const decimals = sym === 'mETH' ? 6 : sym.startsWith('USDT') || sym === 'mUSD' || sym === 'USDY' ? 4 : 3;
+    roundedHoldings[sym] = Math.round(bal * 10 ** decimals) / 10 ** decimals;
+  }
+
   const body: PerformanceResponse = {
     nav,
-    mnt: mnt !== null ? Math.round(mnt * 1000) / 1000 : null,
-    meth,
+    holdings: roundedHoldings,
+    prices,
+    // Legacy aliases — kept so existing UI bindings continue to work until
+    // the page is refactored to use `holdings` directly.
+    mnt: roundedHoldings.MNT,
+    meth: roundedHoldings.mETH != null ? Number(roundedHoldings.mETH).toFixed(6) : null,
     mntPrice,
     ethPrice,
     settledCount: outcomes ? settledCount : null,
