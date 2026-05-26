@@ -52,6 +52,42 @@ type HealthResponse = {
   parseFailureCount24h?: number | null;
   thresholdMode?: 'base' | 'elevated' | null;
   consecutiveLosses?: number | null;
+  lastCycleSummary?: LastCycleSummary | null;
+  runHistory?: RunHistoryEntry[];
+  error?: string;
+};
+
+type LastCycleSummary = {
+  cycleStartedAt?: string;
+  cycleEndedAt?: string | null;
+  durationSeconds?: number | null;
+  decisionId?: number | null;
+  decisionTier?: string | null;
+  consensus?: boolean | null;
+  txHashes?: string[];
+  ipfsCid?: string | null;
+  mode?: string;
+  githubRunUrl?: string | null;
+  errors?: string[];
+};
+
+type RunHistoryEntry = {
+  cycleStartedAt?: string;
+  decisionTier?: string | null;
+  durationSeconds?: number | null;
+};
+
+type CycleHistoryRaw = {
+  cycleStartedAt?: string;
+  cycleEndedAt?: string;
+  durationSeconds?: number;
+  decisionTier?: string | null;
+  consensus?: boolean | null;
+  hasErrors?: boolean;
+};
+
+type CycleFailureRaw = {
+  at?: string;
   error?: string;
 };
 
@@ -196,12 +232,38 @@ export async function GET(): Promise<NextResponse> {
       consecutiveLosses = thresholdState.consecutiveLosses ?? null;
     }
 
+    // 8. Cron summary, run history, failures (continuous-cron-and-health T5)
+    const summaryPath = backendPath('data', 'last-cycle-summary.json');
+    const lastCycleSummary = safeReadJson<LastCycleSummary>(summaryPath);
+
+    const historyPath = backendPath('data', 'cycle-history.json');
+    const historyAll = safeReadJson<CycleHistoryRaw[]>(historyPath) ?? [];
+    const runHistory: RunHistoryEntry[] = (Array.isArray(historyAll) ? historyAll : [])
+      .slice(-5)
+      .map((e) => ({
+        cycleStartedAt: e.cycleStartedAt,
+        decisionTier: e.decisionTier ?? null,
+        durationSeconds: e.durationSeconds ?? null,
+      }));
+
+    const failuresPath = backendPath('data', 'cycle-failures.json');
+    const failures = safeReadJson<CycleFailureRaw[]>(failuresPath);
+    let cyclesFailed24h: number | null = null;
+    if (Array.isArray(failures)) {
+      const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
+      cyclesFailed24h = failures.filter((f) => {
+        if (!f?.at) return false;
+        const ts = Date.parse(f.at);
+        return !Number.isNaN(ts) && ts >= cutoffMs;
+      }).length;
+    }
+
     const body: HealthResponse = {
       status: 'ok',
       lastCycleTimestamp,
       lastCycleAge,
       cyclesSucceeded24h: countSucceeded24h(outcomes),
-      cyclesFailed24h: null, // not tracked yet — see continuous-cron-and-health spec
+      cyclesFailed24h,
       mode,
       chainBlockHeight,
       dataScope: 'agent-lifetime',
@@ -209,6 +271,8 @@ export async function GET(): Promise<NextResponse> {
       parseFailureCount24h,
       thresholdMode,
       consecutiveLosses,
+      lastCycleSummary: lastCycleSummary ?? null,
+      runHistory,
     };
 
     return NextResponse.json(body, { headers: NO_STORE });

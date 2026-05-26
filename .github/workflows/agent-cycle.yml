@@ -1,0 +1,124 @@
+name: Agent Cycle
+
+# Continuous-cron multi-agent runner. Fires every hour and commits
+# state files back to main so the front-end can pick them up via
+# Vercel auto-deploy.
+#
+# Spec: .kiro/specs/continuous-cron-and-health
+# Runbook: .kiro/runbooks/cron-operations.md
+
+on:
+  schedule:
+    - cron: '0 * * * *'    # Every hour, UTC
+  workflow_dispatch:        # Manual trigger for debugging
+
+# Prevent overlapping runs (in case a cycle is slow). cancel-in-progress=false
+# means the new trigger waits for the old one to finish rather than aborting.
+concurrency:
+  group: agent-cycle
+  cancel-in-progress: false
+
+permissions:
+  contents: write           # Required for git push back to main
+
+jobs:
+  cycle:
+    name: Run multi-agent cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 8       # Hard ceiling; node call has its own 5m timeout
+
+    env:
+      AGENT_RUN_MODE: cron-github-actions
+      MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      NANSEN_API_KEY: ${{ secrets.NANSEN_API_KEY }}
+      PINATA_JWT: ${{ secrets.PINATA_JWT }}
+      PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
+      PINATA_SECRET: ${{ secrets.PINATA_SECRET }}
+      GEMINI_PROJECT_ID: ${{ secrets.GEMINI_PROJECT_ID }}
+      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Write Gemini service-account key
+        # Pasted as a single GitHub secret containing the full JSON file.
+        # geminiArbiter.js reads $GOOGLE_APPLICATION_CREDENTIALS path.
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+        run: |
+          if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+            echo "::warning::GOOGLE_APPLICATION_CREDENTIALS_JSON not set; arbiter will fall back to conservative-block."
+          else
+            printf '%s' "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > ./gemini-service-account.json
+            chmod 600 ./gemini-service-account.json
+          fi
+
+      - name: Run cycle
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ./gemini-service-account.json
+        run: timeout 300 node scripts/run-cycle.js
+
+      - name: Commit state changes
+        run: |
+          # Remove the ephemeral key file BEFORE staging anything so it
+          # can never end up in a commit even if the path were tracked.
+          rm -f ./gemini-service-account.json
+
+          git config user.name "TuringVault Cron"
+          git config user.email "cron@turingvault.ai"
+
+          # Stage only the state files we care about. Other untracked
+          # files (e.g. raw_model_outputs/) stay untracked.
+          git add \
+            src/data/outcomes.json \
+            src/data/parse_metrics.json \
+            src/data/threshold_state.json \
+            src/data/position_state.json \
+            src/data/grid_bot_state.json \
+            src/data/grid_param_history.json \
+            data/loop_progress.json \
+            data/last-cycle-summary.json \
+            data/cycle-history.json \
+            data/cycle-failures.json 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "No state changes to commit."
+            exit 0
+          fi
+
+          if [ -f data/last-cycle-summary.json ]; then
+            DECISION_ID=$(jq -r '.decisionId // "?"' data/last-cycle-summary.json)
+            TIER=$(jq -r '.decisionTier // "UNKNOWN"' data/last-cycle-summary.json)
+            TIMESTAMP=$(jq -r '.cycleEndedAt // "?"' data/last-cycle-summary.json)
+          else
+            DECISION_ID="?"
+            TIER="UNKNOWN"
+            TIMESTAMP=$(date -u +%FT%TZ)
+          fi
+
+          git commit -m "chore(cron): cycle ${DECISION_ID} ${TIMESTAMP} ${TIER}"
+
+          # Retry once on rebase conflict (operator may have committed
+          # while we ran).
+          if ! git push origin main; then
+            sleep 5
+            git pull --rebase --autostash origin main
+            git push origin main
+          fi

@@ -28,7 +28,7 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 - **65%+ rejection rate** — Validator blocks 2 out of 3 proposals (capital protection)
 - **32 approved, 61+ rejected** — adversarial consensus working as designed
 - **+1216 bps cumulative PnL** on real capital (net positive over 37 settled trades)
-- Grid bot running 24/7 with adaptive regime detection
+- Hourly cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
 - Zero catastrophic losses — max single-trade exposure capped at $100
 
 ---
@@ -197,24 +197,48 @@ The ANALYST prompt evolves based on performance, gated by safeguards:
 
 ## Running the Agent
 
+### Production: GitHub Actions cron (hourly)
+
+Production runs are driven by [`.github/workflows/agent-cycle.yml`](.github/workflows/agent-cycle.yml),
+which fires every hour at `:00` UTC. Each run:
+
+1. Executes one `runMultiAgentCycle()` against live market data.
+2. Writes a `data/last-cycle-summary.json` record.
+3. Commits state files (outcomes, parse metrics, threshold state, …)
+   back to `main`.
+4. Vercel auto-deploys the front-end on the resulting push, so the
+   mascot turns 🟢 within ~2 minutes.
+
+Cadence is hourly, not sub-minute — the mascot's threshold is
+calibrated for that. Operator runbook with the secrets list, manual
+trigger, pause/resume, and cost monitoring is at
+[`.kiro/runbooks/cron-operations.md`](.kiro/runbooks/cron-operations.md).
+
+Public log: <https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml>
+
+### Local development
+
 ```bash
 # Install dependencies
 npm install
 
 # Configure environment
 cp .env.example .env
-# Set: PRIVATE_KEY, NANSEN_API_KEY
+# Set: PRIVATE_KEY, NANSEN_API_KEY, AWS_*, PINATA_*, GOOGLE_APPLICATION_CREDENTIALS
 
-# Run single cycle (dry-run)
-node src/orchestrator/multiAgentLoop.js
+# Single cycle (one-shot, no loop)
+node scripts/run-cycle.js
 
-# Run grid bot (production, 5-min cycles)
+# Smoke 5 cycles in dry-run mode (no on-chain TX, hits Bedrock)
+npm run smoke:reasoning
+
+# Grid bot (production, 5-min cycles)
 node src/strategies/runGridCycle.sh
 
-# Run full continuous orchestrator
+# Continuous local orchestrator (only while terminal stays open)
 node src/cron/agentCron.js
 
-# Run backtest
+# Backtest
 node src/strategies/backtest.js
 ```
 

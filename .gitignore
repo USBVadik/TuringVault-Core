@@ -9,8 +9,9 @@ KIRO-BRIEFING.md
 # Reasoning quality side-channels — operator diagnostics, not public artifacts
 src/data/raw_model_outputs/*
 !src/data/raw_model_outputs/.gitkeep
-src/data/parse_metrics.json
-src/data/threshold_state.json
+# parse_metrics.json and threshold_state.json: committed by the cron
+# (continuous-cron-and-health spec) so /api/health.parseSuccessRate24h
+# and /api/health.thresholdMode reflect production reality.
 cache/
 artifacts/
 typechain-types/
@@ -19,6 +20,9 @@ coverage.json
 .next/
 logs/
 src/data/grid_cron.log
+
+# Cron transient: Gemini service-account key written at workflow runtime
+gemini-service-account.json
 
 # Internal docs
 docs/internal/

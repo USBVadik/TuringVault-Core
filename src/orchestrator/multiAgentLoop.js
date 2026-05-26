@@ -132,13 +132,16 @@ async function runMultiAgentCycle(opts = {}) {
   }
 
   // T9.7 dryRun: skip IPFS pin, on-chain TX, reputation feedback,
-  // outcomes record, agent-card refresh. Return decision so smoke
-  // tests can introspect tier distribution without spending gas.
+  // outcomes record, agent-card refresh. Return shape mirrors the live
+  // path (continuous-cron-and-health design.md §C3) so callers can
+  // use the same accessors regardless of dryRun.
   if (dryRun) {
     return {
       decision,
       decisionTier,
       disagreementSignal,
+      consensus: decision.consensus,
+      proposalId: null,
       market,
       _dryRun: true,
     };
@@ -446,7 +449,17 @@ async function runMultiAgentCycle(opts = {}) {
   console.log(`║${pad(`  Registry stats: ${totalApproved} approved / ${totalRejected} rejected`)}║`);
   console.log(`╚${'═'.repeat(boxW)}╝\n`);
 
-  return decision;
+  // Unified return shape (matches dryRun branch). `consensus` is hoisted
+  // to the top level so legacy callers (mainMultiAgent.js, runBatch.js)
+  // that read result.consensus keep working.
+  // Spec: continuous-cron-and-health design.md §C3 (T4).
+  return {
+    decision,
+    decisionTier,
+    disagreementSignal,
+    consensus: decision.consensus,
+    proposalId: typeof proposalId === 'bigint' ? Number(proposalId) : proposalId,
+  };
 }
 
 // Run if called directly
