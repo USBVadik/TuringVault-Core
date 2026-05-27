@@ -199,9 +199,13 @@ function evaluate(args) {
   }
 
   const action = decision?.analyst?.action;
+  const targetAsset = decision?.analyst?.targetAsset;
   const consensus = decision?.consensus === true;
+  const regime =
+    market?.regime || market?.structuredSignals?.regime?.regime || null;
 
   // ── Path A: LLM-driven ──────────────────────────────────────
+  // Explicit rwa_allocate action
   if (consensus && action === "rwa_allocate") {
     const reason = `LLM allocate: ${
       decision?.analyst?.reasoning?.slice(0, 140) || "no reasoning"
@@ -216,6 +220,56 @@ function evaluate(args) {
     });
   }
 
+  // ── Path A.1: Implicit RWA allocation ───────────────────────
+  // When agent says "swap to mUSD/USDT" in risk-off regime, treat it as
+  // RWA allocation intent. This bridges the gap between the old "swap"
+  // vocabulary and the new "rwa_allocate" action.
+  // Spec: rwa-allocation-active — implicit allocation path.
+  if (
+    consensus &&
+    action === "swap" &&
+    (targetAsset === "mUSD" || targetAsset === "USDT") &&
+    (regime === "TREND_DOWN" || regime === "CRISIS" || regime === "HOLD")
+  ) {
+    const reason = `Implicit RWA (swap→${targetAsset} in ${regime}): ${
+      decision?.analyst?.reasoning?.slice(0, 120) || "risk-off"
+    }`;
+    return buildIntent({
+      source: "llm-implicit",
+      from: "USDT",
+      to: "USDT0",
+      amountInUsd: idleStableUsd,
+      prices,
+      reason,
+    });
+  }
+
+  // ── Path A.2: Implicit RWA exit ─────────────────────────────
+  // When agent says "swap to mETH" in TREND_UP, and we hold USDT0,
+  // exit RWA position first.
+  if (
+    consensus &&
+    action === "swap" &&
+    targetAsset === "mETH" &&
+    regime === "TREND_UP"
+  ) {
+    const usdt0Usd = (balances.USDT0 ?? 0) * (prices.USDT0 ?? 1);
+    if (usdt0Usd >= limits.MIN_BALANCE_USD) {
+      const reason = `Implicit RWA exit (swap→mETH in TREND_UP): ${
+        decision?.analyst?.reasoning?.slice(0, 120) || "risk-on"
+      }`;
+      return buildIntent({
+        source: "llm-implicit",
+        from: "USDT0",
+        to: "USDT",
+        amountInUsd: usdt0Usd,
+        prices,
+        reason,
+      });
+    }
+  }
+
+  // Explicit rwa_exit action
   if (consensus && action === "rwa_exit") {
     const usdt0Usd = (balances.USDT0 ?? 0) * (prices.USDT0 ?? 1);
     if (usdt0Usd < limits.MIN_BALANCE_USD) {
@@ -236,8 +290,7 @@ function evaluate(args) {
 
   // ── Path B: deterministic idle-parking ──────────────────────
   // Only fires when LLM said HOLD AND wallet is idle.
-  const regime =
-    market?.regime || market?.structuredSignals?.regime?.regime || null;
+  // Note: `regime` already declared above in Path A section.
 
   if (
     !consensus &&
