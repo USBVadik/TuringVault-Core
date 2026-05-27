@@ -242,7 +242,11 @@ export default function Home() {
       clearInterval(id);
     };
   }, []);
-  const isStale = health?.lastCycleAge != null && health.lastCycleAge > 600;
+  // Cron runs every hour ('0 * * * *'). Allow 5 min buffer for the cycle
+  // duration (~1 min) plus GH Actions queueing variance. Anything older
+  // than 65 min is genuinely missed, not just "between cycles".
+  const STALE_THRESHOLD_S = 65 * 60;
+  const isStale = health?.lastCycleAge != null && health.lastCycleAge > STALE_THRESHOLD_S;
 
   // Compose hero badge text from card; fallback to generic when card unavailable
   const heroBadge = (() => {
@@ -671,13 +675,13 @@ export default function Home() {
                 role="alert"
                 className="mb-3 border border-yellow-400/30 bg-yellow-400/[0.04] text-yellow-300/80 px-3 py-2 rounded text-[11px] font-mono"
               >
-                ⚠ Agent idle for <RelativeTime ts={health.lastCycleTimestamp} />
-                . Cron mode:{" "}
+                ⚠ Last cycle was{" "}
+                <RelativeTime ts={health.lastCycleTimestamp} />. Cron mode:{" "}
                 <span className="text-yellow-200/80">
                   {health?.mode ?? "unknown"}
                 </span>
                 . Lifetime stats below remain valid; recent decision feed is
-                paused.
+                paused until next scheduled run.
               </div>
             ) : null}
             <LiveTerminal />

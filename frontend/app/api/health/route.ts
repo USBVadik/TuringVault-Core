@@ -217,8 +217,11 @@ export async function GET(): Promise<NextResponse> {
     // 4. Chain liveness (independent — agent can be dead but chain alive)
     const chainBlockHeight = await getMantleBlock();
 
-    // 5. Run mode declaration (operator-set; default unknown)
-    const mode = (process.env.AGENT_RUN_MODE ?? "unknown").slice(0, 32);
+    // 5. Run mode declaration. Prefer the actual mode written by the cycle
+    // runner into last-cycle-summary.json (e.g. "cron-github-actions",
+    // "cron-local", "manual"). Fall back to operator-set env var, then "unknown".
+    // We resolve this *after* lastCycleSummary is read below.
+    let mode = (process.env.AGENT_RUN_MODE ?? "unknown").slice(0, 32);
 
     // 6. Parse metrics rolling 24h (T14, agent-reasoning-quality)
     const parseMetricsPath = backendPath("src", "data", "parse_metrics.json");
@@ -274,8 +277,16 @@ export async function GET(): Promise<NextResponse> {
     // 8. Cron summary, run history, failures (continuous-cron-and-health T5)
     const summaryPath = backendPath("data", "last-cycle-summary.json");
     let lastCycleSummary = safeReadJson<LastCycleSummary>(summaryPath);
+    // Vercel runs are stateless: backend `data/` files don't exist.
     if (!lastCycleSummary) {
       lastCycleSummary = await fetchFromGitHub<LastCycleSummary>("data/last-cycle-summary.json");
+    }
+
+    // Promote summary's mode if the env didn't already set one explicitly.
+    // This matches reality (cron writes "cron-github-actions") instead of
+    // showing "unknown" on Vercel where AGENT_RUN_MODE isn't set.
+    if (mode === "unknown" && lastCycleSummary?.mode) {
+      mode = String(lastCycleSummary.mode).slice(0, 32);
     }
 
     const historyPath = backendPath("data", "cycle-history.json");
