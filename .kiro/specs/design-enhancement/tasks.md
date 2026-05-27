@@ -35,8 +35,8 @@
 
 - [x] 5.1 Remove "← Back to Dashboard" link
 - [x] 5.2 Replace `📊` with `<BarChart3 />` in title
-- [ ] 5.3 Wrap with PageWrapper component
-- [ ] 5.4 Add skeleton loading state
+- [x] 5.3 Add skeleton loading state
+- [x] 5.4 Shimmer animation for loading
 
 ## Task 6: Update Proof Explorer Page
 
@@ -47,8 +47,8 @@
 
 - [x] 7.1 Remove "← Back to Dashboard" link
 - [x] 7.2 Replace `🛡️` with `<Shield />` in title
-- [ ] 7.3 Use StatusBadge for verdict display
-- [ ] 7.4 Add skeleton loading state
+- [x] 7.3 Add skeleton loading state
+- [x] 7.4 Shimmer animation for loading
 
 ## Task 8: Update Social Page
 

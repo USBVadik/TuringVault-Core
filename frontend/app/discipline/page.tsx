@@ -12,6 +12,54 @@
 
 import { useEffect, useState } from "react";
 import { Shield } from "lucide-react";
+import { Skeleton } from "../components/Skeleton";
+
+function DisciplineSkeleton() {
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-2">
+            <Shield className="w-7 h-7 text-purple-400" />
+            <Skeleton className="w-48 h-8" />
+          </div>
+          <Skeleton className="w-96 h-4" />
+        </div>
+
+        {/* Summary skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="p-4 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+              <Skeleton className="w-24 h-3 mb-2" />
+              <Skeleton className="w-12 h-6" />
+            </div>
+          ))}
+        </div>
+
+        {/* Latest cycle skeleton */}
+        <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02] mb-6">
+          <Skeleton className="w-24 h-4 mb-4" />
+          <Skeleton className="w-32 h-6 mb-3" />
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="w-full h-5" />
+            ))}
+          </div>
+        </div>
+
+        {/* History table skeleton */}
+        <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+          <Skeleton className="w-40 h-4 mb-4" />
+          <div className="space-y-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="w-full h-8" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 type Check = { name: string; status: string; detail?: string };
 
@@ -107,6 +155,8 @@ export default function DisciplinePage() {
     setExpanded(next);
   }
 
+  if (loading) return <DisciplineSkeleton />;
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
       <div className="max-w-5xl mx-auto">
@@ -126,13 +176,7 @@ export default function DisciplinePage() {
           </p>
         </div>
 
-        {loading && (
-          <div className="p-8 text-center text-white/30 text-sm">
-            Loading history…
-          </div>
-        )}
-
-        {!loading && data && (
+        {data && (
           <>
             {/* Summary */}
             <SummaryCard summary={data.summary} />
