@@ -44,7 +44,7 @@ type Snapshot = {
   source?: string;
 };
 
-const DEFAULT_TICKERS = ["ETH", "BTC", "SOL", "MNT"] as const;
+const DEFAULT_TICKERS = ["ETH", "BTC", "SOL"] as const;
 
 function relTime(iso: string | null | undefined): string {
   if (!iso) return "—";
