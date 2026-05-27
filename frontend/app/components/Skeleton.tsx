@@ -7,10 +7,17 @@
 
 interface SkeletonProps {
   className?: string;
+  shimmer?: boolean;
 }
 
-export function Skeleton({ className = "" }: SkeletonProps) {
-  return <div className={`animate-pulse bg-white/5 rounded ${className}`} />;
+export function Skeleton({ className = "", shimmer = true }: SkeletonProps) {
+  return (
+    <div
+      className={`rounded bg-white/5 ${
+        shimmer ? "skeleton-shimmer" : "animate-pulse"
+      } ${className}`}
+    />
+  );
 }
 
 // Card skeleton

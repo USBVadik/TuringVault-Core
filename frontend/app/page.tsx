@@ -23,6 +23,7 @@ import {
 import { LiveTerminal } from "./components/LiveTerminal";
 import { VerifyButton } from "./components/VerifyButton";
 import { RiskMascot } from "./components/RiskMascot";
+import { SkeletonStatsGrid } from "./components/Skeleton";
 import { RelativeTime } from "./lib/time";
 import contractsData from "./data/contracts.json";
 
@@ -487,9 +488,12 @@ export default function Home() {
               on-chain + outcomes.json
             </span>
           </div>
+          {!perfData && !reputationData ? (
+            <SkeletonStatsGrid count={5} />
+          ) : (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
               title="On-chain reputation NFT score (ReputationRegistry.getReputation)"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -503,7 +507,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
               title="(GOOD_CALL + CORRECT_BLOCK) / Settled — derived from outcomes.json"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -519,7 +523,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
               title="Resolved outcomes in src/data/outcomes.json (settled[]).length"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -533,7 +537,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
               title="Sum of pnlBps across settled[] (basis points)"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -557,7 +561,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04]"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
               title="Good Calls / Bad Calls — see outcomes.json scoring"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -575,6 +579,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+          )}
           <div className="mt-4 pt-4 border-t border-white/[0.04]">
             <div className="flex flex-wrap items-center gap-3 text-[10px] text-white/30">
               <span title="src/cron/agentCron.js — pauses after MAX_CONSECUTIVE_ERRORS=3, capped at MAX_DAILY_CYCLES=288">
