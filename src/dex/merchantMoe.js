@@ -305,6 +305,19 @@ class MerchantMoeDEX {
    * Spec: rwa-allocation-active R4, design §C4, CP6/CP7/CP8.
    */
   async executeSwap(tokenIn, tokenOut, amountIn, options = {}) {
+    // SECURITY: whitelist of accepted tokens. Defense-in-depth — even if an
+    // upstream caller passes an arbitrary address (e.g., LLM hallucinated a
+    // contract), we refuse rather than approve and route through it.
+    const ALLOWED = new Set([
+      "WMNT", "mETH", "USDY", "mUSD", "USDT", "USDT0",
+    ]);
+    if (!ALLOWED.has(tokenIn) || !ALLOWED.has(tokenOut)) {
+      throw new Error(
+        `TOKEN_NOT_WHITELISTED: tokenIn=${tokenIn} tokenOut=${tokenOut}. ` +
+        `Allowed: ${[...ALLOWED].join(", ")}`
+      );
+    }
+
     // CP6: USDY pool is dry on Mantle. Refuse loudly so nobody silently
     // re-enables the path before the pool has depth.
     if (tokenIn === "USDY" || tokenOut === "USDY") {
@@ -352,13 +365,16 @@ class MerchantMoeDEX {
     await this._ensureAllowance(tokenInAddr);
 
     // Min-out floor with slippage, using the decimals exposed from getQuote.
+    // SECURITY: must use string-based parseUnits — Math.floor on float ×
+    // 10^18 silently overflows JS safe integer range (2^53) for high-decimal
+    // tokens like mETH, producing wrong minOut and accepting bad fills.
     const decimalsOut = quote._decimalsOut ?? 18;
     const slippageMultiplier = (10000 - slipBps) / 10000;
+    const minOutFloat = quote.estimatedOut * slippageMultiplier;
+    // toFixed truncates to decimalsOut places; ethers.parseUnits handles BigInt safely.
     const minOut =
       options.minAmountOut ??
-      BigInt(
-        Math.floor(quote.estimatedOut * slippageMultiplier * 10 ** decimalsOut)
-      );
+      ethers.parseUnits(minOutFloat.toFixed(decimalsOut), decimalsOut);
 
     // CP8: pending nonce so we coexist with the 4 attestation TXs the
     // cycle has already broadcast.

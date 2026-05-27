@@ -70,7 +70,12 @@ function saveDB(db) {
   // Always write the current schema version on save so newly-recorded
   // entries (which carry v2 fields from multiAgentLoop) are tagged.
   db.schemaVersion = SCHEMA_VERSION;
-  fs.writeFileSync(OUTCOMES_PATH, JSON.stringify(db, null, 2));
+  // SECURITY/M4: atomic write to avoid partial reads when a concurrent
+  // reader (rwaAllocator.readDailySpendUsd) opens the file mid-write.
+  // Write to temp and rename — rename is atomic on POSIX.
+  const tmp = OUTCOMES_PATH + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(db, null, 2));
+  fs.renameSync(tmp, OUTCOMES_PATH);
 }
 
 // ─── Price fetch ───────────────────────────────────────────────────

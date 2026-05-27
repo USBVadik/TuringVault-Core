@@ -99,11 +99,29 @@ class ExecutionEngine {
   // ─── Private Methods ───────────────────────────────────────────
 
   async _openPosition(coin, side, decision) {
+    // SECURITY: validate inputs derived from LLM output before shelling out.
+    // _cli uses execSync with string interpolation; an unsanitized coin like
+    // "ETH; rm -rf /" would execute arbitrary commands.
+    if (!/^[A-Z0-9]{2,10}$/.test(coin)) {
+      throw new Error(`Invalid coin symbol: ${coin}`);
+    }
+    if (!/^(buy|sell)$/.test(side)) {
+      throw new Error(`Invalid side: ${side}`);
+    }
+
     const size = this._calculateSize(decision);
+    // size comes from _calculateSize → toFixed(4) → numeric string. Re-validate.
+    if (!/^\d+(\.\d{1,4})?$/.test(size)) {
+      throw new Error(`Invalid size: ${size}`);
+    }
+
     const leverage = Math.min(
       decision.analyst?.leverage || 3,
       this.maxLeverage
     );
+    if (!Number.isInteger(leverage) || leverage < 1 || leverage > 100) {
+      throw new Error(`Invalid leverage: ${leverage}`);
+    }
 
     // Set leverage first
     this._cli(`position leverage ${coin} ${leverage}`);
@@ -129,6 +147,10 @@ class ExecutionEngine {
         side === "buy"
           ? (price * (1 - slMultiplier)).toFixed(2)
           : (price * (1 + slMultiplier)).toFixed(2);
+      // Validate before interpolating into shell command.
+      if (!/^\d+(\.\d{1,2})?$/.test(tp) || !/^\d+(\.\d{1,2})?$/.test(sl)) {
+        throw new Error(`Invalid TP/SL: tp=${tp} sl=${sl}`);
+      }
       cmd += ` --tp ${tp} --sl ${sl}`;
     }
 
@@ -159,6 +181,9 @@ class ExecutionEngine {
   }
 
   async _closePosition(coin) {
+    if (!/^[A-Z0-9]{2,10}$/.test(coin)) {
+      throw new Error(`Invalid coin symbol: ${coin}`);
+    }
     if (this.dryRun) {
       return {
         executed: false,
