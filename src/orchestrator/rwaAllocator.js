@@ -269,6 +269,40 @@ function evaluate(args) {
     }
   }
 
+  // ── Path A.3: Conservative RWA allocation ───────────────────
+  // When agent says HOLD (not confident enough to swap) but regime is
+  // risk-off (TREND_DOWN, CRISIS, RANGING, HOLD), park idle stables
+  // into USDT0 anyway. This ensures RWA allocation happens even when
+  // the agent is uncertain — better to earn yield than sit at 0%.
+  // Spec: rwa-allocation-active — conservative allocation path.
+  const confidence = decision?.analyst?.confidence ?? 0;
+  if (
+    action === "hold" &&
+    (regime === "TREND_DOWN" ||
+      regime === "CRISIS" ||
+      regime === "HOLD" ||
+      regime === "RANGING")
+  ) {
+    // Only park a fraction (20%) when uncertain, not the full balance
+    const parkFraction = confidence < 0.5 ? 0.15 : 0.25;
+    const parkUsd = idleStableUsd * parkFraction;
+    if (parkUsd >= limits.MIN_BALANCE_USD) {
+      const reason = `Conservative RWA (HOLD in ${regime}, conf=${(
+        confidence * 100
+      ).toFixed(0)}%): parking ${(parkFraction * 100).toFixed(
+        0
+      )}% of idle stables`;
+      return buildIntent({
+        source: "conservative",
+        from: "USDT",
+        to: "USDT0",
+        amountInUsd: parkUsd,
+        prices,
+        reason,
+      });
+    }
+  }
+
   // Explicit rwa_exit action
   if (consensus && action === "rwa_exit") {
     const usdt0Usd = (balances.USDT0 ?? 0) * (prices.USDT0 ?? 1);

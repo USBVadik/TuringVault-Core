@@ -30,6 +30,8 @@ jobs:
     env:
       AGENT_RUN_MODE: cron-github-actions
       RWA_EXECUTE_ENABLED: "true"
+      # Hackathon: reduce idle-parking wait from 24h to 4h
+      RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
       MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
