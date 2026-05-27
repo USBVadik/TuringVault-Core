@@ -47,12 +47,34 @@ function BacktestSkeleton() {
 
 export default function BacktestPage() {
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/backtest")
-      .then((r) => r.json())
-      .then(setData);
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(setData)
+      .catch((e) => setError(e.message));
   }, []);
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] text-white p-8 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-2">Failed to load performance data</p>
+          <p className="text-white/40 text-sm">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded text-sm"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!data) return <BacktestSkeleton />;
 
