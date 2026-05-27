@@ -165,7 +165,6 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const symbol = (url.searchParams.get('symbol') || 'ETH').toUpperCase();
   const timeWindow = url.searchParams.get('timeWindow') || '24h';
-  const debug = url.searchParams.get('debug') === '1';
 
   const params = new URLSearchParams({
     ticker: symbol,
@@ -184,40 +183,6 @@ export async function GET(req: Request) {
     fetchElfa(`/v2/data/top-mentions?${params.toString()}`),
     fetchElfa(`/v2/aggregations/trending-tokens?${trendParams.toString()}`),
   ]);
-
-  if (debug) {
-    // Surface raw shape of first item from each endpoint so we can see
-    // actual V2 field names (account_tags, view_count, etc. may be cased
-    // differently or live under a nested object).
-    const pickFirst = (p: any) => {
-      if (!p) return null;
-      const items = Array.isArray(p?.data)
-        ? p.data
-        : Array.isArray(p?.data?.data)
-          ? p.data.data
-          : Array.isArray(p)
-            ? p
-            : [];
-      return items[0] || null;
-    };
-    return NextResponse.json(
-      {
-        debug: true,
-        symbol,
-        timeWindow,
-        topMentionsRawFirst: pickFirst(mentions),
-        topMentionsKeys: pickFirst(mentions) ? Object.keys(pickFirst(mentions)) : null,
-        topMentionsMetadata: mentions?.metadata ?? null,
-        topMentionsError: mentions?.__error ?? null,
-        trendingRawFirst: pickFirst(trending),
-        trendingKeys: pickFirst(trending) ? Object.keys(pickFirst(trending)) : null,
-        trendingMetadata: trending?.metadata ?? null,
-        trendingError: trending?.__error ?? null,
-        fetchedAt: new Date().toISOString(),
-      },
-      { status: 200 }
-    );
-  }
 
   const mErr = mentions?.__error;
   const tErr = trending?.__error;
