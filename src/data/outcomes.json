@@ -352,6 +352,56 @@
       ],
       "arbiterVote": null,
       "arbiterReasoning": null
+    },
+    {
+      "id": "1779875062865_108",
+      "decisionId": 108,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 2083.19,
+      "ipfsCid": "QmQrXKuZNaEZr2kYs9RhSHXF4YLvqbTLvyV1x1VLLLYn8X",
+      "recordedAt": "2026-05-27T09:44:22.865Z",
+      "settleAfter": "2026-05-27T10:44:22.865Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779875062865
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD with 0% allocation change is a low-risk, capital-preserving action. Analyst reasoning accurately reflects raw signals: regime undefined at 35% confidence, neutral funding, flat smart money, conflicting technicals (EMA bearish vs MACD improving). Fear & Greed at 25 noted correctly as insufficient for contrarian entry without confirmation. Yield spread -1% acknowledged. No directional swap prop",
+      "validatorFlaggedIssues": [
+        "Analyst confidence at 65% slightly high given only 35% regime confidence",
+        "Social mindshare spike (+37%) not explicitly weighed against other bearish signals"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Both the Analyst and Validator agree that holding mETH is the correct capital-preserving action given the highly mixed technical indicators and neutral market context."
     }
   ],
   "settled": [
