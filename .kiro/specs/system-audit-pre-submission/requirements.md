@@ -347,7 +347,87 @@ surface.
 - THE auditor SHALL produce a 1-page summary suitable for the
   pitch deck: "Threat model + mitigations" in plain language.
 
-### R14: Consolidated findings + remediation plan
+### R14: Design + UX audit
+
+Judges judge with their eyes for the first 30 seconds. The product
+is information-dense by design, but information density without
+craft reads as "engineer dashboard", not "product". This audit
+identifies the specific gap between the current visual language and
+a reference-class web app (Linear, Vercel, Stripe Atlas, Mercury,
+Arc, Raycast).
+
+**Acceptance criteria:**
+
+- THE auditor SHALL evaluate every public page against an explicit
+  rubric covering: typography system, spacing/grid, color,
+  hierarchy, microinteractions, motion, hero/wow moment,
+  information design, polish details, accessibility.
+- THE auditor SHALL inspect 8 concrete dimensions per page:
+  1. **Typography** — is there a defined type scale (sizes follow
+     a ratio like 1.25 or 1.333), are body/display fonts paired
+     intentionally, are tabular figures used for stat values, do
+     numerical changes "jump" or animate, is letter-spacing
+     adjusted for headlines vs body, are font-weights varied
+     (300/500/700) vs everything-400?
+  2. **Spacing & grid** — is there a consistent 4px or 8px base
+     unit, are gutters between cards equal, is content max-width
+     constrained on ultra-wide screens, is vertical rhythm
+     preserved across sections, is whitespace generous around
+     hero elements?
+  3. **Color & tone** — is the palette limited to 3-5 colors with
+     a 50-900 tonal scale per color, is dark mode layered grays
+     (not pure black on pure black), is the accent color used
+     sparingly (no more than 1-2 elements per viewport), do
+     contrast ratios pass WCAG AA?
+  4. **Hierarchy & focus** — does each section have ONE clear
+     focal point, is there an obvious reading order (F-pattern
+     or Z-pattern), are stat cards equal weight or is the most
+     important one larger, are CTA buttons distinct from
+     navigation?
+  5. **Microinteractions** — do interactive elements have
+     hover/focus/active states that move/glow/shift, are focus
+     rings visible (a11y) but stylish, do clicks feel responsive
+     (< 100 ms feedback), do empty/loading/error states have
+     personality (not just "—" or spinner)?
+  6. **Motion & animation** — are page transitions present (vs
+     instant snap), do numbers count up on first render
+     (CountUp pattern), is there scroll-triggered reveal for
+     content below the fold, are easings smooth (cubic-bezier,
+     not linear), do animations stagger (cascade) vs all at once,
+     is motion respectful of prefers-reduced-motion?
+  7. **Hero & wow** — does the landing page have a hero moment
+     in the first 800 px (animated gradient mesh, particle
+     system, 3D element, generative art, motion graphic, or
+     a single bold animated stat)? Is there ANYTHING memorable a
+     judge would screenshot?
+  8. **Information design** — are stats shown WITH context
+     (vs benchmark, sparkline, %change, conditional color), do
+     charts tell a story (not just data dumps), is conditional
+     formatting used (green for good, red for bad, amber for
+     warning), are numbers humanized (1.2K vs 1234)?
+- THE auditor SHALL benchmark against 3 reference dashboards
+  (Linear's home, Vercel's overview, Mercury or Stripe Atlas)
+  and produce a side-by-side observation: what they do that we
+  don't.
+- THE auditor SHALL run the live site through Lighthouse and
+  axe-core; capture Performance / Accessibility / Best Practices
+  / SEO scores and any a11y violations. Accessibility issues
+  drag perceived professionalism even when invisible.
+- THE auditor SHALL produce a **Design Playbook** at
+  `docs/design-playbook.md` capturing:
+  - Type scale + font pairing decision.
+  - Color tokens + semantic mapping (success/warning/danger,
+    surface/elevated/border).
+  - Spacing scale.
+  - Motion easing + duration tokens.
+  - Component states standard (default/hover/focus/active/
+    disabled).
+- THE auditor SHALL produce a "10 quick wins" list — design
+  changes that take < 30 min each and visibly improve perceived
+  craft (e.g. font swap, accent color tweak, motion on stat
+  numbers, hero gradient mesh, focus ring polish).
+
+### R15: Consolidated findings + remediation plan
 
 The audit SHALL produce a single consolidated report listing every
 finding, ordered by severity, with a remediation status for each.
@@ -369,7 +449,7 @@ finding, ordered by severity, with a remediation status for each.
 The audit is done WHEN:
 
 1. All surface-area reports under `.kiro/audits/0X-*.md` exist
-   (one per requirement R1–R13).
+   (one per requirement R1–R14).
 2. Each report follows the required output shape from
    `audit-style.md` (scope, method, findings, not-checked).
 3. The consolidated report `99-consolidated.md` lists every finding
@@ -384,6 +464,9 @@ The audit is done WHEN:
    to drop into the pitch deck if useful.
 8. Every secret listed by the cron is present in both GitHub
    Actions secrets AND Vercel project env (R10, R12).
+9. The Design Playbook from R14 exists at `docs/design-playbook.md`
+   with type scale, color tokens, spacing scale, motion tokens,
+   and a "10 quick wins" backlog applied or queued.
 
 ## Out of Scope
 

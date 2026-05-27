@@ -25,8 +25,10 @@ work — context drift is the enemy of accurate audits.
         - `scripts/audit/vercel-deployments.sh` (NEW)
         - `scripts/audit/env-drift.sh` (NEW)
         - `scripts/audit/git-history-secrets.sh` (NEW)
+        - `scripts/audit/screenshot-pages.js` (NEW — Playwright)
+        - `scripts/audit/lighthouse-pages.sh` (NEW)
     - Acceptance:
-        - All 8 scripts exist and are executable.
+        - All 10 scripts exist and are executable.
         - `fetch-frontend.sh` saves raw responses under
           `.kiro/audits/raw/<surface>.html|json`.
         - `gh-actions-runs.sh` accepts a workflow filename and
@@ -42,6 +44,12 @@ work — context drift is the enemy of accurate audits.
           and exits non-zero on any hit.
         - `probe-external.sh` hits 7 external APIs with --silent
           and prints status only.
+        - `screenshot-pages.js` captures every public page at
+          1440 / 1024 / 768 / 375 widths via Playwright; saves to
+          `.kiro/audits/raw/screens/<width>/<page>.png`.
+        - `lighthouse-pages.sh` runs Lighthouse on each page +
+          axe-core via Playwright; emits JSON under
+          `.kiro/audits/raw/lighthouse/`.
         - shellcheck clean for shell scripts; `node --check` clean
           for JS.
 
@@ -344,11 +352,84 @@ work — context drift is the enemy of accurate audits.
         - Any FAIL on the 7 tests is P0 unless it's a known
           accepted risk (custodial EOA pattern is accepted).
 
-- [ ] 15. R14: Consolidated findings + remediation
+- [ ] 15. R14: Design + UX audit
     - Refs: R14
+    - Outputs:
+        - `.kiro/audits/13-design-ux.md` (NEW)
+        - `docs/design-playbook.md` (NEW)
+    - Method:
+        - Take screenshots of every public page at viewport widths
+          1440, 1024, 768, 375. Save under `.kiro/audits/raw/screens/`.
+        - For each page run the 8-dimension rubric from R14:
+          typography, spacing/grid, color, hierarchy,
+          microinteractions, motion, hero/wow, information design.
+          Score 1-5 per dimension with verbatim observations
+          ("the stat numbers don't animate on first paint",
+          "card padding is 12px on left, 16px on right",
+          "accent purple appears 14 times in viewport, dilutes
+          its meaning").
+        - Run Lighthouse on each page (Performance / Accessibility
+          / Best Practices / SEO) — store JSON outputs.
+        - Run axe-core via playwright on each page; capture
+          serious + critical violations.
+        - Side-by-side comparison: pick 3 reference dashboards
+          (Linear's home, Vercel's overview, Mercury or Stripe
+          Atlas) — what specific design moves do they make that
+          we don't (e.g. "Linear uses 14px body with -0.011em
+          letter-spacing, we use 14px with 0", "Vercel has
+          gradient mesh hero, we have static card grid").
+        - Produce the Design Playbook with:
+            - Type scale (e.g. 12 / 14 / 16 / 20 / 24 / 32 / 48 px,
+              1.25 ratio).
+            - Font pairing: display vs body (e.g. "Geist Sans
+              variable for everything, weights 400/500/700,
+              tabular-nums for stats, JetBrains Mono for hashes").
+            - Color tokens: primary brand, semantic
+              (success/warning/danger/info), surface levels (bg /
+              card / elevated / border), accent (one, used
+              sparingly).
+            - Spacing scale: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64
+              px (or 4px base if Tailwind default).
+            - Motion tokens: duration (150 / 250 / 400 ms),
+              easing (cubic-bezier(0.16, 1, 0.3, 1) for entries,
+              cubic-bezier(0.4, 0, 0.2, 1) for exits), stagger
+              delay 30-50 ms.
+            - Component states standard (default / hover / focus
+              / active / disabled / loading).
+        - Compile a "10 quick wins" list of < 30 min changes.
+          Examples:
+            - Swap default font to Geist Sans variable.
+            - Add `tabular-nums` class to all stat values.
+            - Add CountUp animation to hero stats on first paint.
+            - Replace static bg-black with subtle radial gradient
+              mesh.
+            - Add focus-visible rings with brand-tinted outline.
+            - Stagger card entry animation on landing.
+            - Replace `—` empty state with line-art illustration
+              or playful copy.
+            - Add gradient on top border of "live" cards (only
+              when actually live).
+            - Tabular figures + monospace for hashes.
+            - Round corners consistently (one radius value
+              repeated, not 4 different ones).
+    - Acceptance:
+        - 13-design-ux.md has the 8-dimension scorecard for
+          every public page.
+        - Lighthouse + axe results stored as raw artifacts.
+        - 3-way comparison with reference dashboards produced
+          (specific observations, not vibes).
+        - design-playbook.md exists with all 5 token sets.
+        - "10 quick wins" backlog included; each item has
+          estimated time + expected visual impact.
+        - Any P0 finding is a true UX blocker (broken state, a11y
+          critical, content unreadable). Most design findings are
+          P1 / P2.
+
+- [ ] 16. R15: Consolidated findings + remediation
+    - Refs: R15
     - Output: `.kiro/audits/99-consolidated.md` (NEW)
     - Method:
-        - Aggregate every finding from reports 01–12.
+        - Aggregate every finding from reports 01–13.
         - Sort by severity, then by surface.
         - Add `status` column; default open.
         - For trivial / inline fixes already done, set status=fixed
@@ -356,20 +437,20 @@ work — context drift is the enemy of accurate audits.
         - Build "Not checked" section by aggregating each report's
           not-checked block.
     - Acceptance:
-        - All findings from 01–12 present (no orphans).
+        - All findings from 01–13 present (no orphans).
         - Severity distribution histogram at top.
         - Every P0 has either status=fixed or
           wont-fix-pre-submission with operator-recorded reason.
         - "Not checked" section is non-empty (false-confidence
           guard).
 
-- [ ] 16. Apply trivial inline fixes
-    - Refs: R14, design §C6
+- [ ] 17. Apply trivial inline fixes
+    - Refs: R15, design §C6
     - Action:
         - For each finding in 99-consolidated.md flagged "trivial"
-          (one-line copy fix, env var rename, missing tooltip),
-          apply the fix and link the commit hash in the findings
-          table.
+          (one-line copy fix, env var rename, missing tooltip,
+          design quick win), apply the fix and link the commit
+          hash in the findings table.
         - Anything touching deployed contracts → DO NOT apply,
           mark wont-fix-pre-submission with reason.
         - Anything that needs > 30 min to investigate → leave open
@@ -377,24 +458,26 @@ work — context drift is the enemy of accurate audits.
     - Acceptance:
         - At least all P0 trivial fixes applied (or confirmed
           non-trivial → wont-fix).
+        - At least 5 of the "10 quick wins" from R14 landed.
         - No commit references audit but breaks a passing test
           (`npm test` clean after).
 
-- [ ] 17. Re-run probes after fixes
-    - Refs: R14
+- [ ] 18. Re-run probes after fixes
+    - Refs: R15
     - Action:
         - Re-run `fetch-frontend.sh`, `vercel-deployments.sh`,
-          and any other relevant probe; sanity-check the fixes
+          screenshot capture, Lighthouse — sanity-check the fixes
           worked end-to-end.
         - Update findings statuses in 99-consolidated.md.
     - Acceptance:
         - Every status=fixed finding has a re-probe artifact under
           `.kiro/audits/raw/post-fix/`.
+        - Lighthouse scores improved or held steady on every page.
         - Any fix that didn't actually move the metric → status
           rolled back to open with note.
 
-- [ ] 18. Convert remaining open findings into a backlog spec
-    - Refs: R14
+- [ ] 19. Convert remaining open findings into a backlog spec
+    - Refs: R15
     - Action:
         - For all P1+ findings still open, generate a single
           "post-submission backlog" entry under
@@ -402,15 +485,16 @@ work — context drift is the enemy of accurate audits.
           requirements doc and a flat task list.
     - Acceptance:
         - Backlog spec exists with one requirement per finding
-          group (UI / cron / pipeline / docs / vercel / security).
+          group (UI / cron / pipeline / docs / vercel / security
+          / design).
         - Each backlog task has refs back to the audit finding ID
           for traceability.
 
-- [ ] 19. Final audit close-out
-    - Refs: R14, all
+- [ ] 20. Final audit close-out
+    - Refs: R15, all
     - Action:
         - Add Status: SHIPPED block to this tasks.md.
-        - Tick all 8 success criteria in requirements.md.
+        - Tick all 9 success criteria in requirements.md.
         - Commit the audits/ tree as one final
           `chore(audit): system audit pre-submission complete`
           commit.
@@ -448,37 +532,37 @@ work — context drift is the enemy of accurate audits.
     },
     {
       "wave": 5,
-      "tasks": [14],
-      "rationale": "Threat model audit aggregates findings from pipeline, secrets, on-chain, and the bridge. Best run after the surface audits so the actor matrix is grounded in real observations."
+      "tasks": [14, 15],
+      "rationale": "Threat model audit (T14) aggregates findings from pipeline, secrets, on-chain, and the bridge. Design+UX audit (T15) consumes the live UI captured in wave 3. They share no output files."
     },
     {
       "wave": 6,
       "tasks": [10],
-      "rationale": "Documents + claims audit cross-references every surface audit's findings. Cleaner to run after all probes are done because some claims are about things only verified in waves 4-5."
+      "rationale": "Documents + claims audit cross-references every surface audit's findings, including design language consistency between README/pitch-deck/live UI."
     },
     {
       "wave": 7,
-      "tasks": [15],
-      "rationale": "Consolidation requires every prior audit (01-12) to be written."
+      "tasks": [16],
+      "rationale": "Consolidation requires every prior audit (01-13) to be written."
     },
     {
       "wave": 8,
-      "tasks": [16],
-      "rationale": "Inline fixes happen after the consolidated finding list is stable."
+      "tasks": [17],
+      "rationale": "Inline fixes happen after the consolidated finding list is stable. Includes the design quick wins from R14."
     },
     {
       "wave": 9,
-      "tasks": [17],
-      "rationale": "Post-fix re-probes verify the fixes landed end-to-end."
+      "tasks": [18],
+      "rationale": "Post-fix re-probes verify the fixes landed end-to-end; re-run Lighthouse to confirm design fixes didn't regress anything."
     },
     {
       "wave": 10,
-      "tasks": [18],
+      "tasks": [19],
       "rationale": "Backlog spec collects whatever survived the fix wave."
     },
     {
       "wave": 11,
-      "tasks": [19],
+      "tasks": [20],
       "rationale": "Spec close-out only after backlog hand-off is clean."
     }
   ]

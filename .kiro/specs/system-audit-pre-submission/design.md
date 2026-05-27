@@ -42,7 +42,8 @@ the probe scripts and diff the output against what's committed.
 ├── 10-vercel-runtime.md       # R11: Vercel build + function logs
 ├── 11-secrets-and-supply.md   # R12: history scan + env drift + npm
 ├── 12-threat-model.md         # R13: actor-by-actor security review
-└── 99-consolidated.md         # R14: master findings + remediation
+├── 13-design-ux.md            # R14: typography/spacing/motion/wow
+└── 99-consolidated.md         # R15: master findings + remediation
 ```
 
 Each numbered file maps 1:1 to a requirement and 1:1 to a task.
@@ -95,14 +96,16 @@ To keep audit reproducible, common probes are scripted under
 
 ```
 scripts/audit/
-├── fetch-frontend.sh      # curl every / page and / api/ route, save raw
-├── gh-actions-runs.sh     # list last N runs from GH API, format as table
-├── chain-probe.js         # eth_getCode + tx history for an address
-├── check-secrets.sh       # grep captured responses for secret patterns
-├── probe-external.sh      # ping every third-party dep
-├── vercel-deployments.sh  # last N Vercel deploys + state per commit
-├── env-drift.sh           # diff GH Actions secret names vs Vercel env
-└── git-history-secrets.sh # gitleaks-style scan over full history
+├── fetch-frontend.sh       # curl every / page and / api/ route, save raw
+├── gh-actions-runs.sh      # list last N runs from GH API, format as table
+├── chain-probe.js          # eth_getCode + tx history for an address
+├── check-secrets.sh        # grep captured responses for secret patterns
+├── probe-external.sh       # ping every third-party dep
+├── vercel-deployments.sh   # last N Vercel deploys + state per commit
+├── env-drift.sh            # diff GH Actions secret names vs Vercel env
+├── git-history-secrets.sh  # gitleaks-style scan over full history
+├── screenshot-pages.js     # Playwright screenshots at 4 viewport widths
+└── lighthouse-pages.sh     # Lighthouse + axe-core JSON per page
 ```
 
 These exist so a re-audit one week later doesn't require re-deriving
@@ -163,6 +166,7 @@ flowchart TD
   Pipe --> Threat[12 threat model]
   Sec --> Threat
   Chain --> Threat
+  UI --> Design[13 design ux]
   UI --> Cons[99 consolidated]
   API --> Cons
   Cron --> Cons
@@ -175,6 +179,7 @@ flowchart TD
   Vercel --> Cons
   Sec --> Cons
   Threat --> Cons
+  Design --> Cons
 ```
 
 The inventory feeds everything. The consolidated report depends on
