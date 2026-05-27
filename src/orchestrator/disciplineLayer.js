@@ -221,6 +221,32 @@ async function verify(params) {
     }
   }
 
+  // Roll up the tx_proof gate from the per-step checks above.
+  // For "swap" cycles we write tx_exists / tx_sender / tx_confirmed /
+  // tx_success individually; the UI and summary aggregator only know the
+  // canonical gate name "tx_proof". Without this roll-up the gate appears
+  // as "·" (unknown) on the discipline page for every executed swap, and
+  // tx_proof pass rate stays "—" forever.
+  const TX_PROOF_STEPS = [
+    "tx_exists",
+    "tx_sender",
+    "tx_confirmed",
+    "tx_success",
+  ];
+  const txSubChecks = checks.filter((c) => TX_PROOF_STEPS.includes(c.name));
+  const hasTxProofRollup = checks.some((c) => c.name === "tx_proof");
+  if (txSubChecks.length > 0 && !hasTxProofRollup) {
+    let rollupStatus = "PASS";
+    if (txSubChecks.some((c) => c.status === "FAIL")) rollupStatus = "FAIL";
+    else if (txSubChecks.some((c) => c.status === "WARN"))
+      rollupStatus = "WARN";
+    checks.push({
+      name: "tx_proof",
+      status: rollupStatus,
+      detail: `Rolled up from ${txSubChecks.length} sub-checks`,
+    });
+  }
+
   const status = blocked ? "BLOCKED" : "ACCEPTED";
   const result = { status, checks, timestamp: Date.now() };
 

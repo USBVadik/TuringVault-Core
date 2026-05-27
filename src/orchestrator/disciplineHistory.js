@@ -50,7 +50,15 @@ function writeSafe(list) {
 function append({ decisionId, proofResult }) {
   const list = readSafe();
   const checks = Array.isArray(proofResult?.checks)
-    ? proofResult.checks.map((c) => ({ name: c.name, status: c.status }))
+    ? proofResult.checks.map((c) => ({
+        name: c.name,
+        status: c.status,
+        // Persist detail so /discipline tooltips can explain what each
+        // gate saw (e.g. "Price data was 5s old"). Capped to keep the
+        // history file compact.
+        detail:
+          typeof c.detail === "string" ? c.detail.slice(0, 200) : undefined,
+      }))
     : [];
 
   const entry = {
