@@ -16,11 +16,14 @@
  *       (R2, R3; design C5)
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const METRICS_PATH = path.resolve(__dirname, '../../src/data/parse_metrics.json');
-const RAW_DIR = path.resolve(__dirname, '../../src/data/raw_model_outputs');
+const METRICS_PATH = path.resolve(
+  __dirname,
+  "../../src/data/parse_metrics.json"
+);
+const RAW_DIR = path.resolve(__dirname, "../../src/data/raw_model_outputs");
 
 const MAX_RAW_BYTES = 50_000; // truncate insanely long responses
 
@@ -36,7 +39,7 @@ function ensureDirs() {
 function loadMetrics() {
   ensureDirs();
   try {
-    return JSON.parse(fs.readFileSync(METRICS_PATH, 'utf8'));
+    return JSON.parse(fs.readFileSync(METRICS_PATH, "utf8"));
   } catch {
     return { byDay: {} };
   }
@@ -45,7 +48,7 @@ function loadMetrics() {
 function saveMetrics(m) {
   ensureDirs();
   // Atomic-ish write — write to temp file, then rename.
-  const tmp = METRICS_PATH + '.tmp';
+  const tmp = METRICS_PATH + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(m, null, 2));
   fs.renameSync(tmp, METRICS_PATH);
 }
@@ -57,7 +60,7 @@ function saveMetrics(m) {
  */
 function recordParseMetric(agentRole, outcome) {
   if (!agentRole || !outcome) return;
-  if (!['json_ok', 'yaml_ok', 'failed'].includes(outcome)) return;
+  if (!["json_ok", "yaml_ok", "failed"].includes(outcome)) return;
 
   try {
     const m = loadMetrics();
@@ -84,16 +87,16 @@ function recordParseMetric(agentRole, outcome) {
 function persistRawOutput(text, modelId, agentRole) {
   try {
     ensureDirs();
-    const ts = new Date().toISOString().replace(/[:.]/g, '-');
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
     // 4-char random suffix prevents collisions when multiple calls land
     // within the same millisecond (rare in prod, common in tests).
     const suffix = Math.random().toString(36).slice(2, 6);
     const fn = path.join(RAW_DIR, `${ts}_${agentRole}_${suffix}.txt`);
     const header =
-      `# model=${modelId || 'unknown'} ` +
+      `# model=${modelId || "unknown"} ` +
       `agent=${agentRole} ` +
       `timestamp=${new Date().toISOString()}\n\n`;
-    const body = String(text || '').slice(0, MAX_RAW_BYTES);
+    const body = String(text || "").slice(0, MAX_RAW_BYTES);
     fs.writeFileSync(fn, header + body);
   } catch {
     // Swallow — diagnostic only.

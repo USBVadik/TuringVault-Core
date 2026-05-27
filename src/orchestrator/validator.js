@@ -9,15 +9,18 @@ const DecisionSchema = z.object({
   path: z.object({
     pairBinSteps: z.array(z.number()),
     versions: z.array(z.number()),
-    tokenPath: z.array(z.string())
+    tokenPath: z.array(z.string()),
   }),
   slippageTolerance: z.number().min(10).max(500),
-  reasoning: z.string().max(200)
+  reasoning: z.string().max(200),
 });
 
 function validateDecision(rawJsonString) {
   try {
-    const cleanJsonString = rawJsonString.replace(/```json/g, "").replace(/```/g, "").trim();
+    const cleanJsonString = rawJsonString
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
     const parsed = JSON.parse(cleanJsonString);
     const validatedData = DecisionSchema.parse(parsed);
     return { success: true, data: validatedData };

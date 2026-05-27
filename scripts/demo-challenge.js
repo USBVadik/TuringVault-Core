@@ -23,33 +23,40 @@
  * Spec: human-vs-ai-challenge-v2 + future v3.
  */
 
-const path = require('path');
-const fs = require('fs');
+const path = require("path");
+const fs = require("fs");
 
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
-const { runChallenge } = require('../src/orchestrator/runChallenge');
+const { runChallenge } = require("../src/orchestrator/runChallenge");
 
-const VALID_TYPES = ['flash_crash', 'pump_signal', 'oracle_conflict', 'sybil_consensus'];
-const RESULTS_DIR = path.resolve(__dirname, '../data/challenge-results');
+const VALID_TYPES = [
+  "flash_crash",
+  "pump_signal",
+  "oracle_conflict",
+  "sybil_consensus",
+];
+const RESULTS_DIR = path.resolve(__dirname, "../data/challenge-results");
 
 async function main() {
   const type = process.argv[2];
   if (!type || !VALID_TYPES.includes(type)) {
-    console.error(`Usage: node scripts/demo-challenge.js <${VALID_TYPES.join('|')}>`);
+    console.error(
+      `Usage: node scripts/demo-challenge.js <${VALID_TYPES.join("|")}>`
+    );
     process.exit(1);
   }
 
-  const anchorOnChain = process.env.ANCHOR === 'true';
+  const anchorOnChain = process.env.ANCHOR === "true";
   console.log(`\n=== Adversarial Challenge: ${type} ===`);
-  console.log(`anchor on-chain: ${anchorOnChain ? 'YES' : 'no'}\n`);
+  console.log(`anchor on-chain: ${anchorOnChain ? "YES" : "no"}\n`);
 
   const t0 = Date.now();
   let result;
   try {
     result = await runChallenge({ type, anchorOnChain });
   } catch (e) {
-    console.error('Fatal:', e?.message || e);
+    console.error("Fatal:", e?.message || e);
     process.exit(2);
   }
 
@@ -59,32 +66,52 @@ async function main() {
   console.log(`pipelinePath:   ${result.pipelinePath}`);
   console.log(`consensus:      ${result.consensus}`);
   console.log(`decisionTier:   ${result.decisionTier}`);
-  console.log(`verdict:        ${result.verdict.label} (blocked=${result.verdict.blocked})`);
-  console.log(`disagreement:   ${result.disagreementSignal ? 'YES' : 'no'}`);
+  console.log(
+    `verdict:        ${result.verdict.label} (blocked=${result.verdict.blocked})`
+  );
+  console.log(`disagreement:   ${result.disagreementSignal ? "YES" : "no"}`);
   if (result.disagreementSummary) {
     console.log(`  → ${result.disagreementSummary}`);
   }
   console.log(`\n--- Analyst (${result.agents.analyst.model}) ---`);
-  console.log(`  action:     ${result.agents.analyst.action} ${result.agents.analyst.targetAsset || ''}`);
-  console.log(`  confidence: ${(result.agents.analyst.confidence * 100).toFixed(0)}%`);
+  console.log(
+    `  action:     ${result.agents.analyst.action} ${
+      result.agents.analyst.targetAsset || ""
+    }`
+  );
+  console.log(
+    `  confidence: ${(result.agents.analyst.confidence * 100).toFixed(0)}%`
+  );
   console.log(`  timing:     ${result.agents.analyst.timing_ms}ms`);
-  console.log(`  reasoning:  ${result.agents.analyst.reasoning?.slice(0, 200)}...`);
+  console.log(
+    `  reasoning:  ${result.agents.analyst.reasoning?.slice(0, 200)}...`
+  );
 
   console.log(`\n--- Validator (${result.agents.validator.model}) ---`);
   console.log(`  approved:   ${result.agents.validator.approved}`);
-  console.log(`  confidence: ${(result.agents.validator.confidence * 100).toFixed(0)}%`);
+  console.log(
+    `  confidence: ${(result.agents.validator.confidence * 100).toFixed(0)}%`
+  );
   console.log(`  riskScore:  ${result.agents.validator.riskScore}/100`);
   console.log(`  timing:     ${result.agents.validator.timing_ms}ms`);
-  console.log(`  reasoning:  ${result.agents.validator.reasoning?.slice(0, 200)}...`);
+  console.log(
+    `  reasoning:  ${result.agents.validator.reasoning?.slice(0, 200)}...`
+  );
   if (result.agents.validator.flaggedIssues?.length) {
-    console.log(`  flagged:    ${result.agents.validator.flaggedIssues.join(', ')}`);
+    console.log(
+      `  flagged:    ${result.agents.validator.flaggedIssues.join(", ")}`
+    );
   }
 
   if (result.agents.arbiter) {
     console.log(`\n--- Arbiter (${result.agents.arbiter.model}) ---`);
     console.log(`  vote:       ${result.agents.arbiter.vote}`);
-    console.log(`  confidence: ${(result.agents.arbiter.confidence * 100).toFixed(0)}%`);
-    console.log(`  reasoning:  ${result.agents.arbiter.reasoning?.slice(0, 200)}...`);
+    console.log(
+      `  confidence: ${(result.agents.arbiter.confidence * 100).toFixed(0)}%`
+    );
+    console.log(
+      `  reasoning:  ${result.agents.arbiter.reasoning?.slice(0, 200)}...`
+    );
   }
 
   if (result.ipfsCid) {
@@ -106,15 +133,12 @@ async function main() {
 
   // Persist to data/challenge-results/
   fs.mkdirSync(RESULTS_DIR, { recursive: true });
-  const outPath = path.join(
-    RESULTS_DIR,
-    `${Date.now()}-${type}.json`,
-  );
+  const outPath = path.join(RESULTS_DIR, `${Date.now()}-${type}.json`);
   fs.writeFileSync(outPath, JSON.stringify(result, null, 2));
   console.log(`\nResult saved: ${path.relative(process.cwd(), outPath)}`);
 }
 
 main().catch((e) => {
-  console.error('Fatal:', e?.message || e);
+  console.error("Fatal:", e?.message || e);
   process.exit(99);
 });

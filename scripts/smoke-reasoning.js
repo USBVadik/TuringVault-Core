@@ -19,22 +19,24 @@
  * Spec: .kiro/specs/agent-reasoning-quality/{requirements,design,tasks}.md (T12)
  */
 
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 // Force-load .env values for Bedrock — multiAgentLoop does the same trick.
-const fs = require('fs');
-const envPath = path.resolve(__dirname, '../.env');
+const fs = require("fs");
+const envPath = path.resolve(__dirname, "../.env");
 if (fs.existsSync(envPath)) {
-  const _env = require('dotenv').parse(fs.readFileSync(envPath));
-  if (_env.AWS_ACCESS_KEY_ID) process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
-  if (_env.AWS_SECRET_ACCESS_KEY) process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
+  const _env = require("dotenv").parse(fs.readFileSync(envPath));
+  if (_env.AWS_ACCESS_KEY_ID)
+    process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
+  if (_env.AWS_SECRET_ACCESS_KEY)
+    process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
 }
 
-const { runMultiAgentCycle } = require('../src/orchestrator/multiAgentLoop');
-const { getRollingMetrics } = require('../src/orchestrator/parseMetrics');
+const { runMultiAgentCycle } = require("../src/orchestrator/multiAgentLoop");
+const { getRollingMetrics } = require("../src/orchestrator/parseMetrics");
 
-const N = parseInt(process.env.SMOKE_CYCLES ?? '5', 10);
+const N = parseInt(process.env.SMOKE_CYCLES ?? "5", 10);
 const PARSE_RATE_TARGET = 0.95;
 
 async function main() {
@@ -51,9 +53,9 @@ async function main() {
     try {
       const out = await runMultiAgentCycle({ dryRun: true });
       succeeded++;
-      const tier = out.decisionTier ?? 'UNKNOWN';
+      const tier = out.decisionTier ?? "UNKNOWN";
       tiers[tier] = (tiers[tier] ?? 0) + 1;
-      const cpath = out.decision?.analyst?._confidencePath ?? 'unknown';
+      const cpath = out.decision?.analyst?._confidencePath ?? "unknown";
       paths[cpath] = (paths[cpath] ?? 0) + 1;
       if (out.disagreementSignal) disagreements++;
     } catch (e) {
@@ -94,19 +96,27 @@ async function main() {
 
   console.log(`\n=== Path A/B gate ===`);
   if (m.successRate == null) {
-    console.log('No parse data — inconclusive.');
+    console.log("No parse data — inconclusive.");
     process.exit(2);
   }
   if (m.successRate >= PARSE_RATE_TARGET) {
-    console.log(`✅ Parse rate ${(m.successRate * 100).toFixed(1)}% ≥ ${(PARSE_RATE_TARGET * 100)}% — Path A is viable.`);
+    console.log(
+      `✅ Parse rate ${(m.successRate * 100).toFixed(1)}% ≥ ${
+        PARSE_RATE_TARGET * 100
+      }% — Path A is viable.`
+    );
     process.exit(0);
   } else {
-    console.log(`⚠ Parse rate ${(m.successRate * 100).toFixed(1)}% < ${(PARSE_RATE_TARGET * 100)}% — recommend Path B (drop self-evolving claim).`);
+    console.log(
+      `⚠ Parse rate ${(m.successRate * 100).toFixed(1)}% < ${
+        PARSE_RATE_TARGET * 100
+      }% — recommend Path B (drop self-evolving claim).`
+    );
     process.exit(1);
   }
 }
 
 main().catch((e) => {
-  console.error('Fatal:', e);
+  console.error("Fatal:", e);
   process.exit(99);
 });

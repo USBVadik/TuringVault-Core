@@ -18,12 +18,16 @@ function getMockDecision(marketData, portfolioState) {
       path: {
         pairBinSteps: [15],
         versions: [2],
-        tokenPath: [config.MANTLE_ASSETS.MUSD, config.MANTLE_ASSETS.METH]
+        tokenPath: [config.MANTLE_ASSETS.MUSD, config.MANTLE_ASSETS.METH],
       },
       slippageTolerance: 50,
-      reasoning: "Smart money inflow +$2.3M, mETH yield spread widening, risk-on rotation"
+      reasoning:
+        "Smart money inflow +$2.3M, mETH yield spread widening, risk-on rotation",
     };
-  } else if (marketData.sentiment === "extreme_fear" || marketData.volatility > 0.8) {
+  } else if (
+    marketData.sentiment === "extreme_fear" ||
+    marketData.volatility > 0.8
+  ) {
     decision = {
       action: "swap",
       direction: "risk_off",
@@ -33,10 +37,11 @@ function getMockDecision(marketData, portfolioState) {
       path: {
         pairBinSteps: [15],
         versions: [2],
-        tokenPath: [config.MANTLE_ASSETS.METH, config.MANTLE_ASSETS.MUSD]
+        tokenPath: [config.MANTLE_ASSETS.METH, config.MANTLE_ASSETS.MUSD],
       },
       slippageTolerance: 100,
-      reasoning: "Extreme fear detected, vol spike, rotating to stablecoin safety"
+      reasoning:
+        "Extreme fear detected, vol spike, rotating to stablecoin safety",
     };
   } else {
     decision = {
@@ -48,10 +53,10 @@ function getMockDecision(marketData, portfolioState) {
       path: {
         pairBinSteps: [15],
         versions: [2],
-        tokenPath: [config.MANTLE_ASSETS.MUSD, config.MANTLE_ASSETS.METH]
+        tokenPath: [config.MANTLE_ASSETS.MUSD, config.MANTLE_ASSETS.METH],
       },
       slippageTolerance: 50,
-      reasoning: "No strong signal, maintaining current allocation"
+      reasoning: "No strong signal, maintaining current allocation",
     };
   }
 
@@ -59,7 +64,13 @@ function getMockDecision(marketData, portfolioState) {
   const validation = validateDecision(JSON.stringify(decision));
   if (!validation.success) {
     console.error("Mock validation failed:", validation.error);
-    return { action: "hold", direction: "neutral", targetAsset: "mUSD", confidence: 0, reasoning: "mock_validation_failed" };
+    return {
+      action: "hold",
+      direction: "neutral",
+      targetAsset: "mUSD",
+      confidence: 0,
+      reasoning: "mock_validation_failed",
+    };
   }
 
   return validation.data;

@@ -24,23 +24,23 @@ USDY remains paper-ready but its Mantle pool is dry — calls to
 In **Settings → Secrets and variables → Actions** add one new repo
 secret:
 
-| Name | Value | Notes |
-|---|---|---|
+| Name                  | Value  | Notes                                                                                                           |
+| --------------------- | ------ | --------------------------------------------------------------------------------------------------------------- |
 | `RWA_EXECUTE_ENABLED` | `true` | Master kill-switch. When unset or anything other than `"true"`, the allocator runs but no swap TX is broadcast. |
 
 The other limits below have safe defaults; only set them as secrets
 if you want to override. All values must be valid numbers.
 
-| Optional override | Default | Effect |
-|---|---|---|
-| `RWA_MAX_PER_CYCLE_USD` | `5` | Cap on a single swap's USD value |
-| `RWA_MAX_PER_DAY_USD` | `25` | Rolling-24h cap on cumulative RWA swap USD |
-| `RWA_MIN_BALANCE_USD` | `2` | Wallet stable-USD floor; below this, allocator skips |
-| `RWA_MAX_PRICE_IMPACT_BPS` | `100` | 1% — refuse swap if quote impact above this |
-| `RWA_DEFAULT_SLIPPAGE_BPS` | `50` | 0.5% slippage on `minAmountOut` |
-| `RWA_IDLE_PARKING_COOLDOWN_MS` | `21600000` (6h) | Min gap between Path B swaps |
-| `RWA_IDLE_PARKING_MIN_FLAT_MS` | `86400000` (24h) | Min FLAT duration before Path B fires |
-| `RWA_IDLE_PARKING_FRACTION` | `0.20` | Share of idle stables to park each Path B swap |
+| Optional override              | Default          | Effect                                               |
+| ------------------------------ | ---------------- | ---------------------------------------------------- |
+| `RWA_MAX_PER_CYCLE_USD`        | `5`              | Cap on a single swap's USD value                     |
+| `RWA_MAX_PER_DAY_USD`          | `25`             | Rolling-24h cap on cumulative RWA swap USD           |
+| `RWA_MIN_BALANCE_USD`          | `2`              | Wallet stable-USD floor; below this, allocator skips |
+| `RWA_MAX_PRICE_IMPACT_BPS`     | `100`            | 1% — refuse swap if quote impact above this          |
+| `RWA_DEFAULT_SLIPPAGE_BPS`     | `50`             | 0.5% slippage on `minAmountOut`                      |
+| `RWA_IDLE_PARKING_COOLDOWN_MS` | `21600000` (6h)  | Min gap between Path B swaps                         |
+| `RWA_IDLE_PARKING_MIN_FLAT_MS` | `86400000` (24h) | Min FLAT duration before Path B fires                |
+| `RWA_IDLE_PARKING_FRACTION`    | `0.20`           | Share of idle stables to park each Path B swap       |
 
 After adding `RWA_EXECUTE_ENABLED=true`, the **next** scheduled cron
 or manual `workflow_dispatch` of `Agent Cycle` will execute swaps.
@@ -52,7 +52,7 @@ Two ways:
 1. **Soft pause** (preserves cycle attestations, just stops swaps):
    set `RWA_EXECUTE_ENABLED=false` (or delete the secret). Allocator
    still evaluates; intents are logged with `executed:false,
-   blockedReason:"execute-gate-off"`. Multi-agent reasoning chain
+blockedReason:"execute-gate-off"`. Multi-agent reasoning chain
    keeps running.
 2. **Hard pause** (full agent stop): use `Agent Cycle` workflow ⋯ →
    **Disable workflow**. See `cron-operations.md` section 2.
@@ -99,7 +99,7 @@ API surface for dashboards:
 - `/api/decisions` — each row gains `assetClass: 'rwa-treasury'` for
   RWA swaps and `rwaIntent: { source, executed }` when applicable.
 - `/api/strategy.rwaAllocation` — `{lastRebalanceAt, source,
-  executeEnabled, target}`.
+executeEnabled, target}`.
 
 ## 5. Recover from a failed swap
 
@@ -110,13 +110,13 @@ not retry the same intent manually; let the allocator re-decide.
 
 Common revert reasons and fixes:
 
-| Reason | Cause | Fix |
-|---|---|---|
-| `impact X% > 1%` | Pool price impact above gate | Wait for pool depth to recover, or raise `RWA_MAX_PRICE_IMPACT_BPS` cautiously. |
-| `not-viable` | Pool returned no quote | Pool may have rebalanced bins or temporarily empty. Next cycle retries automatically. |
-| `nonce too low` | Nonce collision with a pending TX | Resolve the stuck nonce per `cron-operations.md` section 6. |
-| `RWA_POOL_INACTIVE` | Code accidentally tried USDY | This shouldn't happen — open issue and inspect call stack. |
-| `insufficient allowance` | First swap of token; approval TX not yet confirmed | Re-run the cycle; `_ensureAllowance` only sets MaxUint256 once. |
+| Reason                   | Cause                                              | Fix                                                                                   |
+| ------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `impact X% > 1%`         | Pool price impact above gate                       | Wait for pool depth to recover, or raise `RWA_MAX_PRICE_IMPACT_BPS` cautiously.       |
+| `not-viable`             | Pool returned no quote                             | Pool may have rebalanced bins or temporarily empty. Next cycle retries automatically. |
+| `nonce too low`          | Nonce collision with a pending TX                  | Resolve the stuck nonce per `cron-operations.md` section 6.                           |
+| `RWA_POOL_INACTIVE`      | Code accidentally tried USDY                       | This shouldn't happen — open issue and inspect call stack.                            |
+| `insufficient allowance` | First swap of token; approval TX not yet confirmed | Re-run the cycle; `_ensureAllowance` only sets MaxUint256 once.                       |
 
 ## 6. Reactivate USDY
 

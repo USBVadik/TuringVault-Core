@@ -12,9 +12,11 @@
 **TuringVault** is an autonomous AI-powered RWA (Real World Asset) router deployed on Mantle Network. It dynamically rebalances a portfolio between stable yield instruments (mUSD/USDY) and volatile yield (mETH) using cryptographically verifiable proof-of-reasoning.
 
 ### One-liner:
+
 > "An AI fund manager that lives on-chain, thinks transparently, and earns yield autonomously."
 
 ### Why it wins:
+
 - ✅ Satisfies ALL hackathon requirements (ERC-8004, on-chain logging, transparency)
 - ✅ Directly targets "AI x RWA" track (less competition than generic trading bots)
 - ✅ Integrates partner protocols (Nansen, Merchant Moe, Ondo Finance)
@@ -24,12 +26,12 @@
 
 ## 2. HACKATHON SCORING ALIGNMENT
 
-| Criterion | Weight | Our Strategy |
-|-----------|--------|--------------|
-| Technical Depth | 30% | ERC-8004 identity + LB routing math + TEE attestation concept |
-| Innovation | 25% | Proof-of-reasoning on-chain (novel!) + AI reputation NFT |
-| Ecosystem Contribution | 20% | Deep Mantle integration: mETH, mUSD, USDY, Merchant Moe |
-| Product Completeness | 25% | Working demo, clean UI, real mainnet swaps |
+| Criterion              | Weight | Our Strategy                                                  |
+| ---------------------- | ------ | ------------------------------------------------------------- |
+| Technical Depth        | 30%    | ERC-8004 identity + LB routing math + TEE attestation concept |
+| Innovation             | 25%    | Proof-of-reasoning on-chain (novel!) + AI reputation NFT      |
+| Ecosystem Contribution | 20%    | Deep Mantle integration: mETH, mUSD, USDY, Merchant Moe       |
+| Product Completeness   | 25%    | Working demo, clean UI, real mainnet swaps                    |
 
 ---
 
@@ -109,7 +111,7 @@ contract TuringVaultIdentity is ERC721URIStorage, Ownable {
 
     // Agent metadata URI (IPFS/Arweave)
     // Contains: capabilities, endpoints, model info, owner
-    
+
     event AgentRegistered(uint256 indexed tokenId, string agentURI);
     event AgentURIUpdated(uint256 indexed tokenId, string newURI);
 
@@ -311,7 +313,7 @@ contract TuringVaultRouter is Ownable {
         uint8[] calldata versions
     ) external onlyOwner returns (uint256) {
         require(amountIn <= assetBalances[tokenIn], "Exceeds balance");
-        
+
         // Risk check: max single swap
         require(amountIn * 10000 / totalDeposited <= maxSingleSwapPct, "Exceeds max swap size");
 
@@ -430,6 +432,7 @@ src/orchestrator/
 ```
 
 **Main Loop (every 5 minutes):**
+
 ```
 1. COLLECT: Fetch market data from all sources
 2. ANALYZE: Send to LLM, get JSON decision
@@ -441,18 +444,19 @@ src/orchestrator/
 
 ### 5.3 Data Sources Priority
 
-| Source | Purpose | Latency | Cost |
-|--------|---------|---------|------|
-| On-chain view calls | Real-time price/liquidity | <100ms | Free (RPC) |
-| Nansen MCP | Smart money flows | ~2s | 100 free credits |
-| DeFiLlama | TVL, macro context | ~5s | Free |
-| Elfa AI | Sentiment | ~1s | TBD (hackathon credits) |
+| Source              | Purpose                   | Latency | Cost                    |
+| ------------------- | ------------------------- | ------- | ----------------------- |
+| On-chain view calls | Real-time price/liquidity | <100ms  | Free (RPC)              |
+| Nansen MCP          | Smart money flows         | ~2s     | 100 free credits        |
+| DeFiLlama           | TVL, macro context        | ~5s     | Free                    |
+| Elfa AI             | Sentiment                 | ~1s     | TBD (hackathon credits) |
 
 ---
 
 ## 6. NETWORK CONFIGURATION
 
 ### Mantle Mainnet
+
 ```
 Chain ID: 5000
 RPC: https://rpc.mantle.xyz
@@ -461,6 +465,7 @@ Native Token: MNT (for gas)
 ```
 
 ### Mantle Sepolia (Testing)
+
 ```
 Chain ID: 5003
 RPC: https://rpc.sepolia.mantle.xyz
@@ -469,6 +474,7 @@ Faucet: https://faucet.sepolia.mantle.xyz
 ```
 
 ### Key Contract Addresses (Mainnet)
+
 ```
 Merchant Moe LBRouter: 0x013e138EF6008ae5FDFDE29700e3f2Bc61d21E3a
 mUSD (Ondo):          0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3
@@ -483,6 +489,7 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 ## 7. DEVELOPMENT TIMELINE
 
 ### PHASE 1: Foundation (Days 1-7) — May 19-25
+
 ```
 □ P1.1: Setup Hardhat project + Mantle network config
 □ P1.2: Write & test TuringVaultIdentity.sol (ERC-8004)
@@ -494,6 +501,7 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 ```
 
 ### PHASE 2: Integration (Days 8-14) — May 26-Jun 1
+
 ```
 □ P2.1: Connect Nansen API (smart money flows)
 □ P2.2: Connect DeFiLlama API (TVL, prices)
@@ -505,6 +513,7 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 ```
 
 ### PHASE 3: Polish (Days 15-21) — Jun 2-8
+
 ```
 □ P3.1: Frontend dashboard (React/Next.js)
 □ P3.2: Portfolio visualization
@@ -516,6 +525,7 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 ```
 
 ### PHASE 4: Submission (Days 22-26) — Jun 9-15
+
 ```
 □ P4.1: Demo video (screen recording with voiceover)
 □ P4.2: Technical documentation
@@ -531,18 +541,21 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 ## 8. RISK MITIGATION
 
 ### Financial Risks
+
 - **Max test capital:** $100-200 in vault
 - **Max single swap:** 50% of portfolio
 - **Emergency kill switch:** owner can withdraw all
 - **Slippage cap:** 1% max
 
 ### Technical Risks
+
 - **LLM hallucination:** Zod validation rejects invalid JSON → fallback to HOLD
 - **RPC failure:** Retry 3x with backoff, then HOLD
 - **Gas spike:** 20% buffer, abort if gas > threshold
 - **Contract bug:** Extensive testnet testing first
 
 ### Competition Risks
+
 - **Scope creep:** STRICT scope — only 3 contracts + orchestrator + dashboard
 - **Over-engineering:** MVP first, polish later
 - **Time pressure:** Phase 4 is BUFFER — if behind, cut frontend features
@@ -552,12 +565,14 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 ## 9. TECH STACK
 
 ### Smart Contracts
+
 - Solidity ^0.8.20
 - Hardhat 3.x (compilation, testing, deployment)
 - OpenZeppelin Contracts v5 (ERC-721, Ownable, SafeERC20)
 - Ethers.js v6 (deployment scripts, orchestrator)
 
 ### AI Orchestrator
+
 - Node.js v22
 - OpenAI SDK / Anthropic SDK (LLM calls)
 - Zod (schema validation)
@@ -567,6 +582,7 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 - dotenv (config)
 
 ### Frontend
+
 - Next.js 14 (React)
 - TailwindCSS
 - Recharts (data visualization)
@@ -574,6 +590,7 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 - IPFS HTTP client
 
 ### Infrastructure
+
 - PM2 (process management)
 - IPFS/Pinata (reasoning storage)
 - Mantle RPC (direct)
@@ -653,6 +670,7 @@ ROUTER_CONTRACT=0x...
 ## 12. SUCCESS CRITERIA
 
 ### Minimum Viable Submission (MUST HAVE):
+
 - [ ] 3 contracts deployed on Mantle Mainnet
 - [ ] Agent NFT minted (ERC-8004)
 - [ ] At least 5 on-chain decisions logged
@@ -662,6 +680,7 @@ ROUTER_CONTRACT=0x...
 - [ ] Documentation
 
 ### Nice to Have:
+
 - [ ] Dashboard UI
 - [ ] 3+ days of autonomous operation
 - [ ] Positive PnL
@@ -669,6 +688,7 @@ ROUTER_CONTRACT=0x...
 - [ ] Sentiment analysis active
 
 ### Stretch Goals:
+
 - [ ] TEE attestation concept
 - [ ] Multi-asset routing (3+ tokens)
 - [ ] Community-facing dApp

@@ -1,3 +1,7 @@
-export default function ProofExplorerLayout({ children }: { children: React.ReactNode }) {
+export default function ProofExplorerLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

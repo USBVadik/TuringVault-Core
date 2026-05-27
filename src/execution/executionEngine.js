@@ -1,9 +1,9 @@
 /**
  * TuringVault Execution Engine — Byreal Perps CLI Wrapper
- * 
+ *
  * Converts multi-agent consensus decisions into deterministic on-chain execution
  * via Byreal Hyperliquid perpetual futures CLI.
- * 
+ *
  * Architecture:
  *   MultiAgent Decision → ExecutionEngine → Byreal CLI → Hyperliquid
  *                                        → On-chain attestation (Mantle)
@@ -36,8 +36,11 @@ class ExecutionEngine {
     const confidence = decision.analyst?.confidence || 0;
 
     // Risk guardrails — cannot be overridden by LLM
-    if (confidence < 0.80) {
-      return { executed: false, reason: `Confidence ${confidence} below execution threshold 0.80` };
+    if (confidence < 0.8) {
+      return {
+        executed: false,
+        reason: `Confidence ${confidence} below execution threshold 0.80`,
+      };
     }
 
     try {
@@ -97,30 +100,35 @@ class ExecutionEngine {
 
   async _openPosition(coin, side, decision) {
     const size = this._calculateSize(decision);
-    const leverage = Math.min(decision.analyst?.leverage || 3, this.maxLeverage);
-    
+    const leverage = Math.min(
+      decision.analyst?.leverage || 3,
+      this.maxLeverage
+    );
+
     // Set leverage first
     this._cli(`position leverage ${coin} ${leverage}`);
 
     // Build order command
     let cmd = `order market ${side} ${size} ${coin}`;
-    
+
     // Add TP/SL from validator risk assessment
     const riskScore = decision.validator?.riskScore || 50;
     const tpMultiplier = riskScore < 30 ? 0.05 : 0.03; // wider TP for low-risk
     const slMultiplier = riskScore < 30 ? 0.03 : 0.02;
-    
+
     // Get current price for TP/SL calculation
     const signals = await this.getSignals();
     const coinSignal = this._findCoinInSignals(signals, coin);
     if (coinSignal) {
       const price = parseFloat(coinSignal.price);
-      const tp = side === "buy" 
-        ? (price * (1 + tpMultiplier)).toFixed(2)
-        : (price * (1 - tpMultiplier)).toFixed(2);
-      const sl = side === "buy"
-        ? (price * (1 - slMultiplier)).toFixed(2)
-        : (price * (1 + slMultiplier)).toFixed(2);
+      const tp =
+        side === "buy"
+          ? (price * (1 + tpMultiplier)).toFixed(2)
+          : (price * (1 - tpMultiplier)).toFixed(2);
+      const sl =
+        side === "buy"
+          ? (price * (1 - slMultiplier)).toFixed(2)
+          : (price * (1 + slMultiplier)).toFixed(2);
       cmd += ` --tp ${tp} --sl ${sl}`;
     }
 
@@ -133,7 +141,7 @@ class ExecutionEngine {
         side,
         size,
         leverage,
-        reason: "Dry-run mode — command prepared but not executed"
+        reason: "Dry-run mode — command prepared but not executed",
       };
     }
 
@@ -146,13 +154,17 @@ class ExecutionEngine {
       size,
       leverage,
       result,
-      txid: result?.data?.txid || null
+      txid: result?.data?.txid || null,
     };
   }
 
   async _closePosition(coin) {
     if (this.dryRun) {
-      return { executed: false, dryRun: true, command: `byreal-perps-cli position close-market ${coin}` };
+      return {
+        executed: false,
+        dryRun: true,
+        command: `byreal-perps-cli position close-market ${coin}`,
+      };
     }
     const result = this._cli(`position close-market ${coin} -y`);
     return { executed: true, coin, action: "close", result };
@@ -162,29 +174,29 @@ class ExecutionEngine {
     // Conservative sizing based on confidence
     const confidence = decision.analyst?.confidence || 0.75;
     const riskScore = decision.validator?.riskScore || 50;
-    
+
     // Base size 0.01 BTC, scale up with confidence, scale down with risk
     const baseSize = 0.01;
     const confidenceMultiplier = confidence; // 0.75-1.0
-    const riskMultiplier = 1 - (riskScore / 100); // lower risk = bigger position
-    
+    const riskMultiplier = 1 - riskScore / 100; // lower risk = bigger position
+
     const size = Math.min(
       baseSize * confidenceMultiplier * riskMultiplier * 5,
       this.maxPositionSize
     );
-    
+
     return size.toFixed(4);
   }
 
   _resolveAsset(targetAsset) {
     // Map our internal asset names to Byreal/Hyperliquid coins
     const mapping = {
-      "mETH": "ETH",
-      "ETH": "ETH",
-      "mUSD": "ETH", // mUSD strategies map to ETH shorts/longs
-      "BTC": "BTC",
-      "MNT": "MNT",
-      "USDY": "ETH", // RWA yield → hedge with ETH
+      mETH: "ETH",
+      ETH: "ETH",
+      mUSD: "ETH", // mUSD strategies map to ETH shorts/longs
+      BTC: "BTC",
+      MNT: "MNT",
+      USDY: "ETH", // RWA yield → hedge with ETH
     };
     return mapping[targetAsset] || "ETH";
   }
@@ -192,7 +204,9 @@ class ExecutionEngine {
   _findCoinInSignals(signals, coin) {
     for (const category of Object.values(signals)) {
       if (Array.isArray(category)) {
-        const found = category.find(s => s.coin === coin || s.coin?.includes(coin));
+        const found = category.find(
+          (s) => s.coin === coin || s.coin?.includes(coin)
+        );
         if (found) return found;
       }
     }
@@ -204,14 +218,16 @@ class ExecutionEngine {
       const output = execSync(`byreal-perps-cli ${command} -o json`, {
         timeout: 30000,
         encoding: "utf8",
-        stdio: ["pipe", "pipe", "pipe"]
+        stdio: ["pipe", "pipe", "pipe"],
       });
       return JSON.parse(output);
     } catch (err) {
       const stderr = err.stderr?.toString() || "";
       const stdout = err.stdout?.toString() || "";
       // Try to parse JSON from stdout even on error exit
-      try { return JSON.parse(stdout); } catch {}
+      try {
+        return JSON.parse(stdout);
+      } catch {}
       throw new Error(`Byreal CLI error: ${stderr || stdout || err.message}`);
     }
   }

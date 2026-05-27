@@ -269,6 +269,7 @@ If splitting: ship T1+T2+T3+T4+T5+T6 first (foundation), then T7-T15 (UI), then 
 ## Out-of-scope reminders
 
 This spec does NOT:
+
 - Re-enable prompt evolution (separate spec).
 - Add the vault contract (separate spec).
 - Set up continuous cron (separate spec).

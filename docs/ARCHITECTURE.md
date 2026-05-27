@@ -3,6 +3,7 @@
 ## System Overview
 
 TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle autonomous system where every AI decision is:
+
 1. Informed by institutional-grade data (Nansen MCP + Hyperliquid + CoinGecko + DeFiLlama + Fear&Greed)
 2. Debated by three independent AI agents (Analyst → Validator → Arbiter on disagreement)
 3. Executed deterministically (Merchant Moe LB v2.2 + RWA allocator)
@@ -137,21 +138,25 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 ## Smart Contract Architecture
 
 ### TuringVaultIdentity (ERC-721)
+
 - Agent NFT — makes the AI publicly discoverable
 - TokenURI → IPFS metadata (model, capabilities, constraints)
 - CAIP-10 cross-chain identifier support
 
 ### TuringVaultDecisionLog
+
 - Append-only decision history
 - Fields: action, asset, amounts, confidence, reasoning, executionTxHash
 - Queryable by decision ID or time range
 
 ### TuringVaultRouter
+
 - Strategy routing logic
 - Maps agent intents to protocol interactions
 - Manages approved protocol list
 
 ### TuringVaultValidationRegistry
+
 - Multi-agent consensus on-chain
 - submitProposal() → analyst records proposal
 - validateProposal() → validator records assessment
@@ -204,17 +209,17 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 
 ## Technology Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| Contracts | Solidity 0.8.28, Hardhat 2, OpenZeppelin v5.1 | Battle-tested, EVM cancun |
-| AI Core | Z.ai GLM-5 (Analyst) + Claude Sonnet 4.6 (Validator) + Gemini 3.5 Flash (Arbiter) | Three-model adversarial consensus |
-| Inference | AWS Bedrock + Google Vertex AI | Provider diversity, hackathon sponsor stack |
-| Validation | Zod schemas | Type-safe LLM output parsing |
-| Execution | Merchant Moe LB v2.2 (concentrated liquidity) | On-chain DEX, RWA allocator routes here |
-| Key Mgmt | ethers.Wallet on cron (vault contract + HSM signing — roadmap) | Honest about current state |
-| Analytics | Nansen MCP, Hyperliquid funding, DeFiLlama | Smart Money + derivatives + TVL |
-| Frontend | Next.js 16, RainbowKit, wagmi, viem | Modern Web3 UX on Vercel |
-| Cron | GitHub Actions hourly schedule | Public verifiable workflow log |
+| Layer      | Technology                                                                        | Rationale                                   |
+| ---------- | --------------------------------------------------------------------------------- | ------------------------------------------- |
+| Contracts  | Solidity 0.8.28, Hardhat 2, OpenZeppelin v5.1                                     | Battle-tested, EVM cancun                   |
+| AI Core    | Z.ai GLM-5 (Analyst) + Claude Sonnet 4.6 (Validator) + Gemini 3.5 Flash (Arbiter) | Three-model adversarial consensus           |
+| Inference  | AWS Bedrock + Google Vertex AI                                                    | Provider diversity, hackathon sponsor stack |
+| Validation | Zod schemas                                                                       | Type-safe LLM output parsing                |
+| Execution  | Merchant Moe LB v2.2 (concentrated liquidity)                                     | On-chain DEX, RWA allocator routes here     |
+| Key Mgmt   | ethers.Wallet on cron (vault contract + HSM signing — roadmap)                    | Honest about current state                  |
+| Analytics  | Nansen MCP, Hyperliquid funding, DeFiLlama                                        | Smart Money + derivatives + TVL             |
+| Frontend   | Next.js 16, RainbowKit, wagmi, viem                                               | Modern Web3 UX on Vercel                    |
+| Cron       | GitHub Actions hourly schedule                                                    | Public verifiable workflow log              |
 
 ---
 

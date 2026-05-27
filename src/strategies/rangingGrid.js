@@ -21,10 +21,12 @@ function cached(key, fn, ttlOverride) {
   const ttl = ttlOverride || CACHE_TTL;
   const e = CACHE[key];
   if (e && Date.now() - e.ts < ttl) return Promise.resolve(e.data);
-  return fn().then(d => {
-    CACHE[key] = { data: d, ts: Date.now() };
-    return d;
-  }).catch(() => e?.data || null);
+  return fn()
+    .then((d) => {
+      CACHE[key] = { data: d, ts: Date.now() };
+      return d;
+    })
+    .catch(() => e?.data || null);
 }
 
 async function fetchJson(url, timeout = 8000) {
@@ -44,21 +46,25 @@ async function fetchJson(url, timeout = 8000) {
  * Used as real-time price source to avoid CoinGecko lag
  */
 async function getLiveEthPrice() {
-  return cached('live_eth_price', async () => {
-    const r = await fetchJson('https://api.hyperliquid.xyz/info', 4000);
-    if (!r) throw new Error('No data');
-    // Hyperliquid returns array of market contexts
-    const body = { type: 'allMids' };
-    const res = await fetch('https://api.hyperliquid.xyz/info', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const mids = await res.json();
-    const ethPrice = parseFloat(mids['ETH'] || 0);
-    if (!ethPrice) throw new Error('ETH price not found');
-    return ethPrice;
-  }, 30 * 1000); // 30s cache for live price
+  return cached(
+    "live_eth_price",
+    async () => {
+      const r = await fetchJson("https://api.hyperliquid.xyz/info", 4000);
+      if (!r) throw new Error("No data");
+      // Hyperliquid returns array of market contexts
+      const body = { type: "allMids" };
+      const res = await fetch("https://api.hyperliquid.xyz/info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const mids = await res.json();
+      const ethPrice = parseFloat(mids["ETH"] || 0);
+      if (!ethPrice) throw new Error("ETH price not found");
+      return ethPrice;
+    },
+    30 * 1000
+  ); // 30s cache for live price
 }
 
 /**
@@ -71,13 +77,13 @@ async function fetchEthCandles(hours = 48) {
     const days = Math.ceil(hours / 24);
     const url = `https://api.coingecko.com/api/v3/coins/mantle/market_chart?vs_currency=usd&days=${days}&interval=hourly`;
     const data = await fetchJson(url, 10000);
-    if (!data?.prices) throw new Error('No price data');
+    if (!data?.prices) throw new Error("No price data");
 
     // Convert to OHLC-like objects per hour
     const candles = data.prices.map(([ts, price]) => ({
       timestamp: ts,
       price,
-      time: new Date(ts).toISOString()
+      time: new Date(ts).toISOString(),
     }));
 
     // Keep only last N hours
@@ -96,10 +102,10 @@ async function fetchEthCandles(hours = 48) {
 async function detectChannel(hours = 48, channelPct = 0.05) {
   const candles = await fetchEthCandles(hours);
   if (!candles || candles.length < 10) {
-    return { valid: false, reason: 'Insufficient price history' };
+    return { valid: false, reason: "Insufficient price history" };
   }
 
-  const prices = candles.map(c => c.price);
+  const prices = candles.map((c) => c.price);
   const currentPrice = prices[prices.length - 1];
 
   // Sort for percentile calculation
@@ -107,14 +113,15 @@ async function detectChannel(hours = 48, channelPct = 0.05) {
   const n = sorted.length;
 
   // Use 10th/90th percentile as support/resistance (robust to outliers)
-  const support = sorted[Math.floor(n * 0.10)];
-  const resistance = sorted[Math.floor(n * 0.90)];
+  const support = sorted[Math.floor(n * 0.1)];
+  const resistance = sorted[Math.floor(n * 0.9)];
   const channelMid = (support + resistance) / 2;
   const channelWidth = resistance - support;
   const channelWidthPct = channelWidth / channelMid;
 
   // Is this actually a ranging channel? Width should be within reason
-  const isRanging = channelWidthPct <= channelPct * 3 && channelWidthPct >= 0.005;
+  const isRanging =
+    channelWidthPct <= channelPct * 3 && channelWidthPct >= 0.005;
 
   // Minimum width check: channel must be wide enough for profitable trading after slippage
   // At 0.15% slippage + 0.02% gas: need at least 0.5% reward = 0.7% channel minimum
@@ -122,9 +129,10 @@ async function detectChannel(hours = 48, channelPct = 0.05) {
   const tooNarrow = channelWidthPct < MIN_CHANNEL_WIDTH_PCT;
 
   // Where is current price in the channel? 0 = at support, 1 = at resistance
-  const channelPosition = Math.max(0, Math.min(1,
-    (currentPrice - support) / (channelWidth || 1)
-  ));
+  const channelPosition = Math.max(
+    0,
+    Math.min(1, (currentPrice - support) / (channelWidth || 1))
+  );
 
   // Recent volatility: std dev of last 12h vs prior 12h
   const recent = prices.slice(-12);
@@ -154,7 +162,7 @@ async function detectChannel(hours = 48, channelPct = 0.05) {
     lookbackHours: hours,
     candleCount: candles.length,
     // Grid levels for execution
-    gridLevels: computeGridLevels(support, resistance, 5)
+    gridLevels: computeGridLevels(support, resistance, 5),
   };
 }
 
@@ -171,7 +179,7 @@ function computeGridLevels(support, resistance, n = 5) {
     levels.push({
       price: Math.round(price * 100) / 100,
       pct: Math.round(pct * 100) / 100,
-      zone: pct <= 0.25 ? 'BUY_ZONE' : pct >= 0.75 ? 'SELL_ZONE' : 'NEUTRAL'
+      zone: pct <= 0.25 ? "BUY_ZONE" : pct >= 0.75 ? "SELL_ZONE" : "NEUTRAL",
     });
   }
   return levels;
@@ -199,63 +207,66 @@ async function getGridSignal(currentPrice) {
 
   if (!channel.valid) {
     return {
-      action: 'HOLD',
-      reason: channel.reason || 'Channel not valid',
+      action: "HOLD",
+      reason: channel.reason || "Channel not valid",
       channel: null,
-      confidence: 0.3
+      confidence: 0.3,
     };
   }
 
   // Channel too narrow for profitable trading after slippage
   if (channel.tooNarrow) {
     return {
-      action: 'HOLD',
+      action: "HOLD",
       reason: `Channel too narrow (${channel.channelWidthPct}% < 0.7% minimum). Slippage would eat profits. Waiting for wider range.`,
       channel,
-      confidence: 0.4
+      confidence: 0.4,
     };
   }
 
   // Use passed price (from live pipeline), then try Hyperliquid, then fall back to channel's CoinGecko price
   let price = currentPrice;
   if (!price || price <= 0) {
-    try { price = await getLiveEthPrice(); } catch {}
+    try {
+      price = await getLiveEthPrice();
+    } catch {}
   }
   price = price || channel.currentPrice;
 
   // Recalculate position in channel using live price (not stale CoinGecko price)
   const channelWidth = channel.resistance - channel.support;
-  const pos = Math.max(0, Math.min(1,
-    (price - channel.support) / (channelWidth || 1)
-  ));
+  const pos = Math.max(
+    0,
+    Math.min(1, (price - channel.support) / (channelWidth || 1))
+  );
 
   // Channel breakdown detection
   if (channel.volatilityExpanding || channel.hasTrend) {
     return {
-      action: 'EXIT_RANGING',
+      action: "EXIT_RANGING",
       reason: `Channel breaking down. Volatility expanding: ${channel.volatilityExpanding}, trend forming: ${channel.hasTrend}`,
       channel,
-      confidence: 0.7
+      confidence: 0.7,
     };
   }
 
   // Price above resistance = breakout
   if (price > channel.resistance * 1.01) {
     return {
-      action: 'EXIT_RANGING',
+      action: "EXIT_RANGING",
       reason: `Price ${price} broke above resistance ${channel.resistance} — switch to TREND_UP`,
       channel,
-      confidence: 0.8
+      confidence: 0.8,
     };
   }
 
   // Price below support = breakdown
   if (price < channel.support * 0.99) {
     return {
-      action: 'EXIT_RANGING',
+      action: "EXIT_RANGING",
       reason: `Price ${price} broke below support ${channel.support} — switch to TREND_DOWN or CRISIS`,
       channel,
-      confidence: 0.8
+      confidence: 0.8,
     };
   }
 
@@ -263,9 +274,12 @@ async function getGridSignal(currentPrice) {
   // ── TAKE PROFIT at opposite zone edge (not midpoint) ─────────────
   // ── STOP LOSS: 1.2% beyond channel boundary ──────────────────────
 
-  if (pos <= 0.30) {
+  if (pos <= 0.3) {
     // BUY ZONE — near support
-    const distanceFromSupport = ((price - channel.support) / channel.channelMid * 100).toFixed(2);
+    const distanceFromSupport = (
+      ((price - channel.support) / channel.channelMid) *
+      100
+    ).toFixed(2);
     // TP at 75% of channel (not midpoint) — captures most of the range
     const targetExit = channel.support + channelWidth * 0.75;
     // SL: adaptive — max(0.3% below entry, 40% of expected reward)
@@ -274,37 +288,52 @@ async function getGridSignal(currentPrice) {
     const slDistance = Math.max(price * 0.003, expectedReward * 0.4); // never risk more than 40% of reward
     const stopLoss = price - slDistance;
     // Reward vs risk
-    const rewardPct = ((targetExit - price) / price * 100).toFixed(2);
-    const riskPct = (slDistance / price * 100).toFixed(2);
+    const rewardPct = (((targetExit - price) / price) * 100).toFixed(2);
+    const riskPct = ((slDistance / price) * 100).toFixed(2);
 
     return {
-      action: 'BUY_mETH',
-      reason: `Price at ${(pos * 100).toFixed(0)}% of channel (BUY zone, support $${channel.support}). R:R = ${rewardPct}%/${riskPct}% = ${(expectedReward / slDistance).toFixed(1)}:1`,
+      action: "BUY_mETH",
+      reason: `Price at ${(pos * 100).toFixed(
+        0
+      )}% of channel (BUY zone, support $${
+        channel.support
+      }). R:R = ${rewardPct}%/${riskPct}% = ${(
+        expectedReward / slDistance
+      ).toFixed(1)}:1`,
       channel,
-      confidence: 0.65 + (0.30 - pos) * 0.5, // stronger closer to support
+      confidence: 0.65 + (0.3 - pos) * 0.5, // stronger closer to support
       targetExit: Math.round(targetExit * 100) / 100,
       stopLoss: Math.round(stopLoss * 100) / 100,
       trailingStopPct: 0.6, // activate trailing stop after +0.6% profit
     };
   }
 
-  if (pos >= 0.70) {
+  if (pos >= 0.7) {
     // SELL ZONE — near resistance
-    const distanceFromResistance = ((channel.resistance - price) / channel.channelMid * 100).toFixed(2);
+    const distanceFromResistance = (
+      ((channel.resistance - price) / channel.channelMid) *
+      100
+    ).toFixed(2);
     // TP at 25% of channel (opposite buy zone)
     const targetExit = channel.support + channelWidth * 0.25;
     // SL: adaptive — same logic as BUY but inverted
     const expectedReward = price - targetExit;
     const slDistance = Math.max(price * 0.003, expectedReward * 0.4);
     const stopLoss = price + slDistance;
-    const rewardPct = ((price - targetExit) / price * 100).toFixed(2);
-    const riskPct = (slDistance / price * 100).toFixed(2);
+    const rewardPct = (((price - targetExit) / price) * 100).toFixed(2);
+    const riskPct = ((slDistance / price) * 100).toFixed(2);
 
     return {
-      action: 'SELL_mETH',
-      reason: `Price at ${(pos * 100).toFixed(0)}% of channel (SELL zone, resistance $${channel.resistance}). R:R = ${rewardPct}%/${riskPct}% = ${(expectedReward / slDistance).toFixed(1)}:1`,
+      action: "SELL_mETH",
+      reason: `Price at ${(pos * 100).toFixed(
+        0
+      )}% of channel (SELL zone, resistance $${
+        channel.resistance
+      }). R:R = ${rewardPct}%/${riskPct}% = ${(
+        expectedReward / slDistance
+      ).toFixed(1)}:1`,
       channel,
-      confidence: 0.65 + (pos - 0.70) * 0.5, // stronger closer to resistance
+      confidence: 0.65 + (pos - 0.7) * 0.5, // stronger closer to resistance
       targetExit: Math.round(targetExit * 100) / 100,
       stopLoss: Math.round(stopLoss * 100) / 100,
       trailingStopPct: 0.6,
@@ -313,10 +342,14 @@ async function getGridSignal(currentPrice) {
 
   // HOLD zone — no edge
   return {
-    action: 'HOLD',
-    reason: `Price at ${(pos * 100).toFixed(0)}% of channel (HOLD zone 30-70%). Wait for edge near support ($${channel.support}) or resistance ($${channel.resistance})`,
+    action: "HOLD",
+    reason: `Price at ${(pos * 100).toFixed(
+      0
+    )}% of channel (HOLD zone 30-70%). Wait for edge near support ($${
+      channel.support
+    }) or resistance ($${channel.resistance})`,
     channel,
-    confidence: 0.5
+    confidence: 0.5,
   };
 }
 
@@ -329,20 +362,25 @@ async function getGridSignal(currentPrice) {
  * @param {object} posState - from positionState.getState()
  */
 async function shouldExitPosition(currentPrice, posState) {
-  if (!posState || posState.status === 'FLAT') {
-    return { exit: false, reason: 'No position' };
+  if (!posState || posState.status === "FLAT") {
+    return { exit: false, reason: "No position" };
   }
 
   const { entryPrice, stopLoss, targetExit, highWaterMark } = posState;
 
   // 1. STOP LOSS (from positionState — set at entry time by grid signal)
-  const effectiveSL = stopLoss || (entryPrice * 0.988);
+  const effectiveSL = stopLoss || entryPrice * 0.988;
   if (currentPrice <= effectiveSL) {
     return {
       exit: true,
-      reason: `STOP LOSS: $${currentPrice} ≤ SL $${effectiveSL.toFixed(2)}. Entry: $${entryPrice}. PnL: ${((currentPrice / entryPrice - 1) * 100).toFixed(2)}%`,
-      action: 'STOP_LOSS',
-      pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2)
+      reason: `STOP LOSS: $${currentPrice} ≤ SL $${effectiveSL.toFixed(
+        2
+      )}. Entry: $${entryPrice}. PnL: ${(
+        (currentPrice / entryPrice - 1) *
+        100
+      ).toFixed(2)}%`,
+      action: "STOP_LOSS",
+      pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2),
     };
   }
 
@@ -354,21 +392,25 @@ async function shouldExitPosition(currentPrice, posState) {
     if (currentPrice <= trailLevel) {
       return {
         exit: true,
-        reason: `TRAILING STOP: $${currentPrice} < trail $${trailLevel.toFixed(2)} (HWM: $${hwm.toFixed(2)}). Locking gains.`,
-        action: 'TRAILING_STOP',
-        pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2)
+        reason: `TRAILING STOP: $${currentPrice} < trail $${trailLevel.toFixed(
+          2
+        )} (HWM: $${hwm.toFixed(2)}). Locking gains.`,
+        action: "TRAILING_STOP",
+        pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2),
       };
     }
   }
 
   // 3. TAKE PROFIT (from positionState)
-  const effectiveTP = targetExit || (entryPrice * 1.02);
+  const effectiveTP = targetExit || entryPrice * 1.02;
   if (currentPrice >= effectiveTP) {
     return {
       exit: true,
-      reason: `TAKE PROFIT: $${currentPrice} ≥ TP $${effectiveTP.toFixed(2)}. PnL: +${((currentPrice / entryPrice - 1) * 100).toFixed(2)}%`,
-      action: 'TAKE_PROFIT',
-      pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2)
+      reason: `TAKE PROFIT: $${currentPrice} ≥ TP $${effectiveTP.toFixed(
+        2
+      )}. PnL: +${((currentPrice / entryPrice - 1) * 100).toFixed(2)}%`,
+      action: "TAKE_PROFIT",
+      pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2),
     };
   }
 
@@ -378,8 +420,8 @@ async function shouldExitPosition(currentPrice, posState) {
     return {
       exit: true,
       reason: `CHANNEL BREAK: $${currentPrice} fell below support $${channel.support}. Emergency exit.`,
-      action: 'CHANNEL_BREAK',
-      pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2)
+      action: "CHANNEL_BREAK",
+      pnlPct: ((currentPrice / entryPrice - 1) * 100).toFixed(2),
     };
   }
 
@@ -400,7 +442,8 @@ function linearSlope(arr) {
   if (n < 2) return 0;
   const xMean = (n - 1) / 2;
   const yMean = arr.reduce((a, b) => a + b, 0) / n;
-  let num = 0, den = 0;
+  let num = 0,
+    den = 0;
   for (let i = 0; i < n; i++) {
     num += (i - xMean) * (arr[i] - yMean);
     den += (i - xMean) ** 2;
@@ -423,13 +466,23 @@ async function buildRangingContext() {
     return [
       `RANGING GRID STRATEGY:`,
       `  Channel: $${ch.support} (support) → $${ch.resistance} (resistance) | Width: ${ch.channelWidthPct}%`,
-      `  Current price: $${ch.currentPrice} | Position in channel: ${(ch.channelPosition * 100).toFixed(0)}%`,
-      `  Channel integrity: ${ch.isRanging ? 'INTACT' : 'QUESTIONABLE'} | Trend forming: ${ch.hasTrend} | Vol expanding: ${ch.volatilityExpanding}`,
-      `  Grid signal: ${signal.action} | Confidence: ${(signal.confidence * 100).toFixed(0)}%`,
+      `  Current price: $${ch.currentPrice} | Position in channel: ${(
+        ch.channelPosition * 100
+      ).toFixed(0)}%`,
+      `  Channel integrity: ${
+        ch.isRanging ? "INTACT" : "QUESTIONABLE"
+      } | Trend forming: ${ch.hasTrend} | Vol expanding: ${
+        ch.volatilityExpanding
+      }`,
+      `  Grid signal: ${signal.action} | Confidence: ${(
+        signal.confidence * 100
+      ).toFixed(0)}%`,
       `  Reasoning: ${signal.reason}`,
-      signal.targetExit ? `  Take profit target: $${signal.targetExit}` : '',
-      signal.stopLoss ? `  Stop loss: $${signal.stopLoss}` : '',
-    ].filter(Boolean).join('\n');
+      signal.targetExit ? `  Take profit target: $${signal.targetExit}` : "",
+      signal.stopLoss ? `  Stop loss: $${signal.stopLoss}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
   } catch (e) {
     return `RANGING GRID: Error computing channel — ${e.message}`;
   }
@@ -441,16 +494,16 @@ module.exports = {
   shouldExitPosition,
   buildRangingContext,
   fetchEthCandles,
-  computeGridLevels
+  computeGridLevels,
 };
 
 // Self-test
 if (require.main === module) {
   (async () => {
-    console.log('═══ Ranging Grid Strategy Test ═══\n');
+    console.log("═══ Ranging Grid Strategy Test ═══\n");
     const ctx = await buildRangingContext();
     console.log(ctx);
-    console.log('\n═══ Detailed Signal ═══\n');
+    console.log("\n═══ Detailed Signal ═══\n");
     const sig = await getGridSignal();
     console.log(JSON.stringify(sig, null, 2));
   })().catch(console.error);

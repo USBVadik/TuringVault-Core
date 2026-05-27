@@ -16,10 +16,10 @@
  * Spec: human-vs-ai-challenge-v2 (R4.2, design §C6, CP4).
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const BUDGET_PATH = path.resolve(__dirname, '../../data/challenge-budget.json');
+const BUDGET_PATH = path.resolve(__dirname, "../../data/challenge-budget.json");
 const HISTORY_LIMIT = 100;
 
 const DEFAULT_CAP = 100;
@@ -27,7 +27,7 @@ const DEFAULT_CAP = 100;
 class BudgetExhaustedError extends Error {
   constructor(used, cap, resetAt) {
     super(`BUDGET_EXHAUSTED: ${used}/${cap} used today. Resets at ${resetAt}.`);
-    this.code = 'BUDGET_EXHAUSTED';
+    this.code = "BUDGET_EXHAUSTED";
     this.used = used;
     this.cap = cap;
     this.resetAt = resetAt;
@@ -48,7 +48,7 @@ function nextUtcMidnight(now = new Date()) {
 
 function getCap() {
   const raw = process.env.CHALLENGE_DAILY_CAP;
-  if (raw === undefined || raw === null || raw === '') return DEFAULT_CAP;
+  if (raw === undefined || raw === null || raw === "") return DEFAULT_CAP;
   const n = Number(raw);
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_CAP;
 }
@@ -58,10 +58,10 @@ function readRaw() {
     if (!fs.existsSync(BUDGET_PATH)) {
       return { date: todayUtc(), used: 0, history: [] };
     }
-    const data = JSON.parse(fs.readFileSync(BUDGET_PATH, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(BUDGET_PATH, "utf-8"));
     return {
       date: data.date ?? todayUtc(),
-      used: typeof data.used === 'number' ? data.used : 0,
+      used: typeof data.used === "number" ? data.used : 0,
       history: Array.isArray(data.history) ? data.history : [],
     };
   } catch {
@@ -71,7 +71,7 @@ function readRaw() {
 
 function writeRaw(data) {
   fs.mkdirSync(path.dirname(BUDGET_PATH), { recursive: true });
-  fs.writeFileSync(BUDGET_PATH, JSON.stringify(data, null, 2) + '\n');
+  fs.writeFileSync(BUDGET_PATH, JSON.stringify(data, null, 2) + "\n");
 }
 
 /**

@@ -17,32 +17,32 @@
  *   docs/pitch-deck/turingvault-pitch.pdf
  */
 
-const { chromium } = require('playwright');
-const path = require('path');
+const { chromium } = require("playwright");
+const path = require("path");
 
-const HTML = path.resolve(__dirname, 'index.html');
-const OUT = path.resolve(__dirname, 'turingvault-pitch.pdf');
+const HTML = path.resolve(__dirname, "index.html");
+const OUT = path.resolve(__dirname, "turingvault-pitch.pdf");
 
 (async () => {
-  console.log('▶ Launching headless Chromium…');
+  console.log("▶ Launching headless Chromium…");
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
 
   console.log(`  Loading file://${HTML}`);
-  await page.goto('file://' + HTML, { waitUntil: 'networkidle' });
+  await page.goto("file://" + HTML, { waitUntil: "networkidle" });
 
   // Tailwind CDN sometimes finishes restyling after networkidle.
   // Explicit wait so the dark background + monospace fonts settle.
   await page.waitForTimeout(800);
 
-  console.log('  Generating PDF…');
+  console.log("  Generating PDF…");
   await page.pdf({
     path: OUT,
-    width: '1280px',
-    height: '720px',
+    width: "1280px",
+    height: "720px",
     printBackground: true,
     margin: { top: 0, right: 0, bottom: 0, left: 0 },
-    pageRanges: '',           // all
+    pageRanges: "", // all
     displayHeaderFooter: false,
     preferCSSPageSize: true,
   });
@@ -50,6 +50,6 @@ const OUT = path.resolve(__dirname, 'turingvault-pitch.pdf');
   await browser.close();
   console.log(`✓ Wrote ${path.relative(process.cwd(), OUT)}`);
 })().catch((e) => {
-  console.error('Fatal:', e?.message || e);
+  console.error("Fatal:", e?.message || e);
   process.exit(1);
 });

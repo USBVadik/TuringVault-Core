@@ -18,19 +18,19 @@
  * Spec: human-vs-ai-challenge-v2 (R1, R2, R3, design §C2, CP6).
  */
 
-const { ethers } = require('ethers');
+const { ethers } = require("ethers");
 
-const { applyAttack, ATTACK_TYPES } = require('./attackVectors');
-const { getMultiAgentDecision } = require('./multiAgent');
-const { getUnifiedMarketContext } = require('./unifiedMarketData');
-const { getStructuredSignals } = require('./signalEngine');
-const { classifyDecisionTier } = require('./decisionTier');
-const { pinJSON } = require('../ipfs/storage');
+const { applyAttack, ATTACK_TYPES } = require("./attackVectors");
+const { getMultiAgentDecision } = require("./multiAgent");
+const { getUnifiedMarketContext } = require("./unifiedMarketData");
+const { getStructuredSignals } = require("./signalEngine");
+const { classifyDecisionTier } = require("./decisionTier");
+const { pinJSON } = require("../ipfs/storage");
 
 // Contract addresses — same as production cycle.
-const REGISTRY_ADDR = '0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6';
+const REGISTRY_ADDR = "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6";
 const REGISTRY_ABI = [
-  'function submitProposal(string action, string targetAsset, uint256 amountIn, uint256 confidence, string reasoning) external returns (uint256)',
+  "function submitProposal(string action, string targetAsset, uint256 amountIn, uint256 confidence, string reasoning) external returns (uint256)",
 ];
 
 /**
@@ -51,7 +51,11 @@ async function runChallenge(args) {
   const { type, params = {}, anchorOnChain = false, deps = {} } = args || {};
 
   if (!type || !ATTACK_TYPES.includes(type)) {
-    throw new Error(`runChallenge: invalid attack type '${type}'. Known: ${ATTACK_TYPES.join(', ')}`);
+    throw new Error(
+      `runChallenge: invalid attack type '${type}'. Known: ${ATTACK_TYPES.join(
+        ", "
+      )}`
+    );
   }
 
   // ── Step 1: live market data ─────────────────────────────────────
@@ -70,11 +74,14 @@ async function runChallenge(args) {
     fearGreedValue: unified.fearGreedValue,
     fearGreedIndex: unified.fearGreedValue,
     fearGreedLabel: unified.fearGreedLabel,
-    sentiment: unified.fearGreedLabel?.toLowerCase() || 'neutral',
+    sentiment: unified.fearGreedLabel?.toLowerCase() || "neutral",
     mETHYield: unified.mETHYield || 3.5,
     nansenInsight: unified.nansenInsight,
     byrealSignals: unified.byrealSignals,
-    promptContext: (unified.promptContext ?? '') + '\n\n' + (structuredSignals.promptSummary ?? ''),
+    promptContext:
+      (unified.promptContext ?? "") +
+      "\n\n" +
+      (structuredSignals.promptSummary ?? ""),
     structuredSignals,
   };
 
@@ -96,7 +103,13 @@ async function runChallenge(args) {
     decision.validator?.approved === false;
 
   const disagreementSummary = disagreementSignal
-    ? `Analyst proposed ${decision.analyst?.action ?? 'hold'} ${decision.analyst?.targetAsset ?? ''} at ${Math.round((decision.analyst?.confidence ?? 0) * 100)}% confidence. Validator REJECTED — flagged: ${decision.validator?.flaggedIssues?.[0] || 'risk gate'}`
+    ? `Analyst proposed ${decision.analyst?.action ?? "hold"} ${
+        decision.analyst?.targetAsset ?? ""
+      } at ${Math.round(
+        (decision.analyst?.confidence ?? 0) * 100
+      )}% confidence. Validator REJECTED — flagged: ${
+        decision.validator?.flaggedIssues?.[0] || "risk gate"
+      }`
     : null;
 
   // ── Step 6: IPFS pin (challenge prefix) ──────────────────────────
@@ -104,8 +117,8 @@ async function runChallenge(args) {
   try {
     const pinFn = deps.pinJSON ?? pinJSON;
     const proof = {
-      version: '1.0.0',
-      kind: 'challenge',
+      version: "1.0.0",
+      kind: "challenge",
       challenge: {
         type,
         params,
@@ -132,25 +145,38 @@ async function runChallenge(args) {
   }
 
   // ── Step 7: optional on-chain anchor ─────────────────────────────
-  let onChain = { skipped: true, reason: 'attestation gate off' };
+  let onChain = { skipped: true, reason: "attestation gate off" };
   if (anchorOnChain) {
     try {
-      const provider = deps.provider
-        ?? new ethers.JsonRpcProvider(process.env.MANTLE_RPC_URL || 'https://rpc.mantle.xyz');
-      const wallet = deps.wallet ?? new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-      const registry = deps.registry ?? new ethers.Contract(REGISTRY_ADDR, REGISTRY_ABI, wallet);
+      const provider =
+        deps.provider ??
+        new ethers.JsonRpcProvider(
+          process.env.MANTLE_RPC_URL || "https://rpc.mantle.xyz"
+        );
+      const wallet =
+        deps.wallet ?? new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+      const registry =
+        deps.registry ??
+        new ethers.Contract(REGISTRY_ADDR, REGISTRY_ABI, wallet);
 
-      const action = `[CHALLENGE-${type}] ${decision.analyst?.action || 'hold'}`;
-      const targetAsset = decision.analyst?.targetAsset || 'mUSD';
-      const confidenceBps = Math.round((decision.analyst?.confidence || 0) * 10000);
-      const reasoning = (decision.analyst?.reasoning || 'challenge').substring(0, 200);
+      const action = `[CHALLENGE-${type}] ${
+        decision.analyst?.action || "hold"
+      }`;
+      const targetAsset = decision.analyst?.targetAsset || "mUSD";
+      const confidenceBps = Math.round(
+        (decision.analyst?.confidence || 0) * 10000
+      );
+      const reasoning = (decision.analyst?.reasoning || "challenge").substring(
+        0,
+        200
+      );
 
       const tx = await registry.submitProposal(
         action,
         targetAsset,
-        ethers.parseEther('0'),
+        ethers.parseEther("0"),
         confidenceBps,
-        reasoning,
+        reasoning
       );
       const receipt = await tx.wait();
       onChain = {
@@ -162,7 +188,7 @@ async function runChallenge(args) {
     } catch (e) {
       onChain = {
         skipped: true,
-        reason: 'attestation tx failed',
+        reason: "attestation tx failed",
         error: e?.message?.slice(0, 200) || String(e).slice(0, 200),
       };
     }
@@ -170,7 +196,7 @@ async function runChallenge(args) {
 
   // ── Step 8: assemble response ────────────────────────────────────
   return {
-    mode: 'LIVE_MULTI_AGENT',
+    mode: "LIVE_MULTI_AGENT",
     challenge: {
       type,
       params,
@@ -178,7 +204,7 @@ async function runChallenge(args) {
     },
     agents: {
       analyst: {
-        model: 'zai.glm-5',
+        model: "zai.glm-5",
         action: decision.analyst?.action ?? null,
         targetAsset: decision.analyst?.targetAsset ?? null,
         confidence: decision.analyst?.confidence ?? null,
@@ -189,7 +215,7 @@ async function runChallenge(args) {
         timing_ms: decision._timing?.analyst ?? null,
       },
       validator: {
-        model: 'us.anthropic.claude-sonnet-4-6',
+        model: "us.anthropic.claude-sonnet-4-6",
         approved: decision.validator?.approved ?? null,
         confidence: decision.validator?.validatorConfidence ?? null,
         riskScore: decision.validator?.riskScore ?? null,
@@ -201,7 +227,7 @@ async function runChallenge(args) {
       },
       arbiter: decision.arbiter
         ? {
-            model: 'gemini-3.5-flash',
+            model: "gemini-3.5-flash",
             vote: decision.arbiter.vote ?? null,
             confidence: decision.arbiter.confidence ?? null,
             reasoning: decision.arbiter.reasoning ?? null,
@@ -209,14 +235,17 @@ async function runChallenge(args) {
           }
         : null,
     },
-    pipelinePath: decision.arbiter ? 'analyst-validator-arbiter' : 'analyst-validator',
+    pipelinePath: decision.arbiter
+      ? "analyst-validator-arbiter"
+      : "analyst-validator",
     consensus: decision.consensus === true,
     decisionTier,
     disagreementSignal,
     disagreementSummary,
-    verdict: decision.consensus === true && decision.analyst?.action !== 'hold'
-      ? { blocked: false, label: 'ATTACK SUCCEEDED' }
-      : { blocked: true, label: 'ATTACK BLOCKED' },
+    verdict:
+      decision.consensus === true && decision.analyst?.action !== "hold"
+        ? { blocked: false, label: "ATTACK SUCCEEDED" }
+        : { blocked: true, label: "ATTACK BLOCKED" },
     ipfsCid,
     onChain,
     timing_ms: { decision: decisionMs, total: Date.now() - t0 },

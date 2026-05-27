@@ -10,9 +10,10 @@
 const ENDPOINTS = {
   DEFILLAMA_YIELDS: "https://yields.llama.fi/pools",
   DEFILLAMA_TVL: "https://api.llama.fi/v2/chains",
-  COINGECKO_ETH: "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,mantle&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true",
+  COINGECKO_ETH:
+    "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,mantle&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true",
   FEAR_GREED: "https://api.alternative.me/fng/?limit=1",
-  NANSEN_NETFLOW: "https://api.nansen.ai/api/v1/smart-money/netflow"
+  NANSEN_NETFLOW: "https://api.nansen.ai/api/v1/smart-money/netflow",
 };
 
 // Nansen cache — 15 min to preserve 1000 credits
@@ -26,7 +27,9 @@ async function fetchWithTimeout(url, timeout = 10000, options = {}) {
     const res = await fetch(url, { signal: controller.signal, ...options });
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      throw new Error(`HTTP ${res.status}${body ? ": " + body.substring(0, 100) : ""}`);
+      throw new Error(
+        `HTTP ${res.status}${body ? ": " + body.substring(0, 100) : ""}`
+      );
     }
     return await res.json();
   } finally {
@@ -48,26 +51,26 @@ async function getNansenSmartMoney() {
 
   // Return cached data if fresh
   if (nansenCache.data && Date.now() - nansenCache.ts < NANSEN_CACHE_MS) {
-    console.log("[Nansen] Using cached data (age:", Math.round((Date.now() - nansenCache.ts) / 1000), "s)");
+    console.log(
+      "[Nansen] Using cached data (age:",
+      Math.round((Date.now() - nansenCache.ts) / 1000),
+      "s)"
+    );
     return nansenCache.data;
   }
 
   try {
     console.log("[Nansen] Fetching smart money netflows...");
-    const data = await fetchWithTimeout(
-      ENDPOINTS.NANSEN_NETFLOW,
-      15000,
-      {
-        method: "POST",
-        headers: {
-          "apikey": apiKey,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          chains: ["ethereum"]
-        })
-      }
-    );
+    const data = await fetchWithTimeout(ENDPOINTS.NANSEN_NETFLOW, 15000, {
+      method: "POST",
+      headers: {
+        apikey: apiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chains: ["ethereum"],
+      }),
+    });
 
     if (!data.data || !Array.isArray(data.data)) {
       throw new Error("Unexpected Nansen response format");
@@ -77,25 +80,38 @@ async function getNansenSmartMoney() {
 
     // Top 3 tokens being accumulated
     const topBuying = tokens
-      .filter(t => (t.net_flow_24h_usd || 0) > 0)
+      .filter((t) => (t.net_flow_24h_usd || 0) > 0)
       .slice(0, 3)
-      .map(t => ({ symbol: t.token_symbol, netflow24h: Math.round(t.net_flow_24h_usd) }));
+      .map((t) => ({
+        symbol: t.token_symbol,
+        netflow24h: Math.round(t.net_flow_24h_usd),
+      }));
 
     // Top 3 tokens being distributed
     const topSelling = tokens
-      .filter(t => (t.net_flow_24h_usd || 0) < 0)
+      .filter((t) => (t.net_flow_24h_usd || 0) < 0)
       .sort((a, b) => a.net_flow_24h_usd - b.net_flow_24h_usd)
       .slice(0, 3)
-      .map(t => ({ symbol: t.token_symbol, netflow24h: Math.round(t.net_flow_24h_usd) }));
+      .map((t) => ({
+        symbol: t.token_symbol,
+        netflow24h: Math.round(t.net_flow_24h_usd),
+      }));
 
     // Total smart money flow (positive = accumulation, negative = distribution)
-    const totalNetflow24h = tokens.reduce((sum, t) => sum + (t.net_flow_24h_usd || 0), 0);
+    const totalNetflow24h = tokens.reduce(
+      (sum, t) => sum + (t.net_flow_24h_usd || 0),
+      0
+    );
 
     // Sentiment signal: positive total flow = smart money bullish
-    const nansenSentiment = totalNetflow24h > 50000 ? "bullish"
-      : totalNetflow24h > 0 ? "slightly_bullish"
-      : totalNetflow24h > -50000 ? "slightly_bearish"
-      : "bearish";
+    const nansenSentiment =
+      totalNetflow24h > 50000
+        ? "bullish"
+        : totalNetflow24h > 0
+        ? "slightly_bullish"
+        : totalNetflow24h > -50000
+        ? "slightly_bearish"
+        : "bearish";
 
     const result = {
       totalNetflow24h: Math.round(totalNetflow24h),
@@ -103,15 +119,20 @@ async function getNansenSmartMoney() {
       topSelling,
       nansenSentiment,
       tokenCount: tokens.length,
-      source: "nansen_live"
+      source: "nansen_live",
     };
 
     // Cache it
     nansenCache.data = result;
     nansenCache.ts = Date.now();
 
-    console.log(`[Nansen] Smart money 24h netflow: $${result.totalNetflow24h.toLocaleString()} (${nansenSentiment})`);
-    if (topBuying.length) console.log(`[Nansen] Top buying: ${topBuying.map(t => t.symbol).join(", ")}`);
+    console.log(
+      `[Nansen] Smart money 24h netflow: $${result.totalNetflow24h.toLocaleString()} (${nansenSentiment})`
+    );
+    if (topBuying.length)
+      console.log(
+        `[Nansen] Top buying: ${topBuying.map((t) => t.symbol).join(", ")}`
+      );
 
     return result;
   } catch (err) {
@@ -132,7 +153,7 @@ async function getETHPrice() {
       ethPrice: data.ethereum.usd,
       ethChange24h: data.ethereum.usd_24h_change,
       mantlePrice: data.mantle?.usd || 0,
-      mantleChange24h: data.mantle?.usd_24h_change || 0
+      mantleChange24h: data.mantle?.usd_24h_change || 0,
     };
   } catch (err) {
     console.warn("[MarketData] CoinGecko failed:", err.message);
@@ -143,21 +164,32 @@ async function getETHPrice() {
 async function getMETHYield() {
   try {
     const data = await fetchWithTimeout(ENDPOINTS.DEFILLAMA_YIELDS);
-    const methPools = data.data.filter(p =>
-      (p.symbol?.toLowerCase().includes("meth") || p.project?.toLowerCase().includes("mantle")) &&
-      p.chain === "Mantle"
-    ).sort((a, b) => b.tvlUsd - a.tvlUsd);
+    const methPools = data.data
+      .filter(
+        (p) =>
+          (p.symbol?.toLowerCase().includes("meth") ||
+            p.project?.toLowerCase().includes("mantle")) &&
+          p.chain === "Mantle"
+      )
+      .sort((a, b) => b.tvlUsd - a.tvlUsd);
 
     if (methPools.length > 0) {
-      return { bestYield: methPools[0].apy, pool: methPools[0].symbol, tvl: methPools[0].tvlUsd, project: methPools[0].project };
+      return {
+        bestYield: methPools[0].apy,
+        pool: methPools[0].symbol,
+        tvl: methPools[0].tvlUsd,
+        project: methPools[0].project,
+      };
     }
 
-    const mantlePools = data.data.filter(p => p.chain === "Mantle").sort((a, b) => b.tvlUsd - a.tvlUsd);
+    const mantlePools = data.data
+      .filter((p) => p.chain === "Mantle")
+      .sort((a, b) => b.tvlUsd - a.tvlUsd);
     return {
       bestYield: mantlePools[0]?.apy || 3.5,
       pool: mantlePools[0]?.symbol || "unknown",
       tvl: mantlePools[0]?.tvlUsd || 0,
-      project: mantlePools[0]?.project || "unknown"
+      project: mantlePools[0]?.project || "unknown",
     };
   } catch (err) {
     console.warn("[MarketData] DeFiLlama yields failed:", err.message);
@@ -186,8 +218,12 @@ async function getFearGreedIndex() {
 async function getMantleTVL() {
   try {
     const data = await fetchWithTimeout(ENDPOINTS.DEFILLAMA_TVL);
-    const mantle = data.find(c => c.name === "Mantle");
-    return { tvl: mantle?.tvl || 0, change1d: mantle?.change_1d || 0, change7d: mantle?.change_7d || 0 };
+    const mantle = data.find((c) => c.name === "Mantle");
+    return {
+      tvl: mantle?.tvl || 0,
+      change1d: mantle?.change_1d || 0,
+      change7d: mantle?.change_7d || 0,
+    };
   } catch (err) {
     console.warn("[MarketData] DeFiLlama TVL failed:", err.message);
     return { tvl: 0, change1d: 0, change7d: 0 };
@@ -203,7 +239,7 @@ async function getMarketData() {
     getMETHYield(),
     getFearGreedIndex(),
     getMantleTVL(),
-    getNansenSmartMoney()
+    getNansenSmartMoney(),
   ]);
 
   // Smart money flow: prefer real Nansen data, fallback to TVL-derived estimate
@@ -241,8 +277,15 @@ async function getMarketData() {
     volatility: parseFloat(volatility.toFixed(2)),
     mantleTVL: tvl.tvl,
     mantleTVLChange1d: tvl.change1d,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
 }
 
-module.exports = { getMarketData, getETHPrice, getMETHYield, getFearGreedIndex, getMantleTVL, getNansenSmartMoney };
+module.exports = {
+  getMarketData,
+  getETHPrice,
+  getMETHYield,
+  getFearGreedIndex,
+  getMantleTVL,
+  getNansenSmartMoney,
+};

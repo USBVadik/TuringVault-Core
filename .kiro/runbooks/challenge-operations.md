@@ -69,12 +69,12 @@ To pause anchor without disabling LIVE: flip
 
 ## 3. Spend monitoring
 
-| Cost source | Where to check | Alert at |
-|---|---|---|
-| Bedrock (Claude + GLM) | <https://console.aws.amazon.com/cloudwatch/home#metricsV2:graph=~();query=~()> filter Bedrock | $5/day |
-| Vertex AI (Gemini) | <https://console.cloud.google.com/billing/> filter Generative AI | $2/day |
-| Pinata (IPFS) | <https://app.pinata.cloud/billing> | 80% of monthly quota |
-| Vercel functions | <https://vercel.com/usbvadik/frontend-seven-beta-46/usage> | 80% of free tier |
+| Cost source            | Where to check                                                                                | Alert at             |
+| ---------------------- | --------------------------------------------------------------------------------------------- | -------------------- |
+| Bedrock (Claude + GLM) | <https://console.aws.amazon.com/cloudwatch/home#metricsV2:graph=~();query=~()> filter Bedrock | $5/day               |
+| Vertex AI (Gemini)     | <https://console.cloud.google.com/billing/> filter Generative AI                              | $2/day               |
+| Pinata (IPFS)          | <https://app.pinata.cloud/billing>                                                            | 80% of monthly quota |
+| Vercel functions       | <https://vercel.com/usbvadik/frontend-seven-beta-46/usage>                                    | 80% of free tier     |
 
 Daily cap (`CHALLENGE_DAILY_CAP`, default 100) is the backstop. At
 100/day worst case: ~$15/day total spend. AWS Activate $10k credits
@@ -136,6 +136,7 @@ Recovery: usually transient. Bedrock TPM throttling can stretch
 analyst+validator+arbiter to >60s. Retry once.
 
 If chronic, consider:
+
 - Lowering arbiter usage by tightening agreement thresholds in
   `multiAgent.js` (more decisions resolve at validator stage)
 - Bumping `maxDuration` (Vercel Pro allows up to 300s; check plan)

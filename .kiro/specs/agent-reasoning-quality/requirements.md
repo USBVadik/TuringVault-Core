@@ -46,7 +46,9 @@ In `src/orchestrator/multiAgent.js`:
 const activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;
 const activeValidatorPrompt = VALIDATOR_SYSTEM_PROMPT;
 if (evolved?.analyst) {
-  console.log(`  [EVOLUTION] Evolved prompt v${evolved.version} available but BYPASSED (format stability)`);
+  console.log(
+    `  [EVOLUTION] Evolved prompt v${evolved.version} available but BYPASSED (format stability)`
+  );
 }
 ```
 
@@ -202,12 +204,14 @@ Reading the code's prompt for the Validator carefully: it receives the Analyst's
 **Acceptance** (one of two paths; pick during design):
 
 **Path A — re-enable**:
+
 1. Identify the specific format issue evolved prompts caused (probably output structure drift over generations).
 2. Add a "format guard" — every evolved prompt is appended with a hard JSON-output suffix that cannot be evolved.
 3. Re-enable in `multiAgent.js`: `activeAnalystPrompt = evolved?.analyst ?? ANALYST_SYSTEM_PROMPT`.
 4. Run 50-cycle smoke test with evolved prompt active. If parse rate stays above 95%, ship it. If below, revert and go to Path B.
 
 **Path B — formal removal**:
+
 1. Remove the bypass code path; do not load evolved prompts at all.
 2. Update `agent-card.json` to reflect static prompt versioning (`systemPrompt.version` becomes a release identifier, not an evolution marker).
 3. Remove "self-evolving" language from `README.md`. Replace with "version-pinned with auditable upgrades".

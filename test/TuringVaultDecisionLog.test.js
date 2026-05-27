@@ -6,7 +6,9 @@ describe("TuringVaultDecisionLog", function () {
 
   beforeEach(async () => {
     [owner, other] = await ethers.getSigners();
-    const LogContract = await ethers.getContractFactory("TuringVaultDecisionLog");
+    const LogContract = await ethers.getContractFactory(
+      "TuringVaultDecisionLog"
+    );
     logContract = await LogContract.deploy();
     await logContract.waitForDeployment();
   });
@@ -14,34 +16,55 @@ describe("TuringVaultDecisionLog", function () {
   describe("Logging Decisions", function () {
     it("should log a decision and emit event", async () => {
       const txHash = ethers.encodeBytes32String("test-tx-hash");
-      
-      await expect(logContract.logDecision(
-        "swap",
-        "0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3",
-        1000,
-        1005,
-        8500,
-        "ipfs://reasoning",
-        txHash
-      ))
+
+      await expect(
+        logContract.logDecision(
+          "swap",
+          "0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3",
+          1000,
+          1005,
+          8500,
+          "ipfs://reasoning",
+          txHash
+        )
+      )
         .to.emit(logContract, "DecisionLogged")
-        .withArgs(0, "swap", "0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3", 8500, "ipfs://reasoning");
+        .withArgs(
+          0,
+          "swap",
+          "0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3",
+          8500,
+          "ipfs://reasoning"
+        );
 
       expect(await logContract.totalDecisions()).to.equal(1);
     });
 
     it("should reject non-owner calls", async () => {
       const txHash = ethers.encodeBytes32String("test-tx-hash");
-      await expect(logContract.connect(other).logDecision(
-        "swap", "0xTarget", 100, 100, 9000, "hash", txHash
-      )).to.be.revertedWithCustomError(logContract, "OwnableUnauthorizedAccount");
+      await expect(
+        logContract
+          .connect(other)
+          .logDecision("swap", "0xTarget", 100, 100, 9000, "hash", txHash)
+      ).to.be.revertedWithCustomError(
+        logContract,
+        "OwnableUnauthorizedAccount"
+      );
     });
   });
 
   describe("Performance Updates", function () {
     beforeEach(async () => {
       const txHash = ethers.encodeBytes32String("test-tx-hash");
-      await logContract.logDecision("swap", "0xTarget", 100, 100, 9000, "hash", txHash);
+      await logContract.logDecision(
+        "swap",
+        "0xTarget",
+        100,
+        100,
+        9000,
+        "hash",
+        txHash
+      );
     });
 
     it("should increase successful swaps and total PnL on positive update", async () => {
@@ -63,17 +86,42 @@ describe("TuringVaultDecisionLog", function () {
     });
 
     it("should reject invalid decision ID", async () => {
-      await expect(logContract.updatePerformance(99, 500))
-        .to.be.revertedWith("Invalid decision ID");
+      await expect(logContract.updatePerformance(99, 500)).to.be.revertedWith(
+        "Invalid decision ID"
+      );
     });
   });
 
   describe("View Functions", function () {
     beforeEach(async () => {
       const txHash = ethers.encodeBytes32String("test-tx-hash");
-      await logContract.logDecision("swap", "0x1", 100, 100, 9000, "hash1", txHash);
-      await logContract.logDecision("swap", "0x2", 200, 200, 8500, "hash2", txHash);
-      await logContract.logDecision("swap", "0x3", 300, 300, 9500, "hash3", txHash);
+      await logContract.logDecision(
+        "swap",
+        "0x1",
+        100,
+        100,
+        9000,
+        "hash1",
+        txHash
+      );
+      await logContract.logDecision(
+        "swap",
+        "0x2",
+        200,
+        200,
+        8500,
+        "hash2",
+        txHash
+      );
+      await logContract.logDecision(
+        "swap",
+        "0x3",
+        300,
+        300,
+        9500,
+        "hash3",
+        txHash
+      );
     });
 
     it("should get decision by ID", async () => {

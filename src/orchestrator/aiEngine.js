@@ -1,5 +1,8 @@
 require("dotenv").config();
-const { BedrockRuntimeClient, ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
+const {
+  BedrockRuntimeClient,
+  ConverseCommand,
+} = require("@aws-sdk/client-bedrock-runtime");
 const { validateDecision } = require("./validator");
 const config = require("./config");
 
@@ -7,8 +10,8 @@ const client = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || "us-east-1",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-  }
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
 
 const MODEL_ID = "us.anthropic.claude-sonnet-4-6";
@@ -34,20 +37,18 @@ async function getAIDecision(marketData, portfolioState) {
   const userPrompt = JSON.stringify({
     marketData,
     portfolioState,
-    riskParams: config.RISK_PARAMS
+    riskParams: config.RISK_PARAMS,
   });
 
   try {
     const command = new ConverseCommand({
       modelId: MODEL_ID,
       system: [{ text: SYSTEM_PROMPT }],
-      messages: [
-        { role: "user", content: [{ text: userPrompt }] }
-      ],
+      messages: [{ role: "user", content: [{ text: userPrompt }] }],
       inferenceConfig: {
         maxTokens: 500,
-        temperature: 0.1
-      }
+        temperature: 0.1,
+      },
     });
 
     const response = await client.send(command);
@@ -59,13 +60,25 @@ async function getAIDecision(marketData, portfolioState) {
 
     if (!validation.success) {
       console.error("AI Validation Failed:", validation.error);
-      return { action: "hold", direction: "neutral", targetAsset: "mUSD", confidence: 0, reasoning: "validation_failed" };
+      return {
+        action: "hold",
+        direction: "neutral",
+        targetAsset: "mUSD",
+        confidence: 0,
+        reasoning: "validation_failed",
+      };
     }
 
     return validation.data;
   } catch (error) {
     console.error("Bedrock API Error:", error.message);
-    return { action: "hold", direction: "neutral", targetAsset: "mUSD", confidence: 0, reasoning: "api_error: " + error.message.substring(0, 100) };
+    return {
+      action: "hold",
+      direction: "neutral",
+      targetAsset: "mUSD",
+      confidence: 0,
+      reasoning: "api_error: " + error.message.substring(0, 100),
+    };
   }
 }
 

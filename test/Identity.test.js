@@ -15,7 +15,7 @@ describe("TuringVaultIdentity (ERC-8004 Spec)", function () {
     it("should register agent with URI", async function () {
       const tx = await identity["register(string)"]("ipfs://QmAgent1");
       const receipt = await tx.wait();
-      const event = receipt.logs.find(l => l.fragment?.name === "Registered");
+      const event = receipt.logs.find((l) => l.fragment?.name === "Registered");
       expect(event).to.exist;
       expect(await identity.tokenURI(0)).to.equal("ipfs://QmAgent1");
     });
@@ -23,10 +23,13 @@ describe("TuringVaultIdentity (ERC-8004 Spec)", function () {
     it("should register agent with URI and metadata", async function () {
       const metadata = [
         { metadataKey: "model", metadataValue: ethers.toUtf8Bytes("GLM-5") },
-        { metadataKey: "version", metadataValue: ethers.toUtf8Bytes("1.0.0") }
+        { metadataKey: "version", metadataValue: ethers.toUtf8Bytes("1.0.0") },
       ];
-      await identity["register(string,(string,bytes)[])"]("ipfs://QmAgent2", metadata);
-      
+      await identity["register(string,(string,bytes)[])"](
+        "ipfs://QmAgent2",
+        metadata
+      );
+
       const modelData = await identity.getMetadata(0, "model");
       expect(ethers.toUtf8String(modelData)).to.equal("GLM-5");
     });
@@ -39,7 +42,10 @@ describe("TuringVaultIdentity (ERC-8004 Spec)", function () {
 
     it("should reject agentWallet metadata key", async function () {
       const metadata = [
-        { metadataKey: "agentWallet", metadataValue: ethers.toUtf8Bytes("fake") }
+        {
+          metadataKey: "agentWallet",
+          metadataValue: ethers.toUtf8Bytes("fake"),
+        },
       ];
       await expect(
         identity["register(string,(string,bytes)[])"]("ipfs://test", metadata)
@@ -92,19 +98,24 @@ describe("TuringVaultIdentity (ERC-8004 Spec)", function () {
         name: "TuringVaultIdentity",
         version: "1",
         chainId: (await ethers.provider.getNetwork()).chainId,
-        verifyingContract: await identity.getAddress()
+        verifyingContract: await identity.getAddress(),
       };
       const types = {
         SetAgentWallet: [
           { name: "agentId", type: "uint256" },
           { name: "newWallet", type: "address" },
-          { name: "deadline", type: "uint256" }
-        ]
+          { name: "deadline", type: "uint256" },
+        ],
       };
       const value = { agentId, newWallet: addr1.address, deadline };
       const signature = await addr1.signTypedData(domain, types, value);
 
-      await identity.setAgentWallet(agentId, addr1.address, deadline, signature);
+      await identity.setAgentWallet(
+        agentId,
+        addr1.address,
+        deadline,
+        signature
+      );
       expect(await identity.getAgentWallet(agentId)).to.equal(addr1.address);
     });
 
@@ -114,14 +125,14 @@ describe("TuringVaultIdentity (ERC-8004 Spec)", function () {
         name: "TuringVaultIdentity",
         version: "1",
         chainId: (await ethers.provider.getNetwork()).chainId,
-        verifyingContract: await identity.getAddress()
+        verifyingContract: await identity.getAddress(),
       };
       const types = {
         SetAgentWallet: [
           { name: "agentId", type: "uint256" },
           { name: "newWallet", type: "address" },
-          { name: "deadline", type: "uint256" }
-        ]
+          { name: "deadline", type: "uint256" },
+        ],
       };
       const value = { agentId, newWallet: addr1.address, deadline };
       const signature = await addr1.signTypedData(domain, types, value);
@@ -138,22 +149,29 @@ describe("TuringVaultIdentity (ERC-8004 Spec)", function () {
         name: "TuringVaultIdentity",
         version: "1",
         chainId: (await ethers.provider.getNetwork()).chainId,
-        verifyingContract: await identity.getAddress()
+        verifyingContract: await identity.getAddress(),
       };
       const types = {
         SetAgentWallet: [
           { name: "agentId", type: "uint256" },
           { name: "newWallet", type: "address" },
-          { name: "deadline", type: "uint256" }
-        ]
+          { name: "deadline", type: "uint256" },
+        ],
       };
       const value = { agentId, newWallet: addr1.address, deadline };
       const signature = await addr1.signTypedData(domain, types, value);
-      await identity.setAgentWallet(agentId, addr1.address, deadline, signature);
+      await identity.setAgentWallet(
+        agentId,
+        addr1.address,
+        deadline,
+        signature
+      );
 
       // Then unset
       await identity.unsetAgentWallet(agentId);
-      expect(await identity.getAgentWallet(agentId)).to.equal(ethers.ZeroAddress);
+      expect(await identity.getAgentWallet(agentId)).to.equal(
+        ethers.ZeroAddress
+      );
     });
   });
 

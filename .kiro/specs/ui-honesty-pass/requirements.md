@@ -21,6 +21,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 ## Scope
 
 ### In scope
+
 - `frontend/app/page.tsx` (main dashboard)
 - `frontend/app/api/performance/route.ts`
 - `frontend/app/api/reputation/route.ts`
@@ -32,6 +33,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 - Replacing `EVOLUTION_STEPS` constant with either real on-chain version data or removal of the panel until prompt-evolution is re-enabled
 
 ### Out of scope
+
 - Backend orchestrator (`src/orchestrator/*`)
 - Smart contracts
 - New vault contract / shares pattern (separate spec `shares-vault-contract`)
@@ -63,6 +65,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** the indicator means something.
 
 **Acceptance**
+
 1. WHEN the dashboard loads, THE RiskMascot SHALL fetch from `/api/health` (new endpoint).
 2. WHEN `/api/health` reports `lastCycleAge < 600 seconds` AND no errors in last 3 cycles, THE mascot SHALL show 🟢 `Active · last cycle <Xs ago>`.
 3. WHEN `lastCycleAge >= 600 seconds AND < 3600 seconds`, THE mascot SHALL show 🟡 `Idle · last cycle <Xm ago>`.
@@ -77,6 +80,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** mascots and badges can be wired uniformly.
 
 **Acceptance**
+
 1. THE endpoint SHALL be `GET /api/health` returning JSON.
 2. THE response SHALL include:
    - `lastCycleTimestamp` (ISO 8601) — read from `data/loop_progress.json` mtime, or from the latest `recordedAt` in `src/data/outcomes.json`, whichever is newer.
@@ -95,6 +99,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** I trust the project.
 
 **Acceptance**
+
 1. THE endpoint SHALL NOT return hardcoded fallback values for `sharpe`, `winRate`, `maxDrawdown`, `recoveryHours`, `hoursTracked` when those metrics cannot be derived from real data.
 2. THE endpoint SHALL compute the following from `src/data/outcomes.json` `settled[]` array:
    - `settledCount` — `settled.length`.
@@ -115,6 +120,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** I have correct expectations after depositing.
 
 **Acceptance**
+
 1. THE Agent Performance section SHALL display the heading `Agent Performance · Lifetime aggregate (agentId=0)` instead of plain `Agent Performance`.
 2. EACH metric tile SHALL include the badge `Lifetime` next to its label.
 3. WHEN the connected wallet has deposits in the vault contract (out of scope for this spec, but interface stays ready), the section SHALL show a second sub-section `Your Session` with wallet-scoped numbers; until then, this sub-section SHALL be hidden, NOT show zeros.
@@ -130,6 +136,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** I'm not misled.
 
 **Acceptance**
+
 1. THE panel heading SHALL change from `Vault Funding` to `Agent Wallet · Operator Account`.
 2. THE row currently labelled `Vault Balance` SHALL be relabeled `Agent EOA Balance`.
 3. THE row currently labelled `Total Deployed: N× Decisions` SHALL be removed. Decision count is shown elsewhere (Hero `On-Chain Proofs`).
@@ -144,6 +151,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** I'm not misled.
 
 **Acceptance**
+
 1. THE `AI Reasoning` panel header SHALL change `LIVE` indicator to `Example reasoning steps · static`.
 2. THE panel SHALL include a clear caption: `These are example reasoning lines. Real per-cycle reasoning is on the Proof Explorer page, linked by IPFS CID.`
 3. The panel SHALL include a link to `/proof-explorer` to view the latest real decision's reasoning.
@@ -156,6 +164,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** I trust other live indicators.
 
 **Acceptance**
+
 1. THE caption currently reading `Real execution data from Mantle Mainnet` SHALL include freshness: `Mantle Mainnet · last update <Xs ago>` based on the latest decision timestamp.
 2. WHEN `lastCycleAge > 600 seconds`, THE block SHALL show a banner: `⚠ Agent idle for <Xm>. Last cycle: <timestamp>. Cron status: <mode>.`
 3. THE `LiveTerminal` component SHALL retain its current data source (decisions stream) but SHALL receive freshness state from `/api/health` and surface it.
@@ -167,6 +176,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** AI x RWA narrative is unambiguous.
 
 **Acceptance**
+
 1. THE hero subheading currently reading `The AI that proves why it didn't trade` SHALL be retained — it accurately matches the high rejection rate.
 2. THE hero descriptive line currently reading `Multi-model adversarial consensus with on-chain proof of every reasoning step. N/M dangerous trades blocked — market confirmed every call.` SHALL be edited to remove `market confirmed every call` (unverifiable claim). Replacement: `... reasoning step. N/M proposals blocked by validator before execution.`
 3. THE three hero tiles SHALL be:
@@ -182,6 +192,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** "self-evolving prompts" is more than a story.
 
 **Acceptance**
+
 1. THE `EVOLUTION_STEPS` constant with fake `txHash: '0x2a4f...2a4f'` etc. SHALL be removed from the page.
 2. EITHER:
    - **(a) preserve panel with real data**: each step links to a real artifact — IPFS CID for the prompt version, optionally on-chain agent NFT `tokenURI` update tx. If no real artifacts exist, this option is unavailable.
@@ -195,6 +206,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** `/api/performance` and any tooling read it without producing nonsense.
 
 **Acceptance**
+
 1. The file SHALL be either:
    - **(a) deleted** so `/api/performance` falls back gracefully to "no NAV history yet" — preferred if metrics derived purely from `outcomes.json` per R3, OR
    - **(b) regenerated** with only the snapshots that don't include the $3 → $42 jump (drop snapshots 8–20 from current file; or drop all and start fresh).
@@ -207,6 +219,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** absence of toast = absence of activity (honest signal).
 
 **Acceptance**
+
 1. THE existing toast logic (compares `data.totalDecisions > prevTotalRef.current`) SHALL be retained as-is — it's correct.
 2. THE polling interval (`30000ms`) SHALL be retained.
 3. NO additional fake toasts SHALL be triggered. (Confirming current code is honest.)
@@ -218,6 +231,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** ERC-8004 claim is provable.
 
 **Acceptance**
+
 1. EACH contract row SHALL display its name, address (truncated), and a link to Mantle Explorer.
 2. EACH row SHALL include a Sourcify badge `✓ verified on Sourcify` only if Sourcify reports verified at link `https://repo.sourcify.dev/contracts/full_match/5000/<address>/`.
 3. EACH row SHALL include the contract's role tag: `ERC-8004 Identity Registry`, `ERC-8004 Reputation Registry`, `Multi-Agent Validation Registry`, `Decision Log`, `Router (legacy, not yet vault-enabled)`.
@@ -230,6 +244,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 **so that** the existing CI pipeline stays green.
 
 **Acceptance**
+
 1. `npm run build` (in `frontend/`) SHALL succeed.
 2. `npm run lint` SHALL succeed with no new warnings beyond pre-existing baseline.
 3. No new dependencies SHALL be added.
@@ -241,6 +256,7 @@ This spec covers a one-pass cleanup that brings every numeric, every badge, and 
 ### NFR1 — Honesty by construction
 
 EVERY numeric stat displayed on the dashboard SHALL be traceable, in the source, to one of:
+
 - An on-chain `view` call result.
 - An aggregate computed deterministically from `src/data/outcomes.json`.
 - The connected wallet's balance / position state.

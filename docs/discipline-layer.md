@@ -9,11 +9,13 @@ Inspired by [Synrail](https://github.com/USBVadik/synrail) (same author), adapte
 ## Problem Statement
 
 Current TuringVault validation flow:
+
 ```
 Analyst proposes → Validator challenges → Consensus → Execute → Log outcome
 ```
 
 Missing gap: **between execution and outcome logging**, there's no verification that:
+
 1. The swap actually executed at the claimed price
 2. The reported PnL matches on-chain reality
 3. The agent isn't logging stale/cached results as fresh decisions
@@ -51,22 +53,26 @@ This is the "false-green" in trading: the agent reports success, but the proof d
 ## Verification Checks
 
 ### 1. Proof Gate (execution reality)
+
 - Verify tx hash exists on Mantle explorer
 - Confirm sender matches our wallet
 - Confirm token amounts match claimed trade
 - Check block confirmation (>= 2 blocks)
 
 ### 2. Freshness Check (temporal validity)
+
 - Price data used in decision must be < 60s old at execution time
 - Block timestamp vs decision timestamp delta < 120s
 - Reject stale-cached market data being passed as "live"
 
 ### 3. Strategy Drift Detection
+
 - Compare current decision pattern vs declared regime (RANGING/TREND/CRISIS)
 - Flag if agent is executing TREND logic during RANGING regime
 - Alert on consecutive regime-mismatched decisions (>= 3)
 
 ### 4. PnL Reality Check
+
 - After settlement: compare claimed pnlBps vs actual on-chain balance delta
 - Flag discrepancies > 5 bps
 - Prevent "narrative PnL" (agent reports theoretical profit without execution)
@@ -84,7 +90,7 @@ const proofResult = await disciplineLayer.verify({
   expectedPnl: estimatedPnl,
 });
 
-if (proofResult.status === 'BLOCKED') {
+if (proofResult.status === "BLOCKED") {
   // Log the block reason on-chain
   await validationRegistry.logBlock(proofResult.reason);
   // Execute bounded repair
@@ -97,14 +103,14 @@ if (proofResult.status === 'BLOCKED') {
 
 ## Synrail Concepts Mapped to Trading
 
-| Synrail (Coding)           | TuringVault (Trading)                    |
-|----------------------------|------------------------------------------|
-| Agent claims "tests passed"| Agent claims "swap executed profitably"  |
-| Proof: test output exists  | Proof: tx hash confirmed on-chain        |
-| Freshness: output recent   | Freshness: price data < 60s old          |
-| Drift: code doesn't match task | Drift: action doesn't match regime    |
-| Bounded repair: fix one file| Bounded repair: retry with fresh data    |
-| Acceptance gate            | Settlement gate                          |
+| Synrail (Coding)               | TuringVault (Trading)                   |
+| ------------------------------ | --------------------------------------- |
+| Agent claims "tests passed"    | Agent claims "swap executed profitably" |
+| Proof: test output exists      | Proof: tx hash confirmed on-chain       |
+| Freshness: output recent       | Freshness: price data < 60s old         |
+| Drift: code doesn't match task | Drift: action doesn't match regime      |
+| Bounded repair: fix one file   | Bounded repair: retry with fresh data   |
+| Acceptance gate                | Settlement gate                         |
 
 ## Generalization Path
 
@@ -116,6 +122,7 @@ The core Synrail pattern — `claim → proof → verify → accept/block → re
 4. Repair steps can be bounded (not infinite loops)
 
 Domains beyond coding and trading:
+
 - **Research agents**: claim "paper summarized" → verify citations exist, quotes are real
 - **Operations agents**: claim "deploy complete" → verify health check passes
 - **Content agents**: claim "article written" → verify facts against sources
@@ -124,6 +131,7 @@ Domains beyond coding and trading:
 ## Status
 
 **IMPLEMENTED** ✅ — Active in production pipeline (`src/orchestrator/disciplineLayer.js`). Current TuringVault includes:
+
 - Pre-execution validation (adversarial consensus) ✅
 - On-chain logging (immutable audit trail) ✅
 - PnL tracking (outcome measurement) ✅

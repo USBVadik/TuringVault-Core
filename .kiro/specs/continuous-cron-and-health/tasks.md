@@ -19,8 +19,8 @@ commit/push step. T11–T13 are post-merge live verification on Vercel.
   section 1 ("First-time setup — GitHub Actions secrets") complete.
   Other sections can be stubs for now; T6 fills them in.
 - **Acceptance:**
-  - [ ] Lists every secret name from R1.5 (PRIVATE_KEY, AWS_*, NANSEN_API_KEY,
-        PINATA_*, MANTLE_RPC_URL, GEMINI_PROJECT_ID,
+  - [ ] Lists every secret name from R1.5 (PRIVATE*KEY, AWS*_, NANSEN*API_KEY,
+        PINATA*_, MANTLE_RPC_URL, GEMINI_PROJECT_ID,
         GOOGLE_APPLICATION_CREDENTIALS_JSON).
   - [ ] For each: where to get its value, how to paste it, what format.
   - [ ] Special note for `GOOGLE_APPLICATION_CREDENTIALS_JSON` (paste
@@ -73,7 +73,8 @@ commit/push step. T11–T13 are post-merge live verification on Vercel.
     decisionTier,
     disagreementSignal,
     consensus: decision.consensus,
-    proposalId: typeof proposalId === 'bigint' ? Number(proposalId) : proposalId,
+    proposalId:
+      typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
   };
   ```
 
@@ -82,6 +83,7 @@ commit/push step. T11–T13 are post-merge live verification on Vercel.
   of dryRun. `decision.consensus` is preserved at the top level so
   `mainMultiAgent.js` and `runBatch.js` (which read `result.consensus`)
   keep working.
+
 - **Acceptance:**
   - [ ] Return shape unified between dryRun and live paths.
   - [ ] `mainMultiAgent.js` continues to work (`result.consensus`).
@@ -208,8 +210,8 @@ commit/push step. T11–T13 are post-merge live verification on Vercel.
   - AWS Bedrock spend (CloudWatch console → InvokeModel).
   - Cycle count (Actions tab).
   - Any soft/hard failures.
-  Add a small line to the runbook: "Observed burn rate <date>: X GH
-  min/day, $Y Bedrock/day, Z cycles."
+    Add a small line to the runbook: "Observed burn rate <date>: X GH
+    min/day, $Y Bedrock/day, Z cycles."
 - **Acceptance:**
   - [ ] Runbook has a "Observed costs" subsection with one data point.
   - [ ] AWS Bedrock spend rate ≤ $5/day per Success Criteria #7.
@@ -230,6 +232,7 @@ commit/push step. T11–T13 are post-merge live verification on Vercel.
 ## Out of scope reminder
 
 These are explicitly NOT in this spec (have their own future specs):
+
 - `rwa-allocation-active` — get the agent to actually swap RWA assets.
 - `discipline-layer-ui` — surface Discipline Layer status on the UI.
 - `human-vs-ai-challenge-v2` — populate the `/challenge` page.

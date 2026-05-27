@@ -29,25 +29,31 @@ describe("TuringVaultRouter", function () {
     await tokenB.mint(owner.address, ethers.parseEther("10000"));
 
     // Fund mock router with tokenB for swap outputs
-    await tokenB.mint(await mockRouter.getAddress(), ethers.parseEther("10000"));
+    await tokenB.mint(
+      await mockRouter.getAddress(),
+      ethers.parseEther("10000")
+    );
   });
 
   describe("Deposits", function () {
     it("should deposit tokens", async () => {
       const amount = ethers.parseEther("1000");
       await tokenA.approve(await router.getAddress(), amount);
-      
+
       await expect(router.deposit(await tokenA.getAddress(), amount))
         .to.emit(router, "Deposited")
         .withArgs(await tokenA.getAddress(), amount);
 
-      expect(await router.assetBalances(await tokenA.getAddress())).to.equal(amount);
+      expect(await router.assetBalances(await tokenA.getAddress())).to.equal(
+        amount
+      );
       expect(await router.totalDeposited()).to.equal(amount);
     });
 
     it("should reject non-owner deposit", async () => {
-      await expect(router.connect(other).deposit(await tokenA.getAddress(), 100))
-        .to.be.revertedWithCustomError(router, "OwnableUnauthorizedAccount");
+      await expect(
+        router.connect(other).deposit(await tokenA.getAddress(), 100)
+      ).to.be.revertedWithCustomError(router, "OwnableUnauthorizedAccount");
     });
   });
 
@@ -64,12 +70,15 @@ describe("TuringVaultRouter", function () {
         .to.emit(router, "Withdrawn")
         .withArgs(await tokenA.getAddress(), amount);
 
-      expect(await router.assetBalances(await tokenA.getAddress())).to.equal(ethers.parseEther("500"));
+      expect(await router.assetBalances(await tokenA.getAddress())).to.equal(
+        ethers.parseEther("500")
+      );
     });
 
     it("should reject withdrawal exceeding balance", async () => {
-      await expect(router.withdraw(await tokenA.getAddress(), ethers.parseEther("2000")))
-        .to.be.revertedWith("Insufficient balance");
+      await expect(
+        router.withdraw(await tokenA.getAddress(), ethers.parseEther("2000"))
+      ).to.be.revertedWith("Insufficient balance");
     });
   });
 
@@ -85,13 +94,15 @@ describe("TuringVaultRouter", function () {
     });
 
     it("should reject slippage above 10%", async () => {
-      await expect(router.updateRiskParams(1001, 9000, 3000))
-        .to.be.revertedWith("Slippage too high");
+      await expect(
+        router.updateRiskParams(1001, 9000, 3000)
+      ).to.be.revertedWith("Slippage too high");
     });
 
     it("should reject non-owner risk update", async () => {
-      await expect(router.connect(other).updateRiskParams(200, 9000, 3000))
-        .to.be.revertedWithCustomError(router, "OwnableUnauthorizedAccount");
+      await expect(
+        router.connect(other).updateRiskParams(200, 9000, 3000)
+      ).to.be.revertedWithCustomError(router, "OwnableUnauthorizedAccount");
     });
   });
 
@@ -106,41 +117,47 @@ describe("TuringVaultRouter", function () {
     it("should reject swap exceeding max single swap percentage", async () => {
       // maxSingleSwapPct = 5000 (50%), trying to swap 600 out of 1000 = 60%
       const swapAmount = ethers.parseEther("600");
-      await expect(router.executeSwap(
-        await tokenA.getAddress(),
-        await tokenB.getAddress(),
-        swapAmount,
-        1,
-        [15],
-        [2],
-        0
-      )).to.be.revertedWith("Exceeds max swap size");
+      await expect(
+        router.executeSwap(
+          await tokenA.getAddress(),
+          await tokenB.getAddress(),
+          swapAmount,
+          1,
+          [15],
+          [2],
+          0
+        )
+      ).to.be.revertedWith("Exceeds max swap size");
     });
 
     it("should reject swap exceeding balance", async () => {
       const swapAmount = ethers.parseEther("2000");
-      await expect(router.executeSwap(
-        await tokenA.getAddress(),
-        await tokenB.getAddress(),
-        swapAmount,
-        1,
-        [15],
-        [2],
-        0
-      )).to.be.revertedWith("Exceeds balance");
+      await expect(
+        router.executeSwap(
+          await tokenA.getAddress(),
+          await tokenB.getAddress(),
+          swapAmount,
+          1,
+          [15],
+          [2],
+          0
+        )
+      ).to.be.revertedWith("Exceeds balance");
     });
 
     it("should reject swap with zero amountOutMin", async () => {
       const swapAmount = ethers.parseEther("100");
-      await expect(router.executeSwap(
-        await tokenA.getAddress(),
-        await tokenB.getAddress(),
-        swapAmount,
-        0,
-        [15],
-        [2],
-        0
-      )).to.be.revertedWith("amountOutMin cannot be zero");
+      await expect(
+        router.executeSwap(
+          await tokenA.getAddress(),
+          await tokenB.getAddress(),
+          swapAmount,
+          0,
+          [15],
+          [2],
+          0
+        )
+      ).to.be.revertedWith("amountOutMin cannot be zero");
     });
   });
 

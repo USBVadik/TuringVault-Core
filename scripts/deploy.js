@@ -3,7 +3,11 @@ const { ethers } = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with:", deployer.address);
-  console.log("Balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "MNT");
+  console.log(
+    "Balance:",
+    ethers.formatEther(await ethers.provider.getBalance(deployer.address)),
+    "MNT"
+  );
 
   // 1. Deploy TuringVaultIdentity
   console.log("\n--- Deploying TuringVaultIdentity ---");
@@ -17,7 +21,10 @@ async function main() {
   const DecisionLog = await ethers.getContractFactory("TuringVaultDecisionLog");
   const decisionLog = await DecisionLog.deploy();
   await decisionLog.waitForDeployment();
-  console.log("TuringVaultDecisionLog deployed to:", await decisionLog.getAddress());
+  console.log(
+    "TuringVaultDecisionLog deployed to:",
+    await decisionLog.getAddress()
+  );
 
   // 3. Deploy TuringVaultRouter
   console.log("\n--- Deploying TuringVaultRouter ---");
@@ -33,7 +40,7 @@ async function main() {
     version: "1.0.0",
     model: "claude-opus-4",
     strategy: "RWA-routing",
-    riskParams: { maxSlippage: "1%", minConfidence: "85%", maxSwapSize: "50%" }
+    riskParams: { maxSlippage: "1%", minConfidence: "85%", maxSwapSize: "50%" },
   });
   const tx = await identity.registerAgent(agentURI);
   await tx.wait();
@@ -44,7 +51,10 @@ async function main() {
   console.log("DEPLOYMENT COMPLETE");
   console.log("========================================");
   console.log("Network:", (await ethers.provider.getNetwork()).name);
-  console.log("Chain ID:", (await ethers.provider.getNetwork()).chainId.toString());
+  console.log(
+    "Chain ID:",
+    (await ethers.provider.getNetwork()).chainId.toString()
+  );
   console.log("TuringVaultIdentity:", await identity.getAddress());
   console.log("TuringVaultDecisionLog:", await decisionLog.getAddress());
   console.log("TuringVaultRouter:", await router.getAddress());

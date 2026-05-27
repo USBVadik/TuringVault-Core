@@ -16,28 +16,28 @@
  * Spec: rwa-allocation-active T13.
  */
 
-const path = require('path');
-const fs = require('fs');
+const path = require("path");
+const fs = require("fs");
 
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
-const { ethers } = require('ethers');
-const rwaAllocator = require('../src/orchestrator/rwaAllocator');
-const { USDT0Module } = require('../src/rwa/usdt0Module');
-const { MerchantMoeDEX } = require('../src/dex/merchantMoe');
+const { ethers } = require("ethers");
+const rwaAllocator = require("../src/orchestrator/rwaAllocator");
+const { USDT0Module } = require("../src/rwa/usdt0Module");
+const { MerchantMoeDEX } = require("../src/dex/merchantMoe");
 
-const FLAT_HOURS_AGO = 30;     // simulate "long-flat wallet" for Path B cases
+const FLAT_HOURS_AGO = 30; // simulate "long-flat wallet" for Path B cases
 
 async function readBalances() {
   // Always include USDT (legacy) + USDT0. Other tokens optional.
   // Pass privateKey so MerchantMoeDEX.getBalances() can derive the
   // wallet address; dryRun stays true so no swap is ever issued.
   const dex = new MerchantMoeDEX({
-    rpcUrl: 'https://rpc.mantle.xyz',
+    rpcUrl: "https://rpc.mantle.xyz",
     dryRun: true,
     privateKey: process.env.PRIVATE_KEY,
   });
-  const balances = await dex.getBalances();    // includes USDT, mUSD, etc.
+  const balances = await dex.getBalances(); // includes USDT, mUSD, etc.
   try {
     if (process.env.PRIVATE_KEY) {
       const usdt0 = new USDT0Module({ privateKey: process.env.PRIVATE_KEY });
@@ -53,78 +53,98 @@ async function readBalances() {
 }
 
 function makeDecision(consensus, action) {
-  return { consensus, analyst: { action, confidence: 0.7, reasoning: `smoke ${action}` } };
+  return {
+    consensus,
+    analyst: { action, confidence: 0.7, reasoning: `smoke ${action}` },
+  };
 }
 
 function makePosState(flat) {
-  if (!flat) return { status: 'IN_mETH', flatSince: null };
+  if (!flat) return { status: "IN_mETH", flatSince: null };
   return {
-    status: 'FLAT',
-    flatSince: new Date(Date.now() - FLAT_HOURS_AGO * 3600 * 1000).toISOString(),
+    status: "FLAT",
+    flatSince: new Date(
+      Date.now() - FLAT_HOURS_AGO * 3600 * 1000
+    ).toISOString(),
   };
 }
 
 async function main() {
-  console.log('\n=== smoke-rwa: 12-case allocator harness ===\n');
+  console.log("\n=== smoke-rwa: 12-case allocator harness ===\n");
 
   const balances = await readBalances();
   const prices = { USDT: 1, USDT0: 1, mUSD: 1, MNT: 0.72, ETH: 2100 };
   const idleStableUsd =
-    (balances.USDT ?? 0) * prices.USDT +
-    (balances.mUSD ?? 0) * prices.mUSD;
-  console.log(`Wallet stable USD: $${idleStableUsd.toFixed(2)}  (USDT=${(balances.USDT ?? 0).toFixed(3)}  USDT0=${(balances.USDT0 ?? 0).toFixed(3)})\n`);
+    (balances.USDT ?? 0) * prices.USDT + (balances.mUSD ?? 0) * prices.mUSD;
+  console.log(
+    `Wallet stable USD: $${idleStableUsd.toFixed(2)}  (USDT=${(
+      balances.USDT ?? 0
+    ).toFixed(3)}  USDT0=${(balances.USDT0 ?? 0).toFixed(3)})\n`
+  );
 
-  const regimes = ['RANGING', 'TREND_UP', 'TREND_DOWN', 'CRISIS'];
+  const regimes = ["RANGING", "TREND_UP", "TREND_DOWN", "CRISIS"];
   const consensusModes = [
-    { label: 'consensus=true / rwa_allocate', consensus: true, action: 'rwa_allocate' },
-    { label: 'consensus=true / rwa_exit',     consensus: true, action: 'rwa_exit' },
-    { label: 'consensus=false / hold',        consensus: false, action: 'hold' },
+    {
+      label: "consensus=true / rwa_allocate",
+      consensus: true,
+      action: "rwa_allocate",
+    },
+    { label: "consensus=true / rwa_exit", consensus: true, action: "rwa_exit" },
+    { label: "consensus=false / hold", consensus: false, action: "hold" },
   ];
 
   let intentCount = 0;
-  console.log('CASE                                          | REGIME       | RESULT');
-  console.log('----------------------------------------------+--------------+------------------------------------------');
+  console.log(
+    "CASE                                          | REGIME       | RESULT"
+  );
+  console.log(
+    "----------------------------------------------+--------------+------------------------------------------"
+  );
   for (const cm of consensusModes) {
     for (const regime of regimes) {
-      const isPathBcandidate = (cm.consensus === false);
+      const isPathBcandidate = cm.consensus === false;
       const out = rwaAllocator.evaluate({
         decision: makeDecision(cm.consensus, cm.action),
         market: { regime },
         balances,
         prices,
-        lastSwapAt: null,                    // no prior swap for smoke
+        lastSwapAt: null, // no prior swap for smoke
         posState: makePosState(isPathBcandidate),
       });
 
       let resultStr;
       if (!out) {
-        resultStr = 'null';
+        resultStr = "null";
       } else if (out.skip) {
         resultStr = `skip: ${out._gate}`;
       } else {
-        resultStr = `${out.source.padEnd(13)} ${out.from} → ${out.to} ($${out.amountInUsd.toFixed(2)})`;
+        resultStr = `${out.source.padEnd(13)} ${out.from} → ${
+          out.to
+        } ($${out.amountInUsd.toFixed(2)})`;
         intentCount++;
       }
-      console.log(
-        `${cm.label.padEnd(46)}| ${regime.padEnd(13)}| ${resultStr}`,
-      );
+      console.log(`${cm.label.padEnd(46)}| ${regime.padEnd(13)}| ${resultStr}`);
     }
   }
 
   console.log(`\nIntents emitted: ${intentCount}/12`);
   if (intentCount >= 4) {
-    console.log('✅ Smoke pass — Path A and Path B both fire on canonical inputs.');
+    console.log(
+      "✅ Smoke pass — Path A and Path B both fire on canonical inputs."
+    );
     process.exit(0);
   }
-  console.log('⚠ Smoke fail — fewer than 4 intents emitted.');
+  console.log("⚠ Smoke fail — fewer than 4 intents emitted.");
   if (idleStableUsd < 5) {
-    console.log('   Wallet idle stable below $5 — many cases will gate on min-balance.');
-    console.log('   Top up USDT or mUSD to test full matrix.');
+    console.log(
+      "   Wallet idle stable below $5 — many cases will gate on min-balance."
+    );
+    console.log("   Top up USDT or mUSD to test full matrix.");
   }
   process.exit(1);
 }
 
 main().catch((e) => {
-  console.error('Fatal:', e?.message || e);
+  console.error("Fatal:", e?.message || e);
   process.exit(99);
 });

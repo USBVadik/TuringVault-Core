@@ -5,7 +5,9 @@ async function main() {
 
   // Deploy TuringVaultValidation (Pre-Action Checks)
   console.log("1. Deploying TuringVaultValidation...");
-  const Validation = await hre.ethers.getContractFactory("TuringVaultValidation");
+  const Validation = await hre.ethers.getContractFactory(
+    "TuringVaultValidation"
+  );
   const validation = await Validation.deploy();
   await validation.waitForDeployment();
   const validationAddr = await validation.getAddress();

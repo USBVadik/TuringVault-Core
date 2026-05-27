@@ -6,12 +6,12 @@
 
 ## Track positioning (claim explicitly on DoraHacks)
 
-| Track / Award | Claim | Path / Rationale |
-|---|---|---|
-| **AI x RWA Track — Path A (Infrastructure)** | **PRIMARY** | TuringVault is an *RWA-portfolio-manager infrastructure layer* — agent identity (ERC-8004), proof-of-reasoning, post-execution discipline gate, reputation accumulation. Innovation in technical approach + completeness of asset tokenization flow. |
-| **20 Project Deployment Award** | Eligible | Live demo, 5 verified Mantle Mainnet contracts, hourly cron, complete UX. |
-| **Best UI/UX Award** | Opt-in | Honesty-first dashboard with live data freshness, Discipline Layer drill-down, Challenge arena, Risk Mascot reflecting real cycle state — every numeric stat traceable to on-chain or settled-outcome source. |
-| **Grand Champion** | Long shot, do not over-pitch | Mention as bonus on submission, but optimization is for AI x RWA Path A first. |
+| Track / Award                                | Claim                        | Path / Rationale                                                                                                                                                                                                                                     |
+| -------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AI x RWA Track — Path A (Infrastructure)** | **PRIMARY**                  | TuringVault is an _RWA-portfolio-manager infrastructure layer_ — agent identity (ERC-8004), proof-of-reasoning, post-execution discipline gate, reputation accumulation. Innovation in technical approach + completeness of asset tokenization flow. |
+| **20 Project Deployment Award**              | Eligible                     | Live demo, 5 verified Mantle Mainnet contracts, hourly cron, complete UX.                                                                                                                                                                            |
+| **Best UI/UX Award**                         | Opt-in                       | Honesty-first dashboard with live data freshness, Discipline Layer drill-down, Challenge arena, Risk Mascot reflecting real cycle state — every numeric stat traceable to on-chain or settled-outcome source.                                        |
+| **Grand Champion**                           | Long shot, do not over-pitch | Mention as bonus on submission, but optimization is for AI x RWA Path A first.                                                                                                                                                                       |
 
 ### Why Path A (Infrastructure) over Path B (Application)
 
@@ -21,31 +21,34 @@ The brief lists **three defining features**: (1) on-chain benchmarking of AI, (2
 
 ## Three Defining Features — what we ship for each
 
-| Feature | Concrete artefact | Where to verify |
-|---|---|---|
-| **On-chain benchmarking of AI** | 4 attestation TXs per cycle (proposal, validation, decisionLog, reputation) — 104+ decisions, 40 approved, 64 blocked, full reasoning hash anchored on every one | Mantlescan + GitHub Actions hourly cron log |
-| **ERC-8004 agent identity standard** | Reference implementation deployed on Mantle Mainnet — non-transferable Identity NFT with auto-updating tokenURI, ValidationRegistry, ReputationRegistry, DecisionLog. Drop-in compatible with the upcoming Mantle-issued Agent Identity issuer. | Sourcify-verified contracts (table below) |
-| **Radical transparency** | Public hourly cron · IPFS-pinned reasoning blobs · live mascot reflecting real cycle freshness · `/challenge` arena · `/discipline` post-execution proof page · honesty rule documented in `.kiro/steering/no-lying-about-state.md` and enforced | Live demo, GitHub workflow log |
+| Feature                              | Concrete artefact                                                                                                                                                                                                                                | Where to verify                             |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| **On-chain benchmarking of AI**      | 4 attestation TXs per cycle (proposal, validation, decisionLog, reputation) — 104+ decisions, 40 approved, 64 blocked, full reasoning hash anchored on every one                                                                                 | Mantlescan + GitHub Actions hourly cron log |
+| **ERC-8004 agent identity standard** | Reference implementation deployed on Mantle Mainnet — non-transferable Identity NFT with auto-updating tokenURI, ValidationRegistry, ReputationRegistry, DecisionLog. Drop-in compatible with the upcoming Mantle-issued Agent Identity issuer.  | Sourcify-verified contracts (table below)   |
+| **Radical transparency**             | Public hourly cron · IPFS-pinned reasoning blobs · live mascot reflecting real cycle freshness · `/challenge` arena · `/discipline` post-execution proof page · honesty rule documented in `.kiro/steering/no-lying-about-state.md` and enforced | Live demo, GitHub workflow log              |
 
 ---
 
 ## Submission Checklist
 
 ### Required for ALL tracks
+
 - [x] Project name: **TuringVault**
 - [x] Team: USBVadik (vadik@nexus-shell.ai)
 - [x] GitHub: https://github.com/USBVadik/TuringVault-Core
 - [x] Demo URL: https://frontend-seven-beta-46.vercel.app
 - [ ] Video Demo: re-recording with Screen Studio at high quality (deferred until source is readable)
-- [x] Short description (≤256 chars): *Accountable AI RWA portfolio manager on Mantle. 3-model adversarial consensus + ERC-8004 reference identity + Discipline Layer post-execution proof. Every allocation survives challenge before execution; every decision anchored on-chain.*
+- [x] Short description (≤256 chars): _Accountable AI RWA portfolio manager on Mantle. 3-model adversarial consensus + ERC-8004 reference identity + Discipline Layer post-execution proof. Every allocation survives challenge before execution; every decision anchored on-chain._
 
 ### AI & RWA Track — Path A (Infrastructure) · PRIMARY
+
 - [x] AI component: three-model adversarial consensus (GLM-5 Analyst → Claude 4.6 Validator → Gemini 3.5 Arbiter) with default-REJECT validator and 2-of-3 consensus rule
 - [x] RWA component: mETH (native ETH staking yield) + USDT0 (LayerZero Treasury-collateralised) + USDY metadata (Ondo Finance)
 - [x] Asset tokenization flow completeness: live first RWA swap on Merchant Moe LB v2.2 — TX `0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de`; ~55-74% NAV currently in tokenized Treasuries
 - [x] Innovation: ERC-8004 reference implementation + Synrail-inspired Discipline Layer (3-gate post-execution proof) + dual-path RWA Allocator (LLM-driven Path A + deterministic idle-parking Path B)
 
 ### Best UI/UX Award · OPT-IN
+
 - [x] Card-source badge on landing hero (live tokenURI vs repo snapshot, IPFS CID linked)
 - [x] DisciplineStripRow on home — latest cycle proof at a glance with click-through to `/discipline`
 - [x] LiveTerminal labeled as "Example reasoning · static" (no fake liveness)
@@ -55,6 +58,7 @@ The brief lists **three defining features**: (1) on-chain benchmarking of AI, (2
 - [x] `/challenge` page lets visitors probe the agent's gates with adversarial perturbations
 
 ### 20 Project Deployment Award · ELIGIBILITY CHECKLIST
+
 - [x] Live frontend deployed (Vercel)
 - [x] Live backend (GitHub Actions hourly cron, public workflow log)
 - [x] Smart contracts on Mantle Mainnet, Sourcify-verified
@@ -67,25 +71,25 @@ The brief lists **three defining features**: (1) on-chain benchmarking of AI, (2
 
 ### Mantle MAINNET (chain 5000) ← PRIMARY
 
-| Contract | Address | Role | Sourcify |
-|----------|---------|---|---------|
-| TuringVaultIdentity (production, ERC-8004) | `0x6f862802e0d5463DF18d267e422347BeCacc28bD` | Non-transferable identity NFT, auto-updating tokenURI per cycle | ✅ Full match |
-| TuringVaultDecisionLog | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` | Reasoning-hash anchor for every cycle | ✅ Full match |
-| TuringVaultValidationRegistry | `0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6` | Pre-execution attestation registry | ✅ Full match |
-| ReputationRegistry | `0xC78119F3274B05046Ac7c38a14298a6cbD946e1a` | Settled-outcome reputation accumulator | ✅ Full match |
-| TuringVaultValidation (ERC-8004 trustless agents) | `0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705` | Standalone validation reference | ✅ Full match |
-| TuringVaultIdentity (legacy, kept on-chain) | `0x582E6a649B99784829193E14bB7Af8c4A482E165` | Earlier identity contract, retained for history | ✅ Full match |
-| TuringVaultRouter | `0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001` | Vault router pattern, **not in current execution path** | ⚠ not verified — bytecode no longer matches in-repo source; vault contract pattern in active development |
+| Contract                                          | Address                                      | Role                                                            | Sourcify                                                                                                 |
+| ------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| TuringVaultIdentity (production, ERC-8004)        | `0x6f862802e0d5463DF18d267e422347BeCacc28bD` | Non-transferable identity NFT, auto-updating tokenURI per cycle | ✅ Full match                                                                                            |
+| TuringVaultDecisionLog                            | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` | Reasoning-hash anchor for every cycle                           | ✅ Full match                                                                                            |
+| TuringVaultValidationRegistry                     | `0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6` | Pre-execution attestation registry                              | ✅ Full match                                                                                            |
+| ReputationRegistry                                | `0xC78119F3274B05046Ac7c38a14298a6cbD946e1a` | Settled-outcome reputation accumulator                          | ✅ Full match                                                                                            |
+| TuringVaultValidation (ERC-8004 trustless agents) | `0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705` | Standalone validation reference                                 | ✅ Full match                                                                                            |
+| TuringVaultIdentity (legacy, kept on-chain)       | `0x582E6a649B99784829193E14bB7Af8c4A482E165` | Earlier identity contract, retained for history                 | ✅ Full match                                                                                            |
+| TuringVaultRouter                                 | `0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001` | Vault router pattern, **not in current execution path**         | ⚠ not verified — bytecode no longer matches in-repo source; vault contract pattern in active development |
 
 Explorer: https://explorer.mantle.xyz · Sourcify status auto-checked via `npm run check:sourcify`.
 
 ### Mantle SEPOLIA (chain 5003) ← TESTNET
 
-| Contract | Address |
-|----------|---------|
-| TuringVaultIdentity | `0x582E6a649B99784829193E14bB7Af8c4A482E165` |
-| TuringVaultDecisionLog | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` |
-| TuringVaultRouter | `0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001` |
+| Contract                      | Address                                      |
+| ----------------------------- | -------------------------------------------- |
+| TuringVaultIdentity           | `0x582E6a649B99784829193E14bB7Af8c4A482E165` |
+| TuringVaultDecisionLog        | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` |
+| TuringVaultRouter             | `0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001` |
 | TuringVaultValidationRegistry | `0x4Ed86C2221ecaF03018eb438e5b28201893dde3A` |
 
 ---

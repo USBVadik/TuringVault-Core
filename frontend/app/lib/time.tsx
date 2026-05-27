@@ -6,9 +6,9 @@
  * components that need auto-refreshing labels.
  */
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * Format an ISO timestamp as a relative-time string.
@@ -24,16 +24,16 @@ import { useEffect, useState } from 'react';
  * up to 5s in the future, otherwise renders absolute fallback.
  */
 export function formatRelativeTime(iso: string | null | undefined): string {
-  if (!iso) return '—';
+  if (!iso) return "—";
   const ts = Date.parse(iso);
-  if (Number.isNaN(ts)) return '—';
+  if (Number.isNaN(ts)) return "—";
 
   const ageMs = Date.now() - ts;
   if (ageMs < -5000) {
     // far-future timestamps — show absolute date as a tell
-    return new Date(ts).toISOString().slice(0, 16) + 'Z';
+    return new Date(ts).toISOString().slice(0, 16) + "Z";
   }
-  if (ageMs < 1000) return 'just now';
+  if (ageMs < 1000) return "just now";
 
   const seconds = Math.round(ageMs / 1000);
   if (seconds < 60) return `${seconds}s ago`;
@@ -67,7 +67,7 @@ export function RelativeTime({
 
   useEffect(() => {
     if (!ts) return;
-    const id = setInterval(() => force(n => n + 1), refreshMs);
+    const id = setInterval(() => force((n) => n + 1), refreshMs);
     return () => clearInterval(id);
   }, [ts, refreshMs]);
 

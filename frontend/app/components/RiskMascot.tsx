@@ -16,43 +16,44 @@
  * Spec: .kiro/specs/ui-honesty-pass/{requirements,design,tasks}.md (T7, R1)
  */
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { RelativeTime } from '../lib/time';
+import { useEffect, useState } from "react";
+import { RelativeTime } from "../lib/time";
 
 type Health = {
-  status?: 'ok' | 'degraded';
+  status?: "ok" | "degraded";
   lastCycleTimestamp?: string | null;
   lastCycleAge?: number | null;
   mode?: string;
 };
 
-type State = 'active' | 'idle' | 'offline';
+type State = "active" | "idle" | "offline";
 
 const DISPLAY: Record<State, { emoji: string; label: string; tone: string }> = {
   active: {
-    emoji: '🟢',
-    label: 'Active',
-    tone: 'border-green-500/30 bg-green-500/[0.04]',
+    emoji: "🟢",
+    label: "Active",
+    tone: "border-green-500/30 bg-green-500/[0.04]",
   },
   idle: {
-    emoji: '🟡',
-    label: 'Idle',
-    tone: 'border-yellow-500/30 bg-yellow-500/[0.04]',
+    emoji: "🟡",
+    label: "Idle",
+    tone: "border-yellow-500/30 bg-yellow-500/[0.04]",
   },
   offline: {
-    emoji: '🔴',
-    label: 'Offline',
-    tone: 'border-red-500/30 bg-red-500/[0.04]',
+    emoji: "🔴",
+    label: "Offline",
+    tone: "border-red-500/30 bg-red-500/[0.04]",
   },
 };
 
 function deriveState(h: Health | null): State {
-  if (!h || h.lastCycleAge === null || h.lastCycleAge === undefined) return 'offline';
-  if (h.lastCycleAge < 600) return 'active'; // < 10m
-  if (h.lastCycleAge < 3600) return 'idle'; // < 1h
-  return 'offline';
+  if (!h || h.lastCycleAge === null || h.lastCycleAge === undefined)
+    return "offline";
+  if (h.lastCycleAge < 600) return "active"; // < 10m
+  if (h.lastCycleAge < 3600) return "idle"; // < 1h
+  return "offline";
 }
 
 const REFRESH_MS = 60_000;
@@ -65,7 +66,7 @@ export function RiskMascot() {
 
     async function fetchOnce() {
       try {
-        const res = await fetch('/api/health', { cache: 'no-store' });
+        const res = await fetch("/api/health", { cache: "no-store" });
         if (!res.ok) {
           if (!cancelled) setHealth(null);
           return;
@@ -88,7 +89,7 @@ export function RiskMascot() {
   const state = deriveState(health);
   const display = DISPLAY[state];
   const ts = health?.lastCycleTimestamp;
-  const mode = health?.mode ?? 'unknown';
+  const mode = health?.mode ?? "unknown";
 
   return (
     <div
@@ -107,9 +108,9 @@ export function RiskMascot() {
               last cycle <RelativeTime ts={ts} />
             </>
           ) : (
-            'no recent data'
+            "no recent data"
           )}
-          {' · '}
+          {" · "}
           {mode}
         </p>
       </div>

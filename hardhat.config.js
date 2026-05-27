@@ -8,8 +8,8 @@ module.exports = {
     version: "0.8.28",
     settings: {
       optimizer: { enabled: true, runs: 200 },
-      evmVersion: "cancun"
-    }
+      evmVersion: "cancun",
+    },
   },
   paths: {
     tests: "./test",
@@ -20,20 +20,21 @@ module.exports = {
   networks: {
     hardhat: {},
     mantleSepolia: {
-      url: process.env.MANTLE_SEPOLIA_RPC_URL || "https://rpc.sepolia.mantle.xyz",
+      url:
+        process.env.MANTLE_SEPOLIA_RPC_URL || "https://rpc.sepolia.mantle.xyz",
       chainId: 5003,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
     mantleMainnet: {
       url: process.env.MANTLE_RPC_URL || "https://rpc.mantle.xyz",
       chainId: 5000,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
-    }
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
   },
   etherscan: {
     apiKey: {
       mantleSepolia: "placeholder",
-      mantleMainnet: "placeholder"
+      mantleMainnet: "placeholder",
     },
     customChains: [
       {
@@ -41,20 +42,20 @@ module.exports = {
         chainId: 5003,
         urls: {
           apiURL: "https://api-sepolia.mantlescan.xyz/api",
-          browserURL: "https://sepolia.mantlescan.xyz"
-        }
+          browserURL: "https://sepolia.mantlescan.xyz",
+        },
       },
       {
         network: "mantleMainnet",
         chainId: 5000,
         urls: {
           apiURL: "https://api.mantlescan.xyz/api",
-          browserURL: "https://mantlescan.xyz"
-        }
-      }
-    ]
+          browserURL: "https://mantlescan.xyz",
+        },
+      },
+    ],
   },
   sourcify: {
-    enabled: true
-  }
+    enabled: true,
+  },
 };

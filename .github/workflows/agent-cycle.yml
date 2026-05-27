@@ -9,8 +9,8 @@ name: Agent Cycle
 
 on:
   schedule:
-    - cron: '0 * * * *'    # Every hour, UTC
-  workflow_dispatch:        # Manual trigger for debugging
+    - cron: "0 * * * *" # Every hour, UTC
+  workflow_dispatch: # Manual trigger for debugging
 
 # Prevent overlapping runs (in case a cycle is slow). cancel-in-progress=false
 # means the new trigger waits for the old one to finish rather than aborting.
@@ -19,13 +19,13 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write           # Required for git push back to main
+  contents: write # Required for git push back to main
 
 jobs:
   cycle:
     name: Run multi-agent cycle
     runs-on: ubuntu-latest
-    timeout-minutes: 8       # Hard ceiling; node call has its own 5m timeout
+    timeout-minutes: 8 # Hard ceiling; node call has its own 5m timeout
 
     env:
       AGENT_RUN_MODE: cron-github-actions
@@ -52,8 +52,8 @@ jobs:
       - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps

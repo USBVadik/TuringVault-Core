@@ -37,10 +37,10 @@
  *   - Pauses are timed so the viewer has 1-2s to read each section.
  */
 
-const { chromium } = require('playwright');
+const { chromium } = require("playwright");
 
-const URL = process.env.DEMO_URL || 'https://frontend-seven-beta-46.vercel.app';
-const HEADLESS = process.env.DEMO_HEADLESS === '1';
+const URL = process.env.DEMO_URL || "https://frontend-seven-beta-46.vercel.app";
+const HEADLESS = process.env.DEMO_HEADLESS === "1";
 const SLOWMO = Number(process.env.DEMO_SLOWMO || 250);
 const VIEWPORT_W = Number(process.env.DEMO_VIEWPORT_W || 1440);
 const VIEWPORT_H = Number(process.env.DEMO_VIEWPORT_H || 900);
@@ -72,11 +72,16 @@ async function smoothScrollTo(page, targetY, durationMs = 2500) {
         requestAnimationFrame(step);
       });
     },
-    { targetY, durationMs },
+    { targetY, durationMs }
   );
 }
 
-async function smoothScrollToSelector(page, selector, durationMs = 2500, offset = 100) {
+async function smoothScrollToSelector(
+  page,
+  selector,
+  durationMs = 2500,
+  offset = 100
+) {
   const targetY = await page.evaluate(
     ({ selector, offset }) => {
       const el = document.querySelector(selector);
@@ -84,7 +89,7 @@ async function smoothScrollToSelector(page, selector, durationMs = 2500, offset 
       const rect = el.getBoundingClientRect();
       return window.scrollY + rect.top - offset;
     },
-    { selector, offset },
+    { selector, offset }
   );
   if (targetY == null) {
     console.log(`  (skip scroll — selector not found: ${selector})`);
@@ -106,44 +111,50 @@ async function hoverThenClick(page, selector, hoverMs = 600) {
     return;
   }
   // Move cursor in a couple steps so it's smooth on screen
-  await page.mouse.move(box.x + box.width / 2 - 40, box.y + box.height / 2 - 20, { steps: 8 });
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 12 });
+  await page.mouse.move(
+    box.x + box.width / 2 - 40,
+    box.y + box.height / 2 - 20,
+    { steps: 8 }
+  );
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, {
+    steps: 12,
+  });
   await sleep(hoverMs);
   await el.click();
 }
 
 async function main() {
-  console.log('▶ Demo driver starting');
+  console.log("▶ Demo driver starting");
   console.log(`  URL: ${URL}`);
   console.log(`  Headless: ${HEADLESS}`);
   console.log(`  Viewport: ${VIEWPORT_W}x${VIEWPORT_H}`);
-  console.log('');
-  console.log('  → If you are recording with Screen Studio, position');
-  console.log('    your recording region NOW. Browser opens in 4 seconds.');
-  console.log('');
+  console.log("");
+  console.log("  → If you are recording with Screen Studio, position");
+  console.log("    your recording region NOW. Browser opens in 4 seconds.");
+  console.log("");
   await sleep(4000);
 
   const browser = await chromium.launch({
     headless: HEADLESS,
     slowMo: SLOWMO,
-    args: ['--window-size=' + VIEWPORT_W + ',' + (VIEWPORT_H + 80)],
+    args: ["--window-size=" + VIEWPORT_W + "," + (VIEWPORT_H + 80)],
   });
   const ctx = await browser.newContext({
     viewport: { width: VIEWPORT_W, height: VIEWPORT_H },
-    deviceScaleFactor: 2,        // crisper screenshots on retina
+    deviceScaleFactor: 2, // crisper screenshots on retina
   });
   const page = await ctx.newPage();
 
   // ─── ACT 1 — Landing page top ─────────────────────────────────
-  console.log('Act 1: home top — hero + NAV');
-  await page.goto(URL, { waitUntil: 'networkidle' });
+  console.log("Act 1: home top — hero + NAV");
+  await page.goto(URL, { waitUntil: "networkidle" });
   await sleep(2000);
 
   // Pause on hero (NAV badge, mascot, intro)
   await sleep(2000);
 
   // ─── ACT 2 — Slow scroll through the dashboard ────────────────
-  console.log('Act 2: smooth scroll through sections');
+  console.log("Act 2: smooth scroll through sections");
 
   // Vault Funding block (~roughly 600px down)
   await smoothScrollTo(page, 600, 2000);
@@ -170,15 +181,15 @@ async function main() {
   await sleep(800);
 
   // ─── ACT 3 — Adversarial Challenge ────────────────────────────
-  console.log('Act 3: /challenge — fire 4 attack vectors');
-  await page.goto(URL + '/challenge', { waitUntil: 'networkidle' });
+  console.log("Act 3: /challenge — fire 4 attack vectors");
+  await page.goto(URL + "/challenge", { waitUntil: "networkidle" });
   await sleep(2000);
 
   const ATTACKS = [
-    { btn: 'button:has-text("Flash Crash")', name: 'flash_crash' },
-    { btn: 'button:has-text("Pump")', name: 'pump_signal' },
-    { btn: 'button:has-text("Oracle")', name: 'oracle_conflict' },
-    { btn: 'button:has-text("Sybil")', name: 'sybil_consensus' },
+    { btn: 'button:has-text("Flash Crash")', name: "flash_crash" },
+    { btn: 'button:has-text("Pump")', name: "pump_signal" },
+    { btn: 'button:has-text("Oracle")', name: "oracle_conflict" },
+    { btn: 'button:has-text("Sybil")', name: "sybil_consensus" },
   ];
 
   for (const a of ATTACKS) {
@@ -186,7 +197,7 @@ async function main() {
     await hoverThenClick(page, a.btn, 600);
     // Wait for result block to render (PREVIEW returns ~instantly)
     try {
-      await page.waitForSelector('text=ATTACK BLOCKED', { timeout: 5000 });
+      await page.waitForSelector("text=ATTACK BLOCKED", { timeout: 5000 });
     } catch {
       // If LIVE mode is on it can take 10s — fall back to a generic wait
       await sleep(5000);
@@ -194,16 +205,18 @@ async function main() {
     // Let the viewer see the verdict + reasoning
     await sleep(2400);
     // Smooth scroll down to show full reasoning + on-chain block
-    await page.evaluate(() => window.scrollBy({ top: 350, behavior: 'smooth' }));
+    await page.evaluate(() =>
+      window.scrollBy({ top: 350, behavior: "smooth" })
+    );
     await sleep(1800);
     // Back up so next click is visible
-    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
     await sleep(1000);
   }
 
   // ─── ACT 4 — Discipline Layer ─────────────────────────────────
-  console.log('Act 4: /discipline — gates + history');
-  await page.goto(URL + '/discipline', { waitUntil: 'networkidle' });
+  console.log("Act 4: /discipline — gates + history");
+  await page.goto(URL + "/discipline", { waitUntil: "networkidle" });
   await sleep(2200);
 
   // Show summary tiles
@@ -218,7 +231,7 @@ async function main() {
   try {
     await smoothScrollTo(page, 900, 1800);
     await sleep(1200);
-    const firstRow = page.locator('tbody tr').first();
+    const firstRow = page.locator("tbody tr").first();
     const rb = await firstRow.boundingBox();
     if (rb) {
       await page.mouse.move(rb.x + 100, rb.y + rb.height / 2, { steps: 10 });
@@ -228,12 +241,12 @@ async function main() {
     }
   } catch {
     // No data yet — that's fine, we still showed the page exists
-    console.log('  (no history rows to expand — empty state shown)');
+    console.log("  (no history rows to expand — empty state shown)");
   }
 
   // ─── ACT 5 — Back to home, end on contracts ───────────────────
-  console.log('Act 5: home, end on contracts table');
-  await page.goto(URL, { waitUntil: 'networkidle' });
+  console.log("Act 5: home, end on contracts table");
+  await page.goto(URL, { waitUntil: "networkidle" });
   await sleep(1500);
   await smoothScrollTo(page, 2800, 2500);
   await sleep(2500);
@@ -242,13 +255,15 @@ async function main() {
   // verifiable proof — not a marketing slide.
   await sleep(2000);
 
-  console.log('\n✓ Demo run complete. Stop Screen Studio recording.');
-  console.log('  Trim the head/tail in Screen Studio editor (4s pre-load + 2s post).');
+  console.log("\n✓ Demo run complete. Stop Screen Studio recording.");
+  console.log(
+    "  Trim the head/tail in Screen Studio editor (4s pre-load + 2s post)."
+  );
 
   await browser.close();
 }
 
 main().catch((e) => {
-  console.error('Fatal:', e?.message || e);
+  console.error("Fatal:", e?.message || e);
   process.exit(1);
 });

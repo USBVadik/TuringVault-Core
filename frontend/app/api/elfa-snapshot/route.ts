@@ -17,9 +17,9 @@
  * empty state. We never fabricate values.
  */
 
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-const ELFA_BASE = process.env.ELFA_BASE_URL || 'https://api.elfa.ai';
+const ELFA_BASE = process.env.ELFA_BASE_URL || "https://api.elfa.ai";
 const TIMEOUT_MS = 8000;
 
 async function fetchElfa(path: string) {
@@ -29,20 +29,20 @@ async function fetchElfa(path: string) {
   const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
     const res = await fetch(`${ELFA_BASE}${path}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'x-elfa-api-key': apiKey,
-        Accept: 'application/json',
+        "x-elfa-api-key": apiKey,
+        Accept: "application/json",
       },
       signal: ctrl.signal,
     });
     if (!res.ok) {
-      const text = await res.text().catch(() => '');
+      const text = await res.text().catch(() => "");
       return { __error: `HTTP ${res.status}: ${text.slice(0, 160)}` };
     }
     return await res.json();
   } catch (err: any) {
-    return { __error: err?.message || 'fetch failed' };
+    return { __error: err?.message || "fetch failed" };
   } finally {
     clearTimeout(t);
   }
@@ -53,10 +53,10 @@ function summariseMentions(payload: any) {
   const items: any[] = Array.isArray(payload?.data)
     ? payload.data
     : Array.isArray(payload?.data?.data)
-      ? payload.data.data
-      : Array.isArray(payload)
-        ? payload
-        : [];
+    ? payload.data.data
+    : Array.isArray(payload)
+    ? payload
+    : [];
   if (!items.length) return null;
 
   // V2 actual fields (verified via debug=1):
@@ -95,10 +95,10 @@ function findInTrending(payload: any, ticker: string) {
   const items: any[] = Array.isArray(payload?.data)
     ? payload.data
     : Array.isArray(payload?.data?.data)
-      ? payload.data.data
-      : Array.isArray(payload)
-        ? payload
-        : [];
+    ? payload.data.data
+    : Array.isArray(payload)
+    ? payload
+    : [];
   if (!items.length) return null;
 
   // V2 returns lowercase token names: { token: "btc", current_count, previous_count, change_percent }
@@ -109,7 +109,7 @@ function findInTrending(payload: any, ticker: string) {
   }
   for (let i = 0; i < items.length; i += 1) {
     const t = items[i];
-    const sym = String(t.token ?? t.ticker ?? t.symbol ?? '').toLowerCase();
+    const sym = String(t.token ?? t.ticker ?? t.symbol ?? "").toLowerCase();
     if (sym === target) {
       const mentions = Number(t.current_count ?? t.mentions ?? t.count ?? 0);
       const previous = Number(t.previous_count ?? 0);
@@ -118,7 +118,7 @@ function findInTrending(payload: any, ticker: string) {
           ? +(100 * (mentions / totalMentions)).toFixed(2)
           : null;
       let change: number | null = null;
-      if (typeof t.change_percent === 'number') change = t.change_percent;
+      if (typeof t.change_percent === "number") change = t.change_percent;
       else if (previous > 0)
         change = +(((mentions - previous) / previous) * 100).toFixed(1);
       return {
@@ -135,18 +135,19 @@ function findInTrending(payload: any, ticker: string) {
 
 function classify(mindshareChange: number | null, smartShare: number) {
   const dms = mindshareChange ?? 0;
-  if (dms > 50 && smartShare >= 0.20) return { signal: 'BULLISH', strength: 0.85 };
+  if (dms > 50 && smartShare >= 0.2)
+    return { signal: "BULLISH", strength: 0.85 };
   if (dms > 20)
     return {
-      signal: 'BULLISH',
+      signal: "BULLISH",
       strength: Math.min(0.6, 0.3 + Math.log10(1 + dms / 5)),
     };
   if (dms < -30)
     return {
-      signal: 'BEARISH',
+      signal: "BEARISH",
       strength: Math.min(0.6, 0.3 + Math.log10(1 + Math.abs(dms) / 5)),
     };
-  return { signal: 'NEUTRAL', strength: 0.2 };
+  return { signal: "NEUTRAL", strength: 0.2 };
 }
 
 export async function GET(req: Request) {
@@ -154,7 +155,7 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         available: false,
-        reason: 'ELFA_API_KEY not configured on this deployment',
+        reason: "ELFA_API_KEY not configured on this deployment",
         symbol: null,
         fetchedAt: new Date().toISOString(),
       },
@@ -163,20 +164,20 @@ export async function GET(req: Request) {
   }
 
   const url = new URL(req.url);
-  const symbol = (url.searchParams.get('symbol') || 'ETH').toUpperCase();
-  const timeWindow = url.searchParams.get('timeWindow') || '24h';
+  const symbol = (url.searchParams.get("symbol") || "ETH").toUpperCase();
+  const timeWindow = url.searchParams.get("timeWindow") || "24h";
 
   const params = new URLSearchParams({
     ticker: symbol,
     timeWindow,
-    page: '1',
-    pageSize: '10',
+    page: "1",
+    pageSize: "10",
   });
   const trendParams = new URLSearchParams({
     timeWindow,
-    page: '1',
-    pageSize: '50',
-    minMentions: '5',
+    page: "1",
+    pageSize: "50",
+    minMentions: "5",
   });
 
   const [mentions, trending] = await Promise.all([
@@ -191,7 +192,7 @@ export async function GET(req: Request) {
     return NextResponse.json(
       {
         available: false,
-        reason: mErr || tErr || 'no_data',
+        reason: mErr || tErr || "no_data",
         symbol,
         timeWindow,
         fetchedAt: new Date().toISOString(),
@@ -205,7 +206,7 @@ export async function GET(req: Request) {
 
   const mindshareChange = tSum?.mindshareChange ?? null;
   const totalReposts = (mSum?.smartReposts ?? 0) + (mSum?.ctReposts ?? 0);
-  const smartShare = totalReposts > 0 ? (mSum!.smartReposts / totalReposts) : 0;
+  const smartShare = totalReposts > 0 ? mSum!.smartReposts / totalReposts : 0;
 
   const { signal, strength } = classify(mindshareChange, smartShare);
 
@@ -226,6 +227,6 @@ export async function GET(req: Request) {
     mindshare: tSum?.mindshare ?? null,
     mindshareChange,
     mindshareRank: tSum?.rank ?? null,
-    source: 'elfa-rest-v2',
+    source: "elfa-rest-v2",
   });
 }

@@ -25,8 +25,9 @@ The project follows proper secret hygiene.
 ### PASS — No Hardcoded API Keys
 
 Scanned for patterns:
+
 - AWS Access Key IDs (AKIA...) — NOT FOUND
-- Nansen keys (nsn_...) — NOT FOUND  
+- Nansen keys (nsn\_...) — NOT FOUND
 - OpenAI keys (sk-...) — NOT FOUND
 - JWT tokens (eyJ...) — NOT FOUND
 - Pinata tokens — NOT FOUND

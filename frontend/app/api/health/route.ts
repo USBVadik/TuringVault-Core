@@ -20,13 +20,13 @@
  * Steering: .kiro/steering/no-lying-about-state.md
  */
 
-import { NextResponse } from 'next/server';
-import fs from 'node:fs';
-import path from 'node:path';
-import { createPublicClient, http } from 'viem';
-import { mantle } from 'viem/chains';
+import { NextResponse } from "next/server";
+import fs from "node:fs";
+import path from "node:path";
+import { createPublicClient, http } from "viem";
+import { mantle } from "viem/chains";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 type OutcomeEntry = {
@@ -40,17 +40,17 @@ type Outcomes = {
 };
 
 type HealthResponse = {
-  status: 'ok' | 'degraded';
+  status: "ok" | "degraded";
   lastCycleTimestamp: string | null;
   lastCycleAge: number | null;
   cyclesSucceeded24h: number | null;
   cyclesFailed24h: number | null;
   mode: string;
   chainBlockHeight: number | null;
-  dataScope: 'agent-lifetime';
+  dataScope: "agent-lifetime";
   parseSuccessRate24h?: number | null;
   parseFailureCount24h?: number | null;
-  thresholdMode?: 'base' | 'elevated' | null;
+  thresholdMode?: "base" | "elevated" | null;
   consecutiveLosses?: number | null;
   lastCycleSummary?: LastCycleSummary | null;
   runHistory?: RunHistoryEntry[];
@@ -91,7 +91,7 @@ type CycleFailureRaw = {
   error?: string;
 };
 
-const NO_STORE: HeadersInit = { 'Cache-Control': 'no-store, max-age=0' };
+const NO_STORE: HeadersInit = { "Cache-Control": "no-store, max-age=0" };
 
 /**
  * Resolve a backend file path that lives outside the frontend dir.
@@ -103,12 +103,12 @@ const NO_STORE: HeadersInit = { 'Cache-Control': 'no-store, max-age=0' };
  * .kiro/steering/no-lying-about-state.md (R1.4).
  */
 function backendPath(...segments: string[]): string {
-  return path.resolve(process.cwd(), '..', ...segments);
+  return path.resolve(process.cwd(), "..", ...segments);
 }
 
 function safeReadJson<T>(filePath: string): T | null {
   try {
-    const raw = fs.readFileSync(filePath, 'utf-8');
+    const raw = fs.readFileSync(filePath, "utf-8");
     return JSON.parse(raw) as T;
   } catch {
     return null;
@@ -158,14 +158,14 @@ function countSucceeded24h(outcomes: Outcomes | null): number | null {
     ...(outcomes.pending ?? []),
     ...(outcomes.settled ?? []),
   ];
-  return all.filter(e => isWithinLast24h(e.recordedAt, nowMs)).length;
+  return all.filter((e) => isWithinLast24h(e.recordedAt, nowMs)).length;
 }
 
 async function getMantleBlock(): Promise<number | null> {
   try {
     const client = createPublicClient({
       chain: mantle,
-      transport: http('https://rpc.mantle.xyz'),
+      transport: http("https://rpc.mantle.xyz"),
     });
     const block = await client.getBlockNumber();
     return Number(block);
@@ -177,34 +177,42 @@ async function getMantleBlock(): Promise<number | null> {
 export async function GET(): Promise<NextResponse> {
   try {
     // 1. data/loop_progress.json mtime
-    const progressPath = backendPath('data', 'loop_progress.json');
+    const progressPath = backendPath("data", "loop_progress.json");
     const progressStat = safeStat(progressPath);
     const progressIso = progressStat
       ? new Date(progressStat.mtimeMs).toISOString()
       : null;
 
     // 2. src/data/outcomes.json — newest entry
-    const outcomesPath = backendPath('src', 'data', 'outcomes.json');
+    const outcomesPath = backendPath("src", "data", "outcomes.json");
     const outcomes = safeReadJson<Outcomes>(outcomesPath);
     const outcomesIso = newestOutcomeIso(outcomes);
 
     // 3. Combined freshness
     const lastCycleTimestamp = maxIso(progressIso, outcomesIso);
     const lastCycleAge = lastCycleTimestamp
-      ? Math.max(0, Math.floor((Date.now() - Date.parse(lastCycleTimestamp)) / 1000))
+      ? Math.max(
+          0,
+          Math.floor((Date.now() - Date.parse(lastCycleTimestamp)) / 1000)
+        )
       : null;
 
     // 4. Chain liveness (independent — agent can be dead but chain alive)
     const chainBlockHeight = await getMantleBlock();
 
     // 5. Run mode declaration (operator-set; default unknown)
-    const mode = (process.env.AGENT_RUN_MODE ?? 'unknown').slice(0, 32);
+    const mode = (process.env.AGENT_RUN_MODE ?? "unknown").slice(0, 32);
 
     // 6. Parse metrics rolling 24h (T14, agent-reasoning-quality)
-    const parseMetricsPath = backendPath('src', 'data', 'parse_metrics.json');
+    const parseMetricsPath = backendPath("src", "data", "parse_metrics.json");
     let parseSuccessRate24h: number | null = null;
     let parseFailureCount24h: number | null = null;
-    const parseMetrics = safeReadJson<{ byDay?: Record<string, Record<string, { json_ok?: number; yaml_ok?: number; failed?: number }>> }>(parseMetricsPath);
+    const parseMetrics = safeReadJson<{
+      byDay?: Record<
+        string,
+        Record<string, { json_ok?: number; yaml_ok?: number; failed?: number }>
+      >;
+    }>(parseMetricsPath);
     if (parseMetrics?.byDay) {
       const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
       let ok = 0;
@@ -218,27 +226,37 @@ export async function GET(): Promise<NextResponse> {
         }
       }
       const total = ok + failed;
-      parseSuccessRate24h = total > 0 ? Math.round((ok / total) * 1000) / 1000 : null;
+      parseSuccessRate24h =
+        total > 0 ? Math.round((ok / total) * 1000) / 1000 : null;
       parseFailureCount24h = failed;
     }
 
     // 7. Threshold state (T14)
-    const thresholdStatePath = backendPath('src', 'data', 'threshold_state.json');
-    let thresholdMode: 'base' | 'elevated' | null = null;
+    const thresholdStatePath = backendPath(
+      "src",
+      "data",
+      "threshold_state.json"
+    );
+    let thresholdMode: "base" | "elevated" | null = null;
     let consecutiveLosses: number | null = null;
-    const thresholdState = safeReadJson<{ mode?: string; consecutiveLosses?: number }>(thresholdStatePath);
+    const thresholdState = safeReadJson<{
+      mode?: string;
+      consecutiveLosses?: number;
+    }>(thresholdStatePath);
     if (thresholdState) {
-      thresholdMode = thresholdState.mode === 'elevated' ? 'elevated' : 'base';
+      thresholdMode = thresholdState.mode === "elevated" ? "elevated" : "base";
       consecutiveLosses = thresholdState.consecutiveLosses ?? null;
     }
 
     // 8. Cron summary, run history, failures (continuous-cron-and-health T5)
-    const summaryPath = backendPath('data', 'last-cycle-summary.json');
+    const summaryPath = backendPath("data", "last-cycle-summary.json");
     const lastCycleSummary = safeReadJson<LastCycleSummary>(summaryPath);
 
-    const historyPath = backendPath('data', 'cycle-history.json');
+    const historyPath = backendPath("data", "cycle-history.json");
     const historyAll = safeReadJson<CycleHistoryRaw[]>(historyPath) ?? [];
-    const runHistory: RunHistoryEntry[] = (Array.isArray(historyAll) ? historyAll : [])
+    const runHistory: RunHistoryEntry[] = (
+      Array.isArray(historyAll) ? historyAll : []
+    )
       .slice(-5)
       .map((e) => ({
         cycleStartedAt: e.cycleStartedAt,
@@ -246,7 +264,7 @@ export async function GET(): Promise<NextResponse> {
         durationSeconds: e.durationSeconds ?? null,
       }));
 
-    const failuresPath = backendPath('data', 'cycle-failures.json');
+    const failuresPath = backendPath("data", "cycle-failures.json");
     const failures = safeReadJson<CycleFailureRaw[]>(failuresPath);
     let cyclesFailed24h: number | null = null;
     if (Array.isArray(failures)) {
@@ -259,14 +277,14 @@ export async function GET(): Promise<NextResponse> {
     }
 
     const body: HealthResponse = {
-      status: 'ok',
+      status: "ok",
       lastCycleTimestamp,
       lastCycleAge,
       cyclesSucceeded24h: countSucceeded24h(outcomes),
       cyclesFailed24h,
       mode,
       chainBlockHeight,
-      dataScope: 'agent-lifetime',
+      dataScope: "agent-lifetime",
       parseSuccessRate24h,
       parseFailureCount24h,
       thresholdMode,
@@ -280,16 +298,16 @@ export async function GET(): Promise<NextResponse> {
     // Last-resort degradation. Anything reaching here is a bug,
     // but we still want HTTP 200 so the frontend mascot can render Offline.
     const errorMessage =
-      err instanceof Error ? err.message.slice(0, 120) : 'unknown error';
+      err instanceof Error ? err.message.slice(0, 120) : "unknown error";
     const body: HealthResponse = {
-      status: 'degraded',
+      status: "degraded",
       lastCycleTimestamp: null,
       lastCycleAge: null,
       cyclesSucceeded24h: null,
       cyclesFailed24h: null,
-      mode: 'unknown',
+      mode: "unknown",
       chainBlockHeight: null,
-      dataScope: 'agent-lifetime',
+      dataScope: "agent-lifetime",
       error: errorMessage,
     };
     return NextResponse.json(body, { headers: NO_STORE });

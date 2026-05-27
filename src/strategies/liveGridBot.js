@@ -1,9 +1,9 @@
 /**
  * TuringVault — Live Grid Trading Bot
- * 
+ *
  * Uses Odos aggregator for swaps on Mantle.
  * Trades WMNT ↔ USDT based on ranging grid strategy signals.
- * 
+ *
  * INITIAL FUNDING (2026-05-22T07:30Z):
  *   WMNT: 1.195793 (~$0.81)
  *   USDT: 0.676892 (~$0.68)
@@ -12,7 +12,9 @@
  *   mETH: 0.000823 (not traded)
  */
 
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
 const { ethers } = require("ethers");
 const fs = require("fs");
 const path = require("path");
@@ -42,8 +44,11 @@ class LiveGridBot {
   }
 
   _loadTrades() {
-    try { return JSON.parse(fs.readFileSync(LOG_PATH, "utf8")); }
-    catch { return []; }
+    try {
+      return JSON.parse(fs.readFileSync(LOG_PATH, "utf8"));
+    } catch {
+      return [];
+    }
   }
 
   _saveTrades() {
@@ -52,8 +57,9 @@ class LiveGridBot {
   }
 
   _loadState() {
-    try { return JSON.parse(fs.readFileSync(STATE_PATH, "utf8")); }
-    catch {
+    try {
+      return JSON.parse(fs.readFileSync(STATE_PATH, "utf8"));
+    } catch {
       return {
         initialFunding: {
           WMNT: 1.195793540372515899,
@@ -98,7 +104,9 @@ class LiveGridBot {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chainId: 5000,
-          inputTokens: [{ tokenAddress: ADDRESSES.WMNT, amount: "1000000000000000000" }],
+          inputTokens: [
+            { tokenAddress: ADDRESSES.WMNT, amount: "1000000000000000000" },
+          ],
           outputTokens: [{ tokenAddress: ADDRESSES.USDT, proportion: 1 }],
           userAddr: this.wallet.address,
           slippageLimitPercent: 1,
@@ -110,7 +118,9 @@ class LiveGridBot {
     } catch {}
     // Fallback: CoinGecko
     try {
-      const resp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=mantle&vs_currencies=usd");
+      const resp = await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=mantle&vs_currencies=usd"
+      );
       const data = await resp.json();
       if (data?.mantle?.usd) return data.mantle.usd;
     } catch {}
@@ -149,13 +159,18 @@ class LiveGridBot {
       }),
     });
     const quote = await quoteResp.json();
-    if (!quote.pathId) throw new Error("No route found: " + JSON.stringify(quote));
+    if (!quote.pathId)
+      throw new Error("No route found: " + JSON.stringify(quote));
 
     // Assemble
     const assembleResp = await fetch("https://api.odos.xyz/sor/assemble", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userAddr: this.wallet.address, pathId: quote.pathId, simulate: false }),
+      body: JSON.stringify({
+        userAddr: this.wallet.address,
+        pathId: quote.pathId,
+        simulate: false,
+      }),
     });
     const assembled = await assembleResp.json();
     const txData = assembled.transaction;
@@ -163,9 +178,15 @@ class LiveGridBot {
     // Ensure approval if needed
     if (direction === "BUY_WMNT") {
       const usdt = new ethers.Contract(ADDRESSES.USDT, ERC20_ABI, this.wallet);
-      const allowance = await usdt.allowance(this.wallet.address, ADDRESSES.ODOS_ROUTER);
+      const allowance = await usdt.allowance(
+        this.wallet.address,
+        ADDRESSES.ODOS_ROUTER
+      );
       if (allowance < BigInt(amountWei)) {
-        const appTx = await usdt.approve(ADDRESSES.ODOS_ROUTER, ethers.MaxUint256);
+        const appTx = await usdt.approve(
+          ADDRESSES.ODOS_ROUTER,
+          ethers.MaxUint256
+        );
         await appTx.wait();
       }
     }
@@ -179,15 +200,18 @@ class LiveGridBot {
     });
     const receipt = await tx.wait();
 
-    const gasUsed = parseFloat(ethers.formatEther(receipt.gasUsed * (receipt.gasPrice || 50000100000n)));
+    const gasUsed = parseFloat(
+      ethers.formatEther(receipt.gasUsed * (receipt.gasPrice || 50000100000n))
+    );
 
     const trade = {
       timestamp: new Date().toISOString(),
       direction,
       inputAmount: amount,
-      outputAmount: direction === "BUY_WMNT"
-        ? parseFloat(ethers.formatEther(BigInt(quote.outAmounts[0])))
-        : parseInt(quote.outAmounts[0]) / 1e6,
+      outputAmount:
+        direction === "BUY_WMNT"
+          ? parseFloat(ethers.formatEther(BigInt(quote.outAmounts[0])))
+          : parseInt(quote.outAmounts[0]) / 1e6,
       txHash: receipt.hash,
       blockNumber: receipt.blockNumber,
       gasUsedMNT: gasUsed,
@@ -216,10 +240,13 @@ class LiveGridBot {
 
     // Actually get ETH price from the grid strategy
     const rawSignal = await getGridSignal();
-    const signal = posState.applyPositionAwareness(rawSignal, rawSignal.channel?.currentPrice);
+    const signal = posState.applyPositionAwareness(
+      rawSignal,
+      rawSignal.channel?.currentPrice
+    );
 
     const portfolioUsd = balances.WMNT * mntPrice + balances.USDT;
-    
+
     const result = {
       timestamp: new Date().toISOString(),
       cycle: ++this.state.cycleCount,
@@ -229,11 +256,13 @@ class LiveGridBot {
       signal: signal.action,
       reason: signal.reason,
       confidence: signal.confidence,
-      channel: rawSignal.channel ? {
-        support: rawSignal.channel.support,
-        resistance: rawSignal.channel.resistance,
-        position: rawSignal.channel.channelPosition,
-      } : null,
+      channel: rawSignal.channel
+        ? {
+            support: rawSignal.channel.support,
+            resistance: rawSignal.channel.resistance,
+            position: rawSignal.channel.channelPosition,
+          }
+        : null,
       executed: null,
     };
 
@@ -243,8 +272,11 @@ class LiveGridBot {
     if (signal.action === "BUY_mETH" && signal.confidence >= 0.65) {
       // Buy WMNT with available USDT
       const buyAmount = balances.USDT * 0.8; // Use 80% of USDT
-      if (buyAmount >= 0.10) { // min $0.10
-        console.log(`  → Executing BUY_WMNT: $${buyAmount.toFixed(4)} USDT → WMNT`);
+      if (buyAmount >= 0.1) {
+        // min $0.10
+        console.log(
+          `  → Executing BUY_WMNT: $${buyAmount.toFixed(4)} USDT → WMNT`
+        );
         const trade = await this.executeSwap("BUY_WMNT", buyAmount);
         result.executed = trade;
         // Update position state
@@ -256,21 +288,40 @@ class LiveGridBot {
           allocationPct: 80,
         });
       } else {
-        result.executed = { skipped: true, reason: `USDT too low: $${buyAmount.toFixed(4)}` };
+        result.executed = {
+          skipped: true,
+          reason: `USDT too low: $${buyAmount.toFixed(4)}`,
+        };
       }
-    } else if ((signal.action === "SELL_mETH" || signal.overrideReason === "TAKE_PROFIT" || signal.overrideReason === "STOP_LOSS") && signal.confidence >= 0.65) {
+    } else if (
+      (signal.action === "SELL_mETH" ||
+        signal.overrideReason === "TAKE_PROFIT" ||
+        signal.overrideReason === "STOP_LOSS") &&
+      signal.confidence >= 0.65
+    ) {
       // Sell WMNT for USDT
       const sellAmount = balances.WMNT * 0.8;
-      if (sellAmount >= 0.10) { // min 0.1 WMNT
-        console.log(`  → Executing SELL_WMNT: ${sellAmount.toFixed(4)} WMNT → USDT`);
+      if (sellAmount >= 0.1) {
+        // min 0.1 WMNT
+        console.log(
+          `  → Executing SELL_WMNT: ${sellAmount.toFixed(4)} WMNT → USDT`
+        );
         const trade = await this.executeSwap("SELL_WMNT", sellAmount);
         result.executed = trade;
         posState.exitPosition(signal.overrideReason || "GRID_SELL");
       } else {
-        result.executed = { skipped: true, reason: `WMNT too low: ${sellAmount.toFixed(4)}` };
+        result.executed = {
+          skipped: true,
+          reason: `WMNT too low: ${sellAmount.toFixed(4)}`,
+        };
       }
     } else {
-      result.executed = { skipped: true, reason: `Signal: ${signal.action} (conf: ${signal.confidence.toFixed(2)})` };
+      result.executed = {
+        skipped: true,
+        reason: `Signal: ${signal.action} (conf: ${signal.confidence.toFixed(
+          2
+        )})`,
+      };
     }
 
     posState.tickCycle();
@@ -287,7 +338,9 @@ class LiveGridBot {
     const balances = await this.getBalances();
     const mntPrice = await this.getMntPrice();
     const currentUsd = balances.WMNT * mntPrice + balances.USDT;
-    const initialUsd = this.state.initialFunding.WMNT * this.state.initialFunding.mntPriceUsd + this.state.initialFunding.USDT;
+    const initialUsd =
+      this.state.initialFunding.WMNT * this.state.initialFunding.mntPriceUsd +
+      this.state.initialFunding.USDT;
     const pnl = currentUsd - initialUsd;
     const pnlPct = (pnl / initialUsd) * 100;
 
@@ -326,7 +379,11 @@ if (require.main === module) {
       const price = await bot.getMntPrice();
       console.log("Balances:", bal);
       console.log("MNT price:", price, "USD");
-      console.log("Portfolio:", (bal.WMNT * price + bal.USDT).toFixed(4), "USD");
+      console.log(
+        "Portfolio:",
+        (bal.WMNT * price + bal.USDT).toFixed(4),
+        "USD"
+      );
     }
   })().catch(console.error);
 }

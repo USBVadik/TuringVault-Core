@@ -6,7 +6,9 @@ describe("TuringVaultReputationRegistry", function () {
 
   beforeEach(async function () {
     [owner, rater, other] = await ethers.getSigners();
-    const Factory = await ethers.getContractFactory("TuringVaultReputationRegistry");
+    const Factory = await ethers.getContractFactory(
+      "TuringVaultReputationRegistry"
+    );
     registry = await Factory.deploy();
     await registry.waitForDeployment();
   });
@@ -23,12 +25,15 @@ describe("TuringVaultReputationRegistry", function () {
 
   describe("Feedback Submission", function () {
     const agentId = 0;
-    const reasoningHash = ethers.keccak256(ethers.toUtf8Bytes("test-reasoning"));
+    const reasoningHash = ethers.keccak256(
+      ethers.toUtf8Bytes("test-reasoning")
+    );
 
     it("Should submit positive feedback", async function () {
       await registry.submitFeedback(agentId, 50, reasoningHash, "profit_50bps");
-      
-      const [cumScore, total, positive, negative, winRate] = await registry.getReputation(agentId);
+
+      const [cumScore, total, positive, negative, winRate] =
+        await registry.getReputation(agentId);
       expect(cumScore).to.equal(50);
       expect(total).to.equal(1);
       expect(positive).to.equal(1);
@@ -38,8 +43,9 @@ describe("TuringVaultReputationRegistry", function () {
 
     it("Should submit negative feedback", async function () {
       await registry.submitFeedback(agentId, -30, reasoningHash, "loss_30bps");
-      
-      const [cumScore, total, positive, negative] = await registry.getReputation(agentId);
+
+      const [cumScore, total, positive, negative] =
+        await registry.getReputation(agentId);
       expect(cumScore).to.equal(-30);
       expect(total).to.equal(1);
       expect(positive).to.equal(0);
@@ -50,8 +56,9 @@ describe("TuringVaultReputationRegistry", function () {
       await registry.submitFeedback(agentId, 80, reasoningHash, "big_win");
       await registry.submitFeedback(agentId, -20, reasoningHash, "small_loss");
       await registry.submitFeedback(agentId, 40, reasoningHash, "medium_win");
-      
-      const [cumScore, total, positive, negative, winRate] = await registry.getReputation(agentId);
+
+      const [cumScore, total, positive, negative, winRate] =
+        await registry.getReputation(agentId);
       expect(cumScore).to.equal(100); // 80 - 20 + 40
       expect(total).to.equal(3);
       expect(positive).to.equal(2);
@@ -61,7 +68,9 @@ describe("TuringVaultReputationRegistry", function () {
 
     it("Should reject unauthorized rater", async function () {
       await expect(
-        registry.connect(other).submitFeedback(agentId, 50, reasoningHash, "test")
+        registry
+          .connect(other)
+          .submitFeedback(agentId, 50, reasoningHash, "test")
       ).to.be.revertedWith("Not authorized rater");
     });
 
@@ -75,7 +84,9 @@ describe("TuringVaultReputationRegistry", function () {
     });
 
     it("Should emit FeedbackSubmitted event", async function () {
-      await expect(registry.submitFeedback(agentId, 75, reasoningHash, "great_trade"))
+      await expect(
+        registry.submitFeedback(agentId, 75, reasoningHash, "great_trade")
+      )
         .to.emit(registry, "FeedbackSubmitted")
         .withArgs(agentId, owner.address, 75, reasoningHash, "great_trade");
     });
@@ -125,7 +136,9 @@ describe("TuringVaultReputationRegistry", function () {
 
   describe("Feedback with Signature", function () {
     const agentId = 0;
-    const reasoningHash = ethers.keccak256(ethers.toUtf8Bytes("signed-reasoning"));
+    const reasoningHash = ethers.keccak256(
+      ethers.toUtf8Bytes("signed-reasoning")
+    );
 
     it("Should accept valid signature from authorized rater", async function () {
       // Owner is authorized rater, sign the message
@@ -134,12 +147,18 @@ describe("TuringVaultReputationRegistry", function () {
         [agentId, 60, reasoningHash, "signed_win"]
       );
       const signature = await owner.signMessage(ethers.getBytes(messageHash));
-      
+
       // Submit from another address but with valid sig
-      await registry.connect(other).submitFeedbackWithSignature(
-        agentId, 60, reasoningHash, "signed_win", signature
-      );
-      
+      await registry
+        .connect(other)
+        .submitFeedbackWithSignature(
+          agentId,
+          60,
+          reasoningHash,
+          "signed_win",
+          signature
+        );
+
       const [cumScore] = await registry.getReputation(agentId);
       expect(cumScore).to.equal(60);
     });
@@ -149,8 +168,11 @@ describe("TuringVaultReputationRegistry", function () {
     it("Should return feedback by index", async function () {
       const reasoningHash = ethers.keccak256(ethers.toUtf8Bytes("view-test"));
       await registry.submitFeedback(0, 42, reasoningHash, "test_context");
-      
-      const [raterAddr, score, , hash, context] = await registry.getFeedback(0, 0);
+
+      const [raterAddr, score, , hash, context] = await registry.getFeedback(
+        0,
+        0
+      );
       expect(raterAddr).to.equal(owner.address);
       expect(score).to.equal(42);
       expect(hash).to.equal(reasoningHash);

@@ -30,7 +30,7 @@
  *   returned, plus aggregated mention counts on the trending endpoint.
  */
 
-const ELFA_BASE = process.env.ELFA_BASE_URL || 'https://api.elfa.ai';
+const ELFA_BASE = process.env.ELFA_BASE_URL || "https://api.elfa.ai";
 const TIMEOUT_MS = 8000;
 
 // ── Local cache (stops repeat pulls within a single cycle) ────────────
@@ -56,15 +56,15 @@ async function fetchElfa(path, { timeout = TIMEOUT_MS } = {}) {
   const timer = setTimeout(() => ctrl.abort(), timeout);
   try {
     const res = await fetch(`${ELFA_BASE}${path}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'x-elfa-api-key': apiKey,
-        Accept: 'application/json',
+        "x-elfa-api-key": apiKey,
+        Accept: "application/json",
       },
       signal: ctrl.signal,
     });
     if (!res.ok) {
-      const text = await res.text().catch(() => '');
+      const text = await res.text().catch(() => "");
       console.warn(
         `[Elfa] ${path} → HTTP ${res.status}: ${text.slice(0, 200)}`
       );
@@ -72,7 +72,7 @@ async function fetchElfa(path, { timeout = TIMEOUT_MS } = {}) {
     }
     return await res.json();
   } catch (err) {
-    if (err.name !== 'AbortError') {
+    if (err.name !== "AbortError") {
       console.warn(`[Elfa] ${path} failed: ${err.message}`);
     }
     return null;
@@ -88,12 +88,12 @@ async function fetchElfa(path, { timeout = TIMEOUT_MS } = {}) {
  *     view_count, account_tags: [...] }
  * No raw text content — V2 strips it for ToS compliance.
  */
-async function getTopMentions(ticker, timeWindow = '24h', pageSize = 10) {
+async function getTopMentions(ticker, timeWindow = "24h", pageSize = 10) {
   return cached(`elfa_top_${ticker}_${timeWindow}_${pageSize}`, async () => {
     const params = new URLSearchParams({
       ticker,
       timeWindow,
-      page: '1',
+      page: "1",
       pageSize: String(pageSize),
     });
     return fetchElfa(`/v2/data/top-mentions?${params.toString()}`);
@@ -104,13 +104,13 @@ async function getTopMentions(ticker, timeWindow = '24h', pageSize = 10) {
  * Trending tokens leaderboard. We use this to derive a mindshare proxy for
  * our ticker — its rank and the share of total mentions it commands.
  */
-async function getTrendingTokens(timeWindow = '24h', pageSize = 50) {
+async function getTrendingTokens(timeWindow = "24h", pageSize = 50) {
   return cached(`elfa_trending_${timeWindow}_${pageSize}`, async () => {
     const params = new URLSearchParams({
       timeWindow,
-      page: '1',
+      page: "1",
       pageSize: String(pageSize),
-      minMentions: '5',
+      minMentions: "5",
     });
     return fetchElfa(`/v2/aggregations/trending-tokens?${params.toString()}`);
   });
@@ -120,7 +120,7 @@ async function getTrendingTokens(timeWindow = '24h', pageSize = 50) {
  * Quick smoke test for the configured API key. Cheap (single GET).
  */
 async function getKeyStatus() {
-  return fetchElfa('/v2/key-status');
+  return fetchElfa("/v2/key-status");
 }
 
 // ── Helpers to extract signal-shaped data ─────────────────────────────
@@ -130,10 +130,10 @@ function summariseMentionPayload(payload) {
   const items = Array.isArray(payload?.data)
     ? payload.data
     : Array.isArray(payload?.data?.data)
-      ? payload.data.data
-      : Array.isArray(payload)
-        ? payload
-        : [];
+    ? payload.data.data
+    : Array.isArray(payload)
+    ? payload
+    : [];
   if (!items.length) return null;
 
   // V2 actual shape (verified via /api/elfa-snapshot?debug=1 against the
@@ -182,10 +182,10 @@ function findTickerInTrending(trendingPayload, ticker) {
   const items = Array.isArray(trendingPayload?.data)
     ? trendingPayload.data
     : Array.isArray(trendingPayload?.data?.data)
-      ? trendingPayload.data.data
-      : Array.isArray(trendingPayload)
-        ? trendingPayload
-        : [];
+    ? trendingPayload.data.data
+    : Array.isArray(trendingPayload)
+    ? trendingPayload
+    : [];
   if (!items.length) return null;
 
   // V2 returns tokens lowercase: { token: "btc", current_count, previous_count, change_percent }
@@ -196,7 +196,7 @@ function findTickerInTrending(trendingPayload, ticker) {
   }
   for (let i = 0; i < items.length; i += 1) {
     const t = items[i];
-    const sym = String(t.token ?? t.ticker ?? t.symbol ?? '').toLowerCase();
+    const sym = String(t.token ?? t.ticker ?? t.symbol ?? "").toLowerCase();
     if (sym === target) {
       const mentions = Number(t.current_count ?? t.mentions ?? t.count ?? 0);
       const previous = Number(t.previous_count ?? 0);
@@ -205,7 +205,7 @@ function findTickerInTrending(trendingPayload, ticker) {
           ? +(100 * (mentions / totalMentions)).toFixed(2)
           : null;
       let change = null;
-      if (typeof t.change_percent === 'number') {
+      if (typeof t.change_percent === "number") {
         change = t.change_percent;
       } else if (previous > 0) {
         change = +(((mentions - previous) / previous) * 100).toFixed(1);
@@ -246,9 +246,9 @@ function findTickerInTrending(trendingPayload, ticker) {
  * tells the analyst "social attention is heating up / cooling down". The
  * Validator can still REJECT directional swaps if regime contradicts.
  */
-async function getSocialSignal(symbol = 'ETH', { timeWindow = '24h' } = {}) {
+async function getSocialSignal(symbol = "ETH", { timeWindow = "24h" } = {}) {
   if (!process.env.ELFA_API_KEY) {
-    return { available: false, source: 'elfa-rest-v2', reason: 'no_api_key' };
+    return { available: false, source: "elfa-rest-v2", reason: "no_api_key" };
   }
   try {
     const [mentionsRaw, trendingRaw] = await Promise.all([
@@ -260,30 +260,33 @@ async function getSocialSignal(symbol = 'ETH', { timeWindow = '24h' } = {}) {
     const t = findTickerInTrending(trendingRaw, symbol);
 
     if (!m && !t) {
-      return { available: false, source: 'elfa-rest-v2', reason: 'no_data' };
+      return { available: false, source: "elfa-rest-v2", reason: "no_data" };
     }
 
     const mindshareChange = t?.mindshareChange ?? 0;
     const totalReposts = (m?.smartReposts ?? 0) + (m?.ctReposts ?? 0);
-    const smartShare = totalReposts > 0 ? (m.smartReposts / totalReposts) : 0;
+    const smartShare = totalReposts > 0 ? m.smartReposts / totalReposts : 0;
 
-    let signal = 'NEUTRAL';
+    let signal = "NEUTRAL";
     let strength = 0.2;
 
-    if (mindshareChange > 50 && smartShare >= 0.20) {
-      signal = 'BULLISH';
+    if (mindshareChange > 50 && smartShare >= 0.2) {
+      signal = "BULLISH";
       strength = 0.85;
     } else if (mindshareChange > 20) {
-      signal = 'BULLISH';
+      signal = "BULLISH";
       strength = Math.min(0.6, 0.3 + Math.log10(1 + mindshareChange / 5));
     } else if (mindshareChange < -30 && t?.rank != null) {
-      signal = 'BEARISH';
-      strength = Math.min(0.6, 0.3 + Math.log10(1 + Math.abs(mindshareChange) / 5));
+      signal = "BEARISH";
+      strength = Math.min(
+        0.6,
+        0.3 + Math.log10(1 + Math.abs(mindshareChange) / 5)
+      );
     }
 
     return {
       available: true,
-      source: 'elfa-rest-v2',
+      source: "elfa-rest-v2",
       symbol,
       timeWindow,
       signal,
@@ -301,19 +304,19 @@ async function getSocialSignal(symbol = 'ETH', { timeWindow = '24h' } = {}) {
     };
   } catch (err) {
     console.warn(`[Elfa] getSocialSignal failed: ${err.message}`);
-    return { available: false, source: 'elfa-rest-v2', reason: err.message };
+    return { available: false, source: "elfa-rest-v2", reason: err.message };
   }
 }
 
 /**
  * Snapshot for the dashboard — same data, plus a short label for the UI strip.
  */
-async function getDashboardSnapshot(symbol = 'ETH') {
+async function getDashboardSnapshot(symbol = "ETH") {
   const sig = await getSocialSignal(symbol);
   if (!sig.available) {
     return {
       available: false,
-      reason: sig.reason || 'unknown',
+      reason: sig.reason || "unknown",
       symbol,
       fetchedAt: new Date().toISOString(),
     };
@@ -331,12 +334,16 @@ async function getDashboardSnapshot(symbol = 'ETH') {
     mindshareChange: sig.mindshareChange,
     mindshareRank: sig.mindshareRank,
     summary:
-      sig.signal === 'NEUTRAL'
-        ? `${symbol} mindshare ${sig.mindshare?.toFixed(2) ?? '—'}% · neutral`
-        : `${symbol} ${sig.signal.toLowerCase()} · mindshare ${sig.mindshare?.toFixed(2) ?? '—'}%${
+      sig.signal === "NEUTRAL"
+        ? `${symbol} mindshare ${sig.mindshare?.toFixed(2) ?? "—"}% · neutral`
+        : `${symbol} ${sig.signal.toLowerCase()} · mindshare ${
+            sig.mindshare?.toFixed(2) ?? "—"
+          }%${
             sig.mindshareChange != null
-              ? ` (${sig.mindshareChange > 0 ? '+' : ''}${Number(sig.mindshareChange).toFixed(0)}%)`
-              : ''
+              ? ` (${sig.mindshareChange > 0 ? "+" : ""}${Number(
+                  sig.mindshareChange
+                ).toFixed(0)}%)`
+              : ""
           }`,
   };
 }

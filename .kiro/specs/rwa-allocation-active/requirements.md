@@ -22,13 +22,13 @@ For an AI x RWA Track judge this is the gap that matters most:
 
 A liquidity probe on Mantle Mainnet (2026-05-26) confirmed:
 
-| Pool | Active-bin reserves | Notes |
-|---|---|---|
-| USDY/USDT | 0 / 0 | **Dead pool** — cannot swap |
-| USDY/mUSD, USDY/WMNT | no pair | — |
-| **USDT0/USDT** | **641 218 USDT + 502 822 USDT0** | **~$1.1M, deep** |
-| USDT0/WMNT (binStep 100) | 580 WMNT + 25.72 USDT0 | thin (LP-thin) |
-| mUSD/USDT | no pair | — |
+| Pool                     | Active-bin reserves              | Notes                       |
+| ------------------------ | -------------------------------- | --------------------------- |
+| USDY/USDT                | 0 / 0                            | **Dead pool** — cannot swap |
+| USDY/mUSD, USDY/WMNT     | no pair                          | —                           |
+| **USDT0/USDT**           | **641 218 USDT + 502 822 USDT0** | **~$1.1M, deep**            |
+| USDT0/WMNT (binStep 100) | 580 WMNT + 25.72 USDT0           | thin (LP-thin)              |
+| mUSD/USDT                | no pair                          | —                           |
 
 Conclusion: **USDT0 is the only on-chain swappable RWA target on
 Mantle right now**. USDY is paper-ready but the pool is dry.
@@ -115,7 +115,7 @@ audit narrative is preserved.
   USDT0 when the agent has been FLAT > 24 h and regime ≠ TREND_UP.
 - **RWAIntent** — structured object emitted by the allocator
   describing the desired swap: `{source, from, to, amountIn,
-  amountOutMin, reason}`.
+amountOutMin, reason}`.
 
 ## Functional Requirements
 
@@ -126,6 +126,7 @@ audit narrative is preserved.
 **so that** adding a third (when USDY pool revives) is a copy-paste.
 
 **Acceptance**
+
 1. THE file `src/rwa/usdt0Module.js` SHALL export a `USDT0Module`
    class with at least: `getPosition(addr)`, `getContextForAI(addr)`.
 2. THE module SHALL declare `assetClass: 'rwa-treasury'`,
@@ -144,6 +145,7 @@ audit narrative is preserved.
 **so that** Path A and Path B don't both fire at once.
 
 **Acceptance**
+
 1. THE file `src/orchestrator/rwaAllocator.js` SHALL export
    `evaluate({ decision, market, balances, lastSwapAt, posState })`
    returning `RWAIntent | null`.
@@ -175,6 +177,7 @@ audit narrative is preserved.
 go, **so that** the dashboard shows real RWA TXs.
 
 **Acceptance**
+
 1. AFTER the existing on-chain attestation chain (proposal,
    validation, decision log, reputation) and BEFORE the agent-card
    refresh step, THE cycle SHALL invoke
@@ -206,6 +209,7 @@ go, **so that** the dashboard shows real RWA TXs.
 **so that** a runaway loop can't blow the wallet.
 
 **Acceptance**
+
 1. `MerchantMoeDEX.executeSwap(...)` SHALL accept a
    `maxPriceImpactBps` option (default `100` = 1%) and revert
    client-side if the quote's `priceImpact` > limit.
@@ -215,7 +219,7 @@ go, **so that** the dashboard shows real RWA TXs.
 3. THE wrapper SHALL log every accept/reject path including the
    numeric reason.
 4. The execution path SHALL use `provider.getTransactionCount(addr,
-   'pending')` for nonce, not 'latest', to coexist with the 4
+'pending')` for nonce, not 'latest', to coexist with the 4
    attestation TXs the cycle already pushed.
 
 ### R5 — `/api/decisions` and `/api/strategy` reflect RWA
@@ -225,6 +229,7 @@ go, **so that** the dashboard shows real RWA TXs.
 **so that** judges see a populated RWA column.
 
 **Acceptance**
+
 1. `/api/decisions` SHALL include `assetClass` per row:
    `'rwa-treasury' | 'eth-staking' | 'stable' | 'native' | null`,
    inferred from `targetAsset` and `outcomes.json.rwaIntent`.
@@ -251,9 +256,10 @@ later, **so that** the project doesn't claim live USDY allocation
 when the pool is dead.
 
 **Acceptance**
+
 1. THE landing page strategy section SHALL display, when relevant:
    `RWA targets: USDT0 (active) · USDY (paper-ready, awaiting
-   Mantle pool depth)`.
+Mantle pool depth)`.
 2. `RWAModule.executeSwap()` SHALL refuse with a typed error
    `RWA_POOL_INACTIVE` if it ever gets called from production, so
    nobody silently re-enables USDY swap when the pool is still dry.
@@ -267,6 +273,7 @@ when the pool is dead.
 gas, **so that** I can iterate on the prompt/threshold logic.
 
 **Acceptance**
+
 1. `package.json` SHALL gain script `smoke:rwa` running
    `node scripts/smoke-rwa.js`.
 2. The script SHALL:
@@ -287,6 +294,7 @@ gas, **so that** I can iterate on the prompt/threshold logic.
 **so that** I can pause/resume and debug without re-reading the spec.
 
 **Acceptance**
+
 1. THE file `.kiro/runbooks/rwa-operations.md` SHALL exist with
    sections:
    - **Pause RWA execution** — set `RWA_EXECUTE_ENABLED=false`
@@ -305,7 +313,7 @@ gas, **so that** I can iterate on the prompt/threshold logic.
 1. The dashboard SHALL NOT claim "AI is allocating to USDY" until a
    real USDY swap exists in `outcomes.json`.
 2. When `RWA_EXECUTE_ENABLED=false`, `/api/strategy.rwaAllocation
-   .executeEnabled` SHALL report `false` AND the dashboard hero
+.executeEnabled` SHALL report `false` AND the dashboard hero
    SHALL display `RWA · simulation mode` next to the badge.
 3. After a single successful USDT0 swap, the dashboard MAY display
    `RWA · live · last allocation <timestamp>`. No earlier.
@@ -348,7 +356,7 @@ This spec is done WHEN:
    `rwaIntent.source === 'idle-parking'` AND 1 with `source === 'llm'`.
 3. `/api/strategy.rwaAllocation` returns real numbers (not nulls).
 4. `/api/decisions` includes the RWA TX with `assetClass:
-   'rwa-treasury'`.
+'rwa-treasury'`.
 5. Frontend dashboard shows RWA strip in honest mode (live or
    simulation, depending on flag).
 6. `npm run smoke:rwa` exits 0.
@@ -359,6 +367,7 @@ This spec is done WHEN:
 
 1. **Where in the cycle do we run the allocator?** After all 4
    attestation TXs, or before reputation feedback?
+
    - **Recommendation:** after attestations, before agent-card
      refresh. The swap then earns its own attestation only on the
      next cycle's settlement, which mirrors how settled outcomes
@@ -366,8 +375,9 @@ This spec is done WHEN:
 
 2. **Should the LLM Path A actually be a separate prompt, or can we
    reuse the existing Analyst by extending its action vocabulary?**
+
    - Option A1: extend `action ∈ {"swap", "hold", "rwa_allocate",
-     "rwa_exit"}` and update both prompt + Zod schema.
+"rwa_exit"}` and update both prompt + Zod schema.
    - Option A2: add a third agent role "RWA Strategist" called only
      when consensus is HOLD.
    - **Recommendation:** A1 (cheaper, single-shot). The existing
@@ -376,18 +386,21 @@ This spec is done WHEN:
 
 3. **Cooldown after a Path B swap?** If we just parked, when can
    the next idle-parking fire?
+
    - **Recommendation:** `now - lastRwaSwapAt > 6 h` even within
      the FLAT-24h window, so we don't churn on hourly cron noise.
 
 4. **Should we support reverse direction (USDT0 → USDT) on
    regime change?** If we go FLAT→TREND_UP after parking, do we
    exit USDT0?
+
    - **Recommendation:** yes. Path A `RWA_EXIT` triggers when
      analyst is bullish AND we hold > 30% NAV in USDT0. Path B
      never triggers exit (only parking).
 
 5. **Do we touch USDT (legacy) at all, or should idle-parking
    only consume mUSD?**
+
    - Wallet currently holds 6.763 USDT legacy + 2.387 USDT0.
      Legacy USDT is a non-yield idle stablecoin — perfect input
      for idle-parking. mUSD balance is 0.
@@ -417,7 +430,7 @@ This spec is done WHEN:
   costing gas. Mitigation: pre-approve `MaxUint256` on first
   successful run (one-shot, persisted to memory of the cron).
 - **R-C**: A cycle commits the swap but `data/last-cycle-summary
-  .json.txHashes` write fails after — we'd have an orphan TX.
+.json.txHashes` write fails after — we'd have an orphan TX.
   Mitigation: write summary first with `txHashes` placeholder
   containing the hash from the receipt, then attempt other state
   writes; the txHash is canonical on chain regardless.
@@ -427,7 +440,7 @@ This spec is done WHEN:
 - **R-E**: USDY pool reactivates and we forget to flip the gate.
   Mitigation: README + runbook entry; `executeSwap` for USDY
   throws `RWA_POOL_INACTIVE` until manually toggled.
-- **R-F**: Judges expect *yield*, but USDT0 doesn't yield. We must
+- **R-F**: Judges expect _yield_, but USDT0 doesn't yield. We must
   control the narrative ("transparent Treasury-backed allocation,
   not yield-chasing"). Documented in submission rewrite (separate
   spec).

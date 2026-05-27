@@ -27,14 +27,14 @@
  */
 
 const TIERS = Object.freeze({
-  EXECUTED_SWAP: 'EXECUTED_SWAP',
-  BLOCKED_BY_VALIDATOR: 'BLOCKED_BY_VALIDATOR',
-  BLOCKED_BY_LOW_CONFIDENCE: 'BLOCKED_BY_LOW_CONFIDENCE',
-  BLOCKED_BY_REGIME: 'BLOCKED_BY_REGIME',
-  BLOCKED_BY_PARSE_FAILURE: 'BLOCKED_BY_PARSE_FAILURE',
+  EXECUTED_SWAP: "EXECUTED_SWAP",
+  BLOCKED_BY_VALIDATOR: "BLOCKED_BY_VALIDATOR",
+  BLOCKED_BY_LOW_CONFIDENCE: "BLOCKED_BY_LOW_CONFIDENCE",
+  BLOCKED_BY_REGIME: "BLOCKED_BY_REGIME",
+  BLOCKED_BY_PARSE_FAILURE: "BLOCKED_BY_PARSE_FAILURE",
 });
 
-const DEFAULT_THRESHOLD = 0.60;
+const DEFAULT_THRESHOLD = 0.6;
 
 /**
  * @param {object} decision  - return value of getMultiAgentDecision()
@@ -64,7 +64,7 @@ function classifyDecisionTier(decision, market) {
 
   // 3. Regime block — detector said HOLD or UNKNOWN before validator gate.
   const regime = safeMarket?.structuredSignals?.regime?.regime;
-  if (regime === 'HOLD' || regime === 'UNKNOWN') {
+  if (regime === "HOLD" || regime === "UNKNOWN") {
     return TIERS.BLOCKED_BY_REGIME;
   }
 
@@ -74,7 +74,7 @@ function classifyDecisionTier(decision, market) {
   }
 
   // 5. Consensus reached and action is a swap → executed.
-  if (safeDecision.consensus === true && safeDecision.action === 'swap') {
+  if (safeDecision.consensus === true && safeDecision.action === "swap") {
     return TIERS.EXECUTED_SWAP;
   }
 

@@ -15,29 +15,29 @@ const { TuringVaultSDK } = require('../sdk');
 ### Full Proof-of-Reasoning Flow (Write)
 
 ```javascript
-const { TuringVaultSDK } = require('@turingvault/sdk');
+const { TuringVaultSDK } = require("@turingvault/sdk");
 
 const sdk = new TuringVaultSDK({
   privateKey: process.env.PRIVATE_KEY,
-  rpcUrl: 'https://rpc.mantle.xyz',
+  rpcUrl: "https://rpc.mantle.xyz",
   pinataJwt: process.env.PINATA_JWT, // optional: enables IPFS pinning
 });
 
 // Complete flow: submit → validate → record → pin
 const result = await sdk.createValidatedDecision({
   analyst: {
-    model: 'glm-5',
-    action: 'swap',
+    model: "glm-5",
+    action: "swap",
     confidence: 0.85,
-    reasoning: 'ETH oversold relative to 50-day MA, fear index at 22',
+    reasoning: "ETH oversold relative to 50-day MA, fear index at 22",
   },
   validator: {
-    model: 'claude-4.6',
-    riskScore: 35,       // 0-100
+    model: "claude-4.6",
+    riskScore: 35, // 0-100
     approved: true,
-    reasoning: 'Risk within tolerance, position size appropriate',
+    reasoning: "Risk within tolerance, position size appropriate",
   },
-  targetAsset: 'WETH',
+  targetAsset: "WETH",
   amountIn: 0,
 });
 
@@ -81,20 +81,22 @@ const agent = await sdk.getAgentIdentity(0);
 
 ## Contracts (Mantle Mainnet)
 
-| Contract | Address | Purpose |
-|----------|---------|---------|
+| Contract           | Address                                      | Purpose                                                   |
+| ------------------ | -------------------------------------------- | --------------------------------------------------------- |
 | ValidationRegistry | `0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6` | Adversarial consensus: submit → validate → approve/reject |
-| DecisionLog | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` | Immutable decision history with reasoning hashes |
-| Identity | `0x6f862802e0d5463DF18d267e422347BeCacc28bD` | ERC-8004 agent identity as evolving NFT |
-| Reputation | `0xC78119F3274B05046Ac7c38a14298a6cbD946e1a` | Performance tracking: score, success rate |
+| DecisionLog        | `0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5` | Immutable decision history with reasoning hashes          |
+| Identity           | `0x6f862802e0d5463DF18d267e422347BeCacc28bD` | ERC-8004 agent identity as evolving NFT                   |
+| Reputation         | `0xC78119F3274B05046Ac7c38a14298a6cbD946e1a` | Performance tracking: score, success rate                 |
 
 ## SDK Methods
 
 ### Write (requires `privateKey`)
+
 - `createValidatedDecision(params)` — Full PoR flow: propose → validate → log → pin
 - `logDecision(params)` — Simple: record a pre-validated decision
 
 ### Read (no key needed)
+
 - `getConsensusRate()` — Approved/rejected/total from ValidationRegistry
 - `getRecentProposals(count)` — Full proposal data with validation results
 - `getRecentDecisions(count)` — Decision history from DecisionLog
@@ -105,10 +107,10 @@ const agent = await sdk.getAgentIdentity(0);
 
 ```javascript
 const sdk = new TuringVaultSDK({
-  rpcUrl: 'https://your-rpc.example.com',
+  rpcUrl: "https://your-rpc.example.com",
   contracts: {
-    validationRegistry: '0x...', // override addresses
-    decisionLog: '0x...',
+    validationRegistry: "0x...", // override addresses
+    decisionLog: "0x...",
   },
 });
 ```

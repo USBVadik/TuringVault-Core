@@ -13,14 +13,14 @@ const SCENARIOS = [
       sentiment: "bullish",
       smartMoneyFlow: 2300000,
       volatility: 0.3,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     },
     portfolioState: {
       totalValueUSD: 10000,
       mUSD: 7000,
       mETH: 3000,
-      currentAllocation: { mUSD: 70, mETH: 30 }
-    }
+      currentAllocation: { mUSD: 70, mETH: 30 },
+    },
   },
   {
     name: "FEAR — Market panic",
@@ -30,14 +30,14 @@ const SCENARIOS = [
       sentiment: "extreme_fear",
       smartMoneyFlow: -5000000,
       volatility: 0.9,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     },
     portfolioState: {
       totalValueUSD: 10000,
       mUSD: 3000,
       mETH: 7000,
-      currentAllocation: { mUSD: 30, mETH: 70 }
-    }
+      currentAllocation: { mUSD: 30, mETH: 70 },
+    },
   },
   {
     name: "NEUTRAL — Sideways market",
@@ -47,15 +47,15 @@ const SCENARIOS = [
       sentiment: "neutral",
       smartMoneyFlow: -100000,
       volatility: 0.4,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     },
     portfolioState: {
       totalValueUSD: 10000,
       mUSD: 5000,
       mETH: 5000,
-      currentAllocation: { mUSD: 50, mETH: 50 }
-    }
-  }
+      currentAllocation: { mUSD: 50, mETH: 50 },
+    },
+  },
 ];
 
 async function runLiveTest() {
@@ -69,11 +69,19 @@ async function runLiveTest() {
     console.log(`\n▶ ${scenario.name}`);
     console.log("─────────────────────────────────────────");
 
-    const decision = await getAIDecision(scenario.marketData, scenario.portfolioState);
+    const decision = await getAIDecision(
+      scenario.marketData,
+      scenario.portfolioState
+    );
 
-    const isValid = decision.action && decision.direction && decision.confidence >= 0;
+    const isValid =
+      decision.action && decision.direction && decision.confidence >= 0;
 
-    if (isValid && decision.reasoning !== "api_error" && !decision.reasoning.startsWith("api_error")) {
+    if (
+      isValid &&
+      decision.reasoning !== "api_error" &&
+      !decision.reasoning.startsWith("api_error")
+    ) {
       console.log(`  ✅ VALID DECISION`);
       console.log(`     action:     ${decision.action}`);
       console.log(`     direction:  ${decision.direction}`);
@@ -89,7 +97,9 @@ async function runLiveTest() {
   }
 
   console.log("\n═══════════════════════════════════════════");
-  console.log(` Results: ${passed}/${SCENARIOS.length} valid decisions from Claude`);
+  console.log(
+    ` Results: ${passed}/${SCENARIOS.length} valid decisions from Claude`
+  );
   console.log("═══════════════════════════════════════════");
 
   process.exit(passed === SCENARIOS.length ? 0 : 1);

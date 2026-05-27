@@ -32,8 +32,9 @@ describe("TuringVaultIdentity", function () {
     });
 
     it("should reject non-owner registration", async () => {
-      await expect(identity.connect(other).registerAgent("ipfs://hack"))
-        .to.be.revertedWithCustomError(identity, "OwnableUnauthorizedAccount");
+      await expect(
+        identity.connect(other).registerAgent("ipfs://hack")
+      ).to.be.revertedWithCustomError(identity, "OwnableUnauthorizedAccount");
     });
 
     it("should mint NFT to owner", async () => {
@@ -59,8 +60,9 @@ describe("TuringVaultIdentity", function () {
     });
 
     it("should reject non-owner URI update", async () => {
-      await expect(identity.connect(other).setAgentURI(0, "ipfs://hack"))
-        .to.be.revertedWith("Not authorized");
+      await expect(
+        identity.connect(other).setAgentURI(0, "ipfs://hack")
+      ).to.be.revertedWith("Not authorized");
     });
   });
 

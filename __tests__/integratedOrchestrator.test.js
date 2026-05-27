@@ -2,7 +2,11 @@
  * Tests for Integrated Orchestrator v2
  * VaR calculation, Intent Queue, autonomy levels
  */
-const { calculateVaR, IntentQueue, CONFIG } = require("../src/orchestrator/integratedOrchestrator");
+const {
+  calculateVaR,
+  IntentQueue,
+  CONFIG,
+} = require("../src/orchestrator/integratedOrchestrator");
 const fs = require("fs");
 const path = require("path");
 
@@ -47,7 +51,10 @@ describe("VaR Calculator", () => {
 });
 
 describe("Intent Queue", () => {
-  const testQueuePath = path.resolve(__dirname, "../data/test_intent_queue.json");
+  const testQueuePath = path.resolve(
+    __dirname,
+    "../data/test_intent_queue.json"
+  );
   let queue;
 
   beforeAll(() => {
@@ -106,8 +113,12 @@ describe("Intent Queue", () => {
 
 describe("CONFIG thresholds", () => {
   test("threshold ordering is valid", () => {
-    expect(CONFIG.varThreshold.autonomous).toBeLessThan(CONFIG.varThreshold.supervised);
-    expect(CONFIG.varThreshold.supervised).toBeLessThan(CONFIG.varThreshold.blocked);
+    expect(CONFIG.varThreshold.autonomous).toBeLessThan(
+      CONFIG.varThreshold.supervised
+    );
+    expect(CONFIG.varThreshold.supervised).toBeLessThan(
+      CONFIG.varThreshold.blocked
+    );
   });
 
   test("min confidence is reasonable", () => {

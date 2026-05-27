@@ -11,38 +11,38 @@
  * Spec: .kiro/specs/ui-honesty-pass (no-lying-about-state rule)
  */
 
-import { NextResponse } from 'next/server';
-import fs from 'node:fs';
-import path from 'node:path';
-import { ethers } from 'ethers';
+import { NextResponse } from "next/server";
+import fs from "node:fs";
+import path from "node:path";
+import { ethers } from "ethers";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const DECISION_LOG_ADDR = '0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5';
-const VALIDATION_REGISTRY = '0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6';
+const DECISION_LOG_ADDR = "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5";
+const VALIDATION_REGISTRY = "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6";
 
 const DECISION_ABI = [
-  'event DecisionLogged(uint256 indexed decisionId, string action, string targetAsset, uint256 confidence, string reasoningHash)',
-  'function totalDecisions() view returns (uint256)',
+  "event DecisionLogged(uint256 indexed decisionId, string action, string targetAsset, uint256 confidence, string reasoningHash)",
+  "function totalDecisions() view returns (uint256)",
   // Decisions array exposes a public auto-getter; tuple ordering matches the struct.
-  'function decisions(uint256) view returns (uint256 timestamp, string action, string targetAsset, uint256 amountIn, uint256 amountOut, uint256 confidence, string reasoningHash, bytes32 txHash)',
+  "function decisions(uint256) view returns (uint256 timestamp, string action, string targetAsset, uint256 amountIn, uint256 amountOut, uint256 confidence, string reasoningHash, bytes32 txHash)",
 ];
 
 const REGISTRY_ABI = [
-  'function totalProposals() view returns (uint256)',
-  'function totalApproved() view returns (uint256)',
-  'function totalRejected() view returns (uint256)',
+  "function totalProposals() view returns (uint256)",
+  "function totalApproved() view returns (uint256)",
+  "function totalRejected() view returns (uint256)",
 ];
 
 const RECENT_LIMIT = 20;
 
 type AssetClass =
-  | 'rwa-treasury'
-  | 'eth-staking'
-  | 'stable'
-  | 'native'
-  | 'unknown';
+  | "rwa-treasury"
+  | "eth-staking"
+  | "stable"
+  | "native"
+  | "unknown";
 
 /**
  * Classify a decision row by asset class so the frontend can colour /
@@ -50,29 +50,39 @@ type AssetClass =
  *
  * Spec: rwa-allocation-active R5, design §C8.
  */
-function classifyAsset(targetAsset: string | null, rwaIntent: { source?: string } | null): AssetClass {
-  if (rwaIntent?.source) return 'rwa-treasury';
-  const t = (targetAsset || '').toLowerCase();
-  if (t === 'meth' || t === 'eth') return 'eth-staking';
-  if (t === 'usdt0') return 'rwa-treasury';
-  if (t === 'usdt' || t === 'musd' || t === 'usd' || t === 'usdy') return 'stable';
-  if (t === 'mnt' || t === 'wmnt') return 'native';
-  return 'unknown';
+function classifyAsset(
+  targetAsset: string | null,
+  rwaIntent: { source?: string } | null
+): AssetClass {
+  if (rwaIntent?.source) return "rwa-treasury";
+  const t = (targetAsset || "").toLowerCase();
+  if (t === "meth" || t === "eth") return "eth-staking";
+  if (t === "usdt0") return "rwa-treasury";
+  if (t === "usdt" || t === "musd" || t === "usd" || t === "usdy")
+    return "stable";
+  if (t === "mnt" || t === "wmnt") return "native";
+  return "unknown";
 }
 
 /**
  * Read outcomes.json once and index by decisionId so we can look up
  * each event's matching rwaIntent in O(1).
  */
-function loadOutcomesIndex(): Map<number, { rwaIntent: { source?: string; executed?: boolean } | null }> {
-  const out = new Map<number, { rwaIntent: { source?: string; executed?: boolean } | null }>();
+function loadOutcomesIndex(): Map<
+  number,
+  { rwaIntent: { source?: string; executed?: boolean } | null }
+> {
+  const out = new Map<
+    number,
+    { rwaIntent: { source?: string; executed?: boolean } | null }
+  >();
   try {
-    const p = path.resolve(process.cwd(), '..', 'src', 'data', 'outcomes.json');
+    const p = path.resolve(process.cwd(), "..", "src", "data", "outcomes.json");
     if (!fs.existsSync(p)) return out;
-    const db = JSON.parse(fs.readFileSync(p, 'utf-8'));
+    const db = JSON.parse(fs.readFileSync(p, "utf-8"));
     const all = [...(db.pending ?? []), ...(db.settled ?? [])];
     for (const e of all) {
-      if (typeof e?.decisionId === 'number') {
+      if (typeof e?.decisionId === "number") {
         out.set(e.decisionId, { rwaIntent: e.rwaIntent ?? null });
       }
     }
@@ -84,9 +94,17 @@ function loadOutcomesIndex(): Map<number, { rwaIntent: { source?: string; execut
 
 export async function GET() {
   try {
-    const provider = new ethers.JsonRpcProvider('https://rpc.mantle.xyz');
-    const contract = new ethers.Contract(DECISION_LOG_ADDR, DECISION_ABI, provider);
-    const registry = new ethers.Contract(VALIDATION_REGISTRY, REGISTRY_ABI, provider);
+    const provider = new ethers.JsonRpcProvider("https://rpc.mantle.xyz");
+    const contract = new ethers.Contract(
+      DECISION_LOG_ADDR,
+      DECISION_ABI,
+      provider
+    );
+    const registry = new ethers.Contract(
+      VALIDATION_REGISTRY,
+      REGISTRY_ABI,
+      provider
+    );
 
     const [totalProposals, totalApproved, totalRejected] = await Promise.all([
       registry.totalProposals(),
@@ -99,7 +117,7 @@ export async function GET() {
     // Pull recent DecisionLogged events so we can attach the tx hash + block.
     const currentBlock = await provider.getBlockNumber();
     const fromBlock = Math.max(0, currentBlock - 500_000);
-    const events = await contract.queryFilter('DecisionLogged', fromBlock);
+    const events = await contract.queryFilter("DecisionLogged", fromBlock);
     const recentEvents = events.slice(-RECENT_LIMIT);
 
     const outcomesIndex = loadOutcomesIndex();
@@ -146,11 +164,12 @@ export async function GET() {
           amountIn: onchain?.amountIn ?? null,
           amountOut: onchain?.amountOut ?? null,
           // RWA-specific surface (rwa-allocation-active R5).
-          rwaIntent: rwaIntent && rwaIntent.executed
-            ? { source: rwaIntent.source ?? null, executed: true }
-            : null,
+          rwaIntent:
+            rwaIntent && rwaIntent.executed
+              ? { source: rwaIntent.source ?? null, executed: true }
+              : null,
         };
-      }),
+      })
     );
 
     decisions.reverse(); // newest first
@@ -163,11 +182,11 @@ export async function GET() {
       totalRejected: Number(totalRejected),
       decisions,
       contract: DECISION_LOG_ADDR,
-      chain: 'Mantle Mainnet (5000)',
-      dataScope: 'agent-lifetime',
+      chain: "Mantle Mainnet (5000)",
+      dataScope: "agent-lifetime",
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'unknown error';
+    const message = err instanceof Error ? err.message : "unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

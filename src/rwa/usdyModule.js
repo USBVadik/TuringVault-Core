@@ -1,15 +1,17 @@
 /**
  * TuringVault RWA Module — USDY (Ondo Finance) Integration
- * 
+ *
  * Real World Asset yield-bearing stablecoin allocation logic.
  * USDY = tokenized US Treasuries yield (~5% APY), redeemable 1:1 for USDC.
- * 
+ *
  * Architecture:
  *   Portfolio Analysis → RWA Allocation Signal → Swap via Merchant Moe → USDY Position
  *   USDY accrues yield automatically (rebasing) — no staking needed.
  */
 
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
 const { ethers } = require("ethers");
 
 // Mantle Mainnet USDY (Ondo Finance)
@@ -35,12 +37,14 @@ const ERC20_ABI = [
 
 class RWAModule {
   constructor(options = {}) {
-    this.provider = new ethers.JsonRpcProvider(options.rpcUrl || "https://rpc.mantle.xyz");
+    this.provider = new ethers.JsonRpcProvider(
+      options.rpcUrl || "https://rpc.mantle.xyz"
+    );
     this.wallet = options.privateKey
       ? new ethers.Wallet(options.privateKey, this.provider)
       : null;
     this.params = { ...USDY_PARAMS, ...options.params };
-    
+
     this.usdy = new ethers.Contract(USDY_ADDRESS, ERC20_ABI, this.provider);
     this.usdt = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, this.provider);
   }
@@ -59,7 +63,9 @@ class RWAModule {
     ]);
 
     const balanceFloat = parseFloat(ethers.formatUnits(balance, decimals));
-    const totalSupplyFloat = parseFloat(ethers.formatUnits(totalSupply, decimals));
+    const totalSupplyFloat = parseFloat(
+      ethers.formatUnits(totalSupply, decimals)
+    );
 
     return {
       token: "USDY",
@@ -67,7 +73,8 @@ class RWAModule {
       balance: balanceFloat,
       decimals: Number(decimals),
       totalSupply: totalSupplyFloat,
-      poolShare: totalSupplyFloat > 0 ? (balanceFloat / totalSupplyFloat) * 100 : 0,
+      poolShare:
+        totalSupplyFloat > 0 ? (balanceFloat / totalSupplyFloat) * 100 : 0,
       estimatedDailyYield: balanceFloat * (this.params.currentAPY / 365),
       estimatedMonthlyYield: balanceFloat * (this.params.currentAPY / 12),
       estimatedAnnualYield: balanceFloat * this.params.currentAPY,
@@ -91,8 +98,8 @@ class RWAModule {
     // Calculate total portfolio value in USDT terms
     const mntPrice = portfolioBalances.MNT_PRICE || 0.62;
     const mETHPrice = portfolioBalances.METH_PRICE || 2500;
-    
-    const totalValue = 
+
+    const totalValue =
       (portfolioBalances.MNT || 0) * mntPrice +
       (portfolioBalances.WMNT || 0) * mntPrice +
       (portfolioBalances.mETH || 0) * mETHPrice +
@@ -108,27 +115,30 @@ class RWAModule {
     // - Strong bull trend → decrease RWA (risk-on)
     // - High risk score → increase RWA (preserve capital)
     let targetAllocation = this.params.minAllocation;
-    
+
     // Volatility factor (high vol → more RWA)
     targetAllocation += (volatilityIndex / 100) * 0.2;
-    
+
     // Trend factor (bearish → more RWA)
     targetAllocation += (1 - trendStrength) * 0.1;
-    
+
     // Risk factor (high risk → more RWA)
     targetAllocation += (riskScore / 100) * 0.15;
-    
+
     // Clamp
-    targetAllocation = Math.max(this.params.minAllocation, 
-      Math.min(this.params.maxAllocation, targetAllocation));
+    targetAllocation = Math.max(
+      this.params.minAllocation,
+      Math.min(this.params.maxAllocation, targetAllocation)
+    );
 
     // Determine action
     const allocationDiff = targetAllocation - currentRWA;
-    const needsRebalance = Math.abs(allocationDiff) > this.params.rebalanceThreshold;
+    const needsRebalance =
+      Math.abs(allocationDiff) > this.params.rebalanceThreshold;
 
     let action = "HOLD";
     let amount = 0;
-    
+
     if (needsRebalance) {
       if (allocationDiff > 0) {
         action = "INCREASE_RWA";
@@ -146,28 +156,67 @@ class RWAModule {
       action,
       amount: amount.toFixed(2),
       needsRebalance,
-      reasoning: this._generateReasoning(volatilityIndex, trendStrength, riskScore, targetAllocation),
+      reasoning: this._generateReasoning(
+        volatilityIndex,
+        trendStrength,
+        riskScore,
+        targetAllocation
+      ),
       yieldProjection: {
-        daily: (targetAllocation * totalValue * this.params.currentAPY / 365).toFixed(4),
-        monthly: (targetAllocation * totalValue * this.params.currentAPY / 12).toFixed(2),
-        annual: (targetAllocation * totalValue * this.params.currentAPY).toFixed(2),
+        daily: (
+          (targetAllocation * totalValue * this.params.currentAPY) /
+          365
+        ).toFixed(4),
+        monthly: (
+          (targetAllocation * totalValue * this.params.currentAPY) /
+          12
+        ).toFixed(2),
+        annual: (
+          targetAllocation *
+          totalValue *
+          this.params.currentAPY
+        ).toFixed(2),
       },
-      swapRoute: action === "INCREASE_RWA" 
-        ? { from: "USDT", to: "USDY", via: "Merchant Moe LB", pair: "USDY/USDT (binStep 25)" }
-        : action === "DECREASE_RWA"
-        ? { from: "USDY", to: "USDT", via: "Merchant Moe LB", pair: "USDY/USDT (binStep 25)" }
-        : null,
+      swapRoute:
+        action === "INCREASE_RWA"
+          ? {
+              from: "USDT",
+              to: "USDY",
+              via: "Merchant Moe LB",
+              pair: "USDY/USDT (binStep 25)",
+            }
+          : action === "DECREASE_RWA"
+          ? {
+              from: "USDY",
+              to: "USDT",
+              via: "Merchant Moe LB",
+              pair: "USDY/USDT (binStep 25)",
+            }
+          : null,
     };
   }
 
   _generateReasoning(vol, trend, risk, target) {
     const factors = [];
-    if (vol > 60) factors.push(`High volatility (${vol}/100) → flight to safety`);
-    else if (vol < 30) factors.push(`Low volatility (${vol}/100) → risk appetite`);
-    if (trend < -0.3) factors.push(`Bearish trend (${trend.toFixed(2)}) → capital preservation`);
-    else if (trend > 0.5) factors.push(`Strong bull (${trend.toFixed(2)}) → reduce RWA, deploy risk`);
-    if (risk > 70) factors.push(`High risk score (${risk}/100) → prioritize safety`);
-    factors.push(`Target allocation: ${(target * 100).toFixed(1)}% in USDY (${(this.params.currentAPY * 100).toFixed(2)}% APY)`);
+    if (vol > 60)
+      factors.push(`High volatility (${vol}/100) → flight to safety`);
+    else if (vol < 30)
+      factors.push(`Low volatility (${vol}/100) → risk appetite`);
+    if (trend < -0.3)
+      factors.push(
+        `Bearish trend (${trend.toFixed(2)}) → capital preservation`
+      );
+    else if (trend > 0.5)
+      factors.push(
+        `Strong bull (${trend.toFixed(2)}) → reduce RWA, deploy risk`
+      );
+    if (risk > 70)
+      factors.push(`High risk score (${risk}/100) → prioritize safety`);
+    factors.push(
+      `Target allocation: ${(target * 100).toFixed(1)}% in USDY (${(
+        this.params.currentAPY * 100
+      ).toFixed(2)}% APY)`
+    );
     return factors.join("; ");
   }
 
@@ -179,7 +228,8 @@ class RWAModule {
     return {
       rwa_position: position,
       usdy_info: {
-        description: "USDY is a tokenized note secured by short-term US Treasuries (Ondo Finance)",
+        description:
+          "USDY is a tokenized note secured by short-term US Treasuries (Ondo Finance)",
         apy: `${this.params.currentAPY * 100}%`,
         risk: "Low (US T-Bills backing)",
         liquidity: "USDY/USDT pair on Merchant Moe (binStep 25)",
@@ -200,30 +250,46 @@ module.exports = { RWAModule, USDY_ADDRESS, USDY_PARAMS };
 if (require.main === module) {
   (async () => {
     console.log("═══ RWA Module (USDY / Ondo Finance) ═══\n");
-    
+
     const rwa = new RWAModule({ privateKey: process.env.PRIVATE_KEY });
-    
+
     // Check position
     const position = await rwa.getPosition();
     console.log("USDY Position:");
     console.log(`  Balance: ${position.balance.toFixed(4)} USDY`);
     console.log(`  APY: ${position.apy.toFixed(2)}%`);
     console.log(`  Daily Yield: $${position.estimatedDailyYield.toFixed(4)}`);
-    console.log(`  Total Supply: ${(position.totalSupply / 1e6).toFixed(2)}M USDY`);
-    
+    console.log(
+      `  Total Supply: ${(position.totalSupply / 1e6).toFixed(2)}M USDY`
+    );
+
     // Test allocation with sample portfolio
     console.log("\nAllocation Simulation (sample portfolio):");
     const allocation = await rwa.calculateAllocation(
-      { MNT: 6.14, WMNT: 0, mETH: 0, USDT: 0, USDY: 0, mUSD: 0, MNT_PRICE: 0.62 },
+      {
+        MNT: 6.14,
+        WMNT: 0,
+        mETH: 0,
+        USDT: 0,
+        USDY: 0,
+        mUSD: 0,
+        MNT_PRICE: 0.62,
+      },
       { volatilityIndex: 65, trendStrength: -0.2, riskScore: 55 }
     );
-    console.log(`  Portfolio Value: $${allocation.totalPortfolioValue.toFixed(2)}`);
-    console.log(`  Current RWA: ${allocation.currentRWAAllocation.toFixed(1)}%`);
+    console.log(
+      `  Portfolio Value: $${allocation.totalPortfolioValue.toFixed(2)}`
+    );
+    console.log(
+      `  Current RWA: ${allocation.currentRWAAllocation.toFixed(1)}%`
+    );
     console.log(`  Target RWA: ${allocation.targetRWAAllocation.toFixed(1)}%`);
     console.log(`  Action: ${allocation.action} ($${allocation.amount})`);
     console.log(`  Reasoning: ${allocation.reasoning}`);
-    console.log(`  Yield if target met: $${allocation.yieldProjection.annual}/yr`);
-    
+    console.log(
+      `  Yield if target met: $${allocation.yieldProjection.annual}/yr`
+    );
+
     console.log("\n✅ RWA module operational");
   })().catch(console.error);
 }

@@ -13,18 +13,21 @@
  * Spec: discipline-layer-ui R1.
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const HISTORY_PATH = path.resolve(__dirname, '../../data/discipline-history.json');
+const HISTORY_PATH = path.resolve(
+  __dirname,
+  "../../data/discipline-history.json"
+);
 const HISTORY_LIMIT = 100;
 
-const KNOWN_GATES = ['tx_proof', 'price_freshness', 'drift_detection'];
+const KNOWN_GATES = ["tx_proof", "price_freshness", "drift_detection"];
 
 function readSafe() {
   try {
     if (!fs.existsSync(HISTORY_PATH)) return [];
-    const data = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(HISTORY_PATH, "utf-8"));
     return Array.isArray(data) ? data : [];
   } catch {
     return [];
@@ -33,7 +36,7 @@ function readSafe() {
 
 function writeSafe(list) {
   fs.mkdirSync(path.dirname(HISTORY_PATH), { recursive: true });
-  fs.writeFileSync(HISTORY_PATH, JSON.stringify(list, null, 2) + '\n');
+  fs.writeFileSync(HISTORY_PATH, JSON.stringify(list, null, 2) + "\n");
 }
 
 /**
@@ -53,7 +56,7 @@ function append({ decisionId, proofResult }) {
   const entry = {
     at: new Date().toISOString(),
     decisionId: decisionId ?? null,
-    verdict: proofResult?.status ?? 'UNKNOWN',
+    verdict: proofResult?.status ?? "UNKNOWN",
     checks,
     blockReason: proofResult?.blockReason ?? null,
   };
@@ -72,7 +75,7 @@ function appendError({ decisionId, error }) {
   const entry = {
     at: new Date().toISOString(),
     decisionId: decisionId ?? null,
-    verdict: 'ERROR',
+    verdict: "ERROR",
     checks: [],
     error: String(error?.message ?? error).slice(0, 200),
   };
@@ -96,19 +99,19 @@ function summary(limit = HISTORY_LIMIT) {
   const list = readSafe().slice(-limit);
   const counts = { ACCEPTED: 0, BLOCKED: 0, SKIPPED: 0, ERROR: 0, UNKNOWN: 0 };
   const gateStats = Object.fromEntries(
-    KNOWN_GATES.map((g) => [g, { pass: 0, fail: 0, warn: 0, skip: 0 }]),
+    KNOWN_GATES.map((g) => [g, { pass: 0, fail: 0, warn: 0, skip: 0 }])
   );
 
   for (const e of list) {
-    const v = e?.verdict ?? 'UNKNOWN';
+    const v = e?.verdict ?? "UNKNOWN";
     counts[v] = (counts[v] ?? 0) + 1;
     for (const c of e?.checks ?? []) {
       if (!KNOWN_GATES.includes(c.name)) continue;
-      const s = String(c.status ?? '').toLowerCase();
-      if (s === 'pass') gateStats[c.name].pass++;
-      else if (s === 'fail') gateStats[c.name].fail++;
-      else if (s === 'warn') gateStats[c.name].warn++;
-      else if (s === 'skip') gateStats[c.name].skip++;
+      const s = String(c.status ?? "").toLowerCase();
+      if (s === "pass") gateStats[c.name].pass++;
+      else if (s === "fail") gateStats[c.name].fail++;
+      else if (s === "warn") gateStats[c.name].warn++;
+      else if (s === "skip") gateStats[c.name].skip++;
     }
   }
 
@@ -116,7 +119,8 @@ function summary(limit = HISTORY_LIMIT) {
   for (const g of KNOWN_GATES) {
     const s = gateStats[g];
     const total = s.pass + s.fail + s.warn;
-    gatePassRates[g] = total > 0 ? Math.round((s.pass / total) * 1000) / 10 : null;
+    gatePassRates[g] =
+      total > 0 ? Math.round((s.pass / total) * 1000) / 10 : null;
   }
 
   return {
@@ -131,4 +135,11 @@ function summary(limit = HISTORY_LIMIT) {
   };
 }
 
-module.exports = { append, appendError, read, summary, KNOWN_GATES, HISTORY_PATH };
+module.exports = {
+  append,
+  appendError,
+  read,
+  summary,
+  KNOWN_GATES,
+  HISTORY_PATH,
+};

@@ -30,6 +30,7 @@ The Router unverified status is acknowledged here and will be addressed in a lat
 ## Rationale
 
 Sourcify lookups at runtime introduce:
+
 - Latency on every dashboard render
 - A failure mode (Sourcify down → "verified" badge disappears for live users)
 - A trust shift from the build to a third-party API

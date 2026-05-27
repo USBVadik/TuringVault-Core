@@ -19,32 +19,36 @@
  * Spec: rwa-allocation-active (R1, design §C1).
  */
 
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
-const { ethers } = require('ethers');
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
+const { ethers } = require("ethers");
 
-const USDT0_ADDRESS = '0x779Ded0c9e1022225f8E0630b35a9b54bE713736';
+const USDT0_ADDRESS = "0x779Ded0c9e1022225f8E0630b35a9b54bE713736";
 
 const ERC20_ABI = [
-  'function balanceOf(address) view returns (uint256)',
-  'function decimals() view returns (uint8)',
-  'function symbol() view returns (string)',
-  'function name() view returns (string)',
-  'function totalSupply() view returns (uint256)',
+  "function balanceOf(address) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+  "function name() view returns (string)",
+  "function totalSupply() view returns (uint256)",
 ];
 
 class USDT0Module {
   constructor(options = {}) {
-    this.provider = new ethers.JsonRpcProvider(options.rpcUrl || 'https://rpc.mantle.xyz');
+    this.provider = new ethers.JsonRpcProvider(
+      options.rpcUrl || "https://rpc.mantle.xyz"
+    );
     this.wallet = options.privateKey
       ? new ethers.Wallet(options.privateKey, this.provider)
       : null;
 
     // Static metadata — surfaced honestly to UI / prompts.
-    this.assetClass = 'rwa-treasury';
-    this.issuer = 'Tether (via LayerZero omnichain wrap)';
-    this.underlying = 'US Treasury Bills + cash equivalents';
-    this.currentAPY = 0;                   // USDT0 itself yields nothing
-    this.liquidityRoute = 'USDT/USDT0 binStep=1 on Merchant Moe LB';
+    this.assetClass = "rwa-treasury";
+    this.issuer = "Tether (via LayerZero omnichain wrap)";
+    this.underlying = "US Treasury Bills + cash equivalents";
+    this.currentAPY = 0; // USDT0 itself yields nothing
+    this.liquidityRoute = "USDT/USDT0 binStep=1 on Merchant Moe LB";
 
     this.token = new ethers.Contract(USDT0_ADDRESS, ERC20_ABI, this.provider);
   }
@@ -56,7 +60,10 @@ class USDT0Module {
    */
   async getPosition(address) {
     const addr = address || this.wallet?.address;
-    if (!addr) throw new Error('USDT0Module.getPosition: no address (pass arg or construct with privateKey)');
+    if (!addr)
+      throw new Error(
+        "USDT0Module.getPosition: no address (pass arg or construct with privateKey)"
+      );
 
     const [balance, decimals, totalSupply] = await Promise.all([
       this.token.balanceOf(addr),
@@ -65,16 +72,19 @@ class USDT0Module {
     ]);
 
     const balanceFloat = parseFloat(ethers.formatUnits(balance, decimals));
-    const totalSupplyFloat = parseFloat(ethers.formatUnits(totalSupply, decimals));
+    const totalSupplyFloat = parseFloat(
+      ethers.formatUnits(totalSupply, decimals)
+    );
 
     return {
-      token: 'USDT0',
+      token: "USDT0",
       address: USDT0_ADDRESS,
       balance: balanceFloat,
       decimals: Number(decimals),
       totalSupply: totalSupplyFloat,
-      poolShare: totalSupplyFloat > 0 ? (balanceFloat / totalSupplyFloat) * 100 : 0,
-      apy: this.currentAPY,                  // 0
+      poolShare:
+        totalSupplyFloat > 0 ? (balanceFloat / totalSupplyFloat) * 100 : 0,
+      apy: this.currentAPY, // 0
       underlying: this.underlying,
       issuer: this.issuer,
       assetClass: this.assetClass,
@@ -89,13 +99,13 @@ class USDT0Module {
   async getContextForAI(address) {
     const position = await this.getPosition(address);
     return {
-      asset: 'USDT0',
+      asset: "USDT0",
       address: USDT0_ADDRESS,
       assetClass: this.assetClass,
       issuer: this.issuer,
       underlying: this.underlying,
       // Honest no-yield framing (rwa-allocation-active Q6).
-      yield: 'none — USDT0 targets a 1:1 USD peg, accrues no APY on its own',
+      yield: "none — USDT0 targets a 1:1 USD peg, accrues no APY on its own",
       liquidity: this.liquidityRoute,
       currentBalance: position.balance,
     };
@@ -107,7 +117,7 @@ module.exports = { USDT0Module, USDT0_ADDRESS };
 // Self-test if invoked directly.
 if (require.main === module) {
   (async () => {
-    console.log('═══ USDT0 Module (LayerZero Tether) ═══\n');
+    console.log("═══ USDT0 Module (LayerZero Tether) ═══\n");
     const mod = new USDT0Module({ privateKey: process.env.PRIVATE_KEY });
     if (mod.wallet) {
       const pos = await mod.getPosition();
@@ -118,7 +128,10 @@ if (require.main === module) {
       console.log(`Underlying:        ${pos.underlying}`);
       console.log(`Liquidity route:   ${mod.liquidityRoute}`);
     } else {
-      console.log('No PRIVATE_KEY set — skipping live read.');
+      console.log("No PRIVATE_KEY set — skipping live read.");
     }
-  })().catch((e) => { console.error(e); process.exit(1); });
+  })().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
 }

@@ -5,6 +5,7 @@ Archive of state files removed during the `ui-honesty-pass` spec implementation.
 ## Contents
 
 ### `performance.json` (was `src/data/performance.json`)
+
 NAV / performance snapshots that contained a phantom jump from $3.05 → $42.84 between consecutive snapshots (likely an MNT top-up that was incorrectly accounted for as P&L). Produced bogus metrics:
 
 - `Sharpe: 30.92`
@@ -15,6 +16,7 @@ NAV / performance snapshots that contained a phantom jump from $3.05 → $42.84 
 These values were being read by `frontend/app/api/performance/route.ts` and shown on the homepage as live performance stats. They were a misrepresentation risk.
 
 ### `loop_progress.json` (was `data/loop_progress.json`)
+
 Last recorded cycle progress for `runBatch.js`. Contains a single entry from `2026-05-20T20:21:13Z` — 6 days stale at archive time. Used as a (false) freshness indicator.
 
 ## Why archived not deleted in commit history

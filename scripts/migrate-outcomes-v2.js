@@ -22,12 +22,15 @@
  * Spec: .kiro/specs/agent-reasoning-quality/{requirements,design,tasks}.md (T11)
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const DB_PATH = path.resolve(__dirname, '../src/data/outcomes.json');
-const ARCHIVE_DIR = path.resolve(__dirname, '../.kiro/audit/snapshots/2026-05-26');
-const ARCHIVE_PATH = path.join(ARCHIVE_DIR, 'outcomes-v1.json');
+const DB_PATH = path.resolve(__dirname, "../src/data/outcomes.json");
+const ARCHIVE_DIR = path.resolve(
+  __dirname,
+  "../.kiro/audit/snapshots/2026-05-26"
+);
+const ARCHIVE_PATH = path.join(ARCHIVE_DIR, "outcomes-v1.json");
 
 function inferTier(entry) {
   // Heuristic for entries pre-dating decisionTier.
@@ -37,22 +40,22 @@ function inferTier(entry) {
   const consensus = entry.consensus === true;
   const action = entry.action;
 
-  if (consensus && action === 'swap') return 'EXECUTED_SWAP';
-  if (!consensus && conf < 0.60) return 'BLOCKED_BY_LOW_CONFIDENCE';
-  if (!consensus) return 'BLOCKED_BY_VALIDATOR';
-  if (consensus && action === 'hold') return 'BLOCKED_BY_REGIME';
-  return 'UNKNOWN';
+  if (consensus && action === "swap") return "EXECUTED_SWAP";
+  if (!consensus && conf < 0.6) return "BLOCKED_BY_LOW_CONFIDENCE";
+  if (!consensus) return "BLOCKED_BY_VALIDATOR";
+  if (consensus && action === "hold") return "BLOCKED_BY_REGIME";
+  return "UNKNOWN";
 }
 
 function fillV2Fields(entry) {
   if (!entry.decisionTier) {
     entry.decisionTier = inferTier(entry);
-    entry.tierSource = 'inferred';
+    entry.tierSource = "inferred";
   } else {
-    entry.tierSource = entry.tierSource ?? 'live';
+    entry.tierSource = entry.tierSource ?? "live";
   }
-  entry.confidencePath = entry.confidencePath ?? 'unknown';
-  entry.promptSource = entry.promptSource ?? 'unknown';
+  entry.confidencePath = entry.confidencePath ?? "unknown";
+  entry.promptSource = entry.promptSource ?? "unknown";
   entry.disagreementSignal = entry.disagreementSignal ?? null;
   entry.validatorReasoning = entry.validatorReasoning ?? null;
   entry.validatorFlaggedIssues = entry.validatorFlaggedIssues ?? [];
@@ -76,16 +79,14 @@ function migrate() {
     return;
   }
 
-  const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-  const allEntries = [
-    ...(db.pending ?? []),
-    ...(db.settled ?? []),
-  ];
+  const db = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+  const allEntries = [...(db.pending ?? []), ...(db.settled ?? [])];
   const alreadyV2 =
-    db.schemaVersion === 2 &&
-    allEntries.every((e) => Boolean(e.decisionTier));
+    db.schemaVersion === 2 && allEntries.every((e) => Boolean(e.decisionTier));
   if (alreadyV2) {
-    console.log('Already at schemaVersion 2 with all tiers populated — nothing to migrate.');
+    console.log(
+      "Already at schemaVersion 2 with all tiers populated — nothing to migrate."
+    );
     return;
   }
 
@@ -107,7 +108,7 @@ function migrate() {
   for (const e of allEntries) {
     tierBreakdown[e.decisionTier] = (tierBreakdown[e.decisionTier] || 0) + 1;
   }
-  console.log('\nTier distribution after migration:');
+  console.log("\nTier distribution after migration:");
   for (const [tier, count] of Object.entries(tierBreakdown).sort()) {
     console.log(`  ${tier.padEnd(28)} ${count}`);
   }

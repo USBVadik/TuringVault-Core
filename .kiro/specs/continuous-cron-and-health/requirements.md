@@ -34,6 +34,7 @@ loop that:
 ## Scope
 
 ### In scope
+
 - New GitHub Actions workflow `.github/workflows/agent-cycle.yml`.
 - A cycle-runner script `scripts/run-cycle.js` that wraps
   `runMultiAgentCycle()` for CI use.
@@ -47,6 +48,7 @@ loop that:
   to pause, how to debug a failed run, where to find logs.
 
 ### Out of scope
+
 - VPS deployment.
 - Vercel Cron (no clean way to trigger on free Vercel tier; also no
   AWS Bedrock access from Vercel functions without exposing creds).
@@ -71,14 +73,14 @@ loop that:
   market data, producing one or more decisions and on-chain TXs.
 - **State files** — the JSON files written by a cycle that the
   front-end consumes:
-    - `src/data/outcomes.json`
-    - `src/data/parse_metrics.json`
-    - `src/data/threshold_state.json`
-    - `src/data/position_state.json`
-    - `src/data/grid_bot_state.json`
-    - `src/data/grid_param_history.json`
-    - `data/loop_progress.json`
-    - `data/last-cycle-summary.json` (NEW; small public summary)
+  - `src/data/outcomes.json`
+  - `src/data/parse_metrics.json`
+  - `src/data/threshold_state.json`
+  - `src/data/position_state.json`
+  - `src/data/grid_bot_state.json`
+  - `src/data/grid_param_history.json`
+  - `data/loop_progress.json`
+  - `data/last-cycle-summary.json` (NEW; small public summary)
 - **Run mode** — value of `process.env.AGENT_RUN_MODE` declared by
   the runner; surfaced via `/api/health.mode`. Will be
   `cron-github-actions` after this spec.
@@ -92,6 +94,7 @@ loop that:
 **so that** "running 24/7" is verifiable, not claimed.
 
 **Acceptance**
+
 1. THE workflow `.github/workflows/agent-cycle.yml` SHALL trigger on:
    - `schedule: cron: '0 * * * *'` (every hour, UTC).
    - `workflow_dispatch` (manual trigger for debugging).
@@ -124,10 +127,11 @@ loop that:
 **so that** the dashboard updates automatically without redeploys.
 
 **Acceptance**
+
 1. AFTER a successful cycle, the workflow SHALL `git add` the state
    file list (Glossary), then commit if there are changes.
 2. THE commit message SHALL be `chore(cron): cycle <decisionId>
-   <timestamp> <tier>` so the GitHub history is grep-friendly.
+<timestamp> <tier>` so the GitHub history is grep-friendly.
 3. THE commit author SHALL be `TuringVault Cron <cron@turingvault.ai>`
    (using a deterministic identity, not the operator's).
 4. THE commit SHALL NOT include `src/data/raw_model_outputs/` (those
@@ -149,6 +153,7 @@ loop that:
 state file.
 
 **Acceptance**
+
 1. AFTER each cycle, the cycle-runner SHALL write
    `data/last-cycle-summary.json` with:
    ```json
@@ -179,6 +184,7 @@ state file.
 **so that** the mascot and live banner can be more informative.
 
 **Acceptance**
+
 1. `/api/health` SHALL include:
    - `cyclesSucceeded24h` (already exists — verify accuracy after
      `data/last-cycle-summary.json` becomes the source of truth)
@@ -187,7 +193,7 @@ state file.
    - `lastCycleSummary` (NEW; the JSON object from R3, embedded)
    - `runHistory` (NEW; array of last 5 entries from a rolling
      `data/cycle-history.json` log; each entry: `{cycleStartedAt,
-     decisionTier, durationSeconds}`)
+decisionTier, durationSeconds}`)
 2. WHEN any source file is missing, the corresponding field SHALL
    default to `null` or `[]`. Endpoint returns HTTP 200 still.
 3. NO secret-bearing fields (env values, IPFS JWTs, AWS creds) leak
@@ -202,6 +208,7 @@ state file.
 **so that** I can see liveness without refreshing the page repeatedly.
 
 **Acceptance**
+
 1. NO frontend code changes are required for the basic case — the
    existing `RiskMascot` polls `/api/health` every 60 s and derives
    state from `lastCycleAge`. After a successful cron run, Vercel will
@@ -221,6 +228,7 @@ state file.
 **so that** I don't drain AWS Bedrock credits or hit GH Actions limits.
 
 **Acceptance**
+
 1. AT 60-min cron interval, expected GH Actions usage:
    - 24 cycles/day × 30 days × ~70 s/cycle = ~840 minutes/month.
    - Free tier: 2000 minutes/month. **Comfortable margin.**
@@ -244,6 +252,7 @@ state file.
 all the spec markdown.
 
 **Acceptance**
+
 1. `.kiro/runbooks/cron-operations.md` SHALL exist.
 2. THE runbook SHALL cover:
    - **How to set GitHub Actions secrets** (one-time setup).
@@ -266,6 +275,7 @@ all the spec markdown.
 **so that** the project doesn't violate `no-lying-about-state.md`.
 
 **Acceptance**
+
 1. WHEN cron is paused (workflow disabled or last run failed), the
    `/api/health.mode` field SHALL still report `cron-github-actions`
    but `lastCycleAge` will reflect reality and the mascot will turn
@@ -285,6 +295,7 @@ keep working,
 **so that** I can iterate on agent logic without spending Bedrock.
 
 **Acceptance**
+
 1. The cron-runner SHALL NOT change `runMultiAgentCycle({ dryRun })`
    semantics. It always passes `dryRun: false`.
 2. `npm run smoke:reasoning` continues to work unchanged.
@@ -342,6 +353,7 @@ This spec is done WHEN:
 ## Open Questions
 
 1. **Push to `main` or separate `data` branch?**
+
    - `main`: front-end auto-picks up via Vercel rebuild, simple.
      Concern: Vercel free-tier rebuild quota (NFR4).
    - separate branch + Vercel webhook ignores it + backend reads via
@@ -350,17 +362,20 @@ This spec is done WHEN:
      under free 100/day). Switch to data-branch only if we hit the cap.
 
 2. **Should we commit `parse_metrics.json` to the repo?**
+
    - Pro: `/api/health.parseSuccessRate24h` becomes real on Vercel.
    - Con: Any sensitive raw output? **No** — we already gitignored
      `raw_model_outputs/`; `parse_metrics.json` only has numeric counts.
    - Recommendation: **yes, commit it.**
 
 3. **Should we commit `threshold_state.json`?**
+
    - Pro: `thresholdMode` on `/api/health` becomes real.
    - Con: None.
    - Recommendation: **yes, commit it.**
 
 4. **What about per-cycle GitHub Action artifact (logs, raw outputs)?**
+
    - GH Actions allows uploading run artifacts. We could attach raw
      model outputs as artifacts and link them from
      `data/last-cycle-summary.json`.

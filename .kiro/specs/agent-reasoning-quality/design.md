@@ -2,13 +2,13 @@
 
 ## Decisions taken (closes open questions from requirements.md)
 
-| Q | Decision | Rationale |
-|---|---|---|
-| Q1 evolved prompts | **Path A with explicit gate.** Attempt to re-enable with a format-guard suffix; ship behind `EVOLVED_PROMPTS_ENABLED=true` env flag. If 50-cycle smoke test parse rate ≥ 95%, default to true. Else default to false (Path B fallback). | Preserves "self-evolving" narrative if technically achievable. Concrete gate prevents shipping a regression. |
-| Q2 keep GLM-5 | **Keep GLM-5.** Fix parsing first (R3+R4+R5). Replace only if parse rate < 60% after fixes. | Z.ai partnership is a real talking point. Most parse issues stem from prompt clarity, not the model itself. |
-| Q3 on-chain tier | **In reasoning text.** Tag word prefix like `[BLOCKED_BY_VALIDATOR] …`. No contract changes. | Avoids redeploy + Sourcify drift. Future structured event is roadmap. |
-| Q4 retro-tag old entries | **Best-effort with `tierSource: 'inferred'`.** | Cleaner dashboard. Explicit flag makes provenance auditable. |
-| Q5 parse-fail behavior | **Continue with HOLD + count.** ≥ 5 fails in 24h triggers circuit-breaker pause. | Logging an empty cycle is better than dropping it. Repeated failures still get caught. |
+| Q                        | Decision                                                                                                                                                                                                                                | Rationale                                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Q1 evolved prompts       | **Path A with explicit gate.** Attempt to re-enable with a format-guard suffix; ship behind `EVOLVED_PROMPTS_ENABLED=true` env flag. If 50-cycle smoke test parse rate ≥ 95%, default to true. Else default to false (Path B fallback). | Preserves "self-evolving" narrative if technically achievable. Concrete gate prevents shipping a regression. |
+| Q2 keep GLM-5            | **Keep GLM-5.** Fix parsing first (R3+R4+R5). Replace only if parse rate < 60% after fixes.                                                                                                                                             | Z.ai partnership is a real talking point. Most parse issues stem from prompt clarity, not the model itself.  |
+| Q3 on-chain tier         | **In reasoning text.** Tag word prefix like `[BLOCKED_BY_VALIDATOR] …`. No contract changes.                                                                                                                                            | Avoids redeploy + Sourcify drift. Future structured event is roadmap.                                        |
+| Q4 retro-tag old entries | **Best-effort with `tierSource: 'inferred'`.**                                                                                                                                                                                          | Cleaner dashboard. Explicit flag makes provenance auditable.                                                 |
+| Q5 parse-fail behavior   | **Continue with HOLD + count.** ≥ 5 fails in 24h triggers circuit-breaker pause.                                                                                                                                                        | Logging an empty cycle is better than dropping it. Repeated failures still get caught.                       |
 
 ## Architecture
 
@@ -79,39 +79,40 @@ Single source of truth for tier classification. Pure function. Unit-testable.
 function classifyDecisionTier(decision, market) {
   // 1. Parse failure — neither analyst nor validator could be Zod-parsed
   if (!decision.analyst || !decision.validator) {
-    return 'BLOCKED_BY_PARSE_FAILURE';
+    return "BLOCKED_BY_PARSE_FAILURE";
   }
 
   // 2. Regime block — regime detector says HOLD/UNKNOWN regardless of analyst
   const regime = market.structuredSignals?.regime?.regime;
-  if (regime === 'HOLD' || regime === 'UNKNOWN') {
-    return 'BLOCKED_BY_REGIME';
+  if (regime === "HOLD" || regime === "UNKNOWN") {
+    return "BLOCKED_BY_REGIME";
   }
 
   // 3. Low confidence — analyst below threshold; never reached validator gate
-  const threshold = decision._activeThreshold ?? 0.60;
+  const threshold = decision._activeThreshold ?? 0.6;
   if ((decision.analyst.confidence ?? 0) < threshold) {
-    return 'BLOCKED_BY_LOW_CONFIDENCE';
+    return "BLOCKED_BY_LOW_CONFIDENCE";
   }
 
   // 4. Validator veto
   if (!decision.validator.approved) {
-    return 'BLOCKED_BY_VALIDATOR';
+    return "BLOCKED_BY_VALIDATOR";
   }
 
   // 5. Consensus reached + action is swap
-  if (decision.consensus && decision.action === 'swap') {
-    return 'EXECUTED_SWAP';
+  if (decision.consensus && decision.action === "swap") {
+    return "EXECUTED_SWAP";
   }
 
   // 6. Edge: analyst.action === 'hold' with full consensus (regime-supported HOLD)
-  return 'BLOCKED_BY_REGIME';
+  return "BLOCKED_BY_REGIME";
 }
 
 module.exports = { classifyDecisionTier };
 ```
 
 **Notes:**
+
 - Pipeline order matters: a cycle that both has low confidence AND would be regime-blocked surfaces low-confidence first; this matches user-perception ("the model wasn't sure").
 - `_activeThreshold` is exposed by `getMultiAgentDecision()` so we don't re-read state.
 - Tests cover the 6 paths plus edge cases (analyst undefined, validator undefined, mixed states).
@@ -126,17 +127,17 @@ Modify `normalizeAnalystResponse()` and `normalizeValidatorResponse()` to record
 
 ```javascript
 // confidence
-let path = 'native_unit';
+let path = "native_unit";
 if (r.confidence === undefined && r.conf !== undefined) r.confidence = r.conf;
 const rawConf = r.confidence;
 r.confidence = Number(rawConf);
 if (isNaN(r.confidence)) {
   r.confidence = DEFAULT_CONFIDENCE_FALLBACK;
-  path = 'fallback_default';
+  path = "fallback_default";
 }
 if (r.confidence > 1 && r.confidence <= 100) {
   r.confidence = r.confidence / 100;
-  path = 'percent_scaled';
+  path = "percent_scaled";
 }
 if (r.confidence > 1) r.confidence = 1;
 if (r.confidence < 0) r.confidence = 0;
@@ -150,38 +151,49 @@ r._confidencePath = path;
 Modify `callAgent()`:
 
 ```javascript
-async function callAgent(systemPrompt, userMessage, modelId, agentRole = 'unknown') {
+async function callAgent(
+  systemPrompt,
+  userMessage,
+  modelId,
+  agentRole = "unknown"
+) {
   // ... existing Bedrock call ...
   const text = response.output.message.content[0].text;
 
   // R2: persist raw output (best-effort)
   try {
     persistRawOutput(text, modelId, agentRole);
-  } catch (e) { /* swallow */ }
+  } catch (e) {
+    /* swallow */
+  }
 
   // R3: track parse stats
-  let parseOutcome = 'json_ok';
+  let parseOutcome = "json_ok";
 
   // ... existing JSON extract ...
   try {
     return JSON.parse(jsonStr);
   } catch {
-    parseOutcome = 'json_failed';
+    parseOutcome = "json_failed";
     // YAML fallback path
-    const lines = text.split('\n').filter(l => l.trim());
+    const lines = text.split("\n").filter((l) => l.trim());
     const obj = {};
     // ... existing YAML logic ...
     if (Object.keys(obj).length >= 2) {
-      parseOutcome = 'yaml_ok';
-      console.log(`  [PARSE] Recovered YAML-like response (${agentRole}, ${Object.keys(obj).length} fields)`);
+      parseOutcome = "yaml_ok";
+      console.log(
+        `  [PARSE] Recovered YAML-like response (${agentRole}, ${
+          Object.keys(obj).length
+        } fields)`
+      );
       recordParseMetric(agentRole, parseOutcome);
       return obj;
     }
-    parseOutcome = 'failed';
+    parseOutcome = "failed";
     recordParseMetric(agentRole, parseOutcome);
     throw new Error(`Cannot parse model response: ${text.substring(0, 100)}`);
   } finally {
-    if (parseOutcome === 'json_ok') recordParseMetric(agentRole, parseOutcome);
+    if (parseOutcome === "json_ok") recordParseMetric(agentRole, parseOutcome);
   }
 }
 ```
@@ -214,12 +226,16 @@ Plus a one-shot retry on parse failure for Validator only (R5.3):
 ```javascript
 async function callValidatorWithRetry(systemPrompt, userMessage, modelId) {
   try {
-    return await callAgent(systemPrompt, userMessage, modelId, 'validator');
+    return await callAgent(systemPrompt, userMessage, modelId, "validator");
   } catch (e) {
-    console.log(`  [VALIDATOR-RETRY] First attempt failed: ${e.message?.slice(0, 60)}`);
-    const stricter = systemPrompt + '\n\n' +
-      'Your previous response was not valid JSON. Reply with ONLY a JSON object now.';
-    return callAgent(stricter, userMessage, modelId, 'validator-retry');
+    console.log(
+      `  [VALIDATOR-RETRY] First attempt failed: ${e.message?.slice(0, 60)}`
+    );
+    const stricter =
+      systemPrompt +
+      "\n\n" +
+      "Your previous response was not valid JSON. Reply with ONLY a JSON object now.";
+    return callAgent(stricter, userMessage, modelId, "validator-retry");
     // If second attempt fails, error propagates and decision._failedValidator is set upstream.
   }
 }
@@ -232,21 +248,24 @@ async function callValidatorWithRetry(systemPrompt, userMessage, modelId) {
 Replace the current bypass with an env-flag gated load:
 
 ```javascript
-const EVOLVED_PROMPTS_ENABLED = process.env.EVOLVED_PROMPTS_ENABLED === 'true';
-const FORMAT_GUARD_SUFFIX = `\n\n=== STRICT OUTPUT CONTRACT (immutable) ===\n` +
+const EVOLVED_PROMPTS_ENABLED = process.env.EVOLVED_PROMPTS_ENABLED === "true";
+const FORMAT_GUARD_SUFFIX =
+  `\n\n=== STRICT OUTPUT CONTRACT (immutable) ===\n` +
   `You MUST respond with EXACTLY one minified JSON object. No markdown, no prose.\n` +
   `Required keys: action (swap|hold), direction, targetAsset (mUSD|mETH), ` +
   `allocationPct, confidence, reasoning. The shape is non-negotiable.`;
 
 const evolved = await getEvolvedPrompts();
 let activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;
-let promptSource = 'static';
+let promptSource = "static";
 if (EVOLVED_PROMPTS_ENABLED && evolved?.analyst) {
   activeAnalystPrompt = evolved.analyst + FORMAT_GUARD_SUFFIX;
   promptSource = `evolved-v${evolved.version}`;
   console.log(`  [EVOLUTION] Active prompt: ${promptSource}`);
 } else if (evolved?.analyst) {
-  console.log(`  [EVOLUTION] Evolved v${evolved.version} available but disabled (EVOLVED_PROMPTS_ENABLED=false)`);
+  console.log(
+    `  [EVOLUTION] Evolved v${evolved.version} available but disabled (EVOLVED_PROMPTS_ENABLED=false)`
+  );
 }
 // Validator prompt stays static — it's the safety floor; evolving it could
 // drift safety guarantees.
@@ -265,19 +284,22 @@ function getDynamicConfidenceThreshold() {
   const state = {
     consecutiveLosses,
     activeThreshold,
-    triggeredAt: activeThreshold === ELEVATED_CONFIDENCE_THRESHOLD
-      ? new Date().toISOString()
-      : null,
-    recoveryRule: '1 GOOD_CALL or CORRECT_BLOCK resets to base',
+    triggeredAt:
+      activeThreshold === ELEVATED_CONFIDENCE_THRESHOLD
+        ? new Date().toISOString()
+        : null,
+    recoveryRule: "1 GOOD_CALL or CORRECT_BLOCK resets to base",
     updatedAt: new Date().toISOString(),
   };
 
   try {
     fs.writeFileSync(
-      path.resolve(__dirname, '../../src/data/threshold_state.json'),
-      JSON.stringify(state, null, 2),
+      path.resolve(__dirname, "../../src/data/threshold_state.json"),
+      JSON.stringify(state, null, 2)
     );
-  } catch { /* swallow */ }
+  } catch {
+    /* swallow */
+  }
 
   return activeThreshold;
 }
@@ -294,14 +316,14 @@ Three edits:
 After `getMultiAgentDecision()` and before any IPFS / on-chain writes:
 
 ```javascript
-const { classifyDecisionTier } = require('./decisionTier');
+const { classifyDecisionTier } = require("./decisionTier");
 const decisionTier = classifyDecisionTier(decision, market);
 console.log(`   TIER: ${decisionTier}`);
 
 // Embed tier in IPFS payload
 const ipfsResult = await uploadReasoningProof(
   { ...decision, decisionTier },
-  market,
+  market
 );
 ```
 
@@ -309,17 +331,22 @@ const ipfsResult = await uploadReasoningProof(
 
 ```javascript
 const tierTag = `[${decisionTier}]`;
-const reasoning = `${tierTag} Analyst: ${decision.analyst?.reasoning?.substring(0, 80)} | Validator: ${decision.validator?.approved ? 'APPROVED' : 'REJECTED'} (risk=${riskScore})`.substring(0, 200);
+const reasoning = `${tierTag} Analyst: ${decision.analyst?.reasoning?.substring(
+  0,
+  80
+)} | Validator: ${
+  decision.validator?.approved ? "APPROVED" : "REJECTED"
+} (risk=${riskScore})`.substring(0, 200);
 
 await decisionLog.logDecision(
   decision.action,
-  decision.analyst?.targetAsset || 'mUSD',
-  ethers.parseEther('0'),
-  ethers.parseEther('0'),
+  decision.analyst?.targetAsset || "mUSD",
+  ethers.parseEther("0"),
+  ethers.parseEther("0"),
   confidenceBps,
   reasoning,
   ethers.keccak256(ethers.toUtf8Bytes(ipfsResult.cid)),
-  { nonce: currentNonce + 2 },
+  { nonce: currentNonce + 2 }
 );
 ```
 
@@ -332,8 +359,8 @@ const disagreementSignal =
 
 outcomeTracker.record({
   decisionId: Number(proposalId),
-  action: decision.analyst?.action || 'hold',
-  targetAsset: decision.analyst?.targetAsset || 'mUSD',
+  action: decision.analyst?.action || "hold",
+  targetAsset: decision.analyst?.targetAsset || "mUSD",
   consensus: decision.consensus || false,
   confidence: decision.analyst?.confidence || 0.5,
   priceAtDecision: market.ethPrice,
@@ -341,9 +368,9 @@ outcomeTracker.record({
   disciplineStatus,
   // NEW v2 fields:
   decisionTier,
-  tierSource: 'live',
-  confidencePath: decision.analyst?._confidencePath ?? 'unknown',
-  promptSource: decision._promptSource ?? 'static',
+  tierSource: "live",
+  confidencePath: decision.analyst?._confidencePath ?? "unknown",
+  promptSource: decision._promptSource ?? "static",
   disagreementSignal,
   validatorReasoning: decision.validator?.reasoning?.substring(0, 400) || null,
   validatorFlaggedIssues: decision.validator?.flaggedIssues || [],
@@ -363,7 +390,7 @@ const SCHEMA_VERSION = 2;
 
 function loadDB() {
   try {
-    const raw = fs.readFileSync(DB_PATH, 'utf8');
+    const raw = fs.readFileSync(DB_PATH, "utf8");
     const db = JSON.parse(raw);
     db.schemaVersion = db.schemaVersion ?? 1; // tag pre-existing files
     db.pending = db.pending ?? [];
@@ -389,11 +416,14 @@ function saveDB(db) {
 Lives at `src/orchestrator/parseMetrics.js`. Pure file-state, no DB.
 
 ```javascript
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const METRICS_PATH = path.resolve(__dirname, '../../src/data/parse_metrics.json');
-const RAW_DIR = path.resolve(__dirname, '../../src/data/raw_model_outputs');
+const METRICS_PATH = path.resolve(
+  __dirname,
+  "../../src/data/parse_metrics.json"
+);
+const RAW_DIR = path.resolve(__dirname, "../../src/data/raw_model_outputs");
 
 const TODAY = () => new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
@@ -405,7 +435,7 @@ function ensureDirs() {
 function loadMetrics() {
   ensureDirs();
   try {
-    return JSON.parse(fs.readFileSync(METRICS_PATH, 'utf8'));
+    return JSON.parse(fs.readFileSync(METRICS_PATH, "utf8"));
   } catch {
     return { byDay: {} };
   }
@@ -420,15 +450,19 @@ function recordParseMetric(agentRole, outcome) {
   // outcome: 'json_ok' | 'yaml_ok' | 'failed'
   const m = loadMetrics();
   const day = TODAY();
-  const bucket = m.byDay[day] = m.byDay[day] || {};
-  const role = bucket[agentRole] = bucket[agentRole] || { json_ok: 0, yaml_ok: 0, failed: 0 };
+  const bucket = (m.byDay[day] = m.byDay[day] || {});
+  const role = (bucket[agentRole] = bucket[agentRole] || {
+    json_ok: 0,
+    yaml_ok: 0,
+    failed: 0,
+  });
   role[outcome] = (role[outcome] || 0) + 1;
   saveMetrics(m);
 }
 
 function persistRawOutput(text, modelId, agentRole) {
   ensureDirs();
-  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
   const fn = path.join(RAW_DIR, `${ts}_${agentRole}.txt`);
   const header = `# model=${modelId} agent=${agentRole} timestamp=${new Date().toISOString()}\n\n`;
   fs.writeFileSync(fn, header + text);
@@ -437,9 +471,12 @@ function persistRawOutput(text, modelId, agentRole) {
 function getRollingMetrics(hours = 24) {
   const m = loadMetrics();
   const cutoff = new Date(Date.now() - hours * 3600 * 1000);
-  let total = 0, jsonOk = 0, yamlOk = 0, failed = 0;
+  let total = 0,
+    jsonOk = 0,
+    yamlOk = 0,
+    failed = 0;
   for (const [day, bucket] of Object.entries(m.byDay)) {
-    if (new Date(day + 'T23:59:59Z') < cutoff) continue;
+    if (new Date(day + "T23:59:59Z") < cutoff) continue;
     for (const role of Object.values(bucket)) {
       jsonOk += role.json_ok || 0;
       yamlOk += role.yaml_ok || 0;
@@ -465,16 +502,18 @@ In `frontend/app/api/health/route.ts`, three new optional reads:
 
 ```typescript
 // Parse metrics (R3)
-const parseMetricsPath = backendPath('src', 'data', 'parse_metrics.json');
+const parseMetricsPath = backendPath("src", "data", "parse_metrics.json");
 let parseSuccessRate24h: number | null = null;
 let parseFailureCount24h: number | null = null;
 try {
-  const m = JSON.parse(fs.readFileSync(parseMetricsPath, 'utf-8'));
+  const m = JSON.parse(fs.readFileSync(parseMetricsPath, "utf-8"));
   // Inline rolling 24h calculation (same logic as parseMetrics.js getRollingMetrics)
   const cutoff = new Date(Date.now() - 24 * 3600 * 1000);
-  let total = 0, ok = 0, failed = 0;
+  let total = 0,
+    ok = 0,
+    failed = 0;
   for (const [day, bucket] of Object.entries(m.byDay ?? {})) {
-    if (new Date(day + 'T23:59:59Z') < cutoff) continue;
+    if (new Date(day + "T23:59:59Z") < cutoff) continue;
     for (const role of Object.values(bucket as any)) {
       const r = role as any;
       ok += (r.json_ok ?? 0) + (r.yaml_ok ?? 0);
@@ -484,20 +523,25 @@ try {
   total = ok + failed;
   parseSuccessRate24h = total > 0 ? ok / total : null;
   parseFailureCount24h = failed;
-} catch { /* leave null */ }
+} catch {
+  /* leave null */
+}
 
 // Threshold state (R8)
-const thresholdPath = backendPath('src', 'data', 'threshold_state.json');
-let thresholdMode: 'base' | 'elevated' | null = null;
+const thresholdPath = backendPath("src", "data", "threshold_state.json");
+let thresholdMode: "base" | "elevated" | null = null;
 let consecutiveLosses: number | null = null;
 try {
-  const t = JSON.parse(fs.readFileSync(thresholdPath, 'utf-8'));
-  thresholdMode = t.activeThreshold > 0.7 ? 'elevated' : 'base';
+  const t = JSON.parse(fs.readFileSync(thresholdPath, "utf-8"));
+  thresholdMode = t.activeThreshold > 0.7 ? "elevated" : "base";
   consecutiveLosses = t.consecutiveLosses ?? null;
-} catch { /* leave null */ }
+} catch {
+  /* leave null */
+}
 ```
 
 Response shape gains:
+
 ```json
 {
   "parseSuccessRate24h": 0.94,
@@ -512,33 +556,36 @@ Response shape gains:
 `scripts/migrate-outcomes-v2.js`:
 
 ```javascript
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const DB_PATH = path.resolve(__dirname, '../src/data/outcomes.json');
+const DB_PATH = path.resolve(__dirname, "../src/data/outcomes.json");
 
 function inferTier(entry) {
   // Best-effort heuristic for entries that pre-date decisionTier field.
-  if (entry.consensus === true && entry.action === 'swap') return 'EXECUTED_SWAP';
-  if (entry.consensus === false && (entry.confidence ?? 1) < 0.60) return 'BLOCKED_BY_LOW_CONFIDENCE';
-  if (entry.consensus === false) return 'BLOCKED_BY_VALIDATOR';
-  if (entry.consensus === true && entry.action === 'hold') return 'BLOCKED_BY_REGIME';
-  return 'UNKNOWN';
+  if (entry.consensus === true && entry.action === "swap")
+    return "EXECUTED_SWAP";
+  if (entry.consensus === false && (entry.confidence ?? 1) < 0.6)
+    return "BLOCKED_BY_LOW_CONFIDENCE";
+  if (entry.consensus === false) return "BLOCKED_BY_VALIDATOR";
+  if (entry.consensus === true && entry.action === "hold")
+    return "BLOCKED_BY_REGIME";
+  return "UNKNOWN";
 }
 
 function migrate() {
-  const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+  const db = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
   if (db.schemaVersion === 2) {
-    console.log('Already at schemaVersion 2 — nothing to migrate.');
+    console.log("Already at schemaVersion 2 — nothing to migrate.");
     return;
   }
   let touched = 0;
   for (const entry of [...(db.pending ?? []), ...(db.settled ?? [])]) {
     if (entry.decisionTier) continue;
     entry.decisionTier = inferTier(entry);
-    entry.tierSource = 'inferred';
-    entry.confidencePath = entry.confidencePath ?? 'unknown';
-    entry.promptSource = entry.promptSource ?? 'unknown';
+    entry.tierSource = "inferred";
+    entry.confidencePath = entry.confidencePath ?? "unknown";
+    entry.promptSource = entry.promptSource ?? "unknown";
     entry.disagreementSignal = entry.disagreementSignal ?? null;
     entry.validatorReasoning = entry.validatorReasoning ?? null;
     entry.validatorFlaggedIssues = entry.validatorFlaggedIssues ?? [];
@@ -561,12 +608,12 @@ Idempotent — second run is a no-op.
 `scripts/smoke-reasoning.js`:
 
 ```javascript
-process.env.DRY_RUN = 'true';
-process.env.SKIP_ONCHAIN = 'true';
-const { runMultiAgentCycle } = require('../src/orchestrator/multiAgentLoop');
+process.env.DRY_RUN = "true";
+process.env.SKIP_ONCHAIN = "true";
+const { runMultiAgentCycle } = require("../src/orchestrator/multiAgentLoop");
 
 async function main() {
-  const N = parseInt(process.env.SMOKE_CYCLES ?? '5', 10);
+  const N = parseInt(process.env.SMOKE_CYCLES ?? "5", 10);
   const tiers = {};
   let parseOk = 0;
   let parseFail = 0;
@@ -577,31 +624,36 @@ async function main() {
       const decision = await runMultiAgentCycle({ dryRun: true });
       // multiAgentLoop returns the decision; tier may be in env or last-line log.
       // For robustness, re-classify here:
-      const { classifyDecisionTier } = require('../src/orchestrator/decisionTier');
+      const {
+        classifyDecisionTier,
+      } = require("../src/orchestrator/decisionTier");
       const tier = classifyDecisionTier(decision, decision._market ?? {});
       tiers[tier] = (tiers[tier] ?? 0) + 1;
       parseOk++;
     } catch (e) {
       parseFail++;
-      console.log(`Cycle ${i+1} parse-failed: ${e.message?.slice(0, 80)}`);
+      console.log(`Cycle ${i + 1} parse-failed: ${e.message?.slice(0, 80)}`);
     }
   }
 
-  console.log('\n=== SMOKE RESULTS ===');
+  console.log("\n=== SMOKE RESULTS ===");
   console.log(`Cycles attempted: ${N}`);
   console.log(`Parse-ok: ${parseOk}, parse-fail: ${parseFail}`);
   console.log(`Tier distribution: ${JSON.stringify(tiers)}`);
   const successRate = parseOk / N;
   console.log(`Parse success rate: ${(successRate * 100).toFixed(1)}%`);
   if (successRate < 0.95) {
-    console.log('⚠ Below 95% parse rate — Path A is at risk; consider Path B.');
+    console.log("⚠ Below 95% parse rate — Path A is at risk; consider Path B.");
     process.exitCode = 1;
   } else {
-    console.log('✅ Parse rate ≥ 95%.');
+    console.log("✅ Parse rate ≥ 95%.");
   }
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
 ```
 
 Adds `runMultiAgentCycle({ dryRun })` parameter to skip on-chain TXs and IPFS pin in smoke mode. Decision object returned regardless.
@@ -695,15 +747,15 @@ UNCHANGED (verified safe):
 
 ## Risks & mitigations
 
-| Risk | Mitigation |
-|---|---|
-| Re-enabling evolved prompts re-introduces the format issues that caused the original bypass. | EVOLVED_PROMPTS_ENABLED defaults to `false`. Operator opts in with env flag. Smoke test gates the decision. |
-| Validator's lower temperature (0.05 → less variation) may cause it to repeatedly veto the same kind of proposal. | Acceptable; validator's job is consistent skepticism. If a real edge is missed, that surfaces as `disagreementSignal` + `MISSED_ALPHA` and we can tune. |
-| Raw output logs accumulate large volumes. | gitignored; ~5 KB × 3 calls × 288 cycles/day = ~4 MB/day. Add cleanup to remove >7 days old in a follow-up if needed. |
-| Decision tier classification disagrees with what user expects. | Tested via unit tests. Edge cases (no analyst output, no validator output) all map to BLOCKED_BY_PARSE_FAILURE clearly. |
-| Migration script run twice corrupts state. | `if (db.schemaVersion === 2) return;` guard at top. Idempotent. |
-| Tier prefix in on-chain reasoning text changes the format consumers parse. | Frontend currently truncates reasoning at 200 chars; parses heuristically. New `[TIER]` prefix is at the start of the string and frontend can ignore it (existing parseReasoning() in page.tsx). |
-| Validator retry adds latency. | One retry max, only on parse-fail (rare path). Worst case +3s per failed cycle. Acceptable. |
+| Risk                                                                                                             | Mitigation                                                                                                                                                                                       |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Re-enabling evolved prompts re-introduces the format issues that caused the original bypass.                     | EVOLVED_PROMPTS_ENABLED defaults to `false`. Operator opts in with env flag. Smoke test gates the decision.                                                                                      |
+| Validator's lower temperature (0.05 → less variation) may cause it to repeatedly veto the same kind of proposal. | Acceptable; validator's job is consistent skepticism. If a real edge is missed, that surfaces as `disagreementSignal` + `MISSED_ALPHA` and we can tune.                                          |
+| Raw output logs accumulate large volumes.                                                                        | gitignored; ~5 KB × 3 calls × 288 cycles/day = ~4 MB/day. Add cleanup to remove >7 days old in a follow-up if needed.                                                                            |
+| Decision tier classification disagrees with what user expects.                                                   | Tested via unit tests. Edge cases (no analyst output, no validator output) all map to BLOCKED_BY_PARSE_FAILURE clearly.                                                                          |
+| Migration script run twice corrupts state.                                                                       | `if (db.schemaVersion === 2) return;` guard at top. Idempotent.                                                                                                                                  |
+| Tier prefix in on-chain reasoning text changes the format consumers parse.                                       | Frontend currently truncates reasoning at 200 chars; parses heuristically. New `[TIER]` prefix is at the start of the string and frontend can ignore it (existing parseReasoning() in page.tsx). |
+| Validator retry adds latency.                                                                                    | One retry max, only on parse-fail (rare path). Worst case +3s per failed cycle. Acceptable.                                                                                                      |
 
 ## Test plan
 
@@ -722,6 +774,7 @@ Manual + automated:
 ## Out of scope confirmation
 
 This spec does NOT:
+
 - Re-deploy any contracts.
 - Change the agent's strategy logic (`signalEngine.js`, `rangingGrid.js`, `positionState.js` untouched).
 - Add new model providers.

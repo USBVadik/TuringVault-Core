@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The hackathon is called **Mantle Turing Test** — adversarial challenge is in the name. Our `/challenge` page is *technically* live (4 attack-vector buttons, result UI, on-chain verification block), but the agent's reasoning is **pre-canned in a `DETECTION_RULES` map** rather than coming from the actual multi-agent pipeline. The frontend honestly labels this as `mode: DETERMINISTIC_RULES`, which keeps us compliant with `.kiro/steering/no-lying-about-state.md`, but it gives away the killer narrative win.
+The hackathon is called **Mantle Turing Test** — adversarial challenge is in the name. Our `/challenge` page is _technically_ live (4 attack-vector buttons, result UI, on-chain verification block), but the agent's reasoning is **pre-canned in a `DETECTION_RULES` map** rather than coming from the actual multi-agent pipeline. The frontend honestly labels this as `mode: DETERMINISTIC_RULES`, which keeps us compliant with `.kiro/steering/no-lying-about-state.md`, but it gives away the killer narrative win.
 
 A judge who opens this page sees:
 
@@ -50,6 +50,7 @@ The page becomes a **live demo of Proof-of-Reasoning** — the strongest product
 #### Acceptance Criteria
 
 1. THE system SHALL define 4 attack types as pure functions `applyAttack(unifiedMarket, attackType, params)` returning a perturbed `unifiedMarket` of the same shape:
+
    - `flash_crash` — apply a -20% price perturbation, set sentiment to extreme_panic, fearGreed to 3
    - `pump_signal` — +15% price, sentiment euphoric, fake volume spike
    - `oracle_conflict` — set CoinGecko vs Hyperliquid prices to 7.8% apart in `structuredSignals.signals.divergence`
@@ -100,6 +101,7 @@ The page becomes a **live demo of Proof-of-Reasoning** — the strongest product
 1. THE page SHALL display a top-level mode badge: green `LIVE · multi-agent pipeline` when `mode === 'LIVE_MULTI_AGENT'`, yellow `PREVIEW · deterministic rules` otherwise.
 
 2. THE page SHALL render the analyst → validator → (arbiter) chain as a vertical timeline with each agent's:
+
    - role label
    - model identifier (`zai.glm-5`, `us.anthropic.claude-sonnet-4-6`, `gemini-3.5-flash`)
    - confidence score
@@ -134,6 +136,7 @@ The page becomes a **live demo of Proof-of-Reasoning** — the strongest product
 #### Acceptance Criteria
 
 1. THE file `.kiro/runbooks/challenge-operations.md` SHALL document:
+
    - How to enable live mode (`CHALLENGE_LIVE_ENABLED=true`)
    - How to enable on-chain attestation (`CHALLENGE_ANCHOR_ENABLED=true`)
    - How to monitor spend (link to AWS Bedrock dashboard)
@@ -197,19 +200,23 @@ This spec is done WHEN:
 ## Open Questions
 
 1. **Should each challenge eat a full cycle's gas (4 TXs) or just one attestation TX?**
+
    - Recommendation: **one attestation TX** (R3.4). Production cycle costs are ~0.005 MNT × 4 = 0.02 MNT (~$0.014). Challenges burning 4 TXs each at 100/day cap = $1.40/day in gas. One TX = $0.35/day. Not material either way; one TX simplifies the cost model and avoids polluting the ValidationRegistry feed.
 
 2. **Should the live pipeline path use the CURRENT live market context or a frozen snapshot?**
+
    - Live: more realistic (pipeline sees actual conditions and the perturbation), but the analyst will refuse trades on calm-market days regardless of the perturbation, dulling the demo.
    - Frozen: more dramatic (we can pre-compose a "high-volatility" baseline), but it's no longer pulling real data.
    - Recommendation: **live** (R2.1). Honesty rule wins. Sometimes the analyst will decline to trade not because of the attack but because real conditions are calm — which is itself a strong narrative ("the agent didn't even need our attack to refuse").
 
 3. **Should the challenge result be pinned to IPFS like a regular cycle?**
+
    - Pro: full reasoning chain becomes an immutable artifact.
    - Con: 100 IPFS pins/day on a free Pinata tier may rate-limit our production cron.
    - Recommendation: **yes, pin** (in design). Our Pinata plan is 5000 pins/month free. 100/day = 3000/month. Comfortable. Add `[CHALLENGE-*]` prefix to the pin name to distinguish.
 
 4. **Should there be a custom-attack form (POST endpoint) where users craft their own signal?**
+
    - Pro: hero feature for "adversarial" narrative. Users can really stress-test the agent.
    - Con: arbitrary user input → arbitrary Bedrock cost; need stricter validation.
    - Recommendation: **defer to v3**. Ship 4 canonical attacks first, see judge reaction.

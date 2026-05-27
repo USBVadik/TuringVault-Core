@@ -66,7 +66,7 @@ status for every cycle, not just the rolled-up verdict.
 
 2. THE cycle SHALL also append a compact entry to
    `data/discipline-history.json` per cycle: `{ at, decisionId,
-   verdict, checks: [{ name, status }], blockReason | null }`.
+verdict, checks: [{ name, status }], blockReason | null }`.
 
 3. THE history file SHALL keep at most the last 100 entries (rolling)
    to prevent unbounded growth.
@@ -83,11 +83,12 @@ gives me everything the Discipline strip and page need.
 #### Acceptance Criteria
 
 1. `GET /api/discipline` SHALL return:
+
    - `latest` — last cycle's full Discipline detail
    - `history` — last 30 entries (compact)
    - `summary` — aggregate over last 100: `{ acceptedCount,
-     blockedCount, skippedCount, errorCount, gatePassRates: { tx_proof,
-     price_freshness, drift_detection } }`
+blockedCount, skippedCount, errorCount, gatePassRates: { tx_proof,
+price_freshness, drift_detection } }`
 
 2. WHEN any source file is missing (fresh deployment), the endpoint
    SHALL return defaults (empty arrays, null `latest`) and HTTP 200.
@@ -104,7 +105,7 @@ a glance that post-execution verification is alive.
 
 1. THE strategy/strip section of `frontend/app/page.tsx` SHALL render
    a new row: `Discipline Layer · last cycle: ✓ tx_proof · ✓
-   price_freshness · ✓ drift_detection` (icons + tooltips).
+price_freshness · ✓ drift_detection` (icons + tooltips).
 
 2. WHEN the latest cycle has any FAIL, the strip SHALL render the
    failed gate in red and surface the `blockReason` in a tooltip.
@@ -123,7 +124,7 @@ history of all Discipline checks.
 
 1. THE page SHALL render a table of the last 30 cycles with columns:
    `cycle id · time · verdict · tx_proof · freshness · drift ·
-   block reason (if any)`.
+block reason (if any)`.
 
 2. AT the top of the page, render the `summary` block from the API:
    counts + gate pass rates as percentages.

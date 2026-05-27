@@ -1,17 +1,19 @@
 /**
  * TuringVault — Unified Market Intelligence
- * 
+ *
  * Aggregates data from ALL partner protocols:
  *   1. CoinGecko — ETH price & market cap
  *   2. DeFiLlama — Mantle TVL
  *   3. Fear & Greed Index — sentiment
  *   4. Nansen MCP — Smart Money flows (institutional intelligence)
  *   5. Byreal Perps — trading signals (RSI, funding, OI)
- * 
+ *
  * Returns formatted context string for LLM prompt injection.
  */
 
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
 const { NansenMCPClient } = require("../mcp/nansenMCP");
 const { ExecutionEngine } = require("../execution/executionEngine");
 const { getDerivativesContext } = require("../data/coinGlass");
@@ -24,7 +26,12 @@ const NANSEN_CACHE_TTL = 15 * 60 * 1000; // 15 min for Nansen (expensive)
 function cached(key, ttl, fn) {
   const entry = CACHE[key];
   if (entry && Date.now() - entry.ts < ttl) return entry.data;
-  return fn().then(data => { CACHE[key] = { data, ts: Date.now() }; return data; }).catch(() => entry?.data || null);
+  return fn()
+    .then((data) => {
+      CACHE[key] = { data, ts: Date.now() };
+      return data;
+    })
+    .catch(() => entry?.data || null);
 }
 
 async function fetchWithTimeout(url, options = {}, timeout = 8000) {
@@ -50,7 +57,7 @@ async function getEthPrice() {
       ethPrice: data.ethereum?.usd || 0,
       ethChange24h: data.ethereum?.usd_24h_change || 0,
       mntPrice: data.mantle?.usd || 0,
-      mntChange24h: data.mantle?.usd_24h_change || 0
+      mntChange24h: data.mantle?.usd_24h_change || 0,
     };
   });
 }
@@ -58,18 +65,20 @@ async function getEthPrice() {
 async function getMantleTVL() {
   return cached("mantle_tvl", CACHE_TTL, async () => {
     const data = await fetchWithTimeout("https://api.llama.fi/v2/chains");
-    const mantle = data?.find(c => c.name === "Mantle");
+    const mantle = data?.find((c) => c.name === "Mantle");
     return { tvl: mantle?.tvl || 0 };
   });
 }
 
 async function getFearGreed() {
   return cached("fear_greed", CACHE_TTL, async () => {
-    const data = await fetchWithTimeout("https://api.alternative.me/fng/?limit=1");
+    const data = await fetchWithTimeout(
+      "https://api.alternative.me/fng/?limit=1"
+    );
     const val = data?.data?.[0];
     return {
       value: parseInt(val?.value || 50),
-      classification: val?.value_classification || "Neutral"
+      classification: val?.value_classification || "Neutral",
     };
   });
 }
@@ -78,19 +87,21 @@ async function getNansenIntelligence() {
   return cached("nansen_mcp", NANSEN_CACHE_TTL, async () => {
     const apiKey = process.env.NANSEN_API_KEY;
     if (!apiKey) return { available: false };
-    
+
     const client = new NansenMCPClient(apiKey);
-    
+
     // Use general_search (free/cheap) to get market context
     const [methData, smartMoney] = await Promise.allSettled([
       client.callTool("general_search", { query: "mETH Mantle top movers" }),
-      client.callTool("smart_traders_and_funds_token_balances", { request: {} })
+      client.callTool("smart_traders_and_funds_token_balances", {
+        request: {},
+      }),
     ]);
 
     return {
       available: true,
       meth: methData.status === "fulfilled" ? methData.value : null,
-      smartMoney: smartMoney.status === "fulfilled" ? smartMoney.value : null
+      smartMoney: smartMoney.status === "fulfilled" ? smartMoney.value : null,
     };
   });
 }
@@ -100,19 +111,21 @@ async function getByrealSignals() {
     try {
       const engine = new ExecutionEngine({ dryRun: true });
       const signals = await engine.getSignals();
-      
+
       // Extract top signals
       const allSignals = [];
       for (const [category, items] of Object.entries(signals)) {
         if (Array.isArray(items)) {
-          allSignals.push(...items.slice(0, 3).map(s => ({ ...s, category })));
+          allSignals.push(
+            ...items.slice(0, 3).map((s) => ({ ...s, category }))
+          );
         }
       }
-      
+
       return {
         available: true,
         topSignals: allSignals.slice(0, 8),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch {
       return { available: false };
@@ -128,7 +141,7 @@ async function getUnifiedMarketContext() {
     getMantleTVL(),
     getFearGreed(),
     getNansenIntelligence(),
-    getByrealSignals()
+    getByrealSignals(),
   ]);
 
   const eth = price.status === "fulfilled" ? price.value : {};
@@ -139,24 +152,38 @@ async function getUnifiedMarketContext() {
 
   // Format for LLM prompt injection
   let context = `=== MARKET INTELLIGENCE (${new Date().toISOString()}) ===\n\n`;
-  
+
   context += `[PRICE DATA]\n`;
-  context += `ETH: $${eth.ethPrice?.toFixed(2) || "N/A"} (24h: ${eth.ethChange24h?.toFixed(2) || 0}%)\n`;
-  context += `MNT: $${eth.mntPrice?.toFixed(4) || "N/A"} (24h: ${eth.mntChange24h?.toFixed(2) || 0}%)\n`;
+  context += `ETH: $${eth.ethPrice?.toFixed(2) || "N/A"} (24h: ${
+    eth.ethChange24h?.toFixed(2) || 0
+  }%)\n`;
+  context += `MNT: $${eth.mntPrice?.toFixed(4) || "N/A"} (24h: ${
+    eth.mntChange24h?.toFixed(2) || 0
+  }%)\n`;
   context += `Mantle TVL: $${(mantleTvl.tvl / 1e9)?.toFixed(2) || "N/A"}B\n\n`;
-  
+
   context += `[SENTIMENT]\n`;
-  context += `Fear & Greed: ${fearGreed.value || "N/A"} (${fearGreed.classification || "Unknown"})\n\n`;
+  context += `Fear & Greed: ${fearGreed.value || "N/A"} (${
+    fearGreed.classification || "Unknown"
+  })\n\n`;
 
   if (nansenData.available && nansenData.meth) {
     context += `[NANSEN SMART MONEY - mETH/Mantle]\n`;
-    const text = nansenData.meth?.content?.[0]?.text || JSON.stringify(nansenData.meth).slice(0, 500);
+    const text =
+      nansenData.meth?.content?.[0]?.text ||
+      JSON.stringify(nansenData.meth).slice(0, 500);
     context += text.slice(0, 800) + "\n\n";
   }
 
-  if (nansenData.available && nansenData.smartMoney && !nansenData.smartMoney?.isError) {
+  if (
+    nansenData.available &&
+    nansenData.smartMoney &&
+    !nansenData.smartMoney?.isError
+  ) {
     context += `[NANSEN SMART MONEY - Token Holdings]\n`;
-    const text = nansenData.smartMoney?.content?.[0]?.text || JSON.stringify(nansenData.smartMoney).slice(0, 500);
+    const text =
+      nansenData.smartMoney?.content?.[0]?.text ||
+      JSON.stringify(nansenData.smartMoney).slice(0, 500);
     context += text.slice(0, 800) + "\n\n";
   }
 
@@ -173,17 +200,23 @@ async function getUnifiedMarketContext() {
     const derivatives = await getDerivativesContext();
     if (derivatives.funding) {
       context += `[DERIVATIVES / FUNDING]\n`;
-      context += `Avg Funding Rate: ${(derivatives.funding.avgFundingRate * 100).toFixed(3)}%\n`;
+      context += `Avg Funding Rate: ${(
+        derivatives.funding.avgFundingRate * 100
+      ).toFixed(3)}%\n`;
       context += `Signal: ${derivatives.funding.fundingSignal}\n`;
       context += `${derivatives.funding.interpretation}\n`;
       if (derivatives.funding.topExchanges?.length > 0) {
-        context += `Top exchanges: ${derivatives.funding.topExchanges.map(e => `${e.exchange}:${(e.funding*100).toFixed(3)}%`).join(", ")}\n`;
+        context += `Top exchanges: ${derivatives.funding.topExchanges
+          .map((e) => `${e.exchange}:${(e.funding * 100).toFixed(3)}%`)
+          .join(", ")}\n`;
       }
       context += "\n";
     }
     if (derivatives.liquidations) {
       context += `[VOLATILITY / LIQUIDATION ZONES]\n`;
-      context += `Intraday vol: ${derivatives.liquidations.avgIntradayRange?.toFixed(2)}% (${derivatives.liquidations.volatilitySignal})\n`;
+      context += `Intraday vol: ${derivatives.liquidations.avgIntradayRange?.toFixed(
+        2
+      )}% (${derivatives.liquidations.volatilitySignal})\n`;
       context += `Est. long liquidation zone: $${derivatives.liquidations.estimatedLiquidationZones?.longLiquidation}\n`;
       context += `Est. short liquidation zone: $${derivatives.liquidations.estimatedLiquidationZones?.shortLiquidation}\n\n`;
     }
@@ -203,7 +236,9 @@ async function getUnifiedMarketContext() {
       if (ta.ethereum.indicators.bollinger) {
         context += `Bollinger: position ${ta.ethereum.indicators.bollinger.position} (band width ${ta.ethereum.indicators.bollinger.bandwidth})\n`;
       }
-      context += `Signals: ${ta.ethereum.signals.map(s => `${s.indicator}=${s.strength}`).join(", ")}\n\n`;
+      context += `Signals: ${ta.ethereum.signals
+        .map((s) => `${s.indicator}=${s.strength}`)
+        .join(", ")}\n\n`;
     }
     if (ta.mantle) {
       context += `[TECHNICAL ANALYSIS — MNT]\n`;
@@ -223,7 +258,7 @@ async function getUnifiedMarketContext() {
     ethPrice: eth.ethPrice || 0,
     ethChange24h: eth.ethChange24h || 0,
     fearGreedValue: fearGreed.value || 50,
-    fearGreedClass: fearGreed.classification || "Neutral"
+    fearGreedClass: fearGreed.classification || "Neutral",
   };
 }
 

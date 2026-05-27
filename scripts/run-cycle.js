@@ -22,17 +22,17 @@
  * Spec: .kiro/specs/continuous-cron-and-health (R1, R3, R6)
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // Local .env load (no-op in CI when file is absent).
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
-const REPO_ROOT = path.resolve(__dirname, '..');
+const REPO_ROOT = path.resolve(__dirname, "..");
 
-const HISTORY_PATH = path.join(REPO_ROOT, 'data', 'cycle-history.json');
-const SUMMARY_PATH = path.join(REPO_ROOT, 'data', 'last-cycle-summary.json');
-const FAILURES_PATH = path.join(REPO_ROOT, 'data', 'cycle-failures.json');
+const HISTORY_PATH = path.join(REPO_ROOT, "data", "cycle-history.json");
+const SUMMARY_PATH = path.join(REPO_ROOT, "data", "last-cycle-summary.json");
+const FAILURES_PATH = path.join(REPO_ROOT, "data", "cycle-failures.json");
 
 const HISTORY_LIMIT = 100;
 const FAILURES_LIMIT = 200;
@@ -40,18 +40,18 @@ const FAILURES_LIMIT = 200;
 // State files we expect the cycle to update. Each is JSON-validated
 // before we exit so we never push corrupt data.
 const STATE_FILES = [
-  'src/data/outcomes.json',
-  'src/data/parse_metrics.json',
-  'src/data/threshold_state.json',
-  'src/data/position_state.json',
-  'src/data/grid_bot_state.json',
-  'src/data/grid_param_history.json',
-  'data/loop_progress.json',
+  "src/data/outcomes.json",
+  "src/data/parse_metrics.json",
+  "src/data/threshold_state.json",
+  "src/data/position_state.json",
+  "src/data/grid_bot_state.json",
+  "src/data/grid_param_history.json",
+  "data/loop_progress.json",
 ];
 
 function readJsonSafe(p) {
   try {
-    return JSON.parse(fs.readFileSync(p, 'utf-8'));
+    return JSON.parse(fs.readFileSync(p, "utf-8"));
   } catch {
     return null;
   }
@@ -59,7 +59,7 @@ function readJsonSafe(p) {
 
 function writeJson(p, obj) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
-  fs.writeFileSync(p, JSON.stringify(obj, null, 2) + '\n');
+  fs.writeFileSync(p, JSON.stringify(obj, null, 2) + "\n");
 }
 
 function appendHistory(entry) {
@@ -74,7 +74,8 @@ function appendFailure(entry) {
   const cur = readJsonSafe(FAILURES_PATH);
   const list = Array.isArray(cur) ? cur : [];
   list.push(entry);
-  if (list.length > FAILURES_LIMIT) list.splice(0, list.length - FAILURES_LIMIT);
+  if (list.length > FAILURES_LIMIT)
+    list.splice(0, list.length - FAILURES_LIMIT);
   writeJson(FAILURES_PATH, list);
 }
 
@@ -84,7 +85,7 @@ function validateStateFiles() {
     const abs = path.join(REPO_ROOT, rel);
     if (!fs.existsSync(abs)) continue; // missing = ok, may not have been created yet
     try {
-      JSON.parse(fs.readFileSync(abs, 'utf-8'));
+      JSON.parse(fs.readFileSync(abs, "utf-8"));
     } catch (e) {
       errors.push(`${rel}: ${(e?.message ?? String(e)).slice(0, 80)}`);
     }
@@ -118,21 +119,25 @@ async function main() {
     consensus: null,
     txHashes: [],
     ipfsCid: null,
-    mode: process.env.AGENT_RUN_MODE || 'unknown',
+    mode: process.env.AGENT_RUN_MODE || "unknown",
     githubRunUrl: process.env.GITHUB_RUN_URL || null,
     errors: [],
   };
 
   try {
-    const { runMultiAgentCycle } = require('../src/orchestrator/multiAgentLoop');
+    const {
+      runMultiAgentCycle,
+    } = require("../src/orchestrator/multiAgentLoop");
     const result = await runMultiAgentCycle({ dryRun: false });
 
     // After T4 patch, runMultiAgentCycle returns:
     //   { decision, decisionTier, disagreementSignal, consensus, proposalId,
     //     rwaIntent, rwaResult } for both dryRun and live paths.
-    summary.decisionId = typeof result?.proposalId === 'number' ? result.proposalId : null;
+    summary.decisionId =
+      typeof result?.proposalId === "number" ? result.proposalId : null;
     summary.decisionTier = result?.decisionTier ?? null;
-    summary.consensus = typeof result?.consensus === 'boolean' ? result.consensus : null;
+    summary.consensus =
+      typeof result?.consensus === "boolean" ? result.consensus : null;
 
     // RWA execution surface (rwa-allocation-active T10).
     if (result?.rwaIntent) {
@@ -184,9 +189,9 @@ async function main() {
 main().catch((e) => {
   // Never echo env. Print message + first stack frame only.
   const msg = e instanceof Error ? e.message : String(e);
-  console.error('Fatal in run-cycle.js:', msg.slice(0, 500));
+  console.error("Fatal in run-cycle.js:", msg.slice(0, 500));
   if (e instanceof Error && e.stack) {
-    console.error(e.stack.split('\n').slice(0, 5).join('\n'));
+    console.error(e.stack.split("\n").slice(0, 5).join("\n"));
   }
   process.exit(99);
 });

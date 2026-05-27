@@ -1,26 +1,29 @@
 /**
  * TuringVault Multi-Agent AI Engine
- * 
+ *
  * TWO independent AI agents with different roles:
- * 
+ *
  * 1. ANALYST AGENT (Claude Sonnet 4.6)
  *    - Analyzes market data
  *    - Proposes trading decisions
  *    - Optimistic by nature (seeks alpha)
- * 
+ *
  * 2. VALIDATOR AGENT (Claude Sonnet 4.6, different system prompt)
  *    - Receives the Analyst's proposal + same market data
  *    - Independently verifies reasoning
  *    - Checks for hallucinations, flawed logic, excessive risk
  *    - Conservative by nature (protects capital)
- * 
+ *
  * CONSENSUS: Both must agree before execution.
  * This solves the "single LLM hallucination" problem.
  */
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
-const { BedrockRuntimeClient, ConverseCommand } = require("@aws-sdk/client-bedrock-runtime");
+const {
+  BedrockRuntimeClient,
+  ConverseCommand,
+} = require("@aws-sdk/client-bedrock-runtime");
 const { validateDecision } = require("./validator");
 const { z } = require("zod");
 const {
@@ -37,8 +40,14 @@ const {
 // Reads outcome history and raises threshold after consecutive losses.
 // State is persisted to src/data/threshold_state.json so /api/health
 // can surface thresholdMode = 'base' | 'elevated' (T8).
-const OUTCOME_HISTORY_PATH = path.resolve(__dirname, "../../data/outcome_history.json");
-const THRESHOLD_STATE_PATH = path.resolve(__dirname, "../../src/data/threshold_state.json");
+const OUTCOME_HISTORY_PATH = path.resolve(
+  __dirname,
+  "../../data/outcome_history.json"
+);
+const THRESHOLD_STATE_PATH = path.resolve(
+  __dirname,
+  "../../src/data/threshold_state.json"
+);
 const CONSECUTIVE_LOSS_TRIGGER = 3;
 
 function persistThresholdState(consecutiveLosses, activeThreshold) {
@@ -47,13 +56,13 @@ function persistThresholdState(consecutiveLosses, activeThreshold) {
     const state = {
       consecutiveLosses,
       activeThreshold,
-      mode: elevated ? 'elevated' : 'base',
+      mode: elevated ? "elevated" : "base",
       triggeredAt: elevated ? new Date().toISOString() : null,
-      recoveryRule: '1 GOOD_CALL or CORRECT_BLOCK resets to base',
+      recoveryRule: "1 GOOD_CALL or CORRECT_BLOCK resets to base",
       updatedAt: new Date().toISOString(),
     };
     fs.mkdirSync(path.dirname(THRESHOLD_STATE_PATH), { recursive: true });
-    const tmp = THRESHOLD_STATE_PATH + '.tmp';
+    const tmp = THRESHOLD_STATE_PATH + ".tmp";
     fs.writeFileSync(tmp, JSON.stringify(state, null, 2));
     fs.renameSync(tmp, THRESHOLD_STATE_PATH);
   } catch {
@@ -69,7 +78,9 @@ function getDynamicConfidenceThreshold() {
     }
     const raw = fs.readFileSync(OUTCOME_HISTORY_PATH, "utf8");
     const history = JSON.parse(raw);
-    const outcomes = Array.isArray(history) ? history : (history.outcomes || history.decisions || []);
+    const outcomes = Array.isArray(history)
+      ? history
+      : history.outcomes || history.decisions || [];
 
     if (outcomes.length === 0) {
       persistThresholdState(0, BASE_CONFIDENCE_THRESHOLD);
@@ -79,7 +90,8 @@ function getDynamicConfidenceThreshold() {
     // Count consecutive losses from most recent
     let consecutiveLosses = 0;
     for (let i = outcomes.length - 1; i >= 0; i--) {
-      const pnl = outcomes[i].pnl ?? outcomes[i].profit ?? outcomes[i].realizedPnl ?? 0;
+      const pnl =
+        outcomes[i].pnl ?? outcomes[i].profit ?? outcomes[i].realizedPnl ?? 0;
       if (pnl < 0) {
         consecutiveLosses++;
       } else {
@@ -88,7 +100,9 @@ function getDynamicConfidenceThreshold() {
     }
 
     if (consecutiveLosses >= CONSECUTIVE_LOSS_TRIGGER) {
-      console.log(`  [RISK] ⚠️ ${consecutiveLosses} consecutive losses detected — raising confidence threshold to ${ELEVATED_CONFIDENCE_THRESHOLD} (from ${BASE_CONFIDENCE_THRESHOLD})`);
+      console.log(
+        `  [RISK] ⚠️ ${consecutiveLosses} consecutive losses detected — raising confidence threshold to ${ELEVATED_CONFIDENCE_THRESHOLD} (from ${BASE_CONFIDENCE_THRESHOLD})`
+      );
       persistThresholdState(consecutiveLosses, ELEVATED_CONFIDENCE_THRESHOLD);
       return ELEVATED_CONFIDENCE_THRESHOLD;
     }
@@ -96,7 +110,9 @@ function getDynamicConfidenceThreshold() {
     persistThresholdState(consecutiveLosses, BASE_CONFIDENCE_THRESHOLD);
     return BASE_CONFIDENCE_THRESHOLD;
   } catch (err) {
-    console.log(`  [RISK] Could not read outcome history: ${err.message} — using base threshold`);
+    console.log(
+      `  [RISK] Could not read outcome history: ${err.message} — using base threshold`
+    );
     persistThresholdState(0, BASE_CONFIDENCE_THRESHOLD);
     return BASE_CONFIDENCE_THRESHOLD;
   }
@@ -116,27 +132,30 @@ const AnalystSchema = z.object({
   confidence: z.number().min(0).max(1),
   reasoning: z.string().max(1000),
   riskFactors: z.array(z.string()).optional(),
-  expectedYield: z.string().optional()
+  expectedYield: z.string().optional(),
 });
 
 const client = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || "us-east-1",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-  }
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
 
 // === ANALYST AGENT ===
 // Dynamic prompt loading from IPFS (On-Chain Prompt Evolution)
 let _evolvedPrompts = null;
 async function getEvolvedPrompts() {
-  if (_evolvedPrompts !== undefined && _evolvedPrompts !== null) return _evolvedPrompts;
+  if (_evolvedPrompts !== undefined && _evolvedPrompts !== null)
+    return _evolvedPrompts;
   try {
     const { loadPromptFromIPFS } = require("../evolution/promptEvolution");
     _evolvedPrompts = await loadPromptFromIPFS();
     if (_evolvedPrompts) {
-      console.log(`  [EVOLUTION] Loaded evolved prompt v${_evolvedPrompts.version} from IPFS`);
+      console.log(
+        `  [EVOLUTION] Loaded evolved prompt v${_evolvedPrompts.version} from IPFS`
+      );
     }
   } catch (e) {
     _evolvedPrompts = null;
@@ -284,166 +303,193 @@ const ValidatorSchema = z.object({
   riskScore: z.number().min(0).max(100),
   reasoning: z.string(),
   flaggedIssues: z.array(z.string()),
-  recommendation: z.string()  // flexible — validator can be verbose
+  recommendation: z.string(), // flexible — validator can be verbose
 });
 
 // === FIELD NORMALIZERS ===
 // GLM-5 returns inconsistent field names. Map common variants to expected schema.
 function normalizeAnalystResponse(raw) {
-  if (!raw || typeof raw !== 'object') return raw;
+  if (!raw || typeof raw !== "object") return raw;
   const r = { ...raw };
-  
+
   // action — already consistent usually
   if (!r.action && r.decision) r.action = r.decision;
-  if (r.action) r.action = r.action.toLowerCase().replace(/[^a-z_]/g, '');
+  if (r.action) r.action = r.action.toLowerCase().replace(/[^a-z_]/g, "");
   // RWA-aware action vocabulary (rwa-allocation-active T7).
-  if (!['swap', 'hold', 'rwa_allocate', 'rwa_exit'].includes(r.action)) r.action = 'hold';
-  
+  if (!["swap", "hold", "rwa_allocate", "rwa_exit"].includes(r.action))
+    r.action = "hold";
+
   // direction
   if (!r.direction && r.market_direction) r.direction = r.market_direction;
   if (!r.direction && r.sentiment) r.direction = r.sentiment;
-  if (!r.direction) r.direction = 'neutral';
-  r.direction = r.direction.toLowerCase().replace(/ /g, '_');
-  if (!['risk_on', 'risk_off', 'neutral'].includes(r.direction)) {
-    if (r.direction.includes('bull') || r.direction.includes('risk_on')) r.direction = 'risk_on';
-    else if (r.direction.includes('bear') || r.direction.includes('risk_off')) r.direction = 'risk_off';
-    else r.direction = 'neutral';
+  if (!r.direction) r.direction = "neutral";
+  r.direction = r.direction.toLowerCase().replace(/ /g, "_");
+  if (!["risk_on", "risk_off", "neutral"].includes(r.direction)) {
+    if (r.direction.includes("bull") || r.direction.includes("risk_on"))
+      r.direction = "risk_on";
+    else if (r.direction.includes("bear") || r.direction.includes("risk_off"))
+      r.direction = "risk_off";
+    else r.direction = "neutral";
   }
-  
+
   // targetAsset (RWA-aware: mETH, mUSD, USDT, USDT0)
   if (!r.targetAsset && r.target_asset) r.targetAsset = r.target_asset;
   if (!r.targetAsset && r.target) r.targetAsset = r.target;
   if (!r.targetAsset && r.asset) r.targetAsset = r.asset;
   if (r.targetAsset) {
-    const t = String(r.targetAsset).toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (t.includes('meth')) r.targetAsset = 'mETH';
-    else if (t === 'eth') r.targetAsset = 'mETH';
-    else if (t === 'usdt0' || t.includes('usdt0')) r.targetAsset = 'USDT0';
-    else if (t === 'usdt') r.targetAsset = 'USDT';
-    else if (t.includes('musd')) r.targetAsset = 'mUSD';
-    else r.targetAsset = 'mUSD';
+    const t = String(r.targetAsset)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+    if (t.includes("meth")) r.targetAsset = "mETH";
+    else if (t === "eth") r.targetAsset = "mETH";
+    else if (t === "usdt0" || t.includes("usdt0")) r.targetAsset = "USDT0";
+    else if (t === "usdt") r.targetAsset = "USDT";
+    else if (t.includes("musd")) r.targetAsset = "mUSD";
+    else r.targetAsset = "mUSD";
   } else {
     // Default depends on action: rwa_allocate → USDT0, rwa_exit → USDT,
     // anything else → mUSD (legacy default).
-    if (r.action === 'rwa_allocate') r.targetAsset = 'USDT0';
-    else if (r.action === 'rwa_exit') r.targetAsset = 'USDT';
-    else r.targetAsset = 'mUSD';
+    if (r.action === "rwa_allocate") r.targetAsset = "USDT0";
+    else if (r.action === "rwa_exit") r.targetAsset = "USDT";
+    else r.targetAsset = "mUSD";
   }
-  
+
   // allocationPct
-  if (r.allocationPct === undefined && r.allocation_pct !== undefined) r.allocationPct = r.allocation_pct;
-  if (r.allocationPct === undefined && r.allocation !== undefined) r.allocationPct = r.allocation;
+  if (r.allocationPct === undefined && r.allocation_pct !== undefined)
+    r.allocationPct = r.allocation_pct;
+  if (r.allocationPct === undefined && r.allocation !== undefined)
+    r.allocationPct = r.allocation;
   if (r.allocationPct === undefined) r.allocationPct = 20;
   r.allocationPct = Number(r.allocationPct);
   if (r.allocationPct > 100) r.allocationPct = 100;
   if (r.allocationPct < 0) r.allocationPct = 0;
-  
+
   // confidence (R4: track which path produced the final value)
   if (r.confidence === undefined && r.conf !== undefined) r.confidence = r.conf;
-  let _confidencePath = 'native_unit';
+  let _confidencePath = "native_unit";
   r.confidence = Number(r.confidence);
   if (isNaN(r.confidence)) {
     r.confidence = DEFAULT_CONFIDENCE_FALLBACK;
-    _confidencePath = 'fallback_default';
+    _confidencePath = "fallback_default";
   }
   // If given as percentage (>1), convert to 0-1
   if (r.confidence > 1 && r.confidence <= 100) {
     r.confidence = r.confidence / 100;
-    _confidencePath = 'percent_scaled';
+    _confidencePath = "percent_scaled";
   }
   if (r.confidence > 1) r.confidence = 1;
   if (r.confidence < 0) r.confidence = 0;
   r._confidencePath = _confidencePath;
-  
+
   // reasoning
   if (!r.reasoning && r.reason) r.reasoning = r.reason;
   if (!r.reasoning && r.explanation) r.reasoning = r.explanation;
-  if (!r.reasoning) r.reasoning = 'Market analysis based on current conditions';
+  if (!r.reasoning) r.reasoning = "Market analysis based on current conditions";
   r.reasoning = String(r.reasoning).substring(0, 1000);
-  
+
   // riskFactors
   if (!r.riskFactors && r.risk_factors) r.riskFactors = r.risk_factors;
   if (!r.riskFactors && r.risks) r.riskFactors = r.risks;
-  if (typeof r.riskFactors === 'string') r.riskFactors = [r.riskFactors];
+  if (typeof r.riskFactors === "string") r.riskFactors = [r.riskFactors];
   if (!Array.isArray(r.riskFactors)) r.riskFactors = [];
-  
+
   return r;
 }
 
 function normalizeValidatorResponse(raw) {
-  if (!raw || typeof raw !== 'object') return raw;
+  if (!raw || typeof raw !== "object") return raw;
   const r = { ...raw };
-  
+
   // approved
-  if (r.approved === undefined && r.approve !== undefined) r.approved = r.approve;
-  if (typeof r.approved === 'string') r.approved = r.approved.toLowerCase() === 'true' || r.approved.toLowerCase() === 'yes';
+  if (r.approved === undefined && r.approve !== undefined)
+    r.approved = r.approve;
+  if (typeof r.approved === "string")
+    r.approved =
+      r.approved.toLowerCase() === "true" || r.approved.toLowerCase() === "yes";
   if (r.approved === undefined) r.approved = false;
-  
+
   // validatorConfidence (R4: track path)
-  if (r.validatorConfidence === undefined && r.validator_confidence !== undefined) r.validatorConfidence = r.validator_confidence;
-  if (r.validatorConfidence === undefined && r.confidence !== undefined) r.validatorConfidence = r.confidence;
-  let _confidencePath = 'native_unit';
+  if (
+    r.validatorConfidence === undefined &&
+    r.validator_confidence !== undefined
+  )
+    r.validatorConfidence = r.validator_confidence;
+  if (r.validatorConfidence === undefined && r.confidence !== undefined)
+    r.validatorConfidence = r.confidence;
+  let _confidencePath = "native_unit";
   r.validatorConfidence = Number(r.validatorConfidence);
   if (isNaN(r.validatorConfidence)) {
     r.validatorConfidence = DEFAULT_CONFIDENCE_FALLBACK;
-    _confidencePath = 'fallback_default';
+    _confidencePath = "fallback_default";
   }
   if (r.validatorConfidence > 1 && r.validatorConfidence <= 100) {
     r.validatorConfidence = r.validatorConfidence / 100;
-    _confidencePath = 'percent_scaled';
+    _confidencePath = "percent_scaled";
   }
   if (r.validatorConfidence > 1) r.validatorConfidence = 1;
   r._confidencePath = _confidencePath;
-  
+
   // riskScore
-  if (r.riskScore === undefined && r.risk_score !== undefined) r.riskScore = r.risk_score;
+  if (r.riskScore === undefined && r.risk_score !== undefined)
+    r.riskScore = r.risk_score;
   if (r.riskScore === undefined && r.risk !== undefined) r.riskScore = r.risk;
   r.riskScore = Number(r.riskScore);
   if (isNaN(r.riskScore)) r.riskScore = 50;
-  
+
   // reasoning
   if (!r.reasoning && r.reason) r.reasoning = r.reason;
   if (!r.reasoning && r.explanation) r.reasoning = r.explanation;
-  if (!r.reasoning) r.reasoning = 'Validation assessment';
-  
+  if (!r.reasoning) r.reasoning = "Validation assessment";
+
   // flaggedIssues
   if (!r.flaggedIssues && r.flagged_issues) r.flaggedIssues = r.flagged_issues;
   if (!r.flaggedIssues && r.issues) r.flaggedIssues = r.issues;
   if (!r.flaggedIssues && r.flags) r.flaggedIssues = r.flags;
-  if (typeof r.flaggedIssues === 'string') r.flaggedIssues = [r.flaggedIssues];
+  if (typeof r.flaggedIssues === "string") r.flaggedIssues = [r.flaggedIssues];
   if (!Array.isArray(r.flaggedIssues)) r.flaggedIssues = [];
-  
+
   // recommendation
   if (!r.recommendation && r.rec) r.recommendation = r.rec;
-  if (!r.recommendation) r.recommendation = r.approved ? 'Proceed with caution' : 'Hold position';
-  
+  if (!r.recommendation)
+    r.recommendation = r.approved ? "Proceed with caution" : "Hold position";
+
   return r;
 }
 
 // Model configuration — multi-model for diverse perspectives
 const MODELS = {
-  analyst: process.env.ANALYST_MODEL || "zai.glm-5",          // Z.ai GLM-5 (latest, hackathon partner)
+  analyst: process.env.ANALYST_MODEL || "zai.glm-5", // Z.ai GLM-5 (latest, hackathon partner)
   validator: process.env.VALIDATOR_MODEL || "us.anthropic.claude-sonnet-4-6", // Claude as independent validator
-  arbiter: "gemini-3.5-flash" // Google Gemini 3.5 Flash via Vertex AI (tiebreaker)
+  arbiter: "gemini-3.5-flash", // Google Gemini 3.5 Flash via Vertex AI (tiebreaker)
 };
 
 const { callGeminiArbiter } = require("./geminiArbiter");
 const { recordParseMetric, persistRawOutput } = require("./parseMetrics");
 
-async function callAgent(systemPrompt, userMessage, modelId, agentRole = 'unknown') {
+async function callAgent(
+  systemPrompt,
+  userMessage,
+  modelId,
+  agentRole = "unknown"
+) {
   const resolvedModelId = modelId || MODELS.analyst;
   const command = new ConverseCommand({
     modelId: resolvedModelId,
     system: [{ text: systemPrompt }],
     messages: [{ role: "user", content: [{ text: userMessage }] }],
-    inferenceConfig: { maxTokens: MAX_TOKENS_VALIDATOR, temperature: VALIDATOR_TEMPERATURE }
+    inferenceConfig: {
+      maxTokens: MAX_TOKENS_VALIDATOR,
+      temperature: VALIDATOR_TEMPERATURE,
+    },
   });
 
   const response = await client.send(command);
   const text = response.output.message.content[0].text;
 
   // R2: persist raw output for diagnostics (best-effort).
-  try { persistRawOutput(text, resolvedModelId, agentRole); } catch {}
+  try {
+    persistRawOutput(text, resolvedModelId, agentRole);
+  } catch {}
 
   // Extract JSON — handle markdown code blocks and raw JSON
   let jsonStr = text;
@@ -458,35 +504,43 @@ async function callAgent(systemPrompt, userMessage, modelId, agentRole = 'unknow
   // Try JSON parse first
   try {
     const parsed = JSON.parse(jsonStr);
-    recordParseMetric(agentRole, 'json_ok');
+    recordParseMetric(agentRole, "json_ok");
     return parsed;
   } catch (e) {
     // GLM-5 sometimes returns YAML-like format: "action: swap\nconfidence: 0.85"
     // Try to convert YAML-like key: value pairs to JSON
-    const lines = text.split('\n').filter(l => l.trim());
+    const lines = text.split("\n").filter((l) => l.trim());
     const obj = {};
     for (const line of lines) {
       const match = line.match(/^\s*"?(\w+)"?\s*:\s*(.+)$/);
       if (match) {
         let [, key, val] = match;
-        val = val.trim().replace(/,\s*$/, '');
+        val = val.trim().replace(/,\s*$/, "");
         // Parse value type
-        if (val === 'true') obj[key] = true;
-        else if (val === 'false') obj[key] = false;
-        else if (!isNaN(Number(val)) && val !== '') obj[key] = Number(val);
-        else if (val.startsWith('"') && val.endsWith('"')) obj[key] = val.slice(1, -1);
-        else if (val.startsWith('[')) {
-          try { obj[key] = JSON.parse(val); } catch { obj[key] = val; }
-        }
-        else obj[key] = val.replace(/^["']|["']$/g, '');
+        if (val === "true") obj[key] = true;
+        else if (val === "false") obj[key] = false;
+        else if (!isNaN(Number(val)) && val !== "") obj[key] = Number(val);
+        else if (val.startsWith('"') && val.endsWith('"'))
+          obj[key] = val.slice(1, -1);
+        else if (val.startsWith("[")) {
+          try {
+            obj[key] = JSON.parse(val);
+          } catch {
+            obj[key] = val;
+          }
+        } else obj[key] = val.replace(/^["']|["']$/g, "");
       }
     }
     if (Object.keys(obj).length >= 2) {
-      recordParseMetric(agentRole, 'yaml_ok');
-      console.log(`  [PARSE] Recovered YAML-like response from model (role=${agentRole}, ${Object.keys(obj).length} fields)`);
+      recordParseMetric(agentRole, "yaml_ok");
+      console.log(
+        `  [PARSE] Recovered YAML-like response from model (role=${agentRole}, ${
+          Object.keys(obj).length
+        } fields)`
+      );
       return obj;
     }
-    recordParseMetric(agentRole, 'failed');
+    recordParseMetric(agentRole, "failed");
     throw new Error(`Cannot parse model response: ${text.substring(0, 100)}`);
   }
 }
@@ -499,15 +553,17 @@ async function callAgent(systemPrompt, userMessage, modelId, agentRole = 'unknow
  */
 async function callValidatorWithRetry(systemPrompt, userMessage, modelId) {
   try {
-    return await callAgent(systemPrompt, userMessage, modelId, 'validator');
+    return await callAgent(systemPrompt, userMessage, modelId, "validator");
   } catch (e) {
-    console.log(`  [VALIDATOR-RETRY] First attempt failed: ${e.message?.slice(0, 60)}`);
+    console.log(
+      `  [VALIDATOR-RETRY] First attempt failed: ${e.message?.slice(0, 60)}`
+    );
     const stricter =
       systemPrompt +
-      '\n\n' +
-      'Your previous response was not valid JSON. Reply with ONLY a single ' +
-      'minified JSON object now. No markdown. No prose.';
-    return callAgent(stricter, userMessage, modelId, 'validator-retry');
+      "\n\n" +
+      "Your previous response was not valid JSON. Reply with ONLY a single " +
+      "minified JSON object now. No markdown. No prose.";
+    return callAgent(stricter, userMessage, modelId, "validator-retry");
   }
 }
 
@@ -517,7 +573,7 @@ async function callValidatorWithRetry(systemPrompt, userMessage, modelId) {
 // the analyst prompt loaded from IPFS is appended with FORMAT_GUARD_SUFFIX,
 // which is NOT subject to evolution — it re-asserts the JSON output contract
 // every cycle so model drift can't change the output shape.
-const EVOLVED_PROMPTS_ENABLED = process.env.EVOLVED_PROMPTS_ENABLED === 'true';
+const EVOLVED_PROMPTS_ENABLED = process.env.EVOLVED_PROMPTS_ENABLED === "true";
 const FORMAT_GUARD_SUFFIX = `
 
 === STRICT OUTPUT CONTRACT (immutable, do not deviate) ===
@@ -548,14 +604,20 @@ async function getMultiAgentDecision(marketData) {
   };
 
   // Use rich promptContext from unifiedMarketData if available, else build basic prompt
-  const marketPrompt = marketData.promptContext || `Current market data (${new Date().toISOString()}):
+  const marketPrompt =
+    marketData.promptContext ||
+    `Current market data (${new Date().toISOString()}):
 - ETH Price: $${md.ethPrice} (24h change: ${md.ethChange24h.toFixed(2)}%)
 - mETH Yield: ${md.mETHYield}% APY
 - Risk-Free Rate (USDY proxy): 4.5% APY
 - Yield Spread: ${(md.mETHYield - 4.5).toFixed(2)}%
 - Market Sentiment: ${md.sentiment} (Fear&Greed: ${md.fearGreedIndex}/100)
-- Nansen Smart Money: ${md.nansenSentiment} (24h flow: $${md.smartMoneyFlow.toLocaleString()})
-- Top Smart Money Buying: ${md.nansenTopBuying.map(t => t.symbol).join(", ") || "none"}
+- Nansen Smart Money: ${
+      md.nansenSentiment
+    } (24h flow: $${md.smartMoneyFlow.toLocaleString()})
+- Top Smart Money Buying: ${
+      md.nansenTopBuying.map((t) => t.symbol).join(", ") || "none"
+    }
 - Mantle TVL: $${((md.mantleTVL || 0) / 1e6).toFixed(0)}M
 - Pool Liquidity (mETH/mUSD): sufficient for <$50k swaps`;
 
@@ -569,44 +631,91 @@ async function getMultiAgentDecision(marketData) {
   const evolved = await getEvolvedPrompts();
   let activeAnalystPrompt = ANALYST_SYSTEM_PROMPT;
   const activeValidatorPrompt = VALIDATOR_SYSTEM_PROMPT;
-  let promptSource = 'static';
+  let promptSource = "static";
   if (EVOLVED_PROMPTS_ENABLED && evolved?.analyst) {
     activeAnalystPrompt = evolved.analyst + FORMAT_GUARD_SUFFIX;
-    promptSource = `evolved-v${evolved.version || '?'}`;
+    promptSource = `evolved-v${evolved.version || "?"}`;
     console.log(`  [EVOLUTION] Active analyst prompt: ${promptSource}`);
   } else if (evolved?.analyst) {
-    console.log(`  [EVOLUTION] Evolved v${evolved.version || '?'} available but disabled (EVOLVED_PROMPTS_ENABLED=false)`);
+    console.log(
+      `  [EVOLUTION] Evolved v${
+        evolved.version || "?"
+      } available but disabled (EVOLVED_PROMPTS_ENABLED=false)`
+    );
   }
-  
-  console.log(`  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`);
-  const analystRaw = await callAgent(activeAnalystPrompt, marketPrompt, MODELS.analyst, 'analyst');
-  
+
+  console.log(
+    `  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`
+  );
+  const analystRaw = await callAgent(
+    activeAnalystPrompt,
+    marketPrompt,
+    MODELS.analyst,
+    "analyst"
+  );
+
   // Normalize GLM-5 field names to match AnalystSchema
   const analystDecision = normalizeAnalystResponse(analystRaw);
   const analystValidated = AnalystSchema.safeParse(analystDecision);
-  
+
   if (!analystValidated.success) {
     return {
       consensus: false,
-      reason: "Analyst produced invalid output: " + analystValidated.error.message,
+      reason:
+        "Analyst produced invalid output: " + analystValidated.error.message,
       analyst: null,
       validator: null,
-      action: "hold"
+      action: "hold",
     };
   }
 
   // STEP 2: Validator independently assesses
   // Give Validator the RAW structured signals separately — so it can cross-check GLM-5's reasoning
-  const rawSignalsSummary = marketData.structuredSignals 
+  const rawSignalsSummary = marketData.structuredSignals
     ? `\nRAW STRUCTURED SIGNALS (verify Analyst's reasoning against these):
-- Regime: ${marketData.structuredSignals.regime?.regime} (${marketData.structuredSignals.regime?.confidence}% confidence) — ${marketData.structuredSignals.regime?.rationale}
+- Regime: ${marketData.structuredSignals.regime?.regime} (${
+        marketData.structuredSignals.regime?.confidence
+      }% confidence) — ${marketData.structuredSignals.regime?.rationale}
 - Signal consensus: ${marketData.structuredSignals.consensus}
-- Funding rate: ${marketData.structuredSignals.signals?.funding?.value?.toFixed(2) || 'n/a'}% annualised → ${marketData.structuredSignals.signals?.funding?.label} (strength ${marketData.structuredSignals.signals?.funding?.strength || 'n/a'})
-- Smart money flow: ${marketData.structuredSignals.signals?.onchainFlow?.direction || 'n/a'} $${((marketData.structuredSignals.signals?.onchainFlow?.netUsd || 0)/1e6).toFixed(1)}M → ${marketData.structuredSignals.signals?.onchainFlow?.label}
-- Yield spread: ${marketData.structuredSignals.signals?.yieldSpread?.spread?.toFixed(2) || 'n/a'}% → ${marketData.structuredSignals.signals?.yieldSpread?.label}
-- Liq risk: ${marketData.structuredSignals.signals?.liquidation?.riskType || 'n/a'}
-${marketData.structuredSignals.signals?.ranging ? `- RANGING GRID: action=${marketData.structuredSignals.signals.ranging.action} | channel=$${marketData.structuredSignals.signals.ranging.channel?.support}-$${marketData.structuredSignals.signals.ranging.channel?.resistance} | position=${(marketData.structuredSignals.signals.ranging.channel?.channelPosition * 100).toFixed(0)}% | confidence=${(marketData.structuredSignals.signals.ranging.confidence * 100).toFixed(0)}%` : ''}`
-    : '';
+- Funding rate: ${
+        marketData.structuredSignals.signals?.funding?.value?.toFixed(2) ||
+        "n/a"
+      }% annualised → ${
+        marketData.structuredSignals.signals?.funding?.label
+      } (strength ${
+        marketData.structuredSignals.signals?.funding?.strength || "n/a"
+      })
+- Smart money flow: ${
+        marketData.structuredSignals.signals?.onchainFlow?.direction || "n/a"
+      } $${(
+        (marketData.structuredSignals.signals?.onchainFlow?.netUsd || 0) / 1e6
+      ).toFixed(1)}M → ${
+        marketData.structuredSignals.signals?.onchainFlow?.label
+      }
+- Yield spread: ${
+        marketData.structuredSignals.signals?.yieldSpread?.spread?.toFixed(2) ||
+        "n/a"
+      }% → ${marketData.structuredSignals.signals?.yieldSpread?.label}
+- Liq risk: ${
+        marketData.structuredSignals.signals?.liquidation?.riskType || "n/a"
+      }
+${
+  marketData.structuredSignals.signals?.ranging
+    ? `- RANGING GRID: action=${
+        marketData.structuredSignals.signals.ranging.action
+      } | channel=$${
+        marketData.structuredSignals.signals.ranging.channel?.support
+      }-$${
+        marketData.structuredSignals.signals.ranging.channel?.resistance
+      } | position=${(
+        marketData.structuredSignals.signals.ranging.channel?.channelPosition *
+        100
+      ).toFixed(0)}% | confidence=${(
+        marketData.structuredSignals.signals.ranging.confidence * 100
+      ).toFixed(0)}%`
+    : ""
+}`
+    : "";
 
   const validatorPrompt = `${marketPrompt}${rawSignalsSummary}
 
@@ -620,18 +729,24 @@ ANALYST'S PROPOSAL TO VERIFY:
 
 Cross-check: does the Analyst's reasoning actually match the raw signals above? Is there a signal they ignored or misread?`;
 
-  console.log(`  [VALIDATOR] Verifying proposal... (model: ${MODELS.validator})`);
-  const validatorRaw = await callValidatorWithRetry(activeValidatorPrompt, validatorPrompt, MODELS.validator);
+  console.log(
+    `  [VALIDATOR] Verifying proposal... (model: ${MODELS.validator})`
+  );
+  const validatorRaw = await callValidatorWithRetry(
+    activeValidatorPrompt,
+    validatorPrompt,
+    MODELS.validator
+  );
   const validatorNorm = normalizeValidatorResponse(validatorRaw);
   const validatorResult = ValidatorSchema.safeParse(validatorNorm);
-  
+
   if (!validatorResult.success) {
     return {
       consensus: false,
       reason: "Validator produced invalid output",
       analyst: analystDecision,
       validator: null,
-      action: "hold"
+      action: "hold",
     };
   }
 
@@ -639,28 +754,42 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
 
   // STEP 3: Determine consensus (with dynamic confidence threshold)
   const confidenceThreshold = getDynamicConfidenceThreshold();
-  console.log(`  [THRESHOLD] Active confidence threshold: ${confidenceThreshold}`);
-  
-  const analystWantsAction = analystDecision.confidence >= confidenceThreshold && analystDecision.action !== "hold";
-  const validatorApproves = validator.approved
-    && validator.validatorConfidence >= (confidenceThreshold - VALIDATOR_TOLERANCE)
-    && validator.riskScore <= MAX_RISK_SCORE;
+  console.log(
+    `  [THRESHOLD] Active confidence threshold: ${confidenceThreshold}`
+  );
+
+  const analystWantsAction =
+    analystDecision.confidence >= confidenceThreshold &&
+    analystDecision.action !== "hold";
+  const validatorApproves =
+    validator.approved &&
+    validator.validatorConfidence >=
+      confidenceThreshold - VALIDATOR_TOLERANCE &&
+    validator.riskScore <= MAX_RISK_SCORE;
 
   let consensus = analystWantsAction && validatorApproves;
   let arbiterVote = null;
 
   // STEP 3b: ARBITER (3rd agent) — called when analyst and validator DISAGREE
   if (analystWantsAction !== validatorApproves) {
-    console.log(`  [ARBITER] Disagreement detected — calling arbiter (model: ${MODELS.arbiter})...`);
+    console.log(
+      `  [ARBITER] Disagreement detected — calling arbiter (model: ${MODELS.arbiter})...`
+    );
     const arbiterPrompt = `You are the ARBITER AGENT — a neutral tiebreaker in a multi-agent trading system.
 
-The ANALYST proposed: ${analystDecision.action} ${analystDecision.targetAsset} with ${(analystDecision.confidence * 100).toFixed(0)}% confidence.
+The ANALYST proposed: ${analystDecision.action} ${
+      analystDecision.targetAsset
+    } with ${(analystDecision.confidence * 100).toFixed(0)}% confidence.
 Analyst reasoning: "${analystDecision.reasoning}"
 
-The VALIDATOR ${validator.approved ? 'APPROVED' : 'REJECTED'} with ${(validator.validatorConfidence * 100).toFixed(0)}% confidence, risk=${validator.riskScore}.
+The VALIDATOR ${validator.approved ? "APPROVED" : "REJECTED"} with ${(
+      validator.validatorConfidence * 100
+    ).toFixed(0)}% confidence, risk=${validator.riskScore}.
 Validator reasoning: "${validator.reasoning}"
 
-Market context: ETH $${md.ethPrice}, 24h change ${md.ethChange24h.toFixed(2)}%, sentiment: ${md.sentiment}, Fear&Greed: ${md.fearGreedIndex}/100
+Market context: ETH $${md.ethPrice}, 24h change ${md.ethChange24h.toFixed(
+      2
+    )}%, sentiment: ${md.sentiment}, Fear&Greed: ${md.fearGreedIndex}/100
 
 YOUR TASK: Break the tie. Should this trade execute?
 Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1-sentence reasoning", "confidence": 0.0-1.0}`;
@@ -671,8 +800,12 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
         arbiterPrompt
       );
       arbiterVote = arbiterRaw;
-      console.log(`  [ARBITER] Vote: ${arbiterRaw.vote} (${(arbiterRaw.confidence * 100).toFixed(0)}% conf)`);
-      
+      console.log(
+        `  [ARBITER] Vote: ${arbiterRaw.vote} (${(
+          arbiterRaw.confidence * 100
+        ).toFixed(0)}% conf)`
+      );
+
       // 2/3 voting: analyst + arbiter approve = execute, or validator + arbiter reject = block
       if (arbiterRaw.vote === "approve" && analystWantsAction) {
         consensus = true; // analyst + arbiter = 2/3
@@ -680,25 +813,42 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
         consensus = false; // validator + arbiter = 2/3 reject
       }
     } catch (e) {
-      console.log(`  [ARBITER] Error: ${e.message} — defaulting to conservative (block)`);
+      console.log(
+        `  [ARBITER] Error: ${e.message} — defaulting to conservative (block)`
+      );
       consensus = false;
     }
   }
 
   return {
     consensus,
-    reason: consensus 
-      ? "Multi-agent consensus (2/3 or 3/3) — executing" 
-      : `Blocked: ${!validatorApproves ? "Validator rejected" : validator.riskScore > 60 ? "Risk too high" : "Confidence threshold not met"}${arbiterVote ? ` | Arbiter: ${arbiterVote.vote}` : ""}`,
+    reason: consensus
+      ? "Multi-agent consensus (2/3 or 3/3) — executing"
+      : `Blocked: ${
+          !validatorApproves
+            ? "Validator rejected"
+            : validator.riskScore > 60
+            ? "Risk too high"
+            : "Confidence threshold not met"
+        }${arbiterVote ? ` | Arbiter: ${arbiterVote.vote}` : ""}`,
     analyst: analystDecision,
     validator: validator,
     arbiter: arbiterVote,
     action: consensus ? analystDecision.action : "hold",
     targetAsset: analystDecision.targetAsset,
-    finalConfidence: Math.min(analystDecision.confidence, validator.validatorConfidence),
+    finalConfidence: Math.min(
+      analystDecision.confidence,
+      validator.validatorConfidence
+    ),
     _promptSource: promptSource,
     _activeThreshold: confidenceThreshold,
   };
 }
 
-module.exports = { getMultiAgentDecision, callAgent, normalizeAnalystResponse, normalizeValidatorResponse, getDynamicConfidenceThreshold };
+module.exports = {
+  getMultiAgentDecision,
+  callAgent,
+  normalizeAnalystResponse,
+  normalizeValidatorResponse,
+  getDynamicConfidenceThreshold,
+};

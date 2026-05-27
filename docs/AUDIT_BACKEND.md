@@ -10,6 +10,7 @@
 ## Executive Summary
 
 The backend orchestrator is well-structured with multiple layers of defense:
+
 - Zod schema validation on all AI outputs
 - Multi-agent consensus (2/3 voting) prevents single-point hallucination
 - Dynamic confidence thresholds that self-adjust after losses
@@ -38,11 +39,13 @@ No critical vulnerabilities found. Several medium/low findings below.
 **File:** `src/orchestrator/multiAgentLoop.js:14-17`  
 **Severity:** MEDIUM  
 **Description:**
+
 ```js
 const _env = require("dotenv").parse(require("fs").readFileSync(...));
 process.env.AWS_ACCESS_KEY_ID = _env.AWS_ACCESS_KEY_ID;
 process.env.AWS_SECRET_ACCESS_KEY = _env.AWS_SECRET_ACCESS_KEY;
 ```
+
 This force-overrides system env vars. If running on EC2 with IAM role, this breaks role-based auth and pins to static credentials. Also, reading the .env via `fs.readFileSync` is synchronous and could expose credentials in stack traces on error.
 
 **Recommendation:** Use AWS SDK's default credential chain. Remove force-override for production. Keep only for local dev with an explicit `if (process.env.NODE_ENV !== 'production')` guard.
@@ -54,9 +57,11 @@ This force-overrides system env vars. If running on EC2 with IAM role, this brea
 **File:** `src/execution/executionEngine.js:204`  
 **Severity:** MEDIUM (mitigated by dryRun default)  
 **Description:**
+
 ```js
 const output = execSync(`byreal-perps-cli ${command} -o json`, {...});
 ```
+
 The `command` variable is constructed from AI-derived values (`decision.analyst.targetAsset`, size, leverage). While the `_resolveAsset()` method maps to a fixed set, the `size` comes from `_calculateSize()` and the `leverage` from the decision object. If a malformed model response bypasses Zod validation (e.g. through the YAML fallback parser), arbitrary values could reach the shell.
 
 **Mitigation present:** `dryRun: true` by default.  
@@ -71,6 +76,7 @@ The `command` variable is constructed from AI-derived values (`decision.analyst.
 **Description:** The orchestrator fetches `currentNonce` once, then submits 4 sequential transactions with `nonce: currentNonce + 0/1/2/3`. If any external transaction from the same wallet lands between the nonce fetch and tx4, all subsequent txs will fail with "nonce too low". There's no retry logic.
 
 **Recommendation:** Either:
+
 - Use ethers.js managed nonces (remove explicit `{ nonce }`)
 - Add retry with nonce refresh on "nonce too low" errors
 - Use a NonceManager wrapper
@@ -93,11 +99,13 @@ The `command` variable is constructed from AI-derived values (`decision.analyst.
 **File:** Multiple files  
 **Severity:** LOW  
 **Description:** Contract addresses appear in:
+
 - `config.js` (partial set)
 - `multiAgentLoop.js` (REGISTRY, DECISION_LOG, REPUTATION, VALIDATION, IDENTITY)
 - `outcomeTracker.js` (REPUTATION hardcoded)
 
 Some are duplicated and could drift. `config.js` has different IDENTITY address than `multiAgentLoop.js`:
+
 - config.js: `0x582E6a649B99784829193E14bB7Af8c4A482E165`
 - multiAgentLoop.js: `0x6f862802e0d5463DF18d267e422347BeCacc28bD`
 
@@ -151,9 +159,11 @@ Some are duplicated and could drift. `config.js` has different IDENTITY address 
 **File:** `src/orchestrator/signalEngine.js:129`  
 **Severity:** INFO (likely runtime error silently caught)  
 **Description:**
+
 ```js
 rsi: parseFloat(ethSignal.rsi || 50),
 ```
+
 The variable `ethSignal` is only defined inside the `try` block at line 88-94, but `return` at line 124 references it outside that scope. If Byreal fails and Hyperliquid succeeds, `ethSignal` will be `undefined`.
 
 **Recommendation:** Initialize `let ethSignal = null;` at function scope and reference it safely.
@@ -165,9 +175,11 @@ The variable `ethSignal` is only defined inside the `try` block at line 88-94, b
 **File:** `src/orchestrator/multiAgentLoop.js:262`  
 **Severity:** INFO  
 **Description:**
+
 ```js
-const parkSignal = getIdleParkingSignal(signals?.regime?.regime || 'HOLD');
+const parkSignal = getIdleParkingSignal(signals?.regime?.regime || "HOLD");
 ```
+
 The variable `signals` is never defined in this scope. Should be `market.structuredSignals?.regime?.regime`. Currently caught by try/catch but produces incorrect idle parking behavior.
 
 ---
@@ -175,6 +187,7 @@ The variable `signals` is never defined in this scope. Should be `market.structu
 ## Architecture Assessment
 
 ### Strengths
+
 1. **Multi-agent consensus** — GLM-5 Analyst + Claude Validator + Gemini Arbiter. Three different providers, three different biases. Excellent hallucination defense.
 2. **Zod validation** — All AI outputs are schema-validated before acting on them.
 3. **Dynamic confidence threshold** — Self-adjusts after consecutive losses. Real risk management.
@@ -184,6 +197,7 @@ The variable `signals` is never defined in this scope. Should be `market.structu
 7. **Field normalizers** — Gracefully handles GLM-5's inconsistent output format.
 
 ### Weaknesses
+
 1. **No circuit breaker** — If all 3 agents hallucinate the same direction (e.g., during flash crash), there's no hard stop besides confidence threshold.
 2. **Single wallet** — One hot wallet for all operations. No multi-sig or time-lock.
 3. **No monitoring/alerting** — Console.log only. No metrics export, no PagerDuty, no Telegram alerts on errors.

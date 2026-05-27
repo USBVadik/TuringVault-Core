@@ -25,14 +25,17 @@ class OpenOceanDEX {
     const outAddr = ADDRESSES[tokenOut] || tokenOut;
     const amountStr = ethers.formatEther(amountIn);
 
-    const url = `${this.baseUrl}/swap_quote?` + new URLSearchParams({
-      inTokenAddress: inAddr,
-      outTokenAddress: outAddr,
-      amount: amountStr,
-      gasPrice: "0.02",
-      slippage: "1",
-      account: this.wallet?.address || "0x0000000000000000000000000000000000000000",
-    });
+    const url =
+      `${this.baseUrl}/swap_quote?` +
+      new URLSearchParams({
+        inTokenAddress: inAddr,
+        outTokenAddress: outAddr,
+        amount: amountStr,
+        gasPrice: "0.02",
+        slippage: "1",
+        account:
+          this.wallet?.address || "0x0000000000000000000000000000000000000000",
+      });
 
     const resp = await fetch(url);
     const data = await resp.json();
@@ -41,11 +44,13 @@ class OpenOceanDEX {
       return { viable: false, error: data.data?.error || "No route found" };
     }
 
-    const outAmount = parseFloat(data.data.outAmount) / (tokenOut === "USDT" ? 1e6 : 1e18);
+    const outAmount =
+      parseFloat(data.data.outAmount) / (tokenOut === "USDT" ? 1e6 : 1e18);
     const inAmount = parseFloat(amountStr);
 
     return {
-      tokenIn, tokenOut,
+      tokenIn,
+      tokenOut,
       amountIn: inAmount,
       estimatedOut: outAmount,
       price: outAmount / inAmount,
@@ -65,16 +70,25 @@ class OpenOceanDEX {
     }
 
     if (this.dryRun) {
-      return { ...quote, executed: false, reason: "DRY_RUN mode", wouldExecute: true };
+      return {
+        ...quote,
+        executed: false,
+        reason: "DRY_RUN mode",
+        wouldExecute: true,
+      };
     }
 
     // Auto-wrap MNT → WMNT if needed
     const inAddr = ADDRESSES[tokenIn] || tokenIn;
     if (tokenIn === "WMNT") {
-      const wmntContract = new ethers.Contract(ADDRESSES.WMNT, [
-        "function balanceOf(address) view returns (uint256)",
-        "function deposit() payable"
-      ], this.wallet);
+      const wmntContract = new ethers.Contract(
+        ADDRESSES.WMNT,
+        [
+          "function balanceOf(address) view returns (uint256)",
+          "function deposit() payable",
+        ],
+        this.wallet
+      );
       const wmntBal = await wmntContract.balanceOf(this.wallet.address);
       if (wmntBal < amountIn) {
         const deficit = amountIn - wmntBal;
@@ -86,25 +100,39 @@ class OpenOceanDEX {
     }
 
     // Approve
-    const tokenContract = new ethers.Contract(inAddr, [
-      "function approve(address,uint256) returns (bool)",
-      "function allowance(address,address) view returns (uint256)"
-    ], this.wallet);
+    const tokenContract = new ethers.Contract(
+      inAddr,
+      [
+        "function approve(address,uint256) returns (bool)",
+        "function allowance(address,address) view returns (uint256)",
+      ],
+      this.wallet
+    );
 
-    const allowance = await tokenContract.allowance(this.wallet.address, quote.routerAddress);
+    const allowance = await tokenContract.allowance(
+      this.wallet.address,
+      quote.routerAddress
+    );
     if (allowance < amountIn) {
       console.log(`   Approving ${tokenIn} to OpenOcean router...`);
-      const appTx = await tokenContract.approve(quote.routerAddress, ethers.MaxUint256);
+      const appTx = await tokenContract.approve(
+        quote.routerAddress,
+        ethers.MaxUint256
+      );
       await appTx.wait();
     }
 
     // Execute
-    console.log(`   Sending swap TX: ${quote.amountIn} ${tokenIn} → ${quote.estimatedOut.toFixed(6)} ${tokenOut}`);
+    console.log(
+      `   Sending swap TX: ${
+        quote.amountIn
+      } ${tokenIn} → ${quote.estimatedOut.toFixed(6)} ${tokenOut}`
+    );
     const tx = await this.wallet.sendTransaction({
       to: quote.routerAddress,
       data: quote.txData,
       value: quote.txValue || "0",
-      gasLimit: BigInt(quote.estimatedGas || 500000) * 2n
+      gasLimit: BigInt(quote.estimatedGas || 500000) * 2n,
     });
 
     const receipt = await tx.wait();
@@ -126,7 +154,11 @@ class OpenOceanDEX {
 
     for (const [symbol, tokenAddr] of Object.entries(ADDRESSES)) {
       const decimals = symbol === "USDT" ? 6 : 18;
-      const contract = new ethers.Contract(tokenAddr, ["function balanceOf(address) view returns (uint256)"], this.provider);
+      const contract = new ethers.Contract(
+        tokenAddr,
+        ["function balanceOf(address) view returns (uint256)"],
+        this.provider
+      );
       const bal = await contract.balanceOf(addr);
       balances[symbol] = parseFloat(ethers.formatUnits(bal, decimals));
     }

@@ -24,10 +24,10 @@
  * Performance: small fetch + setState; auto-scroll on update.
  */
 
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { RelativeTime } from '../lib/time';
+import { useState, useEffect, useRef } from "react";
+import { RelativeTime } from "../lib/time";
 
 type Decision = {
   id: number;
@@ -47,24 +47,32 @@ type Health = {
   mode?: string;
 };
 
-type LiveState = 'live' | 'idle' | 'offline';
+type LiveState = "live" | "idle" | "offline";
 
 function deriveLiveState(h: Health | null): LiveState {
-  if (!h || h.lastCycleAge == null) return 'offline';
-  if (h.lastCycleAge < 600) return 'live';
-  if (h.lastCycleAge < 3600) return 'idle';
-  return 'offline';
+  if (!h || h.lastCycleAge == null) return "offline";
+  if (h.lastCycleAge < 600) return "live";
+  if (h.lastCycleAge < 3600) return "idle";
+  return "offline";
 }
 
 function badgeFor(state: LiveState) {
   switch (state) {
-    case 'live':
-      return { dot: 'bg-green-400', label: 'LIVE', tone: 'text-green-400/80' };
-    case 'idle':
-      return { dot: 'bg-yellow-400', label: 'IDLE', tone: 'text-yellow-400/80' };
-    case 'offline':
+    case "live":
+      return { dot: "bg-green-400", label: "LIVE", tone: "text-green-400/80" };
+    case "idle":
+      return {
+        dot: "bg-yellow-400",
+        label: "IDLE",
+        tone: "text-yellow-400/80",
+      };
+    case "offline":
     default:
-      return { dot: 'bg-red-400', label: 'REPLAY · OFFLINE', tone: 'text-red-400/80' };
+      return {
+        dot: "bg-red-400",
+        label: "REPLAY · OFFLINE",
+        tone: "text-red-400/80",
+      };
   }
 }
 
@@ -81,23 +89,23 @@ function extractTier(reasoning: string | undefined): string | null {
 }
 
 function tierTone(tier: string | null): string {
-  if (!tier) return 'text-white/30';
-  if (tier === 'EXECUTED_SWAP') return 'text-green-400/80';
-  if (tier === 'BLOCKED_BY_VALIDATOR') return 'text-red-400/70';
-  if (tier === 'BLOCKED_BY_LOW_CONFIDENCE') return 'text-yellow-400/70';
-  if (tier === 'BLOCKED_BY_REGIME') return 'text-blue-400/70';
-  if (tier === 'BLOCKED_BY_PARSE_FAILURE') return 'text-orange-400/70';
-  return 'text-white/40';
+  if (!tier) return "text-white/30";
+  if (tier === "EXECUTED_SWAP") return "text-green-400/80";
+  if (tier === "BLOCKED_BY_VALIDATOR") return "text-red-400/70";
+  if (tier === "BLOCKED_BY_LOW_CONFIDENCE") return "text-yellow-400/70";
+  if (tier === "BLOCKED_BY_REGIME") return "text-blue-400/70";
+  if (tier === "BLOCKED_BY_PARSE_FAILURE") return "text-orange-400/70";
+  return "text-white/40";
 }
 
 function actionTone(action: string, approved: boolean): string {
-  if (action === 'swap' && approved) return 'text-green-400/90';
-  if (action === 'swap') return 'text-yellow-400/80';
-  return 'text-white/55';
+  if (action === "swap" && approved) return "text-green-400/90";
+  if (action === "swap") return "text-yellow-400/80";
+  return "text-white/55";
 }
 
 function shortHash(h: string | undefined): string {
-  if (!h) return '—';
+  if (!h) return "—";
   return `${h.slice(0, 10)}…${h.slice(-6)}`;
 }
 
@@ -115,13 +123,17 @@ export function LiveTerminal() {
     async function fetchAll() {
       try {
         const [dRes, hRes] = await Promise.all([
-          fetch('/api/decisions', { cache: 'no-store' }),
-          fetch('/api/health', { cache: 'no-store' }),
+          fetch("/api/decisions", { cache: "no-store" }),
+          fetch("/api/health", { cache: "no-store" }),
         ]);
         if (!cancelled) {
           if (dRes.ok) {
             const d = await dRes.json();
-            setDecisions(Array.isArray(d.decisions) ? d.decisions.slice(0, DECISION_LIMIT) : []);
+            setDecisions(
+              Array.isArray(d.decisions)
+                ? d.decisions.slice(0, DECISION_LIMIT)
+                : []
+            );
           } else {
             setError(`decisions ${dRes.status}`);
           }
@@ -131,7 +143,7 @@ export function LiveTerminal() {
         }
       } catch (e: unknown) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'fetch failed');
+          setError(e instanceof Error ? e.message : "fetch failed");
         }
       }
     }
@@ -167,35 +179,40 @@ export function LiveTerminal() {
         <div
           className="flex items-center gap-2 ml-auto"
           title={
-            liveState === 'live'
-              ? 'Last cycle within 10 minutes — streaming'
-              : liveState === 'idle'
-              ? 'Last cycle within 1 hour'
-              : 'Cron not running — showing historical decisions'
+            liveState === "live"
+              ? "Last cycle within 10 minutes — streaming"
+              : liveState === "idle"
+              ? "Last cycle within 1 hour"
+              : "Cron not running — showing historical decisions"
           }
         >
           <span className={`w-2 h-2 rounded-full ${badge.dot}`} />
-          <span className={`text-[9px] font-mono uppercase tracking-wider ${badge.tone}`}>
+          <span
+            className={`text-[9px] font-mono uppercase tracking-wider ${badge.tone}`}
+          >
             {badge.label}
           </span>
         </div>
       </div>
       <div ref={terminalRef} className="live-terminal-body">
         {/* Header: replay disclosure when not live */}
-        {liveState !== 'live' && (
+        {liveState !== "live" && (
           <div className="terminal-line text-yellow-300/60 mb-2">
-            ⚠ Replay: last cycle{' '}
+            ⚠ Replay: last cycle{" "}
             {health?.lastCycleTimestamp ? (
               <RelativeTime ts={health.lastCycleTimestamp} />
             ) : (
-              'unknown'
+              "unknown"
             )}
-            . Streaming feed paused. Decisions below are real, on-chain, historical.
+            . Streaming feed paused. Decisions below are real, on-chain,
+            historical.
           </div>
         )}
 
         {decisions == null && !error && (
-          <div className="terminal-line text-white/30">Loading on-chain decisions…</div>
+          <div className="terminal-line text-white/30">
+            Loading on-chain decisions…
+          </div>
         )}
 
         {error && (
@@ -205,30 +222,37 @@ export function LiveTerminal() {
         )}
 
         {decisions && decisions.length === 0 && (
-          <div className="terminal-line text-white/30">No decisions on-chain yet.</div>
+          <div className="terminal-line text-white/30">
+            No decisions on-chain yet.
+          </div>
         )}
 
         {decisions &&
           decisions.map((d, i) => {
             const tier = extractTier(d.reasoning ?? d.reasoningHash);
-            const approved = tier === 'EXECUTED_SWAP' || (d.action === 'swap');
-            const ts = new Date(d.timestamp * 1000).toISOString().slice(11, 19) + 'Z';
+            const approved = tier === "EXECUTED_SWAP" || d.action === "swap";
+            const ts =
+              new Date(d.timestamp * 1000).toISOString().slice(11, 19) + "Z";
             const conf = (d.confidence / 100).toFixed(1);
             return (
               <div key={`${d.id}-${i}`} className="terminal-line">
-                <span className="text-white/30 font-mono">[#{d.id.toString().padStart(3, '0')}]</span>{' '}
-                <span className="text-white/30 font-mono">{ts}</span>{' '}
+                <span className="text-white/30 font-mono">
+                  [#{d.id.toString().padStart(3, "0")}]
+                </span>{" "}
+                <span className="text-white/30 font-mono">{ts}</span>{" "}
                 {tier && (
-                  <span className={`font-mono ${tierTone(tier)}`}>[{tier}]</span>
-                )}{' '}
+                  <span className={`font-mono ${tierTone(tier)}`}>
+                    [{tier}]
+                  </span>
+                )}{" "}
                 <span className={actionTone(d.action, approved)}>
                   {d.action.toUpperCase()}
-                </span>{' '}
-                <span className="text-white/70">{d.targetAsset}</span>{' '}
+                </span>{" "}
+                <span className="text-white/70">{d.targetAsset}</span>{" "}
                 <span className="text-white/40 font-mono">conf={conf}%</span>
                 {d.txHash && (
                   <>
-                    {' '}
+                    {" "}
                     <a
                       href={`https://explorer.mantle.xyz/tx/${d.txHash}`}
                       target="_blank"
@@ -246,7 +270,8 @@ export function LiveTerminal() {
 
         {decisions && decisions.length > 0 && (
           <div className="terminal-line text-white/25 mt-2 text-[10px]">
-            ── showing last {decisions.length} of {decisions.length} on-chain decisions ──
+            ── showing last {decisions.length} of {decisions.length} on-chain
+            decisions ──
           </div>
         )}
 

@@ -25,18 +25,18 @@
  * tokenURI per cycle).
  */
 
-import { NextResponse } from 'next/server';
-import fs from 'node:fs';
-import path from 'node:path';
-import { createPublicClient, http } from 'viem';
-import { mantle } from 'viem/chains';
+import { NextResponse } from "next/server";
+import fs from "node:fs";
+import path from "node:path";
+import { createPublicClient, http } from "viem";
+import { mantle } from "viem/chains";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const NO_STORE: HeadersInit = { 'Cache-Control': 'no-store, max-age=0' };
+const NO_STORE: HeadersInit = { "Cache-Control": "no-store, max-age=0" };
 
-const IDENTITY_ADDR = '0x6f862802e0d5463DF18d267e422347BeCacc28bD' as const;
+const IDENTITY_ADDR = "0x6f862802e0d5463DF18d267e422347BeCacc28bD" as const;
 const AGENT_TOKEN_ID = BigInt(0);
 
 // Fetch budget — Vercel function runs on a tight clock.
@@ -48,7 +48,9 @@ type ModelEntry = { provider?: string; model?: string; role?: string };
 type AgentCardRaw = {
   name?: string;
   description?: string;
-  models?: { analyst?: ModelEntry; validator?: ModelEntry; arbiter?: ModelEntry } | ModelEntry[];
+  models?:
+    | { analyst?: ModelEntry; validator?: ModelEntry; arbiter?: ModelEntry }
+    | ModelEntry[];
   systemPrompt?: { version?: string; lastUpdated?: string };
   capabilities?: string[];
   contracts?: Record<string, string>;
@@ -57,8 +59,8 @@ type AgentCardRaw = {
 };
 
 type AgentCardResponse = {
-  status: 'ok' | 'degraded';
-  source: 'on-chain-tokenURI' | 'repo-snapshot' | 'none';
+  status: "ok" | "degraded";
+  source: "on-chain-tokenURI" | "repo-snapshot" | "none";
   ipfsCid: string | null;
   tokenURI: string | null;
   fetchedAt: string;
@@ -78,13 +80,13 @@ type AgentCardResponse = {
    * the live numbers live behind /api/decisions / /api/strategy.
    */
   cardStats: Record<string, unknown> | null;
-  cardStatsScope: 'card-author-declared';
+  cardStatsScope: "card-author-declared";
   error?: string;
 };
 
 function projectAgentCardPath(): string {
   // In `next dev` cwd is `frontend/`; the asset lives one level up.
-  return path.resolve(process.cwd(), '..', 'assets', 'agent-card.json');
+  return path.resolve(process.cwd(), "..", "assets", "agent-card.json");
 }
 
 function compactModel(entry: ModelEntry | undefined) {
@@ -96,9 +98,9 @@ function compactModel(entry: ModelEntry | undefined) {
 }
 
 /** Normalise the `models` field — schema allows either an object or an array. */
-function normaliseModels(raw: AgentCardRaw['models']) {
+function normaliseModels(raw: AgentCardRaw["models"]) {
   // Object shape: { analyst, validator, arbiter }
-  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
     return {
       analyst: compactModel(raw.analyst),
       validator: compactModel(raw.validator),
@@ -109,7 +111,7 @@ function normaliseModels(raw: AgentCardRaw['models']) {
   if (Array.isArray(raw)) {
     const byRole: Record<string, ModelEntry> = {};
     for (const m of raw) {
-      const role = (m.role ?? '').toLowerCase();
+      const role = (m.role ?? "").toLowerCase();
       if (role) byRole[role] = m;
     }
     return {
@@ -125,7 +127,7 @@ async function readLocalCard(): Promise<AgentCardRaw | null> {
   try {
     const filePath = projectAgentCardPath();
     if (!fs.existsSync(filePath)) return null;
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as AgentCardRaw;
+    return JSON.parse(fs.readFileSync(filePath, "utf-8")) as AgentCardRaw;
   } catch {
     return null;
   }
@@ -133,27 +135,30 @@ async function readLocalCard(): Promise<AgentCardRaw | null> {
 
 async function readTokenURI(): Promise<string | null> {
   try {
-    const client = createPublicClient({ chain: mantle, transport: http('https://rpc.mantle.xyz') });
+    const client = createPublicClient({
+      chain: mantle,
+      transport: http("https://rpc.mantle.xyz"),
+    });
     const uri = (await Promise.race([
       client.readContract({
         address: IDENTITY_ADDR,
         abi: [
           {
-            name: 'tokenURI',
-            type: 'function',
-            stateMutability: 'view',
-            inputs: [{ name: 'tokenId', type: 'uint256' }],
-            outputs: [{ name: '', type: 'string' }],
+            name: "tokenURI",
+            type: "function",
+            stateMutability: "view",
+            inputs: [{ name: "tokenId", type: "uint256" }],
+            outputs: [{ name: "", type: "string" }],
           },
         ],
-        functionName: 'tokenURI',
+        functionName: "tokenURI",
         args: [AGENT_TOKEN_ID],
       }),
       new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error('rpc-timeout')), ON_CHAIN_TIMEOUT_MS),
+        setTimeout(() => reject(new Error("rpc-timeout")), ON_CHAIN_TIMEOUT_MS)
       ),
     ])) as string;
-    return typeof uri === 'string' && uri.length > 0 ? uri : null;
+    return typeof uri === "string" && uri.length > 0 ? uri : null;
   } catch {
     return null;
   }
@@ -162,7 +167,8 @@ async function readTokenURI(): Promise<string | null> {
 function uriToCid(uri: string): string | null {
   // Accept ipfs://<cid>/maybe-path  or  raw <cid>  or  https://gateway/ipfs/<cid>
   if (!uri) return null;
-  if (uri.startsWith('ipfs://')) return uri.slice('ipfs://'.length).split('/')[0];
+  if (uri.startsWith("ipfs://"))
+    return uri.slice("ipfs://".length).split("/")[0];
   const gw = uri.match(/\/ipfs\/([^/?#]+)/);
   if (gw) return gw[1];
   // Fallback: assume raw CID
@@ -181,10 +187,12 @@ async function fetchFromIpfs(cid: string): Promise<{
   ];
   for (const gw of gateways) {
     try {
-      const res = await fetch(gw, { signal: AbortSignal.timeout(IPFS_FETCH_TIMEOUT_MS) });
+      const res = await fetch(gw, {
+        signal: AbortSignal.timeout(IPFS_FETCH_TIMEOUT_MS),
+      });
       if (!res.ok) continue;
       const data = (await res.json()) as AgentCardRaw;
-      if (data && typeof data === 'object') return { data, gateway: gw };
+      if (data && typeof data === "object") return { data, gateway: gw };
     } catch {
       /* try next gateway */
     }
@@ -194,8 +202,8 @@ async function fetchFromIpfs(cid: string): Promise<{
 
 function buildBody(args: {
   raw: AgentCardRaw | null;
-  status: AgentCardResponse['status'];
-  source: AgentCardResponse['source'];
+  status: AgentCardResponse["status"];
+  source: AgentCardResponse["source"];
   ipfsCid: string | null;
   tokenURI: string | null;
   gateway: string | null;
@@ -210,13 +218,13 @@ function buildBody(args: {
     fetchedAt: new Date().toISOString(),
     fetchedFromGateway: args.gateway,
     name: raw?.name ?? null,
-    description: typeof raw?.description === 'string' ? raw.description : null,
+    description: typeof raw?.description === "string" ? raw.description : null,
     models: normaliseModels(raw?.models),
     systemPromptVersion: raw?.systemPrompt?.version ?? null,
     systemPromptLastUpdated: raw?.systemPrompt?.lastUpdated ?? null,
     contracts: raw?.contracts ?? null,
     cardStats: (raw?.stats as Record<string, unknown>) ?? null,
-    cardStatsScope: 'card-author-declared',
+    cardStatsScope: "card-author-declared",
     ...(args.error ? { error: args.error } : {}),
   };
 }
@@ -232,13 +240,13 @@ export async function GET(): Promise<NextResponse> {
         return NextResponse.json(
           buildBody({
             raw: data,
-            status: 'ok',
-            source: 'on-chain-tokenURI',
+            status: "ok",
+            source: "on-chain-tokenURI",
             ipfsCid: cid,
             tokenURI,
             gateway,
           }),
-          { headers: NO_STORE },
+          { headers: NO_STORE }
         );
       }
       // tokenURI valid but IPFS unreachable — fall through to snapshot
@@ -251,17 +259,17 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json(
       buildBody({
         raw: local,
-        status: 'degraded',
-        source: 'repo-snapshot',
+        status: "degraded",
+        source: "repo-snapshot",
         ipfsCid: null,
         tokenURI: tokenURI ?? null,
         gateway: null,
         error:
           tokenURI == null
-            ? 'tokenURI unreadable; using repo snapshot'
-            : 'IPFS gateway unreachable; using repo snapshot',
+            ? "tokenURI unreadable; using repo snapshot"
+            : "IPFS gateway unreachable; using repo snapshot",
       }),
-      { headers: NO_STORE },
+      { headers: NO_STORE }
     );
   }
 
@@ -269,13 +277,13 @@ export async function GET(): Promise<NextResponse> {
   return NextResponse.json(
     buildBody({
       raw: null,
-      status: 'degraded',
-      source: 'none',
+      status: "degraded",
+      source: "none",
       ipfsCid: null,
       tokenURI: tokenURI ?? null,
       gateway: null,
-      error: 'agent card unreachable from both on-chain and snapshot',
+      error: "agent card unreachable from both on-chain and snapshot",
     }),
-    { headers: NO_STORE },
+    { headers: NO_STORE }
   );
 }

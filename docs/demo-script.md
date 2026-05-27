@@ -1,9 +1,10 @@
 # TuringVault Demo Script (2 min)
 
 ## Opening (0:00-0:15)
+
 **Screen:** Dashboard landing page with live stats
 
-> "TuringVault — autonomous AI trading agent on Mantle L2. 
+> "TuringVault — autonomous AI trading agent on Mantle L2.
 > Every decision on-chain. Every reasoning stored on IPFS. No human in the loop."
 
 **Highlight:** +1216 bps cumulative PnL, 93 decisions logged, 65.6% rejection rate
@@ -11,6 +12,7 @@
 ---
 
 ## Act 1: Decision Cycle (0:15-0:45)
+
 **Screen:** Terminal showing orchestrator running
 
 > "Watch a live decision cycle. Two AI agents debate every trade."
@@ -24,6 +26,7 @@
 ---
 
 ## Act 2: On-Chain Proof (0:45-1:15)
+
 **Screen:** Proof Explorer page
 
 > "Every decision hits Mantle L1 in real-time."
@@ -38,6 +41,7 @@
 ---
 
 ## Act 3: Self-Evolution (1:15-1:40)
+
 **Screen:** Dashboard evolution timeline
 
 > "After 5 bad calls, the agent rewrites its own strategy."
@@ -51,6 +55,7 @@
 ---
 
 ## Act 4: Performance (1:40-1:55)
+
 **Screen:** Performance/Backtest page with real equity curve
 
 > "37 settled trades. +12.16% cumulative. Max drawdown just 1.43%."
@@ -62,9 +67,10 @@ Show real equity curve — monotonically rising with small dips.
 ---
 
 ## Closing (1:55-2:00)
+
 **Screen:** Architecture diagram
 
-> "Multi-agent consensus. On-chain accountability. Self-evolving AI. 
+> "Multi-agent consensus. On-chain accountability. Self-evolving AI.
 > Built for the Mantle Turing Test."
 
 Show GitHub link + hackathon badge.

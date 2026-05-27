@@ -1,17 +1,18 @@
 /**
  * TuringVault — Performance Metrics Tracker
- * 
- * Tracks NAV snapshots, computes Sharpe ratio, max drawdown, 
+ *
+ * Tracks NAV snapshots, computes Sharpe ratio, max drawdown,
  * time-to-recovery. Persists to src/data/performance.json.
  */
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const DATA_PATH = path.resolve(__dirname, '../data/performance.json');
+const DATA_PATH = path.resolve(__dirname, "../data/performance.json");
 const RISK_FREE_RATE = 0.05; // 5% annualized (T-bill proxy)
 
 function loadData() {
-  if (fs.existsSync(DATA_PATH)) return JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
+  if (fs.existsSync(DATA_PATH))
+    return JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
   return { snapshots: [], metrics: {} };
 }
 
@@ -41,9 +42,10 @@ function recordSnapshot(navUsd, breakdown = {}) {
  * Compute all performance metrics from NAV history
  */
 function computeMetrics(snapshots) {
-  if (snapshots.length < 2) return { sharpe: 0, maxDrawdown: 0, recoveryHours: 0, totalReturn: 0 };
+  if (snapshots.length < 2)
+    return { sharpe: 0, maxDrawdown: 0, recoveryHours: 0, totalReturn: 0 };
 
-  const navs = snapshots.map(s => s.nav);
+  const navs = snapshots.map((s) => s.nav);
   const first = navs[0];
   const last = navs[navs.length - 1];
   const totalReturn = (last - first) / first;
@@ -56,14 +58,19 @@ function computeMetrics(snapshots) {
 
   // Sharpe ratio (annualized)
   const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
-  const stdDev = Math.sqrt(returns.reduce((sum, r) => sum + (r - avgReturn) ** 2, 0) / returns.length);
-  
+  const stdDev = Math.sqrt(
+    returns.reduce((sum, r) => sum + (r - avgReturn) ** 2, 0) / returns.length
+  );
+
   // Annualize based on snapshot frequency
-  const totalHours = (snapshots[snapshots.length - 1].timestamp - snapshots[0].timestamp) / 3600000;
-  const periodsPerYear = (8760 / (totalHours / snapshots.length)) || 1;
+  const totalHours =
+    (snapshots[snapshots.length - 1].timestamp - snapshots[0].timestamp) /
+    3600000;
+  const periodsPerYear = 8760 / (totalHours / snapshots.length) || 1;
   const annualizedReturn = avgReturn * periodsPerYear;
   const annualizedStd = stdDev * Math.sqrt(periodsPerYear);
-  const sharpe = annualizedStd > 0 ? (annualizedReturn - RISK_FREE_RATE) / annualizedStd : 0;
+  const sharpe =
+    annualizedStd > 0 ? (annualizedReturn - RISK_FREE_RATE) / annualizedStd : 0;
 
   // Max drawdown
   let peak = navs[0];
@@ -93,7 +100,7 @@ function computeMetrics(snapshots) {
   }
 
   // Win rate from returns
-  const wins = returns.filter(r => r > 0).length;
+  const wins = returns.filter((r) => r > 0).length;
   const winRate = returns.length > 0 ? wins / returns.length : 0;
 
   return {

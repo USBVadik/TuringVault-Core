@@ -17,9 +17,11 @@ Accountable AI RWA portfolio manager on Mantle. 3-model adversarial consensus + 
 ---
 
 ## Project name
+
 TuringVault
 
 ## Tagline
+
 Proof-of-Reasoning AI · RWA Portfolio Infrastructure on Mantle
 
 ## Tracks to claim (in order of priority)
@@ -27,7 +29,7 @@ Proof-of-Reasoning AI · RWA Portfolio Infrastructure on Mantle
 1. **AI x RWA Track — Path A (Infrastructure)** ← PRIMARY
 2. **20 Project Deployment Award** ← eligibility checked, see below
 3. **Best UI/UX Award** ← opt-in, honesty-first dashboard
-4. *(Grand Champion — mention as bonus, do not over-pitch)*
+4. _(Grand Champion — mention as bonus, do not over-pitch)_
 
 ---
 
@@ -47,7 +49,7 @@ The Mantle Turing Test 2026 brief calls out three defining features. We built th
 
 ### Why Path A (Infrastructure), not Path B (Application)
 
-The features above are *verification infrastructure*, not user-facing UX. Path A scoring (40%): "completeness of asset tokenization flow + innovation of technical approach". TuringVault is one of the rare submissions that ships every component end-to-end.
+The features above are _verification infrastructure_, not user-facing UX. Path A scoring (40%): "completeness of asset tokenization flow + innovation of technical approach". TuringVault is one of the rare submissions that ships every component end-to-end.
 
 ### Architecture
 
@@ -69,17 +71,17 @@ A single hourly cron drives the cycle:
 
 ### What's currently live
 
-| Component | State | Verifiable artefact |
-|---|---|---|
-| Multi-agent consensus | LIVE | 102+ on-chain TXs, public cron log |
-| ERC-8004 contracts | LIVE | 5 Sourcify-verified contracts on Mantle |
-| Discipline Layer | LIVE | `/discipline` page, 3 gates fire each cycle |
-| RWA execution to USDT0 | LIVE | TX `0x0af2336…` on Mantlescan |
-| Hourly cron | LIVE | GitHub Actions workflow, public log |
-| Elfa social attention | LIVE | `/api/elfa-snapshot` returns real V2 data |
-| Bybit Wallet integration | LIVE | RainbowKit `connectorsForWallets` config |
-| Self-evolving prompts | GATED | Implemented; default-off behind env flag while parse-rate smoke confirms ≥ 95% |
-| USDY allocation | PAPER | Module ships; pool dry on Mantle |
+| Component                | State | Verifiable artefact                                                            |
+| ------------------------ | ----- | ------------------------------------------------------------------------------ |
+| Multi-agent consensus    | LIVE  | 102+ on-chain TXs, public cron log                                             |
+| ERC-8004 contracts       | LIVE  | 5 Sourcify-verified contracts on Mantle                                        |
+| Discipline Layer         | LIVE  | `/discipline` page, 3 gates fire each cycle                                    |
+| RWA execution to USDT0   | LIVE  | TX `0x0af2336…` on Mantlescan                                                  |
+| Hourly cron              | LIVE  | GitHub Actions workflow, public log                                            |
+| Elfa social attention    | LIVE  | `/api/elfa-snapshot` returns real V2 data                                      |
+| Bybit Wallet integration | LIVE  | RainbowKit `connectorsForWallets` config                                       |
+| Self-evolving prompts    | GATED | Implemented; default-off behind env flag while parse-rate smoke confirms ≥ 95% |
+| USDY allocation          | PAPER | Module ships; pool dry on Mantle                                               |
 
 ### Why we will keep our claims after the submission deadline
 
@@ -101,23 +103,23 @@ Treat AI agents as accountable economic actors with on-chain identity, reputatio
 
 ## Key links to populate
 
-| Field | Value |
-|---|---|
-| GitHub | https://github.com/USBVadik/TuringVault-Core |
-| Live demo | https://frontend-seven-beta-46.vercel.app |
-| Mantle Mainnet explorer | https://explorer.mantle.xyz |
-| Identity NFT (ERC-8004) | https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD |
-| DecisionLog | https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5 |
-| ValidationRegistry | https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6 |
-| ReputationRegistry | https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a |
-| First RWA swap TX | https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de |
-| Hourly cron log | https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml |
-| `/discipline` page | https://frontend-seven-beta-46.vercel.app/discipline |
-| `/challenge` page | https://frontend-seven-beta-46.vercel.app/challenge |
-| `/proof-explorer` page | https://frontend-seven-beta-46.vercel.app/proof-explorer |
-| Elfa snapshot | https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH |
-| Pitch deck (PDF) | `docs/pitch-deck/turingvault-pitch.pdf` (in repo) |
-| Demo video | TBD — re-recording with Screen Studio at high quality |
+| Field                   | Value                                                                                        |
+| ----------------------- | -------------------------------------------------------------------------------------------- |
+| GitHub                  | https://github.com/USBVadik/TuringVault-Core                                                 |
+| Live demo               | https://frontend-seven-beta-46.vercel.app                                                    |
+| Mantle Mainnet explorer | https://explorer.mantle.xyz                                                                  |
+| Identity NFT (ERC-8004) | https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD               |
+| DecisionLog             | https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5               |
+| ValidationRegistry      | https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6               |
+| ReputationRegistry      | https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a               |
+| First RWA swap TX       | https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de |
+| Hourly cron log         | https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml               |
+| `/discipline` page      | https://frontend-seven-beta-46.vercel.app/discipline                                         |
+| `/challenge` page       | https://frontend-seven-beta-46.vercel.app/challenge                                          |
+| `/proof-explorer` page  | https://frontend-seven-beta-46.vercel.app/proof-explorer                                     |
+| Elfa snapshot           | https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH                       |
+| Pitch deck (PDF)        | `docs/pitch-deck/turingvault-pitch.pdf` (in repo)                                            |
+| Demo video              | TBD — re-recording with Screen Studio at high quality                                        |
 
 ## Stack tags
 
@@ -126,6 +128,7 @@ Treat AI agents as accountable economic actors with on-chain identity, reputatio
 ## Team
 
 USBVadik — solo developer.
+
 - ex-Synrail (autonomous-agent verification framework, also OSS at [github.com/USBVadik/synrail](https://github.com/USBVadik/synrail))
 - Twitter / X: [@a_seven_life](https://x.com/a_seven_life)
 - Email: vadik@nexus-shell.ai

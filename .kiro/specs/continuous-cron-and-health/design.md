@@ -2,13 +2,13 @@
 
 ## Decisions taken (closes open questions from requirements.md)
 
-| Q | Decision | Rationale |
-|---|---|---|
-| Q1 push target | **`main` directly.** | 24 Vercel builds/day < 100 free-tier ceiling; simplest data path; no separate ingest needed. |
-| Q2 commit `parse_metrics.json` | **Yes.** | Pure numeric counts, no sensitive content; required for `/api/health.parseSuccessRate24h`. |
-| Q3 commit `threshold_state.json` | **Yes.** | Required for `/api/health.thresholdMode`; small JSON, no secrets. |
-| Q4 per-cycle artifacts | **No (this spec).** | Adds complexity; raw outputs intentionally gitignored. Future spec if judges request. |
-| Q5 interval | **60 minutes.** | 840 GH min/mo vs. 2000 free tier; ~$108/mo Bedrock vs. $216; mascot stays 🟢 within the < 1h threshold. |
+| Q                                | Decision             | Rationale                                                                                               |
+| -------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------- |
+| Q1 push target                   | **`main` directly.** | 24 Vercel builds/day < 100 free-tier ceiling; simplest data path; no separate ingest needed.            |
+| Q2 commit `parse_metrics.json`   | **Yes.**             | Pure numeric counts, no sensitive content; required for `/api/health.parseSuccessRate24h`.              |
+| Q3 commit `threshold_state.json` | **Yes.**             | Required for `/api/health.thresholdMode`; small JSON, no secrets.                                       |
+| Q4 per-cycle artifacts           | **No (this spec).**  | Adds complexity; raw outputs intentionally gitignored. Future spec if judges request.                   |
+| Q5 interval                      | **60 minutes.**      | 840 GH min/mo vs. 2000 free tier; ~$108/mo Bedrock vs. $216; mascot stays 🟢 within the < 1h threshold. |
 
 ## Architecture
 
@@ -52,8 +52,8 @@ name: Agent Cycle
 
 on:
   schedule:
-    - cron: '0 * * * *'    # Every hour, UTC
-  workflow_dispatch:        # Manual trigger for debugging
+    - cron: "0 * * * *" # Every hour, UTC
+  workflow_dispatch: # Manual trigger for debugging
 
 # Prevent overlapping runs (in case a cycle is slow)
 concurrency:
@@ -61,13 +61,13 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write           # Required for git push back
+  contents: write # Required for git push back
 
 jobs:
   cycle:
     name: Run multi-agent cycle
     runs-on: ubuntu-latest
-    timeout-minutes: 8       # Hard ceiling; cycle itself has 5m timeout
+    timeout-minutes: 8 # Hard ceiling; cycle itself has 5m timeout
 
     env:
       AGENT_RUN_MODE: cron-github-actions
@@ -91,8 +91,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -160,6 +160,7 @@ jobs:
 ```
 
 Notes:
+
 - `concurrency.cancel-in-progress: false` so a slow cycle isn't aborted
   by the next hour's trigger; instead the new run waits.
 - `timeout-minutes: 8` on the job + `timeout 300` on the node call
@@ -185,30 +186,33 @@ Notes:
  * Spec: .kiro/specs/continuous-cron-and-health (R1, R3, R6)
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
-const HISTORY_PATH = path.resolve(__dirname, '../data/cycle-history.json');
-const SUMMARY_PATH = path.resolve(__dirname, '../data/last-cycle-summary.json');
-const FAILURES_PATH = path.resolve(__dirname, '../data/cycle-failures.json');
+const HISTORY_PATH = path.resolve(__dirname, "../data/cycle-history.json");
+const SUMMARY_PATH = path.resolve(__dirname, "../data/last-cycle-summary.json");
+const FAILURES_PATH = path.resolve(__dirname, "../data/cycle-failures.json");
 const HISTORY_LIMIT = 100;
 
 // State files we expect the cycle to update; we validate each is parseable.
 const STATE_FILES = [
-  'src/data/outcomes.json',
-  'src/data/parse_metrics.json',
-  'src/data/threshold_state.json',
-  'src/data/position_state.json',
-  'src/data/grid_bot_state.json',
-  'src/data/grid_param_history.json',
-  'data/loop_progress.json',
+  "src/data/outcomes.json",
+  "src/data/parse_metrics.json",
+  "src/data/threshold_state.json",
+  "src/data/position_state.json",
+  "src/data/grid_bot_state.json",
+  "src/data/grid_param_history.json",
+  "data/loop_progress.json",
 ];
 
 function readJsonSafe(p) {
-  try { return JSON.parse(fs.readFileSync(p, 'utf-8')); }
-  catch { return null; }
+  try {
+    return JSON.parse(fs.readFileSync(p, "utf-8"));
+  } catch {
+    return null;
+  }
 }
 
 function writeJson(p, obj) {
@@ -236,10 +240,13 @@ function appendFailure(entry) {
 function validateStateFiles() {
   const errors = [];
   for (const rel of STATE_FILES) {
-    const abs = path.resolve(__dirname, '..', rel);
+    const abs = path.resolve(__dirname, "..", rel);
     if (!fs.existsSync(abs)) continue; // missing = ok, may not have been created yet
-    try { JSON.parse(fs.readFileSync(abs, 'utf-8')); }
-    catch (e) { errors.push(`${rel}: ${e.message?.slice(0, 80)}`); }
+    try {
+      JSON.parse(fs.readFileSync(abs, "utf-8"));
+    } catch (e) {
+      errors.push(`${rel}: ${e.message?.slice(0, 80)}`);
+    }
   }
   return errors;
 }
@@ -256,19 +263,21 @@ async function main() {
     consensus: null,
     txHashes: [],
     ipfsCid: null,
-    mode: process.env.AGENT_RUN_MODE || 'unknown',
+    mode: process.env.AGENT_RUN_MODE || "unknown",
     githubRunUrl: process.env.GITHUB_RUN_URL || null,
     errors: [],
   };
 
   try {
-    const { runMultiAgentCycle } = require('../src/orchestrator/multiAgentLoop');
+    const {
+      runMultiAgentCycle,
+    } = require("../src/orchestrator/multiAgentLoop");
     const result = await runMultiAgentCycle({ dryRun: false });
 
     // runMultiAgentCycle currently returns the decision object on success.
     // In dryRun=false path it returns the multi-agent decision (not a richly-
     // typed summary), so we fish out what we can.
-    summary.decisionId = result?.proposalId ?? null;     // future-proofed
+    summary.decisionId = result?.proposalId ?? null; // future-proofed
     summary.decisionTier = result?.decisionTier ?? null;
     summary.consensus = result?.consensus ?? null;
     // tx hashes are written to ValidationRegistry/DecisionLog via the
@@ -311,12 +320,13 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.error('Fatal in run-cycle.js:', e);
+  console.error("Fatal in run-cycle.js:", e);
   process.exit(99);
 });
 ```
 
 Decisions:
+
 - **Cycle-level errors are soft (exit 0)** so the workflow still commits
   a summary that records the failure — keeps front-end honest about
   liveness.
@@ -337,7 +347,7 @@ return {
   decisionTier,
   disagreementSignal,
   consensus: decision.consensus,
-  proposalId: typeof proposalId === 'bigint' ? Number(proposalId) : proposalId,
+  proposalId: typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
 };
 ```
 
@@ -352,10 +362,13 @@ Frontend route `frontend/app/api/health/route.ts` gains three new reads:
 
 ```typescript
 // 1. lastCycleSummary — embed the file directly
-const summary = safeReadJson<unknown>(backendPath('data', 'last-cycle-summary.json'));
+const summary = safeReadJson<unknown>(
+  backendPath("data", "last-cycle-summary.json")
+);
 
 // 2. runHistory — last 5 entries from cycle-history.json
-const historyAll = safeReadJson<unknown[]>(backendPath('data', 'cycle-history.json')) ?? [];
+const historyAll =
+  safeReadJson<unknown[]>(backendPath("data", "cycle-history.json")) ?? [];
 const runHistory = historyAll.slice(-5).map((e) => ({
   cycleStartedAt: e.cycleStartedAt,
   decisionTier: e.decisionTier,
@@ -363,9 +376,13 @@ const runHistory = historyAll.slice(-5).map((e) => ({
 }));
 
 // 3. cyclesFailed24h — count of failures within last 24h
-const failures = safeReadJson<{ at: string }[]>(backendPath('data', 'cycle-failures.json')) ?? [];
+const failures =
+  safeReadJson<{ at: string }[]>(backendPath("data", "cycle-failures.json")) ??
+  [];
 const cutoffMs = Date.now() - 24 * 3600 * 1000;
-const cyclesFailed24h = failures.filter((f) => Date.parse(f.at) >= cutoffMs).length;
+const cyclesFailed24h = failures.filter(
+  (f) => Date.parse(f.at) >= cutoffMs
+).length;
 ```
 
 Add fields to `HealthResponse` type. No breaking changes — these are
@@ -435,16 +452,16 @@ UNCHANGED:
 
 ## Risks & mitigations
 
-| Risk | Mitigation |
-|---|---|
-| Vercel rebuild storm if cron lands on every hour exactly. | 24/day < 100/day free tier. Documented in NFR4. |
-| Push race when operator and cron commit at the same time. | `git pull --rebase --autostash` retry; cron commits are state-files-only so conflicts are rare. |
-| GH Actions cron drift (free-tier delays). | 60-min interval absorbs ≤ 30 min of drift before mascot turns 🟡. |
-| Bedrock rate-limit causes a series of soft failures. | Each cycle is independent; failures logged to `cycle-failures.json` and surfaced via `cyclesFailed24h`. |
-| Gemini service account key leaks. | Stored as GitHub secret (encrypted at rest), written to disk in CI only, removed before commit-back step, repo `.gitignore` already excludes `*.json` keys via the existing `.env*` rules — but we add `gemini-service-account.json` explicitly. |
-| Repo size growth. | Per-cycle commit ≤ 10 KB. Annual: ~85 MB. Acceptable for a hackathon project. Post-hackathon git-filter-repo cleans if needed. |
-| State-file write contention if a future spec adds a parallel cron. | Single `concurrency: agent-cycle` group blocks parallel runs. |
-| Bedrock spend forecast wrong. | Workflow runs visible in real-time; if a single cycle costs >$1, alert in cron-operations runbook to investigate. |
+| Risk                                                               | Mitigation                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Vercel rebuild storm if cron lands on every hour exactly.          | 24/day < 100/day free tier. Documented in NFR4.                                                                                                                                                                                                  |
+| Push race when operator and cron commit at the same time.          | `git pull --rebase --autostash` retry; cron commits are state-files-only so conflicts are rare.                                                                                                                                                  |
+| GH Actions cron drift (free-tier delays).                          | 60-min interval absorbs ≤ 30 min of drift before mascot turns 🟡.                                                                                                                                                                                |
+| Bedrock rate-limit causes a series of soft failures.               | Each cycle is independent; failures logged to `cycle-failures.json` and surfaced via `cyclesFailed24h`.                                                                                                                                          |
+| Gemini service account key leaks.                                  | Stored as GitHub secret (encrypted at rest), written to disk in CI only, removed before commit-back step, repo `.gitignore` already excludes `*.json` keys via the existing `.env*` rules — but we add `gemini-service-account.json` explicitly. |
+| Repo size growth.                                                  | Per-cycle commit ≤ 10 KB. Annual: ~85 MB. Acceptable for a hackathon project. Post-hackathon git-filter-repo cleans if needed.                                                                                                                   |
+| State-file write contention if a future spec adds a parallel cron. | Single `concurrency: agent-cycle` group blocks parallel runs.                                                                                                                                                                                    |
+| Bedrock spend forecast wrong.                                      | Workflow runs visible in real-time; if a single cycle costs >$1, alert in cron-operations runbook to investigate.                                                                                                                                |
 
 ## Test plan
 
@@ -464,6 +481,7 @@ UNCHANGED:
 ## Out of scope confirmation
 
 This spec does NOT:
+
 - Modify smart contracts.
 - Change agent decision logic.
 - Add new model providers.

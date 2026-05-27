@@ -36,7 +36,9 @@ async function main() {
 
   // 4. ValidationRegistry
   console.log("Deploying TuringVaultValidationRegistry...");
-  const Registry = await ethers.getContractFactory("TuringVaultValidationRegistry");
+  const Registry = await ethers.getContractFactory(
+    "TuringVaultValidationRegistry"
+  );
   const registry = await Registry.deploy(0, 1);
   await registry.waitForDeployment();
   const regAddr = await registry.getAddress();
@@ -67,4 +69,7 @@ async function main() {
   console.log(`Remaining: ${ethers.formatEther(finalBalance)} MNT`);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

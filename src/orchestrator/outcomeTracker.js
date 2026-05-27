@@ -22,27 +22,27 @@
  * Used by promptEvolution.selfReflect() to get REAL history instead of [].
  */
 
-const path = require('path');
-const fs = require('fs');
-const { ethers } = require('ethers');
+const path = require("path");
+const fs = require("fs");
+const { ethers } = require("ethers");
 
-const OUTCOMES_PATH = path.resolve(__dirname, '../data/outcomes.json');
+const OUTCOMES_PATH = path.resolve(__dirname, "../data/outcomes.json");
 const SETTLE_DELAY_MS = 1 * 60 * 60 * 1000; // 1 hour (ranging markets need faster feedback)
 const MIN_PRICE_MOVE_PCT = 0.1; // 0.1% threshold (was 0.3% — too strict for ranging/L2)
 
 const REPUTATION_ABI = [
-  'function recordPnL(uint256 agentId, int128 pnlBps, bytes32 reasoningHash) external',
-  'function getAgentScore(uint256 agentId) view returns (int256)',
-  'function getTotalFeedback(uint256 agentId) view returns (uint256)',
+  "function recordPnL(uint256 agentId, int128 pnlBps, bytes32 reasoningHash) external",
+  "function getAgentScore(uint256 agentId) view returns (int256)",
+  "function getTotalFeedback(uint256 agentId) view returns (uint256)",
 ];
 
 // Score deltas (basis points of reputation score)
 const SCORE = {
-  CORRECT_BLOCK:  +40,  // HOLD, price fell — firewall worked
-  MISSED_ALPHA:   -20,  // HOLD, price rose — too conservative
-  GOOD_CALL:      +60,  // SWAP approved, price moved in our favour
-  BAD_CALL:       -80,  // SWAP approved, price moved against us — serious
-  NEUTRAL:          0,  // <0.3% move — no signal
+  CORRECT_BLOCK: +40, // HOLD, price fell — firewall worked
+  MISSED_ALPHA: -20, // HOLD, price rose — too conservative
+  GOOD_CALL: +60, // SWAP approved, price moved in our favour
+  BAD_CALL: -80, // SWAP approved, price moved against us — serious
+  NEUTRAL: 0, // <0.3% move — no signal
 };
 
 // ─── DB helpers ────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ function loadDB() {
     return { schemaVersion: SCHEMA_VERSION, pending: [], settled: [] };
   }
   try {
-    const db = JSON.parse(fs.readFileSync(OUTCOMES_PATH, 'utf8'));
+    const db = JSON.parse(fs.readFileSync(OUTCOMES_PATH, "utf8"));
     // Tag pre-existing v1 files; migration script upgrades to v2.
     db.schemaVersion = db.schemaVersion ?? 1;
     db.pending = db.pending ?? [];
@@ -80,7 +80,7 @@ async function fetchEthPrice() {
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
     const res = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
       { signal: controller.signal }
     );
     const data = await res.json();
@@ -130,15 +130,25 @@ function record(params) {
   // Capture optional T9 v2 / agent-reasoning-quality fields verbatim
   // so we don't lose tier provenance on entries that pass them in.
   for (const k of [
-    'disciplineStatus', 'disciplineDetail', 'decisionTier', 'tierSource', 'confidencePath',
-    'promptSource', 'disagreementSignal', 'validatorReasoning',
-    'validatorFlaggedIssues', 'arbiterVote', 'arbiterReasoning',
+    "disciplineStatus",
+    "disciplineDetail",
+    "decisionTier",
+    "tierSource",
+    "confidencePath",
+    "promptSource",
+    "disagreementSignal",
+    "validatorReasoning",
+    "validatorFlaggedIssues",
+    "arbiterVote",
+    "arbiterReasoning",
   ]) {
     if (params[k] !== undefined) entry[k] = params[k];
   }
   db.pending.push(entry);
   saveDB(db);
-  console.log(`  [OUTCOME] Recorded decision ${entry.id} for settlement at ${entry.settleAfter}`);
+  console.log(
+    `  [OUTCOME] Recorded decision ${entry.id} for settlement at ${entry.settleAfter}`
+  );
   return entry;
 }
 
@@ -154,10 +164,12 @@ function record(params) {
 async function settle(opts = {}) {
   const db = loadDB();
   const now = Date.now();
-  const due = db.pending.filter(e => !e.settled && new Date(e.settleAfter).getTime() <= now);
+  const due = db.pending.filter(
+    (e) => !e.settled && new Date(e.settleAfter).getTime() <= now
+  );
 
   if (due.length === 0) {
-    console.log('  [OUTCOME] No pending decisions ready for settlement');
+    console.log("  [OUTCOME] No pending decisions ready for settlement");
     return [];
   }
 
@@ -165,11 +177,11 @@ async function settle(opts = {}) {
 
   const currentPrice = await fetchEthPrice();
   if (!currentPrice) {
-    console.log('  [OUTCOME] Could not fetch price — skipping settlement');
+    console.log("  [OUTCOME] Could not fetch price — skipping settlement");
     return [];
   }
 
-  const REPUTATION_ADDR = '0xC78119F3274B05046Ac7c38a14298a6cbD946e1a';
+  const REPUTATION_ADDR = "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a";
   const reputation = opts.wallet
     ? new ethers.Contract(REPUTATION_ADDR, REPUTATION_ABI, opts.wallet)
     : null;
@@ -191,22 +203,22 @@ async function settle(opts = {}) {
     let outcome, scoreDelta, pnlBps;
 
     if (absPct < MIN_PRICE_MOVE_PCT) {
-      outcome = 'NEUTRAL';
+      outcome = "NEUTRAL";
       scoreDelta = SCORE.NEUTRAL;
       pnlBps = 0;
     } else if (!entry.consensus) {
       // Decision was BLOCKED
       if (priceFell) {
-        outcome = 'CORRECT_BLOCK';
+        outcome = "CORRECT_BLOCK";
         scoreDelta = SCORE.CORRECT_BLOCK;
         // Saved capital: roughly |pricePct| * position (assume 30% of portfolio)
         pnlBps = Math.round(absPct * 100 * 0.3); // positive: avoided loss
       } else if (priceRose) {
-        outcome = 'MISSED_ALPHA';
+        outcome = "MISSED_ALPHA";
         scoreDelta = SCORE.MISSED_ALPHA;
         pnlBps = -Math.round(absPct * 100 * 0.3); // negative: opportunity cost
       } else {
-        outcome = 'NEUTRAL';
+        outcome = "NEUTRAL";
         scoreDelta = SCORE.NEUTRAL;
         pnlBps = 0;
       }
@@ -214,15 +226,16 @@ async function settle(opts = {}) {
       // Decision was APPROVED (swap executed)
       // For mETH: we want price to rise (risk-on)
       // For mUSD: we want price to fall (risk-off, defensive)
-      const targetedRise = entry.targetAsset === 'mETH';
-      const calledRight = (targetedRise && priceRose) || (!targetedRise && priceFell);
+      const targetedRise = entry.targetAsset === "mETH";
+      const calledRight =
+        (targetedRise && priceRose) || (!targetedRise && priceFell);
 
       if (calledRight) {
-        outcome = 'GOOD_CALL';
+        outcome = "GOOD_CALL";
         scoreDelta = SCORE.GOOD_CALL;
         pnlBps = Math.round(absPct * 100 * (entry.confidence || 0.5));
       } else {
-        outcome = 'BAD_CALL';
+        outcome = "BAD_CALL";
         scoreDelta = SCORE.BAD_CALL;
         pnlBps = -Math.round(absPct * 100 * (entry.confidence || 0.5));
       }
@@ -240,9 +253,13 @@ async function settle(opts = {}) {
     };
 
     console.log(
-      `  [OUTCOME] ${entry.id.slice(-12)} | ${entry.action}→${entry.targetAsset}` +
-      ` | consensus=${entry.consensus} | ETH ${pricePct >= 0 ? '+' : ''}${pricePct.toFixed(2)}%` +
-      ` | ${outcome} | score${scoreDelta >= 0 ? '+' : ''}${scoreDelta}`
+      `  [OUTCOME] ${entry.id.slice(-12)} | ${entry.action}→${
+        entry.targetAsset
+      }` +
+        ` | consensus=${entry.consensus} | ETH ${
+          pricePct >= 0 ? "+" : ""
+        }${pricePct.toFixed(2)}%` +
+        ` | ${outcome} | score${scoreDelta >= 0 ? "+" : ""}${scoreDelta}`
     );
 
     // Write on-chain (skip if dryRun or no wallet)
@@ -258,14 +275,18 @@ async function settle(opts = {}) {
         );
         await tx.wait();
         settled.onChainTx = tx.hash;
-        console.log(`  [OUTCOME] ✅ PnL recorded on-chain: ${tx.hash.slice(0, 18)}...`);
+        console.log(
+          `  [OUTCOME] ✅ PnL recorded on-chain: ${tx.hash.slice(0, 18)}...`
+        );
       } catch (e) {
-        console.log(`  [OUTCOME] ⚠️  On-chain PnL failed: ${e.message?.slice(0, 60)}`);
+        console.log(
+          `  [OUTCOME] ⚠️  On-chain PnL failed: ${e.message?.slice(0, 60)}`
+        );
       }
     }
 
     // Update DB
-    const idx = db.pending.findIndex(e => e.id === entry.id);
+    const idx = db.pending.findIndex((e) => e.id === entry.id);
     if (idx !== -1) db.pending.splice(idx, 1);
     db.settled.push(settled);
     results.push(settled);
@@ -290,10 +311,12 @@ function getOutcomeHistory(limit = 20) {
 
   // Summary stats
   const total = recent.length;
-  const correctBlocks = recent.filter(e => e.outcome === 'CORRECT_BLOCK').length;
-  const missedAlpha = recent.filter(e => e.outcome === 'MISSED_ALPHA').length;
-  const goodCalls = recent.filter(e => e.outcome === 'GOOD_CALL').length;
-  const badCalls = recent.filter(e => e.outcome === 'BAD_CALL').length;
+  const correctBlocks = recent.filter(
+    (e) => e.outcome === "CORRECT_BLOCK"
+  ).length;
+  const missedAlpha = recent.filter((e) => e.outcome === "MISSED_ALPHA").length;
+  const goodCalls = recent.filter((e) => e.outcome === "GOOD_CALL").length;
+  const badCalls = recent.filter((e) => e.outcome === "BAD_CALL").length;
   const totalPnlBps = recent.reduce((s, e) => s + (e.pnlBps || 0), 0);
 
   return {
@@ -304,12 +327,13 @@ function getOutcomeHistory(limit = 20) {
       goodCalls,
       badCalls,
       totalPnlBps,
-      accuracy: total > 0
-        ? (((correctBlocks + goodCalls) / total) * 100).toFixed(1) + '%'
-        : 'n/a',
+      accuracy:
+        total > 0
+          ? (((correctBlocks + goodCalls) / total) * 100).toFixed(1) + "%"
+          : "n/a",
     },
     // Formatted for LLM prompt injection
-    forPrompt: recent.map(e => ({
+    forPrompt: recent.map((e) => ({
       when: e.settledAt?.slice(0, 16),
       action: `${e.action}→${e.targetAsset}`,
       consensus: e.consensus,
@@ -326,7 +350,7 @@ function getOutcomeHistory(limit = 20) {
  */
 function getPendingCount() {
   const db = loadDB();
-  return db.pending.filter(e => !e.settled).length;
+  return db.pending.filter((e) => !e.settled).length;
 }
 
 /**
@@ -348,4 +372,10 @@ function getLastRwaSwapAt() {
   return latest;
 }
 
-module.exports = { record, settle, getOutcomeHistory, getPendingCount, getLastRwaSwapAt };
+module.exports = {
+  record,
+  settle,
+  getOutcomeHistory,
+  getPendingCount,
+  getLastRwaSwapAt,
+};

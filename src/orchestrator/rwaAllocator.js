@@ -20,17 +20,17 @@
  * Spec: rwa-allocation-active (R2, design §C3, CP1–CP4).
  */
 
-const { ethers } = require('ethers');
-const fs = require('fs');
-const path = require('path');
+const { ethers } = require("ethers");
+const fs = require("fs");
+const path = require("path");
 
-const limits = require('../config/rwaLimits');
-const { USDT0_ADDRESS } = require('../rwa/usdt0Module');
+const limits = require("../config/rwaLimits");
+const { USDT0_ADDRESS } = require("../rwa/usdt0Module");
 
 // Mantle USDT (legacy, Multichain bridge wrap of native USDT).
-const USDT_ADDRESS = '0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE';
+const USDT_ADDRESS = "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE";
 
-const OUTCOMES_PATH = path.resolve(__dirname, '../data/outcomes.json');
+const OUTCOMES_PATH = path.resolve(__dirname, "../data/outcomes.json");
 
 // ───────────────────────────────────────────────────────────────
 // Helpers
@@ -39,7 +39,7 @@ const OUTCOMES_PATH = path.resolve(__dirname, '../data/outcomes.json');
 function readOutcomesDb() {
   try {
     if (!fs.existsSync(OUTCOMES_PATH)) return null;
-    return JSON.parse(fs.readFileSync(OUTCOMES_PATH, 'utf-8'));
+    return JSON.parse(fs.readFileSync(OUTCOMES_PATH, "utf-8"));
   } catch {
     return null;
   }
@@ -59,7 +59,7 @@ function readDailySpendUsd(nowMs = Date.now(), db = readOutcomesDb()) {
   for (const e of all) {
     const ri = e?.rwaIntent;
     if (!ri || !ri.executed) continue;
-    const ts = Date.parse(e.recordedAt ?? e.settledAt ?? '');
+    const ts = Date.parse(e.recordedAt ?? e.settledAt ?? "");
     if (Number.isFinite(ts) && ts >= cutoff) {
       sum += Number(ri.amountInUsd ?? 0);
     }
@@ -88,7 +88,7 @@ function readLastRwaSwapAt(db = readOutcomesDb()) {
  * True if `posState.flatSince` is ≥ IDLE_PARKING_MIN_FLAT_MS old.
  */
 function flatLongEnough(posState, nowMs) {
-  if (!posState || posState.status !== 'FLAT') return false;
+  if (!posState || posState.status !== "FLAT") return false;
   if (!posState.flatSince) return false;
   const since = Date.parse(posState.flatSince);
   if (!Number.isFinite(since)) return false;
@@ -128,24 +128,30 @@ function buildIntent({ source, from, to, amountInUsd, prices, reason }) {
   const priceOut = prices?.[to] ?? 1;
 
   const amountInTokens = safeUsd / priceIn;
-  const amountInWei = ethers.parseUnits(amountInTokens.toFixed(DECIMALS), DECIMALS);
+  const amountInWei = ethers.parseUnits(
+    amountInTokens.toFixed(DECIMALS),
+    DECIMALS
+  );
 
   // Expected out (1:1 stables) minus slippage.
   const slip = (10000 - limits.DEFAULT_SLIPPAGE_BPS) / 10000;
   const amountOutTokens = (safeUsd / priceOut) * slip;
-  const amountOutMinWei = ethers.parseUnits(amountOutTokens.toFixed(DECIMALS), DECIMALS);
+  const amountOutMinWei = ethers.parseUnits(
+    amountOutTokens.toFixed(DECIMALS),
+    DECIMALS
+  );
 
   return {
-    source,                     // 'llm' | 'idle-parking'
-    from,                       // 'USDT' | 'USDT0' | 'mUSD'
+    source, // 'llm' | 'idle-parking'
+    from, // 'USDT' | 'USDT0' | 'mUSD'
     to,
-    fromAddress: from === 'USDT0' ? USDT0_ADDRESS : USDT_ADDRESS,
-    toAddress:   to   === 'USDT0' ? USDT0_ADDRESS : USDT_ADDRESS,
+    fromAddress: from === "USDT0" ? USDT0_ADDRESS : USDT_ADDRESS,
+    toAddress: to === "USDT0" ? USDT0_ADDRESS : USDT_ADDRESS,
     amountInUsd: safeUsd,
     amountInWei,
     amountOutMinWei,
     decimals: DECIMALS,
-    reason: String(reason || '').slice(0, 200),
+    reason: String(reason || "").slice(0, 200),
   };
 }
 
@@ -165,7 +171,8 @@ function buildIntent({ source, from, to, amountInUsd, prices, reason }) {
  * @returns {object|null}            — RWAIntent | RWASkip | null
  */
 function evaluate(args) {
-  const { decision, market, balances, prices, lastSwapAt, posState } = args || {};
+  const { decision, market, balances, prices, lastSwapAt, posState } =
+    args || {};
   const nowMs = args?.now ?? Date.now();
 
   if (!balances || !prices) return null;
@@ -178,75 +185,88 @@ function evaluate(args) {
     (balances.mUSD ?? 0) * (prices.mUSD ?? 1);
 
   // Hard floor: dust wallet → never touch RWA.
-  if (idleStableUsd < limits.MIN_BALANCE_USD &&
-      !(decision?.consensus && decision?.analyst?.action === 'rwa_exit')) {
-    return { skip: true, _gate: 'min-balance' };
+  if (
+    idleStableUsd < limits.MIN_BALANCE_USD &&
+    !(decision?.consensus && decision?.analyst?.action === "rwa_exit")
+  ) {
+    return { skip: true, _gate: "min-balance" };
   }
 
   // Daily ceiling (CP3).
   const dailySpend = readDailySpendUsd(nowMs);
   if (dailySpend >= limits.MAX_PER_DAY_USD) {
-    return { skip: true, _gate: 'daily-cap' };
+    return { skip: true, _gate: "daily-cap" };
   }
 
   const action = decision?.analyst?.action;
   const consensus = decision?.consensus === true;
 
   // ── Path A: LLM-driven ──────────────────────────────────────
-  if (consensus && action === 'rwa_allocate') {
+  if (consensus && action === "rwa_allocate") {
     const reason = `LLM allocate: ${
-      decision?.analyst?.reasoning?.slice(0, 140) || 'no reasoning'
+      decision?.analyst?.reasoning?.slice(0, 140) || "no reasoning"
     }`;
     return buildIntent({
-      source: 'llm',
-      from: 'USDT', to: 'USDT0',
-      amountInUsd: idleStableUsd,        // clamped to MAX_PER_CYCLE_USD inside
-      prices, reason,
+      source: "llm",
+      from: "USDT",
+      to: "USDT0",
+      amountInUsd: idleStableUsd, // clamped to MAX_PER_CYCLE_USD inside
+      prices,
+      reason,
     });
   }
 
-  if (consensus && action === 'rwa_exit') {
+  if (consensus && action === "rwa_exit") {
     const usdt0Usd = (balances.USDT0 ?? 0) * (prices.USDT0 ?? 1);
     if (usdt0Usd < limits.MIN_BALANCE_USD) {
-      return { skip: true, _gate: 'no-rwa-position-to-exit' };
+      return { skip: true, _gate: "no-rwa-position-to-exit" };
     }
     const reason = `LLM exit: ${
-      decision?.analyst?.reasoning?.slice(0, 140) || 'no reasoning'
+      decision?.analyst?.reasoning?.slice(0, 140) || "no reasoning"
     }`;
     return buildIntent({
-      source: 'llm',
-      from: 'USDT0', to: 'USDT',
-      amountInUsd: usdt0Usd,             // clamped inside
-      prices, reason,
+      source: "llm",
+      from: "USDT0",
+      to: "USDT",
+      amountInUsd: usdt0Usd, // clamped inside
+      prices,
+      reason,
     });
   }
 
   // ── Path B: deterministic idle-parking ──────────────────────
   // Only fires when LLM said HOLD AND wallet is idle.
-  const regime = market?.regime || market?.structuredSignals?.regime?.regime || null;
+  const regime =
+    market?.regime || market?.structuredSignals?.regime?.regime || null;
 
-  if (!consensus &&
-      posState?.status === 'FLAT' &&
-      regime !== 'TREND_UP' &&
-      flatLongEnough(posState, nowMs) &&
-      cooldownElapsed(lastSwapAt, nowMs)) {
-
+  if (
+    !consensus &&
+    posState?.status === "FLAT" &&
+    regime !== "TREND_UP" &&
+    flatLongEnough(posState, nowMs) &&
+    cooldownElapsed(lastSwapAt, nowMs)
+  ) {
     const parkUsd = idleStableUsd * limits.IDLE_PARKING_FRACTION;
     if (parkUsd < limits.MIN_BALANCE_USD) {
-      return { skip: true, _gate: 'park-too-small' };
+      return { skip: true, _gate: "park-too-small" };
     }
 
     const flatHours = posState.flatSince
       ? Math.floor((nowMs - Date.parse(posState.flatSince)) / 3600000)
-      : '?';
-    const reason = `Idle ${flatHours}h FLAT, regime=${regime || 'unknown'}, ` +
-      `parking ${(limits.IDLE_PARKING_FRACTION * 100).toFixed(0)}% of idle stables`;
+      : "?";
+    const reason =
+      `Idle ${flatHours}h FLAT, regime=${regime || "unknown"}, ` +
+      `parking ${(limits.IDLE_PARKING_FRACTION * 100).toFixed(
+        0
+      )}% of idle stables`;
 
     return buildIntent({
-      source: 'idle-parking',
-      from: 'USDT', to: 'USDT0',
+      source: "idle-parking",
+      from: "USDT",
+      to: "USDT0",
       amountInUsd: parkUsd,
-      prices, reason,
+      prices,
+      reason,
     });
   }
 

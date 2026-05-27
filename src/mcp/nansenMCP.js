@@ -1,10 +1,10 @@
 /**
  * TuringVault — Nansen MCP Client
- * 
+ *
  * Connects to Nansen's Model Context Protocol server for institutional-grade
  * blockchain intelligence. Provides Smart Money tracking, token analysis,
  * and wallet profiling via JSON-RPC 2.0 over Streamable HTTP (SSE).
- * 
+ *
  * Protocol: JSON-RPC 2.0 over Server-Sent Events
  * Endpoint: https://mcp.nansen.ai/ra/mcp
  * Auth: NANSEN-API-KEY header
@@ -41,8 +41,8 @@ class NansenMCPClient {
       method: "tools/call",
       params: {
         name: tool,
-        arguments: params
-      }
+        arguments: params,
+      },
     };
 
     try {
@@ -50,27 +50,29 @@ class NansenMCPClient {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json, text/event-stream",
-          "NANSEN-API-KEY": this.apiKey
+          Accept: "application/json, text/event-stream",
+          "NANSEN-API-KEY": this.apiKey,
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
         const errText = await response.text().catch(() => "");
-        throw new Error(`Nansen MCP HTTP ${response.status}: ${errText.slice(0, 200)}`);
+        throw new Error(
+          `Nansen MCP HTTP ${response.status}: ${errText.slice(0, 200)}`
+        );
       }
 
       // Handle SSE or direct JSON response
       const contentType = response.headers.get("content-type") || "";
-      
+
       if (contentType.includes("text/event-stream")) {
         return await this._parseSSE(response, cacheKey);
       } else {
         const json = await response.json();
         if (json.error) throw new Error(`MCP error: ${json.error.message}`);
-        const result = json.result?.content?.[0]?.text 
-          ? JSON.parse(json.result.content[0].text) 
+        const result = json.result?.content?.[0]?.text
+          ? JSON.parse(json.result.content[0].text)
           : json.result;
         this.cache.set(cacheKey, { data: result, ts: Date.now() });
         return result;
@@ -85,7 +87,7 @@ class NansenMCPClient {
     const text = await response.text();
     const lines = text.split("\n");
     let lastData = null;
-    
+
     for (const line of lines) {
       if (line.startsWith("data: ")) {
         try {
@@ -102,7 +104,10 @@ class NansenMCPClient {
       } catch {}
     }
 
-    this.cache.set(cacheKey, { data: lastData?.result || lastData, ts: Date.now() });
+    this.cache.set(cacheKey, {
+      data: lastData?.result || lastData,
+      ts: Date.now(),
+    });
     return lastData?.result || lastData;
   }
 
@@ -122,8 +127,8 @@ class NansenMCPClient {
         orderByDirection: params.orderByDirection || "DESC",
         minHolders: params.minHolders || 2,
         page: params.page || 1,
-        ...params.request
-      }
+        ...params.request,
+      },
     });
   }
 
@@ -136,8 +141,8 @@ class NansenMCPClient {
       request: {
         order_by: "valueUsd",
         order_by_direction: "desc",
-        ...params
-      }
+        ...params,
+      },
     });
   }
 
@@ -150,21 +155,21 @@ class NansenMCPClient {
       request: {
         tokenAddress,
         chain,
-        labelType: "top_100_holders"
-      }
+        labelType: "top_100_holders",
+      },
     });
   }
 
   /**
    * DEX trading activity for a token
-   * Credits: 5 per call  
+   * Credits: 5 per call
    */
   async getTokenDexTrades(tokenAddress, chain = "ethereum") {
     return this.callTool("token_dex_trades", {
       request: {
         tokenAddress,
-        chain
-      }
+        chain,
+      },
     });
   }
 
@@ -185,8 +190,8 @@ class NansenMCPClient {
       request: {
         walletAddress: address,
         dateRange: { from: "30D_AGO", to: "NOW" },
-        chain
-      }
+        chain,
+      },
     });
   }
 
@@ -199,8 +204,8 @@ class NansenMCPClient {
       request: {
         walletAddress: address,
         chain,
-        mode: "fast-mode-default"
-      }
+        mode: "fast-mode-default",
+      },
     });
   }
 
@@ -212,8 +217,8 @@ class NansenMCPClient {
     return this.callTool("token_god_mode", {
       request: {
         tokenAddress,
-        chain
-      }
+        chain,
+      },
     });
   }
 
@@ -235,33 +240,40 @@ class NansenMCPClient {
     // Check 1-hour cache to save credits (1000 credits budget, 10/call)
     const cacheKey = "_smartMoneyContext";
     const cached = this.cache.get(cacheKey);
-    if (cached && Date.now() - cached.ts < 3600000) { // 1 hour
+    if (cached && Date.now() - cached.ts < 3600000) {
+      // 1 hour
       return cached.data;
     }
 
     const [balances, perpTrades] = await Promise.all([
       this.getSmartMoneyBalances({ chains: ["ethereum", "mantle"] }),
-      this.getSmartMoneyPerpTrades({})
+      this.getSmartMoneyPerpTrades({}),
     ]);
 
     let context = "=== NANSEN SMART MONEY INTELLIGENCE ===\n";
-    
+
     if (balances) {
       context += "\n[Smart Money Token Holdings - 24h Changes]\n";
-      context += typeof balances === "string" ? balances : JSON.stringify(balances, null, 2).slice(0, 2000);
+      context +=
+        typeof balances === "string"
+          ? balances
+          : JSON.stringify(balances, null, 2).slice(0, 2000);
     }
-    
+
     if (perpTrades) {
       context += "\n\n[Smart Money Perpetual Positions (Hyperliquid)]\n";
-      context += typeof perpTrades === "string" ? perpTrades : JSON.stringify(perpTrades, null, 2).slice(0, 2000);
+      context +=
+        typeof perpTrades === "string"
+          ? perpTrades
+          : JSON.stringify(perpTrades, null, 2).slice(0, 2000);
     }
 
     if (!balances && !perpTrades) {
       context += "\n[Smart Money data unavailable — using fallback sources]\n";
     }
-    
+
     context += "\n=== END NANSEN DATA ===";
-    
+
     this.cache.set(cacheKey, { data: context, ts: Date.now() });
     return context;
   }
@@ -274,17 +286,17 @@ class NansenMCPClient {
       jsonrpc: "2.0",
       id: ++this.requestId,
       method: "tools/list",
-      params: {}
+      params: {},
     };
 
     const response = await fetch(this.endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Accept": "application/json, text/event-stream",
-        "NANSEN-API-KEY": this.apiKey
+        Accept: "application/json, text/event-stream",
+        "NANSEN-API-KEY": this.apiKey,
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     const contentType = response.headers.get("content-type") || "";
@@ -293,7 +305,9 @@ class NansenMCPClient {
       const lines = text.split("\n");
       for (const line of lines) {
         if (line.startsWith("data: ")) {
-          try { return JSON.parse(line.slice(6)); } catch {}
+          try {
+            return JSON.parse(line.slice(6));
+          } catch {}
         }
       }
     }

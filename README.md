@@ -12,16 +12,16 @@ We ship the **three defining features** the Mantle hackathon brief calls out —
 
 Every claim below points to an artefact you can open without our help.
 
-| # | Claim | Open this |
-|---|---|---|
-| 1 | **Live multi-agent decisions on Mantle Mainnet** | [DecisionLog contract](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) — scroll the events tab; every cycle writes a hashed reasoning anchor |
-| 2 | **ERC-8004 reference identity** with auto-updating tokenURI | [Identity NFT](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) — `tokenURI(0)` returns the live IPFS CID; resolves to current agent card |
-| 3 | **Adversarial validation gate working** (rejects unsafe proposals) | [ValidationRegistry](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) — totalRejected / totalApproved are public on-chain counters |
-| 4 | **Real RWA execution** — first tokenized-Treasury swap | [TX 0x0af2336…3e09de](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2 |
-| 5 | **Autonomous cron is observable** (not a screenshot) | [Agent Cycle workflow runs](https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml) — public GitHub Actions log, every hour, every step |
-| 6 | **Live social signal from Elfa V2** as 5th structured input | [`/api/elfa-snapshot`](https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH) (raw JSON) · [/social drill-down](https://frontend-seven-beta-46.vercel.app/social) (multi-ticker UI) |
-| 7 | **Discipline Layer** post-execution proof verification | [/discipline page](https://frontend-seven-beta-46.vercel.app/discipline) — 3-gate history (TX proof · price freshness · regime drift) |
-| 8 | **Adversarial challenge arena** (probe the agent yourself) | [/challenge page](https://frontend-seven-beta-46.vercel.app/challenge) — inject 4 attack vectors, watch the same multi-agent pipeline reason through them |
+| #   | Claim                                                              | Open this                                                                                                                                                                                            |
+| --- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Live multi-agent decisions on Mantle Mainnet**                   | [DecisionLog contract](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) — scroll the events tab; every cycle writes a hashed reasoning anchor                         |
+| 2   | **ERC-8004 reference identity** with auto-updating tokenURI        | [Identity NFT](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) — `tokenURI(0)` returns the live IPFS CID; resolves to current agent card                             |
+| 3   | **Adversarial validation gate working** (rejects unsafe proposals) | [ValidationRegistry](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) — totalRejected / totalApproved are public on-chain counters                                    |
+| 4   | **Real RWA execution** — first tokenized-Treasury swap             | [TX 0x0af2336…3e09de](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2                                                          |
+| 5   | **Autonomous cron is observable** (not a screenshot)               | [Agent Cycle workflow runs](https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml) — public GitHub Actions log, every hour, every step                                      |
+| 6   | **Live social signal from Elfa V2** as 5th structured input        | [`/api/elfa-snapshot`](https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH) (raw JSON) · [/social drill-down](https://frontend-seven-beta-46.vercel.app/social) (multi-ticker UI) |
+| 7   | **Discipline Layer** post-execution proof verification             | [/discipline page](https://frontend-seven-beta-46.vercel.app/discipline) — 3-gate history (TX proof · price freshness · regime drift)                                                                |
+| 8   | **Adversarial challenge arena** (probe the agent yourself)         | [/challenge page](https://frontend-seven-beta-46.vercel.app/challenge) — inject 4 attack vectors, watch the same multi-agent pipeline reason through them                                            |
 
 > Honesty rule: every numeric stat in the dashboard traces to a contract read or a settled outcome. The workspace enforces this as a steering rule in [`.kiro/steering/no-lying-about-state.md`](.kiro/steering/no-lying-about-state.md).
 
@@ -45,6 +45,7 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
 **Stats (live, on-chain — verified via contract calls):**
+
 - **104+ autonomous decisions** logged to Mantle Mainnet with full reasoning
 - **61% rejection rate** — Validator blocks ~2 out of 3 proposals (capital protection)
 - **40 approved, 64 rejected** — adversarial consensus working as designed
@@ -60,8 +61,8 @@ No other DeFi project puts AI reasoning on-chain as a first-class primitive.
 
 ```
 Traditional AI Agent:          TuringVault:
-                               
-User → Deposit → ???           User → Deposit → AI Reasons → 
+
+User → Deposit → ???           User → Deposit → AI Reasons →
      → Profit/Loss                  → Proof stored on IPFS
      → No explanation               → Hash anchored on Mantle
                                     → Multi-agent validation
@@ -128,13 +129,13 @@ Every decision creates an immutable record: what data the AI observed, what conc
 
 All contracts verified on Sourcify:
 
-| Contract | Address | Purpose |
-|----------|---------|---------|
-| TuringVaultIdentity | [`0x6f862802e0d5463DF18d267e422347BeCacc28bD`](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) | ERC-8004 AI agent identity |
-| TuringVaultDecisionLog | [`0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) | Immutable decision history |
-| TuringVaultRouter | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | Trade execution & routing |
+| Contract                      | Address                                                                                                                        | Purpose                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| TuringVaultIdentity           | [`0x6f862802e0d5463DF18d267e422347BeCacc28bD`](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) | ERC-8004 AI agent identity    |
+| TuringVaultDecisionLog        | [`0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) | Immutable decision history    |
+| TuringVaultRouter             | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | Trade execution & routing     |
 | TuringVaultValidationRegistry | [`0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) | Multi-agent validation scores |
-| ReputationRegistry | [`0xC78119F3274B05046Ac7c38a14298a6cbD946e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) | On-chain AI reputation |
+| ReputationRegistry            | [`0xC78119F3274B05046Ac7c38a14298a6cbD946e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) | On-chain AI reputation        |
 
 ---
 
@@ -151,14 +152,14 @@ Traditional grid bots are dumb — fixed parameters, no regime awareness. Pure A
 
 ### Safety Mechanisms
 
-| Guard | Trigger | Action |
-|-------|---------|--------|
-| Regime Filter | Trending market detected | HOLD (no trades) |
-| Validator Veto | Risk > threshold | REJECT (logged on-chain) |
-| Confidence Gate | Score < 65% | Skip execution |
-| Channel Too Narrow | < 0.7% width | HOLD (slippage protection) |
-| Crisis Mode | ATR spike | Flight to USDY safety |
-| Trailing Stops | Active position | Adaptive R:R ≥ 2:1 |
+| Guard              | Trigger                  | Action                     |
+| ------------------ | ------------------------ | -------------------------- |
+| Regime Filter      | Trending market detected | HOLD (no trades)           |
+| Validator Veto     | Risk > threshold         | REJECT (logged on-chain)   |
+| Confidence Gate    | Score < 65%              | Skip execution             |
+| Channel Too Narrow | < 0.7% width             | HOLD (slippage protection) |
+| Crisis Mode        | ATR spike                | Flight to USDY safety      |
+| Trailing Stops     | Active position          | Adaptive R:R ≥ 2:1         |
 
 ### Discipline Layer (Post-Execution Verification)
 
@@ -192,6 +193,7 @@ Operator runbook: [`.kiro/runbooks/challenge-operations.md`](.kiro/runbooks/chal
 Live page: <https://frontend-seven-beta-46.vercel.app/challenge>
 
 ### RWA Execution: USDT0 + USDY
+
 The agent allocates to **on-chain Treasury-collateralised stablecoins**
 through two paths, both routed through Merchant Moe Liquidity Book:
 
@@ -217,7 +219,9 @@ secrets without redeploy. See
 [`.kiro/runbooks/rwa-operations.md`](.kiro/runbooks/rwa-operations.md).
 
 ### Self-Evolving AI (with Guard Rails)
+
 The ANALYST prompt evolves based on performance, gated by safeguards:
+
 - Minimum 20 settled trades before any mutation
 - Validator prompt is **IMMUTABLE** — only Analyst evolves
 - Every prompt version pinned to IPFS for auditability
@@ -245,18 +249,18 @@ from earlier drafts: Tencent Cloud KMS, Elfa (now reinstated with real code),
 OpenCheck, Surf, Orbit AI, Minds, Mirana — all had zero implementation behind
 them per `.kiro/steering/no-lying-about-state.md`.
 
-| Partner | Integration | Code path / artefact | Status |
-|---------|-------------|----------------------|--------|
-| **Mantle Network** | Mainnet deployment (chain 5000), gas-paid in MNT, RPC via `rpc.mantle.xyz` | [`frontend/app/providers.tsx`](frontend/app/providers.tsx) + 5 deployed contracts | ✅ Live |
-| **Z.ai** | GLM-5 analyst model via AWS Bedrock (`zai.glm-5`) | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.analyst` | ✅ Live |
-| **Anthropic** | Claude Sonnet 4.6 validator via AWS Bedrock | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.validator` | ✅ Live |
-| **Google** | Gemini 3.5 Flash arbiter via Vertex AI | [`src/orchestrator/geminiArbiter.js`](src/orchestrator/geminiArbiter.js) | ✅ Live |
-| **Nansen** | Smart-money intelligence via JSON-RPC 2.0 MCP client (36 analytics tools) | [`src/mcp/nansenMCP.js`](src/mcp/nansenMCP.js) — used in `unifiedMarketData.js` every cycle | ✅ Live |
-| **Elfa** | Social intelligence — mindshare, smart-account ratio, attention surge | [`src/data/elfa.js`](src/data/elfa.js) — wired into `signalEngine.js` as 5th signal + `/api/elfa-snapshot` (V2 paths: `/v2/data/top-mentions`, `/v2/aggregations/trending-tokens`) | ✅ Live (free tier, 60 RPM) |
-| **Merchant Moe** | DEX execution via Liquidity Book v2.2 router | [`src/dex/merchantMoe.js`](src/dex/merchantMoe.js) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) | ✅ Live |
-| **Ondo Finance** | USDY tokenized Treasuries metadata (paper-ready; pool currently dry on Mantle) | [`src/rwa/usdyModule.js`](src/rwa/usdyModule.js) — guarded behind `RWA_POOL_INACTIVE` | 🟡 Paper-ready |
-| **Bybit** | Wallet connector — primary recommended in RainbowKit `connectorsForWallets` | [`frontend/app/providers.tsx`](frontend/app/providers.tsx) — `bybitWallet` from `@rainbow-me/rainbowkit/wallets` | ✅ Live |
-| **Pinata** | IPFS pinning for Proof-of-Reasoning blobs and agent card auto-refresh | [`src/ipfs/storage.js`](src/ipfs/storage.js) | ✅ Live |
+| Partner            | Integration                                                                    | Code path / artefact                                                                                                                                                               | Status                      |
+| ------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| **Mantle Network** | Mainnet deployment (chain 5000), gas-paid in MNT, RPC via `rpc.mantle.xyz`     | [`frontend/app/providers.tsx`](frontend/app/providers.tsx) + 5 deployed contracts                                                                                                  | ✅ Live                     |
+| **Z.ai**           | GLM-5 analyst model via AWS Bedrock (`zai.glm-5`)                              | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.analyst`                                                                                              | ✅ Live                     |
+| **Anthropic**      | Claude Sonnet 4.6 validator via AWS Bedrock                                    | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.validator`                                                                                            | ✅ Live                     |
+| **Google**         | Gemini 3.5 Flash arbiter via Vertex AI                                         | [`src/orchestrator/geminiArbiter.js`](src/orchestrator/geminiArbiter.js)                                                                                                           | ✅ Live                     |
+| **Nansen**         | Smart-money intelligence via JSON-RPC 2.0 MCP client (36 analytics tools)      | [`src/mcp/nansenMCP.js`](src/mcp/nansenMCP.js) — used in `unifiedMarketData.js` every cycle                                                                                        | ✅ Live                     |
+| **Elfa**           | Social intelligence — mindshare, smart-account ratio, attention surge          | [`src/data/elfa.js`](src/data/elfa.js) — wired into `signalEngine.js` as 5th signal + `/api/elfa-snapshot` (V2 paths: `/v2/data/top-mentions`, `/v2/aggregations/trending-tokens`) | ✅ Live (free tier, 60 RPM) |
+| **Merchant Moe**   | DEX execution via Liquidity Book v2.2 router                                   | [`src/dex/merchantMoe.js`](src/dex/merchantMoe.js) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)   | ✅ Live                     |
+| **Ondo Finance**   | USDY tokenized Treasuries metadata (paper-ready; pool currently dry on Mantle) | [`src/rwa/usdyModule.js`](src/rwa/usdyModule.js) — guarded behind `RWA_POOL_INACTIVE`                                                                                              | 🟡 Paper-ready              |
+| **Bybit**          | Wallet connector — primary recommended in RainbowKit `connectorsForWallets`    | [`frontend/app/providers.tsx`](frontend/app/providers.tsx) — `bybitWallet` from `@rainbow-me/rainbowkit/wallets`                                                                   | ✅ Live                     |
+| **Pinata**         | IPFS pinning for Proof-of-Reasoning blobs and agent card auto-refresh          | [`src/ipfs/storage.js`](src/ipfs/storage.js)                                                                                                                                       | ✅ Live                     |
 
 ### Why Mantle?
 
@@ -269,16 +273,16 @@ them per `.kiro/steering/no-lying-about-state.md`.
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| AI Models | Z.ai GLM-5 Analyst (via AWS Bedrock) + Anthropic Claude Sonnet 4.6 Validator (via AWS Bedrock) + Google Gemini 3.5 Flash Arbiter (via Vertex AI) |
-| Blockchain | Mantle L2 Mainnet (chain 5000) |
-| DEX | Merchant Moe Liquidity Book v2.2 |
-| Data | CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama, Elfa REST v2 |
-| Storage | IPFS (Pinata) for Proof-of-Reasoning blobs |
-| Frontend | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary) |
-| RWA | Ondo Finance USDY metadata (paper-ready) + USDT0 LayerZero (active) |
-| Infra | GitHub Actions cron (hourly), Vercel (frontend), Pinata (IPFS pinning) |
+| Layer      | Technology                                                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| AI Models  | Z.ai GLM-5 Analyst (via AWS Bedrock) + Anthropic Claude Sonnet 4.6 Validator (via AWS Bedrock) + Google Gemini 3.5 Flash Arbiter (via Vertex AI) |
+| Blockchain | Mantle L2 Mainnet (chain 5000)                                                                                                                   |
+| DEX        | Merchant Moe Liquidity Book v2.2                                                                                                                 |
+| Data       | CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama, Elfa REST v2                                                                                      |
+| Storage    | IPFS (Pinata) for Proof-of-Reasoning blobs                                                                                                       |
+| Frontend   | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary)                                                                        |
+| RWA        | Ondo Finance USDY metadata (paper-ready) + USDT0 LayerZero (active)                                                                              |
+| Infra      | GitHub Actions cron (hourly), Vercel (frontend), Pinata (IPFS pinning)                                                                           |
 
 ---
 
@@ -382,4 +386,4 @@ MIT
 
 ---
 
-*Built for the Mantle Turing Test Hackathon 2026 🏆*
+_Built for the Mantle Turing Test Hackathon 2026 🏆_

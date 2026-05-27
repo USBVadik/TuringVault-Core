@@ -1,21 +1,53 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useReadContract } from 'wagmi';
-import { Shield, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useReadContract } from "wagmi";
+import { Shield, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
-const VALIDATION_REGISTRY = '0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6' as `0x${string}`;
-const REPUTATION_REGISTRY = '0xC78119F3274B05046Ac7c38a14298a6cbD946e1a' as `0x${string}`;
+const VALIDATION_REGISTRY =
+  "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6" as `0x${string}`;
+const REPUTATION_REGISTRY =
+  "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a" as `0x${string}`;
 
 const REGISTRY_ABI = [
-  { name: 'totalProposals', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
-  { name: 'totalApproved', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
-  { name: 'totalRejected', type: 'function', stateMutability: 'view', inputs: [], outputs: [{ type: 'uint256' }] },
+  {
+    name: "totalProposals",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    name: "totalApproved",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    name: "totalRejected",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint256" }],
+  },
 ] as const;
 
 const REPUTATION_ABI = [
-  { name: 'getReputation', type: 'function', stateMutability: 'view', inputs: [{ name: 'agentId', type: 'uint256' }], outputs: [{ type: 'int128' }] },
-  { name: 'getFeedbackCount', type: 'function', stateMutability: 'view', inputs: [{ name: 'agentId', type: 'uint256' }], outputs: [{ type: 'uint256' }] },
+  {
+    name: "getReputation",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "agentId", type: "uint256" }],
+    outputs: [{ type: "int128" }],
+  },
+  {
+    name: "getFeedbackCount",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "agentId", type: "uint256" }],
+    outputs: [{ type: "uint256" }],
+  },
 ] as const;
 
 export function VerifyButton() {
@@ -23,19 +55,36 @@ export function VerifyButton() {
   const [verified, setVerified] = useState(false);
 
   const { data: totalProposals } = useReadContract({
-    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalProposals', chainId: 5000,
+    address: VALIDATION_REGISTRY,
+    abi: REGISTRY_ABI,
+    functionName: "totalProposals",
+    chainId: 5000,
   });
   const { data: totalApproved } = useReadContract({
-    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalApproved', chainId: 5000,
+    address: VALIDATION_REGISTRY,
+    abi: REGISTRY_ABI,
+    functionName: "totalApproved",
+    chainId: 5000,
   });
   const { data: totalRejected } = useReadContract({
-    address: VALIDATION_REGISTRY, abi: REGISTRY_ABI, functionName: 'totalRejected', chainId: 5000,
+    address: VALIDATION_REGISTRY,
+    abi: REGISTRY_ABI,
+    functionName: "totalRejected",
+    chainId: 5000,
   });
   const { data: agentScore } = useReadContract({
-    address: REPUTATION_REGISTRY, abi: REPUTATION_ABI, functionName: 'getReputation', args: [BigInt(0)], chainId: 5000,
+    address: REPUTATION_REGISTRY,
+    abi: REPUTATION_ABI,
+    functionName: "getReputation",
+    args: [BigInt(0)],
+    chainId: 5000,
   });
   const { data: totalFeedbacks } = useReadContract({
-    address: REPUTATION_REGISTRY, abi: REPUTATION_ABI, functionName: 'getFeedbackCount', args: [BigInt(0)], chainId: 5000,
+    address: REPUTATION_REGISTRY,
+    abi: REPUTATION_ABI,
+    functionName: "getFeedbackCount",
+    args: [BigInt(0)],
+    chainId: 5000,
   });
 
   const handleVerify = () => {
@@ -51,42 +100,73 @@ export function VerifyButton() {
       <div className="verify-result">
         <div className="verify-result-header">
           <CheckCircle2 className="w-5 h-5 text-green-400" />
-          <span className="text-sm font-bold text-green-400">On-Chain Verified</span>
+          <span className="text-sm font-bold text-green-400">
+            On-Chain Verified
+          </span>
         </div>
         <div className="verify-grid">
           <div className="verify-stat">
-            <span className="text-[10px] text-white/30 uppercase">Total Proposals</span>
-            <span className="text-lg font-mono font-bold text-white/90">{totalProposals?.toString() || '—'}</span>
+            <span className="text-[10px] text-white/30 uppercase">
+              Total Proposals
+            </span>
+            <span className="text-lg font-mono font-bold text-white/90">
+              {totalProposals?.toString() || "—"}
+            </span>
           </div>
           <div className="verify-stat">
-            <span className="text-[10px] text-white/30 uppercase">Approved</span>
-            <span className="text-lg font-mono font-bold text-green-400">{totalApproved?.toString() || '—'}</span>
-          </div>
-          <div className="verify-stat">
-            <span className="text-[10px] text-white/30 uppercase">Rejected</span>
-            <span className="text-lg font-mono font-bold text-red-400">{totalRejected?.toString() || '—'}</span>
-          </div>
-          <div className="verify-stat">
-            <span className="text-[10px] text-white/30 uppercase">Rep Score</span>
-            <span className="text-lg font-mono font-bold text-purple-400">{agentScore?.toString() || '—'}</span>
-          </div>
-          <div className="verify-stat">
-            <span className="text-[10px] text-white/30 uppercase">Feedbacks</span>
-            <span className="text-lg font-mono font-bold text-white/70">{totalFeedbacks?.toString() || '—'}</span>
-          </div>
-          <div className="verify-stat">
-            <span className="text-[10px] text-white/30 uppercase">Safety Rate</span>
+            <span className="text-[10px] text-white/30 uppercase">
+              Approved
+            </span>
             <span className="text-lg font-mono font-bold text-green-400">
-              {totalProposals && totalRejected 
-                ? `${((Number(totalRejected) / Number(totalProposals)) * 100).toFixed(0)}%`
-                : '—'}
+              {totalApproved?.toString() || "—"}
+            </span>
+          </div>
+          <div className="verify-stat">
+            <span className="text-[10px] text-white/30 uppercase">
+              Rejected
+            </span>
+            <span className="text-lg font-mono font-bold text-red-400">
+              {totalRejected?.toString() || "—"}
+            </span>
+          </div>
+          <div className="verify-stat">
+            <span className="text-[10px] text-white/30 uppercase">
+              Rep Score
+            </span>
+            <span className="text-lg font-mono font-bold text-purple-400">
+              {agentScore?.toString() || "—"}
+            </span>
+          </div>
+          <div className="verify-stat">
+            <span className="text-[10px] text-white/30 uppercase">
+              Feedbacks
+            </span>
+            <span className="text-lg font-mono font-bold text-white/70">
+              {totalFeedbacks?.toString() || "—"}
+            </span>
+          </div>
+          <div className="verify-stat">
+            <span className="text-[10px] text-white/30 uppercase">
+              Safety Rate
+            </span>
+            <span className="text-lg font-mono font-bold text-green-400">
+              {totalProposals && totalRejected
+                ? `${(
+                    (Number(totalRejected) / Number(totalProposals)) *
+                    100
+                  ).toFixed(0)}%`
+                : "—"}
             </span>
           </div>
         </div>
         <p className="text-[9px] text-white/20 text-center mt-3 font-mono">
-          Data read directly from Mantle Mainnet via your wallet RPC — no backend
+          Data read directly from Mantle Mainnet via your wallet RPC — no
+          backend
         </p>
-        <button onClick={() => setVerified(false)} className="text-[10px] text-purple-400/50 hover:text-purple-400 mt-2 mx-auto block">
+        <button
+          onClick={() => setVerified(false)}
+          className="text-[10px] text-purple-400/50 hover:text-purple-400 mt-2 mx-auto block"
+        >
           ↺ Verify again
         </button>
       </div>
@@ -108,7 +188,9 @@ export function VerifyButton() {
         <>
           <Shield className="w-4 h-4 group-hover:text-green-400 transition-colors" />
           <span>Verify Yourself</span>
-          <span className="text-[9px] text-white/20 ml-2">wagmi::readContract</span>
+          <span className="text-[9px] text-white/20 ml-2">
+            wagmi::readContract
+          </span>
         </>
       )}
     </button>

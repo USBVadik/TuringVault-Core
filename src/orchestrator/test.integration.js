@@ -13,16 +13,16 @@ const SCENARIOS = [
       sentiment: "bullish",
       smartMoneyFlow: 2300000,
       volatility: 0.3,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     },
     portfolioState: {
       totalValueUSD: 10000,
       mUSD: 7000,
       mETH: 3000,
-      currentAllocation: { mUSD: 70, mETH: 30 }
+      currentAllocation: { mUSD: 70, mETH: 30 },
     },
     expectedAction: "swap",
-    expectedDirection: "risk_on"
+    expectedDirection: "risk_on",
   },
   {
     name: "FEAR — Market panic",
@@ -32,16 +32,16 @@ const SCENARIOS = [
       sentiment: "extreme_fear",
       smartMoneyFlow: -5000000,
       volatility: 0.9,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     },
     portfolioState: {
       totalValueUSD: 10000,
       mUSD: 3000,
       mETH: 7000,
-      currentAllocation: { mUSD: 30, mETH: 70 }
+      currentAllocation: { mUSD: 30, mETH: 70 },
     },
     expectedAction: "swap",
-    expectedDirection: "risk_off"
+    expectedDirection: "risk_off",
   },
   {
     name: "NEUTRAL — No clear signal",
@@ -51,17 +51,17 @@ const SCENARIOS = [
       sentiment: "neutral",
       smartMoneyFlow: -100000,
       volatility: 0.4,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     },
     portfolioState: {
       totalValueUSD: 10000,
       mUSD: 5000,
       mETH: 5000,
-      currentAllocation: { mUSD: 50, mETH: 50 }
+      currentAllocation: { mUSD: 50, mETH: 50 },
     },
     expectedAction: "hold",
-    expectedDirection: "neutral"
-  }
+    expectedDirection: "neutral",
+  },
 ];
 
 async function runTests() {
@@ -74,25 +74,37 @@ async function runTests() {
 
   for (const scenario of SCENARIOS) {
     console.log(`▶ Scenario: ${scenario.name}`);
-    
-    const decision = await getAIDecision(scenario.marketData, scenario.portfolioState);
-    
+
+    const decision = await getAIDecision(
+      scenario.marketData,
+      scenario.portfolioState
+    );
+
     const actionOk = decision.action === scenario.expectedAction;
     const directionOk = decision.direction === scenario.expectedDirection;
     const confidenceOk = decision.confidence >= 0 && decision.confidence <= 1;
     const pathOk = decision.path && decision.path.tokenPath.length >= 2;
-    
+
     const allOk = actionOk && directionOk && confidenceOk && pathOk;
 
     if (allOk) {
-      console.log(`  ✅ PASS — action: ${decision.action}, direction: ${decision.direction}, confidence: ${decision.confidence}`);
+      console.log(
+        `  ✅ PASS — action: ${decision.action}, direction: ${decision.direction}, confidence: ${decision.confidence}`
+      );
       console.log(`     reasoning: "${decision.reasoning}"`);
       passed++;
     } else {
       console.log(`  ❌ FAIL`);
-      if (!actionOk) console.log(`     expected action: ${scenario.expectedAction}, got: ${decision.action}`);
-      if (!directionOk) console.log(`     expected direction: ${scenario.expectedDirection}, got: ${decision.direction}`);
-      if (!confidenceOk) console.log(`     confidence out of range: ${decision.confidence}`);
+      if (!actionOk)
+        console.log(
+          `     expected action: ${scenario.expectedAction}, got: ${decision.action}`
+        );
+      if (!directionOk)
+        console.log(
+          `     expected direction: ${scenario.expectedDirection}, got: ${decision.direction}`
+        );
+      if (!confidenceOk)
+        console.log(`     confidence out of range: ${decision.confidence}`);
       if (!pathOk) console.log(`     invalid path`);
       failed++;
     }

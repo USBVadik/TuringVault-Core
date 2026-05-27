@@ -26,14 +26,14 @@ emit one shape (`RWAIntent`), and execute via one gateway
 
 ## Decisions taken (closes Open Questions from requirements.md)
 
-| Q | Decision | Rationale |
-|---|---|---|
-| Q1 — when in cycle | **After 4 attestations, before agent-card refresh.** | Mirrors how settled outcomes work today; the swap settles its own attestation chain on the next cycle. |
-| Q2 — Path A delivery | **Extend Analyst vocabulary** (A1). | Single-prompt, single Zod schema bump. Adding a 3rd agent is cost+latency without narrative win. |
-| Q3 — Path B cooldown | **6 h between successful idle-parking swaps.** | Hourly cron noise won't churn; 4 idle parks/day max is plenty. |
-| Q4 — reverse direction | **Yes, `rwa_exit` is a Path A action.** | Symmetry with allocate; lets the agent rotate back to mETH on TREND_UP. Path B never exits. |
-| Q5 — idle-parking source | **USDT (legacy) primary, mUSD when present.** | Wallet has 6.763 USDT idle today; mUSD = 0. USDT is the obvious dust-magnet. |
-| Q6 — USDT0 yield claim | **Zero. Never claim APY on USDT0.** | USDT0 is bridge-wrapped Tether, not a rebasing yield token. Narrative is "Treasury-backed transparent allocation", not "earn yield". |
+| Q                        | Decision                                             | Rationale                                                                                                                            |
+| ------------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Q1 — when in cycle       | **After 4 attestations, before agent-card refresh.** | Mirrors how settled outcomes work today; the swap settles its own attestation chain on the next cycle.                               |
+| Q2 — Path A delivery     | **Extend Analyst vocabulary** (A1).                  | Single-prompt, single Zod schema bump. Adding a 3rd agent is cost+latency without narrative win.                                     |
+| Q3 — Path B cooldown     | **6 h between successful idle-parking swaps.**       | Hourly cron noise won't churn; 4 idle parks/day max is plenty.                                                                       |
+| Q4 — reverse direction   | **Yes, `rwa_exit` is a Path A action.**              | Symmetry with allocate; lets the agent rotate back to mETH on TREND_UP. Path B never exits.                                          |
+| Q5 — idle-parking source | **USDT (legacy) primary, mUSD when present.**        | Wallet has 6.763 USDT idle today; mUSD = 0. USDT is the obvious dust-magnet.                                                         |
+| Q6 — USDT0 yield claim   | **Zero. Never claim APY on USDT0.**                  | USDT0 is bridge-wrapped Tether, not a rebasing yield token. Narrative is "Treasury-backed transparent allocation", not "earn yield". |
 
 ## Architecture
 
@@ -71,30 +71,36 @@ runMultiAgentCycle()
 ### C1 — `src/rwa/usdt0Module.js` (new)
 
 ```javascript
-const USDT0_ADDRESS = '0x779Ded0c9e1022225f8E0630b35a9b54bE713736';
+const USDT0_ADDRESS = "0x779Ded0c9e1022225f8E0630b35a9b54bE713736";
 
 class USDT0Module {
   constructor(opts = {}) {
-    this.provider = new ethers.JsonRpcProvider(opts.rpcUrl || 'https://rpc.mantle.xyz');
-    this.wallet = opts.privateKey ? new ethers.Wallet(opts.privateKey, this.provider) : null;
+    this.provider = new ethers.JsonRpcProvider(
+      opts.rpcUrl || "https://rpc.mantle.xyz"
+    );
+    this.wallet = opts.privateKey
+      ? new ethers.Wallet(opts.privateKey, this.provider)
+      : null;
     this.token = new ethers.Contract(USDT0_ADDRESS, ERC20_ABI, this.provider);
-    this.assetClass = 'rwa-treasury';
-    this.issuer = 'Tether (via LayerZero)';
-    this.underlying = 'US Treasury Bills + cash equivalents';
-    this.currentAPY = 0;          // USDT0 is NOT yield-bearing on its own
-    this.liquidityRoute = 'USDT/USDT0 binStep=1';
+    this.assetClass = "rwa-treasury";
+    this.issuer = "Tether (via LayerZero)";
+    this.underlying = "US Treasury Bills + cash equivalents";
+    this.currentAPY = 0; // USDT0 is NOT yield-bearing on its own
+    this.liquidityRoute = "USDT/USDT0 binStep=1";
   }
 
-  async getPosition(addr) { /* balance, decimals, supply, poolShare */ }
+  async getPosition(addr) {
+    /* balance, decimals, supply, poolShare */
+  }
 
   async getContextForAI(addr) {
     return {
-      asset: 'USDT0',
+      asset: "USDT0",
       address: USDT0_ADDRESS,
       assetClass: this.assetClass,
       issuer: this.issuer,
       underlying: this.underlying,
-      yield: 'none (1:1 USD peg, transparent Treasury collateral)',
+      yield: "none (1:1 USD peg, transparent Treasury collateral)",
       liquidity: this.liquidityRoute,
     };
   }
@@ -104,6 +110,7 @@ module.exports = { USDT0Module, USDT0_ADDRESS };
 ```
 
 Pure mirror of `usdyModule.js` but:
+
 - `currentAPY: 0` (honest)
 - `assetClass: 'rwa-treasury'` (taggable for `/api/decisions`)
 - No `calculateAllocation`. The allocator is `rwaAllocator.js`.
@@ -122,10 +129,10 @@ module.exports = {
   MIN_BALANCE_USD: 2,
 
   // Max price impact accepted by executeSwap (basis points).
-  MAX_PRICE_IMPACT_BPS: 100,            // 1%
+  MAX_PRICE_IMPACT_BPS: 100, // 1%
 
   // Slippage applied when computing minAmountOut.
-  DEFAULT_SLIPPAGE_BPS: 50,             // 0.5%
+  DEFAULT_SLIPPAGE_BPS: 50, // 0.5%
 
   // Path B cooldown after a successful idle-parking swap.
   IDLE_PARKING_COOLDOWN_MS: 6 * 60 * 60 * 1000,
@@ -134,7 +141,7 @@ module.exports = {
   IDLE_PARKING_MIN_FLAT_MS: 24 * 60 * 60 * 1000,
 
   // Fraction of stable-USD balance to park per Path B trigger.
-  IDLE_PARKING_FRACTION: 0.20,          // 20% of idle USDT each parking
+  IDLE_PARKING_FRACTION: 0.2, // 20% of idle USDT each parking
 };
 ```
 
@@ -158,17 +165,24 @@ redeploy. GitHub Actions secret entry is documented in the runbook.
  * Output: RWAIntent | null
  */
 
-const { USDT0_ADDRESS } = require('../rwa/usdt0Module');
-const limits = require('../config/rwaLimits');
+const { USDT0_ADDRESS } = require("../rwa/usdt0Module");
+const limits = require("../config/rwaLimits");
 
-const USDT_ADDRESS = '0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE';
+const USDT_ADDRESS = "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE";
 
 function readDailySpend() {
   // sum of `amountInUsd` from outcomes.json[].rwaIntent within last 24h
   // (helper — not pasted)
 }
 
-function evaluate({ decision, market, balances, prices, lastSwapAt, posState }) {
+function evaluate({
+  decision,
+  market,
+  balances,
+  prices,
+  lastSwapAt,
+  posState,
+}) {
   const nowMs = Date.now();
   const idleStableUsd =
     (balances.USDT ?? 0) * (prices.USDT ?? 1) +
@@ -176,58 +190,65 @@ function evaluate({ decision, market, balances, prices, lastSwapAt, posState }) 
 
   // Hard floor: dust wallet → never touch RWA.
   if (idleStableUsd < limits.MIN_BALANCE_USD) {
-    return { _gate: 'min-balance', skip: true };
+    return { _gate: "min-balance", skip: true };
   }
 
   // Daily ceiling
   if (readDailySpend() >= limits.MAX_PER_DAY_USD) {
-    return { _gate: 'daily-cap', skip: true };
+    return { _gate: "daily-cap", skip: true };
   }
 
   const action = decision?.analyst?.action;
   const consensus = decision?.consensus === true;
 
   // ── Path A: LLM-driven ───────────────────────────────────────
-  if (consensus && action === 'rwa_allocate') {
+  if (consensus && action === "rwa_allocate") {
     return buildIntent({
-      source: 'llm',
-      from: 'USDT', to: 'USDT0',
+      source: "llm",
+      from: "USDT",
+      to: "USDT0",
       amountInUsd: clampToCycle(idleStableUsd, decision),
       reason: `LLM allocate: ${decision.analyst.reasoning?.slice(0, 140)}`,
     });
   }
 
-  if (consensus && action === 'rwa_exit') {
+  if (consensus && action === "rwa_exit") {
     const usdt0Usd = (balances.USDT0 ?? 0) * (prices.USDT0 ?? 1);
     if (usdt0Usd < limits.MIN_BALANCE_USD) {
-      return { _gate: 'no-rwa-position-to-exit', skip: true };
+      return { _gate: "no-rwa-position-to-exit", skip: true };
     }
     return buildIntent({
-      source: 'llm',
-      from: 'USDT0', to: 'USDT',
+      source: "llm",
+      from: "USDT0",
+      to: "USDT",
       amountInUsd: Math.min(usdt0Usd, limits.MAX_PER_CYCLE_USD),
       reason: `LLM exit: ${decision.analyst.reasoning?.slice(0, 140)}`,
     });
   }
 
   // ── Path B: deterministic idle-parking ───────────────────────
-  if (!consensus &&
-      posState?.status === 'FLAT' &&
-      market?.regime !== 'TREND_UP' &&
-      flatLongEnough(posState, nowMs) &&
-      cooldownElapsed(lastSwapAt, nowMs)) {
+  if (
+    !consensus &&
+    posState?.status === "FLAT" &&
+    market?.regime !== "TREND_UP" &&
+    flatLongEnough(posState, nowMs) &&
+    cooldownElapsed(lastSwapAt, nowMs)
+  ) {
     const parkUsd = Math.min(
       idleStableUsd * limits.IDLE_PARKING_FRACTION,
-      limits.MAX_PER_CYCLE_USD,
+      limits.MAX_PER_CYCLE_USD
     );
     if (parkUsd < limits.MIN_BALANCE_USD) {
-      return { _gate: 'park-too-small', skip: true };
+      return { _gate: "park-too-small", skip: true };
     }
     return buildIntent({
-      source: 'idle-parking',
-      from: 'USDT', to: 'USDT0',
+      source: "idle-parking",
+      from: "USDT",
+      to: "USDT0",
       amountInUsd: parkUsd,
-      reason: `Idle ${flatHours(posState)}h FLAT, regime=${market?.regime}, parking 20% of idle stables`,
+      reason: `Idle ${flatHours(posState)}h FLAT, regime=${
+        market?.regime
+      }, parking 20% of idle stables`,
     });
   }
 
@@ -236,6 +257,7 @@ function evaluate({ decision, market, balances, prices, lastSwapAt, posState }) 
 ```
 
 Implementation notes:
+
 - `buildIntent` converts USD → wei using prices passed in.
 - `clampToCycle` enforces `MAX_PER_CYCLE_USD`.
 - `flatLongEnough` checks `posState.flatSince` (added in C5 below).
@@ -283,6 +305,7 @@ async executeSwap(tokenIn, tokenOut, amountInWei, options = {}) {
 ```
 
 Three behavioural changes:
+
 1. `maxPriceImpactBps` param + revert before TX if violated.
 2. `nonce: 'pending'` (was 'latest') so the swap doesn't collide with
    the 4 already-broadcast attestation TXs.
@@ -296,8 +319,8 @@ Add a single field:
 ```javascript
 // in src/strategies/positionState.js
 function exitPosition(reason) {
-  state.status = 'FLAT';
-  state.flatSince = new Date().toISOString();   // NEW
+  state.status = "FLAT";
+  state.flatSince = new Date().toISOString(); // NEW
   // ... rest unchanged
 }
 ```
@@ -311,15 +334,24 @@ compute `flatHours`. No breaking change to readers — field is optional.
 // After Step 4 (reputation feedback) in src/orchestrator/multiAgentLoop.js:
 
 // Step 4.5: RWA allocator
-const rwaAllocator = require('./rwaAllocator');
-const { MerchantMoeDEX } = require('../dex/merchantMoe');
+const rwaAllocator = require("./rwaAllocator");
+const { MerchantMoeDEX } = require("../dex/merchantMoe");
 
 const balances = await dex.getBalances(wallet.address);
-const prices   = { USDT: 1, USDT0: 1, mUSD: 1, MNT: unified.mntPrice, ETH: market.ethPrice };
-const lastRwaSwapAt = readLastRwaSwapAt();              // from outcomes.json
+const prices = {
+  USDT: 1,
+  USDT0: 1,
+  mUSD: 1,
+  MNT: unified.mntPrice,
+  ETH: market.ethPrice,
+};
+const lastRwaSwapAt = readLastRwaSwapAt(); // from outcomes.json
 
 const intent = rwaAllocator.evaluate({
-  decision, market, balances, prices,
+  decision,
+  market,
+  balances,
+  prices,
   lastSwapAt: lastRwaSwapAt,
   posState: positionState.getState(),
 });
@@ -327,15 +359,24 @@ const intent = rwaAllocator.evaluate({
 let rwaResult = null;
 
 if (intent && !intent.skip) {
-  console.log(`💼 [STEP 4.5] RWA allocator: ${intent.source} ${intent.from} → ${intent.to} ` +
-              `($${intent.amountInUsd.toFixed(2)}) — ${intent.reason}`);
+  console.log(
+    `💼 [STEP 4.5] RWA allocator: ${intent.source} ${intent.from} → ${intent.to} ` +
+      `($${intent.amountInUsd.toFixed(2)}) — ${intent.reason}`
+  );
 
-  if (process.env.RWA_EXECUTE_ENABLED === 'true') {
-    const dex = new MerchantMoeDEX({ privateKey: process.env.PRIVATE_KEY, dryRun: false });
-    rwaResult = await dex.executeSwap(intent.from, intent.to, intent.amountInWei,
-                                      { maxPriceImpactBps: 100, slippageBps: 50 });
+  if (process.env.RWA_EXECUTE_ENABLED === "true") {
+    const dex = new MerchantMoeDEX({
+      privateKey: process.env.PRIVATE_KEY,
+      dryRun: false,
+    });
+    rwaResult = await dex.executeSwap(
+      intent.from,
+      intent.to,
+      intent.amountInWei,
+      { maxPriceImpactBps: 100, slippageBps: 50 }
+    );
     if (rwaResult.executed) {
-      console.log(`   ✅ RWA swap: ${rwaResult.txHash.slice(0,18)}...`);
+      console.log(`   ✅ RWA swap: ${rwaResult.txHash.slice(0, 18)}...`);
     } else {
       console.log(`   ⚠️  RWA swap blocked: ${rwaResult.reason}`);
     }
@@ -351,21 +392,27 @@ if (intent && !intent.skip) {
 // Step 6 outcomeTracker.record() now also receives rwaIntent metadata:
 outcomeTracker.record({
   // ...existing fields...
-  rwaIntent: intent && !intent.skip ? {
-    source: intent.source,
-    from: intent.from, to: intent.to,
-    amountInUsd: intent.amountInUsd,
-    txHash: rwaResult?.txHash ?? null,
-    executed: rwaResult?.executed ?? false,
-    reason: intent.reason,
-  } : null,
+  rwaIntent:
+    intent && !intent.skip
+      ? {
+          source: intent.source,
+          from: intent.from,
+          to: intent.to,
+          amountInUsd: intent.amountInUsd,
+          txHash: rwaResult?.txHash ?? null,
+          executed: rwaResult?.executed ?? false,
+          reason: intent.reason,
+        }
+      : null,
 });
 
 // Return shape extended for run-cycle.js:
 return {
-  decision, decisionTier, disagreementSignal,
+  decision,
+  decisionTier,
+  disagreementSignal,
   consensus: decision.consensus,
-  proposalId: typeof proposalId === 'bigint' ? Number(proposalId) : proposalId,
+  proposalId: typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
   rwaIntent: intent && !intent.skip ? intent : null,
   rwaResult,
 };
@@ -381,11 +428,12 @@ Two diffs in `src/orchestrator/multiAgent.js`:
 1. **Zod schema** — extend action enum:
    ```javascript
    const AnalystSchema = z.object({
-     action: z.enum(['swap', 'hold', 'rwa_allocate', 'rwa_exit']),
+     action: z.enum(["swap", "hold", "rwa_allocate", "rwa_exit"]),
      // ...rest unchanged
    });
    ```
 2. **Prompt addendum** — append to `ANALYST_SYSTEM_PROMPT`:
+
    ```
    RWA ALLOCATION (Path A — when applicable):
    - Use action="rwa_allocate" when:
@@ -414,11 +462,11 @@ In `frontend/app/api/decisions/route.ts`, add `assetClass` derivation:
 
 ```typescript
 function classifyAsset(targetAsset: string | null, rwaIntent: any): string {
-  if (rwaIntent?.source) return 'rwa-treasury';
-  if (targetAsset === 'mETH') return 'eth-staking';
-  if (targetAsset === 'mUSD' || targetAsset === 'USDT') return 'stable';
-  if (targetAsset === 'MNT' || targetAsset === 'WMNT') return 'native';
-  return 'unknown';
+  if (rwaIntent?.source) return "rwa-treasury";
+  if (targetAsset === "mETH") return "eth-staking";
+  if (targetAsset === "mUSD" || targetAsset === "USDT") return "stable";
+  if (targetAsset === "MNT" || targetAsset === "WMNT") return "native";
+  return "unknown";
 }
 ```
 
@@ -430,14 +478,14 @@ In `frontend/app/api/strategy/route.ts`, add `rwaAllocation` block:
 
 ```typescript
 const rwaAllocation = {
-  currentPctNav: rwaUsd / navUsd * 100,
+  currentPctNav: (rwaUsd / navUsd) * 100,
   target: { min: 10, max: 50 },
-  lastRebalanceAt: lastRwaTxIso,             // from outcomes.json
+  lastRebalanceAt: lastRwaTxIso, // from outcomes.json
   daysSinceLastFlatStart: posState?.flatSince
     ? Math.floor((Date.now() - Date.parse(posState.flatSince)) / 86400000)
     : null,
-  executeEnabled: process.env.RWA_EXECUTE_ENABLED === 'true',
-  source: lastRwaIntentSource,               // 'llm' | 'idle-parking' | 'none'
+  executeEnabled: process.env.RWA_EXECUTE_ENABLED === "true",
+  source: lastRwaIntentSource, // 'llm' | 'idle-parking' | 'none'
 };
 ```
 
@@ -448,11 +496,12 @@ In `frontend/app/page.tsx` strategy section:
 ```tsx
 <div className="rwa-strip">
   <span className="label">RWA targets:</span>
-  <Badge tone="green">USDT0 ({executeEnabled ? 'live' : 'simulated'})</Badge>
+  <Badge tone="green">USDT0 ({executeEnabled ? "live" : "simulated"})</Badge>
   <Badge tone="muted">USDY (paper-ready · pool dry)</Badge>
   {!executeEnabled && <span className="hint">RWA · simulation mode</span>}
-  {executeEnabled && lastRebalanceAt &&
-    <span className="hint">last allocation {fmtTime(lastRebalanceAt)}</span>}
+  {executeEnabled && lastRebalanceAt && (
+    <span className="hint">last allocation {fmtTime(lastRebalanceAt)}</span>
+  )}
 </div>
 ```
 
@@ -466,6 +515,7 @@ no IPFS pin. Pure unit-style harness.
 ### C12 — `.kiro/runbooks/rwa-operations.md` (new)
 
 Sections per R8:
+
 1. Pause RWA execution (`RWA_EXECUTE_ENABLED=false`)
 2. Tune limits (`RWA_MAX_PER_CYCLE_USD`, `RWA_MAX_PER_DAY_USD`)
 3. Read RWA TX log (Mantlescan filter URL)
@@ -478,13 +528,13 @@ Sections per R8:
 
 ```typescript
 type RWAIntent = {
-  source: 'llm' | 'idle-parking';
-  from: 'USDT' | 'USDT0' | 'mUSD';     // input symbol
-  to:   'USDT' | 'USDT0' | 'mUSD';     // output symbol
-  amountInWei: bigint;                  // exact input amount
-  amountInUsd: number;                  // for logging + daily-cap math
-  amountOutMinWei: bigint;              // post-slippage floor
-  reason: string;                       // ≤ 200 chars
+  source: "llm" | "idle-parking";
+  from: "USDT" | "USDT0" | "mUSD"; // input symbol
+  to: "USDT" | "USDT0" | "mUSD"; // output symbol
+  amountInWei: bigint; // exact input amount
+  amountInUsd: number; // for logging + daily-cap math
+  amountOutMinWei: bigint; // post-slippage floor
+  reason: string; // ≤ 200 chars
 };
 
 // Skip-marker (allocator returns this when a gate fired):
@@ -536,9 +586,9 @@ unit tests:
 - **CP1 — Single-intent-per-cycle.** `rwaAllocator.evaluate` returns
   at most one non-null intent. Path A and Path B never both fire.
 - **CP2 — Cap respected.** `intent.amountInUsd ≤
-  limits.MAX_PER_CYCLE_USD` for every emitted intent.
+limits.MAX_PER_CYCLE_USD` for every emitted intent.
 - **CP3 — Daily cap respected.** Sum of `outcomes.json[].rwaIntent
-  .amountInUsd` (executed, last 24 h) + new intent ≤
+.amountInUsd` (executed, last 24 h) + new intent ≤
   `limits.MAX_PER_DAY_USD`.
 - **CP4 — Path B determinism.** Given identical
   `(balances, posState, lastSwapAt, market.regime, MAX_PER_CYCLE_USD)`,
@@ -561,22 +611,23 @@ unit tests:
 
 ## Error Handling
 
-| Failure mode | Behaviour |
-|---|---|
-| Allocator throws | Caught at the cycle level, logged, cycle continues with `rwaIntent=null`. |
-| `getQuote` returns `viable=false` | `executeSwap` returns `executed:false, reason:'not-viable'`; cycle logs and moves on. |
-| Price-impact gate triggered | Same as above with reason `impact X% > Y%`. |
-| Approve TX reverts | `_ensureAllowance` propagates; cycle catches at the `executeSwap` boundary, logs to `cycle-failures.json`, exit 0. |
-| Swap TX reverts | `tx.wait()` throws; same pattern as above. |
-| RPC timeout | `executeSwap` times out via `Promise.race` after 60 s; treated as soft failure. |
-| Wallet under min balance | Allocator returns `{skip:true, _gate:'min-balance'}` early — no error path needed. |
-| `RWA_EXECUTE_ENABLED!=='true'` | Allocator runs, intent logged, no TX. Not an error. |
+| Failure mode                      | Behaviour                                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Allocator throws                  | Caught at the cycle level, logged, cycle continues with `rwaIntent=null`.                                          |
+| `getQuote` returns `viable=false` | `executeSwap` returns `executed:false, reason:'not-viable'`; cycle logs and moves on.                              |
+| Price-impact gate triggered       | Same as above with reason `impact X% > Y%`.                                                                        |
+| Approve TX reverts                | `_ensureAllowance` propagates; cycle catches at the `executeSwap` boundary, logs to `cycle-failures.json`, exit 0. |
+| Swap TX reverts                   | `tx.wait()` throws; same pattern as above.                                                                         |
+| RPC timeout                       | `executeSwap` times out via `Promise.race` after 60 s; treated as soft failure.                                    |
+| Wallet under min balance          | Allocator returns `{skip:true, _gate:'min-balance'}` early — no error path needed.                                 |
+| `RWA_EXECUTE_ENABLED!=='true'`    | Allocator runs, intent logged, no TX. Not an error.                                                                |
 
 ## Testing Strategy
 
 Three layers, in increasing cost:
 
 ### Layer 1 — Pure unit (no network, no Bedrock)
+
 - `tests/unit/rwaAllocator.unit.test.js` — 24 cases:
   - 3 consensus states × 4 regimes × 2 wallet states (FLAT > 24 h vs not)
   - Each asserts the expected `intent.source` (or `null`).
@@ -586,12 +637,14 @@ Three layers, in increasing cost:
   mocked provider.
 
 ### Layer 2 — Integration smoke (`smoke:rwa`)
+
 - Real on-chain balance read for the agent wallet.
 - Synthesised decisions per case (no Bedrock spend).
 - 12 case → 12-line table printed.
 - Asserts at least 4 cases produce an intent.
 
 ### Layer 3 — End-to-end (one manual run)
+
 - `RWA_EXECUTE_ENABLED=true` + `workflow_dispatch` once.
 - Expected outcome:
   - 1 USDT0 swap TX appears on Mantlescan against our EOA.
@@ -633,17 +686,17 @@ UNCHANGED:
 
 ## Risks & mitigations
 
-| Risk | Mitigation |
-|---|---|
-| Pool re-prices during swap | 1% impact gate + 0.5% slippage = 1.5% worst-case loss. Per-swap < $5, max $0.075 loss per swap. Acceptable. |
-| Idle-parking churns hourly | 6h cooldown (Q3) + 24h FLAT prereq. Max 4 parks/day. |
-| Wallet runs out of USDT | `MIN_BALANCE_USD: 2` floor + Path A `rwa_exit` brings it back. |
-| LLM hallucinates `rwa_allocate` when there's no balance | Allocator's min-balance gate catches it before TX. |
-| Operator forgets to flip `RWA_EXECUTE_ENABLED` | First cycle silently logs intents to dev runbook. README + runbook checklist. |
-| Allowance approval is itself rejected | Wallet either has gas or doesn't; same as today's 4-TX problem, surfaces clearly in cycle-failures.json. |
-| LLM action enum drift back to old values | Zod schema rejects → cycle returns `consensus:false, reason:'Analyst output invalid'` (existing behaviour). No regression risk. |
-| Vercel build fails on new fields | Additive only; type union widened, never narrowed. |
-| Repo size from RWA per-cycle entries | `rwaIntent` is 6 fields ≈ 200 B per outcome row. Same magnitude as existing per-cycle commit. |
+| Risk                                                    | Mitigation                                                                                                                      |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Pool re-prices during swap                              | 1% impact gate + 0.5% slippage = 1.5% worst-case loss. Per-swap < $5, max $0.075 loss per swap. Acceptable.                     |
+| Idle-parking churns hourly                              | 6h cooldown (Q3) + 24h FLAT prereq. Max 4 parks/day.                                                                            |
+| Wallet runs out of USDT                                 | `MIN_BALANCE_USD: 2` floor + Path A `rwa_exit` brings it back.                                                                  |
+| LLM hallucinates `rwa_allocate` when there's no balance | Allocator's min-balance gate catches it before TX.                                                                              |
+| Operator forgets to flip `RWA_EXECUTE_ENABLED`          | First cycle silently logs intents to dev runbook. README + runbook checklist.                                                   |
+| Allowance approval is itself rejected                   | Wallet either has gas or doesn't; same as today's 4-TX problem, surfaces clearly in cycle-failures.json.                        |
+| LLM action enum drift back to old values                | Zod schema rejects → cycle returns `consensus:false, reason:'Analyst output invalid'` (existing behaviour). No regression risk. |
+| Vercel build fails on new fields                        | Additive only; type union widened, never narrowed.                                                                              |
+| Repo size from RWA per-cycle entries                    | `rwaIntent` is 6 fields ≈ 200 B per outcome row. Same magnitude as existing per-cycle commit.                                   |
 
 ## Out of scope
 
