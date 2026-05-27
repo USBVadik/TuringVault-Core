@@ -9,7 +9,11 @@ name: Agent Cycle
 
 on:
   schedule:
-    - cron: "0 * * * *" # Every hour, UTC
+    # Run at :17 UTC every hour. GitHub Actions schedules at :00 are
+    # heavily delayed/skipped due to platform-wide load spikes — moving
+    # to an off-peak minute gives much more reliable execution. The cycle
+    # runs ~1 min, so completion lands around :18.
+    - cron: "17 * * * *"
   workflow_dispatch: # Manual trigger for debugging
 
 # Prevent overlapping runs (in case a cycle is slow). cancel-in-progress=false
