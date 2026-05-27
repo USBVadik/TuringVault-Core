@@ -1,14 +1,24 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Zap, Shield, BarChart3, Swords, TrendingUp } from 'lucide-react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Zap,
+  Shield,
+  BarChart3,
+  Swords,
+  TrendingUp,
+  Activity,
+  MessageCircle,
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Dashboard', icon: BarChart3 },
-  { href: '/challenge', label: 'Challenge', icon: Swords },
-  { href: '/backtest', label: 'Backtest', icon: TrendingUp },
-  { href: '/proof-explorer', label: 'Proof Explorer', icon: Shield },
+  { href: "/", label: "Dashboard", icon: BarChart3 },
+  { href: "/challenge", label: "Challenge", icon: Swords },
+  { href: "/backtest", label: "Performance", icon: TrendingUp },
+  { href: "/proof-explorer", label: "Proofs", icon: Shield },
+  { href: "/discipline", label: "Discipline", icon: Activity },
+  { href: "/social", label: "Social", icon: MessageCircle },
 ];
 
 export default function Navbar() {
@@ -40,8 +50,8 @@ export default function Navbar() {
                 href={href}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20'
-                    : 'text-white/40 hover:text-white/70 hover:bg-white/[0.03]'
+                    ? "bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -55,7 +65,9 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-500/20 bg-green-500/5">
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-[10px] font-mono text-green-400/80">Mantle Mainnet</span>
+            <span className="text-[10px] font-mono text-green-400/80">
+              Mantle Mainnet
+            </span>
           </div>
         </div>
       </div>
