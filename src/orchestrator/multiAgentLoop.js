@@ -479,6 +479,114 @@ async function runMultiAgentCycle(opts = {}) {
     );
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Step 4.7: Directional Swap Execution — when agent says "swap"
+  // with consensus, execute the actual mUSD ↔ mETH trade.
+  // This is separate from RWA allocation (USDT ↔ USDT0).
+  // ─────────────────────────────────────────────────────────────
+  let directionalSwapResult = null;
+  const analystAction = decision.analyst?.action;
+  const targetAsset = decision.analyst?.targetAsset;
+
+  if (
+    decision.consensus &&
+    analystAction === "swap" &&
+    (targetAsset === "mETH" || targetAsset === "mUSD")
+  ) {
+    console.log(
+      `🔄 [STEP 4.7] Directional swap: → ${targetAsset} (consensus reached)`
+    );
+
+    if (process.env.RWA_EXECUTE_ENABLED === "true") {
+      try {
+        const { MerchantMoeDEX } = require("../dex/merchantMoe");
+        const liveDex = new MerchantMoeDEX({
+          privateKey: process.env.PRIVATE_KEY,
+          dryRun: false,
+        });
+
+        // Determine swap direction
+        const fromToken = targetAsset === "mETH" ? "mUSD" : "mETH";
+        const toToken = targetAsset;
+
+        // Get current balance of source token
+        const balances = await liveDex.getBalances(wallet.address);
+        const sourceBalance = balances[fromToken] || 0;
+
+        // Use allocation percentage from analyst, default 30%
+        const allocPct = decision.analyst?.allocationPct || 30;
+        const swapAmount = sourceBalance * (allocPct / 100);
+
+        if (swapAmount < 0.001) {
+          console.log(
+            `   ⚠️  Insufficient ${fromToken} balance: ${sourceBalance.toFixed(
+              6
+            )}`
+          );
+          directionalSwapResult = {
+            executed: false,
+            reason: `insufficient-balance: ${sourceBalance.toFixed(6)} ${fromToken}`,
+          };
+        } else {
+          // Convert to wei (mUSD is 18 decimals, mETH is 18 decimals)
+          const { ethers } = require("ethers");
+          const amountInWei = ethers.parseEther(swapAmount.toFixed(8));
+
+          console.log(
+            `   Swapping ${swapAmount.toFixed(6)} ${fromToken} → ${toToken}`
+          );
+
+          const swapResult = await liveDex.executeSwap(
+            fromToken,
+            toToken,
+            amountInWei,
+            { maxPriceImpactBps: 100, slippageBps: 50 }
+          );
+
+          if (swapResult?.executed) {
+            console.log(
+              `   ✅ Directional swap: ${swapResult.txHash.slice(0, 18)}... (block ${swapResult.blockNumber})`
+            );
+            directionalSwapResult = {
+              executed: true,
+              txHash: swapResult.txHash,
+              from: fromToken,
+              to: toToken,
+              amountIn: swapAmount,
+              amountOut: swapResult.estimatedOut,
+            };
+            // Store txHash for discipline layer verification
+            decision.executionTxHash = swapResult.txHash;
+          } else {
+            console.log(
+              `   ⚠️  Directional swap blocked: ${swapResult?.reason || "unknown"}`
+            );
+            directionalSwapResult = {
+              executed: false,
+              reason: swapResult?.reason || "unknown",
+            };
+          }
+        }
+      } catch (swapErr) {
+        console.log(
+          `   ⚠️  Directional swap threw: ${swapErr.message?.slice(0, 100)}`
+        );
+        directionalSwapResult = {
+          executed: false,
+          error: swapErr.message?.slice(0, 100),
+        };
+      }
+    } else {
+      console.log(
+        `   [DRY] RWA_EXECUTE_ENABLED!='true' — directional swap skipped`
+      );
+      directionalSwapResult = {
+        executed: false,
+        reason: "execute-gate-off",
+      };
+    }
+  }
+
   // Step 6: Record outcome for future settlement (the real learning loop)
   console.log("🔮 [STEP 6] Recording outcome for settlement in 4h...");
 
@@ -561,6 +669,8 @@ async function runMultiAgentCycle(opts = {}) {
       arbiterReasoning: decision.arbiter?.reasoning?.substring(0, 400) || null,
       // RWA: rwa-allocation-active T8/T9.
       rwaIntent: rwaIntent || null,
+      // Directional swap execution result
+      directionalSwap: directionalSwapResult || null,
     });
     console.log(
       `   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`
@@ -779,6 +889,7 @@ async function runMultiAgentCycle(opts = {}) {
       typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
     rwaIntent: rwaIntent || null,
     rwaResult: rwaResult || null,
+    directionalSwap: directionalSwapResult || null,
   };
 }
 
