@@ -226,7 +226,128 @@ honesty rule.
   - The claim uses absolute language ("always", "never", "100%")
     that the data cannot fully support.
 
-### R10: Consolidated findings + remediation plan
+### R10: GitHub Actions ↔ Vercel integration audit
+
+The cron pipeline (`agent-cycle.yml`) writes state files back to
+`main`; Vercel auto-deploys on push and the frontend reads those
+files. This integration SHALL be audited end-to-end.
+
+**Acceptance criteria:**
+
+- WHEN auditing the integration THE auditor SHALL pick the last
+  3 cron commits and verify a corresponding Vercel deployment fired
+  and went `READY`.
+- THE auditor SHALL diff the GitHub Actions secret list against the
+  Vercel project environment variable list and flag any drift.
+  Examples of must-be-everywhere flags: `RWA_EXECUTE_ENABLED`,
+  `CHALLENGE_LIVE_ENABLED`, `AGENT_RUN_MODE`,
+  `MANTLE_RPC_URL`.
+- THE auditor SHALL identify any cron-written file that the
+  frontend reads via filesystem (`fs.readFileSync` in API routes)
+  AND verify the `fetchFromGitHub` fallback path is wired (Vercel
+  serverless functions don't have access to the repo's `data/`
+  directory at runtime — they fall back to GitHub raw).
+- THE auditor SHALL check Vercel git-integration filters: cron
+  commits use author `TuringVault Cron <cron@turingvault.ai>`;
+  Vercel by default deploys all main pushes, but if "Ignored Build
+  Step" or commit-author filters are set, cron-only commits could
+  be silently skipped.
+- WHEN any cron commit fails to trigger a Vercel deploy THIS SHALL
+  be flagged as P0 (UI is showing data that's older than what's
+  in `main`).
+
+### R11: Vercel deployment + runtime audit
+
+The Vercel project itself SHALL be audited for build failures,
+function runtime errors, bundle size regressions, and edge/runtime
+mismatches.
+
+**Acceptance criteria:**
+
+- THE auditor SHALL fetch the last 10 Vercel deployments via
+  `vercel.com/api/v6/deployments` and tabulate: state (READY /
+  ERROR / BUILDING), build duration, commit SHA, deploy URL.
+- THE auditor SHALL inspect any deployment with state=ERROR for the
+  failing build step + first error line; record under findings.
+- THE auditor SHALL fetch runtime logs for `/api/health` and
+  `/api/strategy` and grep for `error|throw|undefined|TypeError`;
+  any 5xx pattern is P0.
+- THE auditor SHALL flag any function whose `maxDuration` is set
+  but the typical execution exceeds 80% of that budget (cold start
+  + slow upstream = future timeouts).
+- THE auditor SHALL spot-check the deployed frontend bundle for
+  accidental inclusion of backend modules (any import of `ethers`
+  inside a static page increases bundle by ~200KB).
+- THE auditor SHALL verify response cache-control headers match
+  the dynamic-mode declarations in route files (e.g.
+  `dynamic = "force-dynamic"` should not be cached at the edge).
+
+### R12: Secrets + supply-chain audit
+
+Beyond `npm audit`, the auditor SHALL verify no secret material has
+ever been committed and that runtime secret handling is correct.
+
+**Acceptance criteria:**
+
+- THE auditor SHALL run `git log --all -p` through a secret-pattern
+  scanner (gitleaks-style regex set: AWS keys, private keys, JWT,
+  API key formats) on the full repo history. Any hit is P0.
+- THE auditor SHALL verify `.gitignore` excludes `.env`,
+  `*.env-*`, `gemini-service-account.json`, raw model outputs, and
+  any artifact that historically held credentials.
+- THE auditor SHALL list every secret the cron uses (env names
+  only) and verify each one is present in BOTH GitHub Actions
+  repository secrets AND Vercel project env (where the frontend
+  needs it).
+- THE auditor SHALL re-run `npm audit --production` on root + on
+  `frontend/`; document moderate+ findings with mitigation.
+- THE auditor SHALL grep all API routes + frontend code for direct
+  `process.env.X` access where `X` is a secret name and verify the
+  value is never echoed back in any HTTP response (this re-runs
+  the secret-leak check from R3 but at the source-code level).
+- THE auditor SHALL check the Pinata JWT expiry; any secret with
+  < 30 days remaining is flagged.
+
+### R13: Security architecture + threat model audit
+
+The agent + frontend + on-chain stack SHALL be reviewed against a
+short threat model. Goes beyond contract-level review (already in
+`docs/security-review-2026-05-27.md`) to cover system-wide attack
+surface.
+
+**Acceptance criteria:**
+
+- THE auditor SHALL document the threat model under a fixed set
+  of actors: anonymous web visitor, hostile GitHub PR contributor,
+  compromised Vercel env, compromised GitHub Actions runner,
+  compromised agent EOA private key, hostile market data source
+  (Elfa/Nansen returning crafted payloads).
+- FOR EACH actor THE auditor SHALL list: what they can do, what
+  guards prevent the worst outcome, what mitigations are missing.
+- THE auditor SHALL specifically check:
+  - **LLM prompt injection** — does any user-controlled or
+    third-party API field flow into the analyst/validator prompt
+    without sanitization? (e.g. token names from CoinGecko, social
+    posts from Elfa).
+  - **State-file tampering** — can a malicious PR mutate
+    `outcomes.json` or `discipline-history.json` to make stats
+    look better? Are these files signed / verified?
+  - **Discipline-gate bypass** — is there any code path that
+    records a cycle as ACCEPTED without the gate running?
+  - **IPFS pin tampering** — is the on-chain reasoning hash a hash
+    of the IPFS content, or just the CID? (CID is content-
+    addressable so this is usually fine, but worth confirming.)
+  - **Owner key concentration** — every contract is `onlyOwner`;
+    if the agent EOA is compromised, the attacker can drain. List
+    the realistic value at risk and any operational mitigations
+    (cold key rotation, multisig roadmap).
+  - **Frontend XSS** — does any `/api/*` response render unsafe
+    HTML? Is there a CSP header? Are reasoning fields rendered
+    via React (safe) or `dangerouslySetInnerHTML` (unsafe)?
+- THE auditor SHALL produce a 1-page summary suitable for the
+  pitch deck: "Threat model + mitigations" in plain language.
+
+### R14: Consolidated findings + remediation plan
 
 The audit SHALL produce a single consolidated report listing every
 finding, ordered by severity, with a remediation status for each.
@@ -247,7 +368,8 @@ finding, ordered by severity, with a remediation status for each.
 
 The audit is done WHEN:
 
-1. All 10 surface-area reports under `.kiro/audits/0X-*.md` exist.
+1. All surface-area reports under `.kiro/audits/0X-*.md` exist
+   (one per requirement R1–R13).
 2. Each report follows the required output shape from
    `audit-style.md` (scope, method, findings, not-checked).
 3. The consolidated report `99-consolidated.md` lists every finding
@@ -258,15 +380,21 @@ The audit is done WHEN:
    verification (a fetched response, a captured run ID, etc.).
 6. The audit reports survive in git history under `.kiro/audits/`
    so judges can see the rigor.
+7. The threat model from R13 is summarised in 1 page and ready
+   to drop into the pitch deck if useful.
+8. Every secret listed by the cron is present in both GitHub
+   Actions secrets AND Vercel project env (R10, R12).
 
 ## Out of Scope
 
-- Penetration testing of the smart contracts (already covered in
+- Penetration testing of the smart contracts beyond the system-level
+  threat model (deep contract-level audit is in
   `docs/security-review-2026-05-27.md`).
 - Performance / load testing of the frontend.
 - Recursive audit of every npm dependency (only `npm audit` summary
-  is in scope).
+  is in scope; full SBOM / CVE walk is post-submission backlog).
 - Re-deployment of contracts (any change touching deployed contracts
   is documented but not executed pre-submission).
 - Live multi-agent challenge wiring (deferred per
   `.kiro/specs/human-vs-ai-challenge-v2`).
+- Formal verification of contract invariants.

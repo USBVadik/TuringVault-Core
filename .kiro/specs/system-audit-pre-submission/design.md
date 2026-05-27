@@ -38,7 +38,11 @@ the probe scripts and diff the output against what's committed.
 ├── 06-pipeline-data-flow.md   # R7: 2 representative cycles end-to-end
 ├── 07-external-apis.md        # R8: third-party probes
 ├── 08-documents-and-claims.md # R9: README / pitch-deck / agent-card
-└── 99-consolidated.md         # R10: master findings + remediation
+├── 09-cron-vercel-bridge.md   # R10: GH commits → Vercel deploys
+├── 10-vercel-runtime.md       # R11: Vercel build + function logs
+├── 11-secrets-and-supply.md   # R12: history scan + env drift + npm
+├── 12-threat-model.md         # R13: actor-by-actor security review
+└── 99-consolidated.md         # R14: master findings + remediation
 ```
 
 Each numbered file maps 1:1 to a requirement and 1:1 to a task.
@@ -95,7 +99,10 @@ scripts/audit/
 ├── gh-actions-runs.sh     # list last N runs from GH API, format as table
 ├── chain-probe.js         # eth_getCode + tx history for an address
 ├── check-secrets.sh       # grep captured responses for secret patterns
-└── probe-external.sh      # ping every third-party dep
+├── probe-external.sh      # ping every third-party dep
+├── vercel-deployments.sh  # last N Vercel deploys + state per commit
+├── env-drift.sh           # diff GH Actions secret names vs Vercel env
+└── git-history-secrets.sh # gitleaks-style scan over full history
 ```
 
 These exist so a re-audit one week later doesn't require re-deriving
@@ -144,19 +151,30 @@ flowchart TD
   Inv --> Chain[04 on-chain]
   Inv --> State[05 state files]
   Inv --> Ext[07 external apis]
+  Cron --> Bridge[09 cron-vercel bridge]
+  API --> Bridge
   API --> Pipe[06 pipeline data flow]
   State --> Pipe
   Chain --> Pipe
   UI --> Docs[08 documents and claims]
   API --> Docs
-  Pipe --> Cons[99 consolidated]
-  UI --> Cons
+  Bridge --> Vercel[10 vercel runtime]
+  Inv --> Sec[11 secrets and supply]
+  Pipe --> Threat[12 threat model]
+  Sec --> Threat
+  Chain --> Threat
+  UI --> Cons[99 consolidated]
   API --> Cons
   Cron --> Cons
   Chain --> Cons
   State --> Cons
   Ext --> Cons
+  Pipe --> Cons
   Docs --> Cons
+  Bridge --> Cons
+  Vercel --> Cons
+  Sec --> Cons
+  Threat --> Cons
 ```
 
 The inventory feeds everything. The consolidated report depends on

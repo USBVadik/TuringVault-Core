@@ -22,15 +22,25 @@ work — context drift is the enemy of accurate audits.
         - `scripts/audit/chain-probe.js` (NEW)
         - `scripts/audit/check-secrets.sh` (NEW)
         - `scripts/audit/probe-external.sh` (NEW)
+        - `scripts/audit/vercel-deployments.sh` (NEW)
+        - `scripts/audit/env-drift.sh` (NEW)
+        - `scripts/audit/git-history-secrets.sh` (NEW)
     - Acceptance:
-        - All 5 scripts exist and are executable.
+        - All 8 scripts exist and are executable.
         - `fetch-frontend.sh` saves raw responses under
           `.kiro/audits/raw/<surface>.html|json`.
         - `gh-actions-runs.sh` accepts a workflow filename and
           prints a Markdown table of last N runs.
+        - `vercel-deployments.sh` lists last N deployments via
+          Vercel API + state per commit.
+        - `env-drift.sh` produces a Markdown table comparing GH
+          Actions secret names vs Vercel project env names; never
+          prints values.
+        - `git-history-secrets.sh` runs gitleaks-style regex set
+          over `git log --all -p`.
         - `check-secrets.sh` greps a directory for secret patterns
           and exits non-zero on any hit.
-        - `probe-external.sh` hits 6 external APIs with --silent
+        - `probe-external.sh` hits 7 external APIs with --silent
           and prints status only.
         - shellcheck clean for shell scripts; `node --check` clean
           for JS.
@@ -208,11 +218,137 @@ work — context drift is the enemy of accurate audits.
         - Claims using "always", "never", "100%", "running 24/7"
           flagged for tightening regardless of artifact.
 
-- [ ] 11. R10: Consolidated findings + remediation
+- [ ] 11. R10: GitHub Actions ↔ Vercel bridge audit
     - Refs: R10
+    - Output: `.kiro/audits/09-cron-vercel-bridge.md` (NEW)
+    - Method:
+        - Pull last 3 cron commits from `git log --author="TuringVault Cron"`.
+        - For each: query Vercel API for the deployment matching that
+          commit SHA. Capture state, build duration, deploy URL.
+        - Run `env-drift.sh` to diff GH Actions secret list vs
+          Vercel project env list. Look specifically for feature
+          flags that should be in both
+          (`RWA_EXECUTE_ENABLED`, `CHALLENGE_LIVE_ENABLED`,
+          `AGENT_RUN_MODE`, `MANTLE_RPC_URL`).
+        - Walk every `frontend/app/api/*/route.ts` for
+          `fs.readFileSync` calls and verify each has a
+          `fetchFromGitHub` fallback.
+        - Read Vercel "Ignored Build Step" / git filter config.
+    - Acceptance:
+        - Per-cron-commit row: commit SHA, Vercel deploy state,
+          deployed URL, time-from-push-to-ready.
+        - Env drift table: secret name, in-GH-Actions, in-Vercel,
+          severity if diverged.
+        - Filesystem-fallback table: route, has-fs-read, has-GH-
+          fallback, gap (if any) → P0 finding.
+        - Any cron commit without a corresponding READY Vercel
+          deploy is P0.
+
+- [ ] 12. R11: Vercel deployment + runtime audit
+    - Refs: R11
+    - Output: `.kiro/audits/10-vercel-runtime.md` (NEW)
+    - Method:
+        - Hit Vercel API for last 10 deployments, tabulate state
+          + duration + commit.
+        - For any ERROR state: pull build logs, capture failing
+          step + first error line.
+        - Hit `/api/health`, `/api/strategy`, `/api/decisions`,
+          `/api/discipline` 5x each, capture 95p latency and any
+          5xx.
+        - Walk every API route file for `maxDuration` declarations;
+          compare against typical observed latency from the probes.
+        - For each `frontend/app/page.tsx` and any client
+          component: grep for backend module imports
+          (`require('ethers')`, `from 'ethers'` outside `/lib/`)
+          that bloat the bundle.
+        - Inspect Cache-Control headers on dynamic routes;
+          confirm they match `dynamic = "force-dynamic"`.
+    - Acceptance:
+        - Deployment health table for last 10 deploys with
+          state distribution.
+        - Any function with p95 latency > 80% of `maxDuration` is
+          P1.
+        - Any route returning 5xx or wrong cache headers is P0.
+        - Bundle-bloat findings recorded but only P2 unless they
+          cause a build failure.
+
+- [ ] 13. R12: Secrets + supply-chain audit
+    - Refs: R12
+    - Output: `.kiro/audits/11-secrets-and-supply.md` (NEW)
+    - Method:
+        - `git-history-secrets.sh` runs gitleaks-style regex set
+          over `git log --all -p`. Patterns: AWS access key,
+          AWS secret, EVM private key, JWT, Pinata JWT, generic
+          long-token. Any hit dumps the commit + line.
+        - Verify `.gitignore` excludes `.env`, `*.env-*`,
+          `gemini-service-account.json`, `raw_model_outputs/`,
+          `.kiro/audits/raw/` (since raw/ may capture API responses).
+        - Run `npm audit --production` on root and `frontend/`,
+          summarize moderate+ findings with affected packages.
+        - Grep all source for `process.env.<SECRET_NAME>` reads;
+          for each, trace whether the value is ever logged or
+          included in an HTTP response. Cross-check against the
+          `/api/health` route's documented "no secrets ever"
+          guarantee.
+        - Decode and log expiry of `PINATA_JWT` (jwt.decode);
+          flag if < 30 days remain.
+        - Cross-reference with R10 env drift table.
+    - Acceptance:
+        - History scan: ZERO hits OR every hit explained
+          (e.g. test fixtures, well-known dummy keys).
+        - npm audit table per workspace.
+        - Secret-flow trace table: env name, read sites,
+          response paths reached, leak risk.
+        - JWT expiry status.
+        - Any active credential found in git history is P0
+          (rotate + force-push if needed).
+
+- [ ] 14. R13: Security architecture + threat model
+    - Refs: R13
+    - Output: `.kiro/audits/12-threat-model.md` (NEW)
+    - Method:
+        - Define actor list: anonymous web visitor, hostile PR
+          author, compromised Vercel env, compromised GH Actions
+          runner, compromised agent EOA, hostile Elfa/Nansen
+          payload, hostile market data (CoinGecko spoof).
+        - For each actor: capability table (what they can do),
+          guard table (what stops the worst case), gap list
+          (where mitigations are missing).
+        - Specifically test:
+            - Inject a hostile token symbol via market data into
+              the Analyst prompt — does normalization strip
+              control chars / prompt-injection markers?
+            - Construct a PR that flips a stat in `outcomes.json`
+              — is there a CI gate that rejects writes by
+              non-cron authors?
+            - Re-read `disciplineLayer.js` for any code path that
+              records ACCEPTED without running gates.
+            - Verify on-chain `reasoningHash` is keccak of the
+              IPFS pin content (or just the CID, which is fine
+              because CID is content-addressed).
+            - List every `dangerouslySetInnerHTML` in the
+              frontend (must be zero outside markdown rendering).
+            - Check CSP / X-Frame-Options / X-Content-Type-Options
+              on the live deployment.
+            - Estimate worst-case loss if the agent EOA private
+              key leaks (current wallet balance + drainable
+              positions).
+        - Produce a 1-page summary suitable for the pitch deck.
+    - Acceptance:
+        - Actor × capability × guard × gap matrix complete.
+        - 7 specific tests above each have a verdict
+          (PASS / FAIL / N-A / NEEDS-FIX).
+        - Worst-case-loss estimate is honest: USD figure with
+          source of truth.
+        - 1-page summary ready (markdown, not slides).
+        - Any FAIL on the 7 tests is P0 unless it's a known
+          accepted risk (custodial EOA pattern is accepted).
+
+- [ ] 15. R14: Consolidated findings + remediation
+    - Refs: R14
     - Output: `.kiro/audits/99-consolidated.md` (NEW)
     - Method:
-        - Aggregate every finding from reports 01–08.
+        - Aggregate every finding from reports 01–12.
         - Sort by severity, then by surface.
         - Add `status` column; default open.
         - For trivial / inline fixes already done, set status=fixed
@@ -220,15 +356,15 @@ work — context drift is the enemy of accurate audits.
         - Build "Not checked" section by aggregating each report's
           not-checked block.
     - Acceptance:
-        - All findings from 01–08 present (no orphans).
+        - All findings from 01–12 present (no orphans).
         - Severity distribution histogram at top.
         - Every P0 has either status=fixed or
           wont-fix-pre-submission with operator-recorded reason.
         - "Not checked" section is non-empty (false-confidence
           guard).
 
-- [ ] 12. Apply trivial inline fixes
-    - Refs: R10, design §C6
+- [ ] 16. Apply trivial inline fixes
+    - Refs: R14, design §C6
     - Action:
         - For each finding in 99-consolidated.md flagged "trivial"
           (one-line copy fix, env var rename, missing tooltip),
@@ -244,11 +380,12 @@ work — context drift is the enemy of accurate audits.
         - No commit references audit but breaks a passing test
           (`npm test` clean after).
 
-- [ ] 13. Re-run probes after fixes
-    - Refs: R10
+- [ ] 17. Re-run probes after fixes
+    - Refs: R14
     - Action:
-        - Re-run `fetch-frontend.sh`, hit fixed endpoints, sanity-
-          check the fixes worked end-to-end.
+        - Re-run `fetch-frontend.sh`, `vercel-deployments.sh`,
+          and any other relevant probe; sanity-check the fixes
+          worked end-to-end.
         - Update findings statuses in 99-consolidated.md.
     - Acceptance:
         - Every status=fixed finding has a re-probe artifact under
@@ -256,8 +393,8 @@ work — context drift is the enemy of accurate audits.
         - Any fix that didn't actually move the metric → status
           rolled back to open with note.
 
-- [ ] 14. Convert remaining open findings into a backlog spec
-    - Refs: R10
+- [ ] 18. Convert remaining open findings into a backlog spec
+    - Refs: R14
     - Action:
         - For all P1+ findings still open, generate a single
           "post-submission backlog" entry under
@@ -265,12 +402,12 @@ work — context drift is the enemy of accurate audits.
           requirements doc and a flat task list.
     - Acceptance:
         - Backlog spec exists with one requirement per finding
-          group (UI / cron / pipeline / docs).
+          group (UI / cron / pipeline / docs / vercel / security).
         - Each backlog task has refs back to the audit finding ID
           for traceability.
 
-- [ ] 15. Final audit close-out
-    - Refs: R10, all
+- [ ] 19. Final audit close-out
+    - Refs: R14, all
     - Action:
         - Add Status: SHIPPED block to this tasks.md.
         - Tick all 8 success criteria in requirements.md.
@@ -301,42 +438,47 @@ work — context drift is the enemy of accurate audits.
     },
     {
       "wave": 3,
-      "tasks": [3, 4, 5, 6, 7, 9],
-      "rationale": "Six independent surface audits — UI, API, cron, on-chain, state, external. Can run in parallel across sessions because they don't share output files."
+      "tasks": [3, 4, 5, 6, 7, 9, 13],
+      "rationale": "Seven independent surface audits — UI, API, cron, on-chain, state, external, secrets/supply. They don't share output files and can run in parallel sessions. Secrets/supply (T13) is read-only over the repo + git history so it's also independent."
     },
     {
       "wave": 4,
-      "tasks": [8],
-      "rationale": "Pipeline data-flow audit consumes API + state + on-chain audits' findings (the cycles it picks come from cycle-history; the IPFS hashes from outcomes; the on-chain TXs from chain probe). Must follow wave 3."
+      "tasks": [8, 11, 12],
+      "rationale": "Pipeline data-flow (T8) consumes API + state + on-chain audits. Cron-Vercel bridge (T11) consumes cron audit + API audit (filesystem fallback check). Vercel runtime (T12) consumes API endpoint observations + bridge findings."
     },
     {
       "wave": 5,
-      "tasks": [10],
-      "rationale": "Documents + claims audit cross-references the surface audits' findings. Cleaner to run after surfaces."
+      "tasks": [14],
+      "rationale": "Threat model audit aggregates findings from pipeline, secrets, on-chain, and the bridge. Best run after the surface audits so the actor matrix is grounded in real observations."
     },
     {
       "wave": 6,
-      "tasks": [11],
-      "rationale": "Consolidation requires every prior audit to be written."
+      "tasks": [10],
+      "rationale": "Documents + claims audit cross-references every surface audit's findings. Cleaner to run after all probes are done because some claims are about things only verified in waves 4-5."
     },
     {
       "wave": 7,
-      "tasks": [12],
-      "rationale": "Inline fixes happen after the consolidated finding list is stable."
+      "tasks": [15],
+      "rationale": "Consolidation requires every prior audit (01-12) to be written."
     },
     {
       "wave": 8,
-      "tasks": [13],
-      "rationale": "Post-fix re-probes verify the fixes landed end-to-end."
+      "tasks": [16],
+      "rationale": "Inline fixes happen after the consolidated finding list is stable."
     },
     {
       "wave": 9,
-      "tasks": [14],
-      "rationale": "Backlog spec collects whatever survived the fix wave."
+      "tasks": [17],
+      "rationale": "Post-fix re-probes verify the fixes landed end-to-end."
     },
     {
       "wave": 10,
-      "tasks": [15],
+      "tasks": [18],
+      "rationale": "Backlog spec collects whatever survived the fix wave."
+    },
+    {
+      "wave": 11,
+      "tasks": [19],
       "rationale": "Spec close-out only after backlog hand-off is clean."
     }
   ]
