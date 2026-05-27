@@ -1,0 +1,376 @@
+# Implementation Plan: System Audit Pre-Submission
+
+## Overview
+
+Sequenced execution plan for `design.md`. Each task produces ONE
+Markdown report or ONE script. Tasks are independent enough to be
+run separately on different days; the consolidated report (T15) is
+the only task that depends on all the others.
+
+**Each task has its own context budget.** Don't try to run more than
+one audit task per Kiro session if the session is also doing other
+work — context drift is the enemy of accurate audits.
+
+## Tasks
+
+- [ ] 1. Audit infrastructure: probe scripts + audits/ directory
+    - Refs: design §C1, §C4
+    - Outputs:
+        - `.kiro/audits/.gitkeep` (NEW)
+        - `scripts/audit/fetch-frontend.sh` (NEW)
+        - `scripts/audit/gh-actions-runs.sh` (NEW)
+        - `scripts/audit/chain-probe.js` (NEW)
+        - `scripts/audit/check-secrets.sh` (NEW)
+        - `scripts/audit/probe-external.sh` (NEW)
+    - Acceptance:
+        - All 5 scripts exist and are executable.
+        - `fetch-frontend.sh` saves raw responses under
+          `.kiro/audits/raw/<surface>.html|json`.
+        - `gh-actions-runs.sh` accepts a workflow filename and
+          prints a Markdown table of last N runs.
+        - `check-secrets.sh` greps a directory for secret patterns
+          and exits non-zero on any hit.
+        - `probe-external.sh` hits 6 external APIs with --silent
+          and prints status only.
+        - shellcheck clean for shell scripts; `node --check` clean
+          for JS.
+
+- [ ] 2. R1: Surface inventory
+    - Refs: R1, design §C1
+    - Output: `.kiro/audits/00-inventory.md` (NEW)
+    - Method:
+        - Walk `frontend/app/*/page.tsx` and `frontend/app/api/*/route.ts`
+          to enumerate UI pages + API routes.
+        - Walk `.github/workflows/*.yml` for cron jobs.
+        - Walk `deployments.json` for contracts.
+        - Walk `data/` and `src/data/` for state files.
+        - Grep README + pitch deck for external URLs they claim.
+    - Acceptance:
+        - All 6 categories covered (UI / API / cron / on-chain /
+          state / external).
+        - Every surface has: name, URL/path, expected freshness,
+          consumer, source-of-truth file.
+        - Cross-check: any surface mentioned in README that isn't
+          live → flagged in "orphaned claims" table.
+
+- [ ] 3. R2: UI pages audit
+    - Refs: R2
+    - Output: `.kiro/audits/01-ui-pages.md` (NEW)
+    - Method (per page in inventory):
+        - `curl -L -s -o raw/<page>.html <URL>`
+        - Record HTTP status, render time, size.
+        - Open the saved HTML, identify visible numeric metrics
+          and "live" / "running" badges.
+        - For each metric: trace to its API endpoint, cross-check
+          freshness.
+    - Acceptance:
+        - All 6 pages probed at least once with timestamp.
+        - Per-page table with: status, key metrics, source of
+          each metric, mismatch if any.
+        - At least one verbatim quoted UI claim per page that the
+          auditor verified against backend reality.
+
+- [ ] 4. R3: API endpoints audit
+    - Refs: R3
+    - Output: `.kiro/audits/02-api-endpoints.md` (NEW)
+    - Method (per endpoint in inventory):
+        - Hit endpoint, capture status + JSON response.
+        - Diff response shape against the consuming component's
+          destructuring (grep `frontend/app/**/*.tsx` for usage).
+        - Run `check-secrets.sh` on every captured response.
+        - Validate timestamps in response (parse, compare to now,
+          classify as fresh / stale / missing).
+    - Acceptance:
+        - All 14 endpoints listed in R3 captured + analyzed.
+        - Findings table includes any 5xx, any shape drift, any
+          stale timestamps, any secret hits.
+        - Raw responses preserved under `.kiro/audits/raw/api/`.
+
+- [ ] 5. R4: Cron + GitHub Actions audit
+    - Refs: R4
+    - Output: `.kiro/audits/03-cron-and-actions.md` (NEW)
+    - Method:
+        - `gh-actions-runs.sh agent-cycle.yml 20` → run history table.
+        - `gh-actions-runs.sh ci.yml 5` → CI history table.
+        - For agent-cycle: compute lag from each schedule slot;
+          flag any > 5 min late or skipped.
+        - List required secrets (names only) via GH API.
+    - Acceptance:
+        - Run-history table for both workflows present, with
+          triggered_at + lag_minutes columns.
+        - At least one root-cause hypothesis for any consistent
+          lag pattern (e.g. ":00 peak load").
+        - Secrets list verified (names only, never values).
+        - If any P0 reliability issue (cron skipped > 2 hours) →
+          flagged with suggested fix.
+
+- [ ] 6. R5: On-chain audit
+    - Refs: R5
+    - Output: `.kiro/audits/04-on-chain.md` (NEW)
+    - Method:
+        - For each address in `deployments.json`: eth_getCode,
+          Sourcify check, Mantlescan API check (getabi).
+        - For agent EOA `0xDC783CDBfA993f3FC299460627b204E83bf4fb5a`:
+          fetch last 20 TXs from Mantle RPC, classify by destination
+          contract.
+        - Compare on-chain TuringVaultValidationRegistry total
+          proposals vs `outcomes.json` length.
+    - Acceptance:
+        - Per-contract table: address, bytecode_present,
+          sourcify_status, mantlescan_status.
+        - Recent TX classification table with 20 rows.
+        - Drift between on-chain + outcomes.json reported as a
+          single integer with sign.
+        - README claim "Sourcify-verified" cross-referenced with
+          actual status; mismatch = P0.
+
+- [ ] 7. R6: State files audit
+    - Refs: R6
+    - Output: `.kiro/audits/05-state-files.md` (NEW)
+    - Method:
+        - `find data src/data -name '*.json' -exec stat ...` →
+          last-modified table.
+        - For each file: parse top-level keys, count rows.
+        - Pick 5 random rows from `outcomes.json`, validate fields
+          against the writer schema in
+          `src/orchestrator/outcomeTracker.js`.
+        - For files updated by cron: verify last-modified is within
+          expected cadence (e.g. `last-cycle-summary.json` should
+          be hourly).
+    - Acceptance:
+        - All JSON files under `data/` and `src/data/` listed.
+        - Schema-vs-reality check for at least 3 highest-traffic
+          files (outcomes, threshold_state, parse_metrics).
+        - Stale-file findings: any file with mtime older than its
+          expected cadence + 2x buffer is P1.
+
+- [ ] 8. R7: Pipeline data-flow audit
+    - Refs: R7
+    - Output: `.kiro/audits/06-pipeline-data-flow.md` (NEW)
+    - Method:
+        - Pick 1 EXECUTED_SWAP cycle and 1 BLOCKED_BY_LOW_CONFIDENCE
+          cycle from `cycle-history.json` (last 7 days preferred).
+        - For each:
+            - Pull outcomes.json entry → extract IPFS CID.
+            - Fetch IPFS pin content via Pinata gateway.
+            - Pull on-chain proposal data via
+              `TuringVaultValidationRegistry.proposals(id)`.
+            - Look at `raw_model_outputs/<decisionId>/` if exists.
+        - Build a "data card" Markdown table for each cycle.
+        - Run 5 quality checks:
+            - was market data fresh at decision time?
+            - is analyst reasoning unique vs last 5 cycles?
+            - did validator disagree at least once in the same
+              window?
+            - did arbiter fire when expected?
+            - were claimed signals (Elfa, Nansen, regime) actually
+              in the prompt context?
+    - Acceptance:
+        - 2 data cards produced, each with all 5 layers (analyst,
+          validator, arbiter, discipline, ipfs link).
+        - 5 quality checks reported per cycle with PASS/FAIL/N-A.
+        - Any "Validator never disagreed in last 20 cycles"
+          finding is P1.
+        - Any signal that README claims is in the pipeline but is
+          NOT in the prompt context is P0 honesty violation.
+
+- [ ] 9. R8: External APIs audit
+    - Refs: R8
+    - Output: `.kiro/audits/07-external-apis.md` (NEW)
+    - Method:
+        - `probe-external.sh` runs each probe with timeout 10s.
+        - For each: status, latency, auth-error vs network-error
+          classification.
+        - Trace consumer code: how does the cycle behave when this
+          dep is down? (does it throw, fall back, log silently?)
+    - Acceptance:
+        - 6 external deps probed (Pinata, Bedrock, Vertex, Mantle
+          RPC, CoinGecko, Elfa, Nansen).
+        - Failure-mode classification per dep: blocking /
+          degrading / cosmetic.
+        - Any "blocking" failure mode that doesn't surface to UI
+          is a P0 honesty risk.
+
+- [ ] 10. R9: Documents + claims audit
+    - Refs: R9
+    - Output: `.kiro/audits/08-documents-and-claims.md` (NEW)
+    - Method:
+        - Extract every quantitative or absolute claim from
+          README.md, `docs/pitch-deck/index.html`, agent-card JSONs.
+        - Build a claim → artifact table.
+        - For each claim: hyperlink the verifying artifact OR
+          mark "no artifact" / "contradicts artifact".
+    - Acceptance:
+        - At least 30 distinct claims extracted (README typically
+          has more).
+        - 100% of claims have a status: verified / no-artifact /
+          contradicts.
+        - Claims using "always", "never", "100%", "running 24/7"
+          flagged for tightening regardless of artifact.
+
+- [ ] 11. R10: Consolidated findings + remediation
+    - Refs: R10
+    - Output: `.kiro/audits/99-consolidated.md` (NEW)
+    - Method:
+        - Aggregate every finding from reports 01–08.
+        - Sort by severity, then by surface.
+        - Add `status` column; default open.
+        - For trivial / inline fixes already done, set status=fixed
+          and link the commit.
+        - Build "Not checked" section by aggregating each report's
+          not-checked block.
+    - Acceptance:
+        - All findings from 01–08 present (no orphans).
+        - Severity distribution histogram at top.
+        - Every P0 has either status=fixed or
+          wont-fix-pre-submission with operator-recorded reason.
+        - "Not checked" section is non-empty (false-confidence
+          guard).
+
+- [ ] 12. Apply trivial inline fixes
+    - Refs: R10, design §C6
+    - Action:
+        - For each finding in 99-consolidated.md flagged "trivial"
+          (one-line copy fix, env var rename, missing tooltip),
+          apply the fix and link the commit hash in the findings
+          table.
+        - Anything touching deployed contracts → DO NOT apply,
+          mark wont-fix-pre-submission with reason.
+        - Anything that needs > 30 min to investigate → leave open
+          and convert to a backlog spec.
+    - Acceptance:
+        - At least all P0 trivial fixes applied (or confirmed
+          non-trivial → wont-fix).
+        - No commit references audit but breaks a passing test
+          (`npm test` clean after).
+
+- [ ] 13. Re-run probes after fixes
+    - Refs: R10
+    - Action:
+        - Re-run `fetch-frontend.sh`, hit fixed endpoints, sanity-
+          check the fixes worked end-to-end.
+        - Update findings statuses in 99-consolidated.md.
+    - Acceptance:
+        - Every status=fixed finding has a re-probe artifact under
+          `.kiro/audits/raw/post-fix/`.
+        - Any fix that didn't actually move the metric → status
+          rolled back to open with note.
+
+- [ ] 14. Convert remaining open findings into a backlog spec
+    - Refs: R10
+    - Action:
+        - For all P1+ findings still open, generate a single
+          "post-submission backlog" entry under
+          `.kiro/specs/post-submission-backlog/` with a short
+          requirements doc and a flat task list.
+    - Acceptance:
+        - Backlog spec exists with one requirement per finding
+          group (UI / cron / pipeline / docs).
+        - Each backlog task has refs back to the audit finding ID
+          for traceability.
+
+- [ ] 15. Final audit close-out
+    - Refs: R10, all
+    - Action:
+        - Add Status: SHIPPED block to this tasks.md.
+        - Tick all 8 success criteria in requirements.md.
+        - Commit the audits/ tree as one final
+          `chore(audit): system audit pre-submission complete`
+          commit.
+    - Acceptance:
+        - All `[ ]` boxes are `[x]`.
+        - Single closing commit references the audit spec
+          directory.
+        - Operator (you) reads the consolidated report and signs
+          off in chat.
+
+## Task Dependency Graph
+
+```json
+{
+  "waves": [
+    {
+      "wave": 1,
+      "tasks": [1],
+      "rationale": "Probe scripts must exist before any audit task can capture artifacts deterministically."
+    },
+    {
+      "wave": 2,
+      "tasks": [2],
+      "rationale": "Inventory feeds every other surface audit. Without 00-inventory the rest don't have a defined scope."
+    },
+    {
+      "wave": 3,
+      "tasks": [3, 4, 5, 6, 7, 9],
+      "rationale": "Six independent surface audits — UI, API, cron, on-chain, state, external. Can run in parallel across sessions because they don't share output files."
+    },
+    {
+      "wave": 4,
+      "tasks": [8],
+      "rationale": "Pipeline data-flow audit consumes API + state + on-chain audits' findings (the cycles it picks come from cycle-history; the IPFS hashes from outcomes; the on-chain TXs from chain probe). Must follow wave 3."
+    },
+    {
+      "wave": 5,
+      "tasks": [10],
+      "rationale": "Documents + claims audit cross-references the surface audits' findings. Cleaner to run after surfaces."
+    },
+    {
+      "wave": 6,
+      "tasks": [11],
+      "rationale": "Consolidation requires every prior audit to be written."
+    },
+    {
+      "wave": 7,
+      "tasks": [12],
+      "rationale": "Inline fixes happen after the consolidated finding list is stable."
+    },
+    {
+      "wave": 8,
+      "tasks": [13],
+      "rationale": "Post-fix re-probes verify the fixes landed end-to-end."
+    },
+    {
+      "wave": 9,
+      "tasks": [14],
+      "rationale": "Backlog spec collects whatever survived the fix wave."
+    },
+    {
+      "wave": 10,
+      "tasks": [15],
+      "rationale": "Spec close-out only after backlog hand-off is clean."
+    }
+  ]
+}
+```
+
+## Notes
+
+### Why one report per task (not one mega-doc)
+
+If the audit lives in one giant Markdown, my context fills up and I
+miss things. One file per concern keeps each session focused. The
+consolidated report (T11) is allowed to be long because by then the
+hard thinking is done and the work is mechanical aggregation.
+
+### Why probe scripts (T1) come before any audit
+
+The first time you said "audit", I read code. Without scripts, every
+audit starts ad-hoc. With scripts, "re-run audit on 2026-06-10"
+becomes a 5 min job that produces a diffable artifact, not a
+2-hour code-reading session. Scripts also force me to capture raw
+output instead of trusting my memory.
+
+### Bounded context per session
+
+Treat T3–T9 as separate Kiro sessions if at all possible. Mixing two
+audit tasks in one session is exactly how the Discipline-Layer
+roll-up bug got missed last time — I had too much in scope and lost
+the thread.
+
+### What this audit does NOT replace
+
+- The security review (`docs/security-review-2026-05-27.md`) — already
+  done, not redoing.
+- The hackathon submission text — that's a separate spec.
+- Operator judgment on pivots — if the audit finds a fundamental
+  problem, this spec doesn't decide what to do; it surfaces it.
