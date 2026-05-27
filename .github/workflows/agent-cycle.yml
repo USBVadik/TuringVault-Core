@@ -9,11 +9,12 @@ name: Agent Cycle
 
 on:
   schedule:
-    # Run at :17 UTC every hour. GitHub Actions schedules at :00 are
-    # heavily delayed/skipped due to platform-wide load spikes — moving
-    # to an off-peak minute gives much more reliable execution. The cycle
-    # runs ~1 min, so completion lands around :18.
+    # Two slots per hour at off-peak minutes. GH Actions regularly skips
+    # one slot under load; having two gives near-100% hourly coverage.
+    # If both fire within an hour, the concurrency group (cancel-in-progress:
+    # false) means the second waits for the first — effectively a no-op.
     - cron: "17 * * * *"
+    - cron: "47 * * * *"
   workflow_dispatch: # Manual trigger for debugging
 
 # Prevent overlapping runs (in case a cycle is slow). cancel-in-progress=false

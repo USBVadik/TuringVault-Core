@@ -150,21 +150,34 @@ async function computeRwaPctNav(): Promise<{
 async function readLatestRwaSwap(): Promise<{
   at: string;
   source: string;
+  executed?: boolean;
 } | null> {
   try {
     const fs = await import("fs");
     const path = await import("path");
     const p = path.resolve(process.cwd(), "..", "src", "data", "outcomes.json");
-    if (!fs.existsSync(p)) return null;
-    const db = JSON.parse(fs.readFileSync(p, "utf-8"));
+    let db: any = null;
+    if (fs.existsSync(p)) {
+      db = JSON.parse(fs.readFileSync(p, "utf-8"));
+    } else {
+      // Vercel serverless: local files don't exist, fetch from GitHub raw.
+      try {
+        const url =
+          "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/src/data/outcomes.json";
+        const res = await fetch(url, { next: { revalidate: 0 } });
+        if (res.ok) db = await res.json();
+      } catch {}
+    }
+    if (!db) return null;
     const all: OutcomeRow[] = [...(db.pending ?? []), ...(db.settled ?? [])];
-    let latest: { at: string; source: string } | null = null;
+    let latest: { at: string; source: string; executed?: boolean } | null =
+      null;
     for (const e of all) {
       const ri = e?.rwaIntent;
       if (!ri || !ri.executed) continue;
       const at = e.recordedAt ?? e.settledAt ?? null;
       if (at && (!latest || Date.parse(at) > Date.parse(latest.at))) {
-        latest = { at, source: ri.source ?? "unknown" };
+        latest = { at, source: ri.source ?? "unknown", executed: true };
       }
     }
     return latest;
@@ -285,7 +298,13 @@ export async function GET() {
       target: { min: 10, max: 50 },
       lastRebalanceAt: latestRwa?.at ?? null,
       daysSinceLastFlatStart,
-      executeEnabled: process.env.RWA_EXECUTE_ENABLED === "true",
+      // Determine if RWA execution is live based on both the env flag
+      // AND actual evidence of executed swaps. On Vercel the env var may
+      // not be set (it's a GH Actions secret), so we also check whether
+      // the cron has ever executed an RWA swap — that's the ground truth.
+      executeEnabled:
+        process.env.RWA_EXECUTE_ENABLED === "true" ||
+        latestRwa?.executed === true,
       source: (latestRwa?.source ?? "none") as
         | "llm"
         | "idle-parking"
