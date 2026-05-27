@@ -1,3 +1,4 @@
+/* global URLSearchParams */
 /**
  * TuringVault — Elfa Social Intelligence Client
  *

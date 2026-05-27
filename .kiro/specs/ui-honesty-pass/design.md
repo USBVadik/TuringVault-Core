@@ -336,7 +336,8 @@ When `health.lastCycleAge > 600s`, show banner above terminal:
 
 ```tsx
 <div className="bg-yellow-400/[0.04] border border-yellow-400/20 px-3 py-2 mb-3 text-xs">
-  ⚠ Agent idle for <RelativeTime ago />. Last cycle: <ts />. Cron mode: <mode />.
+  ⚠ Agent idle for <RelativeTime ago />. Last cycle: <ts />. Cron mode: <mode />
+  .
 </div>
 ```
 
