@@ -127,7 +127,6 @@ async function getKeyStatus() {
 
 function summariseMentionPayload(payload) {
   if (!payload) return null;
-  // V2 response shape: { success, data: [...], metadata }
   const items = Array.isArray(payload?.data)
     ? payload.data
     : Array.isArray(payload?.data?.data)
@@ -137,10 +136,17 @@ function summariseMentionPayload(payload) {
         : [];
   if (!items.length) return null;
 
+  // V2 actual shape (verified via /api/elfa-snapshot?debug=1 against the
+  // production endpoint):
+  //   { tweetId, link, likeCount, repostCount, viewCount, quoteCount,
+  //     replyCount, bookmarkCount, mentionedAt, type,
+  //     repostBreakdown: { smart, ct } }
+  //
   // V2 strips raw content for ToS compliance, so we cannot run NLP-derived
-  // sentiment ourselves. Instead we use Elfa's account_tags (e.g. "smart")
-  // and engagement metrics as proxies for "what kind of mentions are these".
-  let smart = 0;
+  // sentiment ourselves. We use repostBreakdown.smart (the number of *smart*
+  // accounts that reposted this mention) as the smart-attention proxy.
+  let smartReposts = 0;
+  let ctReposts = 0; // CT = "crypto twitter" generic
   let total = 0;
   let viewSum = 0;
   let likeSum = 0;
@@ -148,22 +154,25 @@ function summariseMentionPayload(payload) {
 
   for (const m of items) {
     total += 1;
-    const tags = Array.isArray(m.account_tags) ? m.account_tags : [];
-    if (tags.includes('smart') || tags.includes('verified')) smart += 1;
-    viewSum += Number(m.view_count ?? 0);
-    likeSum += Number(m.like_count ?? 0);
-    repostSum += Number(m.repost_count ?? 0);
+    const rb = m.repostBreakdown || {};
+    smartReposts += Number(rb.smart ?? 0);
+    ctReposts += Number(rb.ct ?? 0);
+    viewSum += Number(m.viewCount ?? m.view_count ?? 0);
+    likeSum += Number(m.likeCount ?? m.like_count ?? 0);
+    repostSum += Number(m.repostCount ?? m.repost_count ?? 0);
   }
 
   return {
     mentionCount: total,
-    smartAccountMentions: smart,
+    // Total smart reposts across all top mentions — better signal than
+    // counting "is the original tweet from a smart account" (V2 doesn't
+    // expose author tags any more anyway).
+    smartReposts,
+    ctReposts,
     avgViews: total ? Math.round(viewSum / total) : 0,
     avgLikes: total ? Math.round(likeSum / total) : 0,
     avgReposts: total ? Math.round(repostSum / total) : 0,
-    // V2 does not expose raw sentiment. We surface null honestly rather than
-    // computing a fake one. The signal classifier handles null sentiment by
-    // falling back to mindshare-surge logic.
+    // V2 does not expose raw sentiment. Surface honestly null.
     sentiment: null,
   };
 }
@@ -179,20 +188,17 @@ function findTickerInTrending(trendingPayload, ticker) {
         : [];
   if (!items.length) return null;
 
-  const upper = ticker.toUpperCase();
+  // V2 returns tokens lowercase: { token: "btc", current_count, previous_count, change_percent }
+  const target = ticker.toLowerCase();
   let totalMentions = 0;
   for (const t of items) {
-    totalMentions += Number(
-      t.current_count ?? t.mentions ?? t.mentionCount ?? t.count ?? 0
-    );
+    totalMentions += Number(t.current_count ?? t.mentions ?? t.count ?? 0);
   }
   for (let i = 0; i < items.length; i += 1) {
     const t = items[i];
-    const sym = String(t.token ?? t.ticker ?? t.symbol ?? '').toUpperCase();
-    if (sym === upper) {
-      const mentions = Number(
-        t.current_count ?? t.mentions ?? t.mentionCount ?? t.count ?? 0
-      );
+    const sym = String(t.token ?? t.ticker ?? t.symbol ?? '').toLowerCase();
+    if (sym === target) {
+      const mentions = Number(t.current_count ?? t.mentions ?? t.count ?? 0);
       const previous = Number(t.previous_count ?? 0);
       const mindshare =
         totalMentions > 0
@@ -201,10 +207,6 @@ function findTickerInTrending(trendingPayload, ticker) {
       let change = null;
       if (typeof t.change_percent === 'number') {
         change = t.change_percent;
-      } else if (typeof t.mentions_change_percentage === 'number') {
-        change = t.mentions_change_percentage;
-      } else if (typeof t.changePct === 'number') {
-        change = t.changePct;
       } else if (previous > 0) {
         change = +(((mentions - previous) / previous) * 100).toFixed(1);
       }
@@ -229,13 +231,16 @@ function findTickerInTrending(trendingPayload, ticker) {
  * V2 does not expose raw sentiment, so we derive the BULLISH/BEARISH/NEUTRAL
  * classification from the *attention* signal:
  *   - mindshare surge (mentions vs previous window)
- *   - smart-account ratio (curated/verified vs total mentions)
+ *   - smart-repost ratio: smartReposts / (smartReposts + ctReposts).
+ *     "ct" = generic "crypto twitter" reposters, "smart" = curated accounts.
+ *     A high ratio means the attention is coming from accounts Elfa has
+ *     classified as informed.
  *
  * Logic:
- *   - mindshareChange > +50% AND smartRatio >= 0.30 → BULLISH (strong attention)
- *   - mindshareChange > +20%                       → BULLISH (mild attention spike)
- *   - mindshareChange < -30% AND mindshareRank > 0 → BEARISH (attention collapsing)
- *   - else                                         → NEUTRAL
+ *   - mindshareChange > +50% AND smartShare >= 0.20 → BULLISH (high conviction)
+ *   - mindshareChange > +20%                        → BULLISH (mild surge)
+ *   - mindshareChange < -30%                        → BEARISH (attention collapsing)
+ *   - else                                          → NEUTRAL
  *
  * This is an *attention* signal, not a directional sentiment forecast — it
  * tells the analyst "social attention is heating up / cooling down". The
@@ -259,13 +264,13 @@ async function getSocialSignal(symbol = 'ETH', { timeWindow = '24h' } = {}) {
     }
 
     const mindshareChange = t?.mindshareChange ?? 0;
-    const smartRatio =
-      m && m.mentionCount > 0 ? m.smartAccountMentions / m.mentionCount : 0;
+    const totalReposts = (m?.smartReposts ?? 0) + (m?.ctReposts ?? 0);
+    const smartShare = totalReposts > 0 ? (m.smartReposts / totalReposts) : 0;
 
     let signal = 'NEUTRAL';
     let strength = 0.2;
 
-    if (mindshareChange > 50 && smartRatio >= 0.30) {
+    if (mindshareChange > 50 && smartShare >= 0.20) {
       signal = 'BULLISH';
       strength = 0.85;
     } else if (mindshareChange > 20) {
@@ -285,8 +290,9 @@ async function getSocialSignal(symbol = 'ETH', { timeWindow = '24h' } = {}) {
       strength,
       sentiment: null, // V2 strips raw content; honestly null
       mentionCount: m?.mentionCount ?? null,
-      smartAccountMentions: m?.smartAccountMentions ?? null,
-      smartRatio: +smartRatio.toFixed(2),
+      smartReposts: m?.smartReposts ?? 0,
+      ctReposts: m?.ctReposts ?? 0,
+      smartShare: +smartShare.toFixed(2),
       avgViews: m?.avgViews ?? null,
       avgLikes: m?.avgLikes ?? null,
       mindshare: t?.mindshare ?? null,

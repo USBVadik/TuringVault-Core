@@ -956,8 +956,9 @@ function ElfaSocialStripRow({ data }: { data: any }) {
 
   const ms = data.mindshare != null ? Number(data.mindshare).toFixed(2) : null;
   const dms = data.mindshareChange != null ? Number(data.mindshareChange).toFixed(0) : null;
-  const smart = data.smartAccountMentions ?? 0;
-  const smartRatio = data.smartRatio != null ? Math.round(Number(data.smartRatio) * 100) : null;
+  const smartReposts = data.smartReposts ?? 0;
+  const ctReposts = data.ctReposts ?? 0;
+  const smartShare = data.smartShare != null ? Math.round(Number(data.smartShare) * 100) : null;
   const mentionCount = data.mentionCount ?? 0;
   const sym = data.symbol ?? 'ETH';
   const win = data.timeWindow ?? '24h';
@@ -994,12 +995,9 @@ function ElfaSocialStripRow({ data }: { data: any }) {
       <div className="funding-strategy-row">
         <span className="text-[10px] font-mono text-purple-400/70"></span>
         <span className="text-[10px] font-mono text-white/30">
-          {mentionCount} mentions
-          {smartRatio != null && (
-            <>
-              {' · '}
-              <span className="text-white/55">{smart}</span> smart ({smartRatio}%)
-            </>
+          {mentionCount} mentions · reposts: <span className="text-white/55">{smartReposts}</span> smart / {ctReposts} ct
+          {smartShare != null && smartReposts + ctReposts > 0 && (
+            <> ({smartShare}% smart)</>
           )}
         </span>
       </div>

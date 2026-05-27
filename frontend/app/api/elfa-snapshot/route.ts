@@ -59,7 +59,12 @@ function summariseMentions(payload: any) {
         : [];
   if (!items.length) return null;
 
-  let smart = 0;
+  // V2 actual fields (verified via debug=1):
+  //   { tweetId, link, likeCount, repostCount, viewCount, quoteCount,
+  //     replyCount, bookmarkCount, mentionedAt, type,
+  //     repostBreakdown: { smart, ct } }
+  let smartReposts = 0;
+  let ctReposts = 0;
   let total = 0;
   let viewSum = 0;
   let likeSum = 0;
@@ -67,16 +72,18 @@ function summariseMentions(payload: any) {
 
   for (const m of items) {
     total += 1;
-    const tags = Array.isArray(m.account_tags) ? m.account_tags : [];
-    if (tags.includes('smart') || tags.includes('verified')) smart += 1;
-    viewSum += Number(m.view_count ?? 0);
-    likeSum += Number(m.like_count ?? 0);
-    repostSum += Number(m.repost_count ?? 0);
+    const rb = m.repostBreakdown || {};
+    smartReposts += Number(rb.smart ?? 0);
+    ctReposts += Number(rb.ct ?? 0);
+    viewSum += Number(m.viewCount ?? m.view_count ?? 0);
+    likeSum += Number(m.likeCount ?? m.like_count ?? 0);
+    repostSum += Number(m.repostCount ?? m.repost_count ?? 0);
   }
 
   return {
     mentionCount: total,
-    smartAccountMentions: smart,
+    smartReposts,
+    ctReposts,
     avgViews: total ? Math.round(viewSum / total) : 0,
     avgLikes: total ? Math.round(likeSum / total) : 0,
     avgReposts: total ? Math.round(repostSum / total) : 0,
@@ -94,20 +101,17 @@ function findInTrending(payload: any, ticker: string) {
         : [];
   if (!items.length) return null;
 
-  const upper = ticker.toUpperCase();
+  // V2 returns lowercase token names: { token: "btc", current_count, previous_count, change_percent }
+  const target = ticker.toLowerCase();
   let totalMentions = 0;
   for (const t of items) {
-    totalMentions += Number(
-      t.current_count ?? t.mentions ?? t.mentionCount ?? t.count ?? 0
-    );
+    totalMentions += Number(t.current_count ?? t.mentions ?? t.count ?? 0);
   }
   for (let i = 0; i < items.length; i += 1) {
     const t = items[i];
-    const sym = String(t.token ?? t.ticker ?? t.symbol ?? '').toUpperCase();
-    if (sym === upper) {
-      const mentions = Number(
-        t.current_count ?? t.mentions ?? t.mentionCount ?? t.count ?? 0
-      );
+    const sym = String(t.token ?? t.ticker ?? t.symbol ?? '').toLowerCase();
+    if (sym === target) {
+      const mentions = Number(t.current_count ?? t.mentions ?? t.count ?? 0);
       const previous = Number(t.previous_count ?? 0);
       const mindshare =
         totalMentions > 0
@@ -115,9 +119,6 @@ function findInTrending(payload: any, ticker: string) {
           : null;
       let change: number | null = null;
       if (typeof t.change_percent === 'number') change = t.change_percent;
-      else if (typeof t.mentions_change_percentage === 'number')
-        change = t.mentions_change_percentage;
-      else if (typeof t.changePct === 'number') change = t.changePct;
       else if (previous > 0)
         change = +(((mentions - previous) / previous) * 100).toFixed(1);
       return {
@@ -132,9 +133,9 @@ function findInTrending(payload: any, ticker: string) {
   return null;
 }
 
-function classify(mindshareChange: number | null, smartRatio: number) {
+function classify(mindshareChange: number | null, smartShare: number) {
   const dms = mindshareChange ?? 0;
-  if (dms > 50 && smartRatio >= 0.30) return { signal: 'BULLISH', strength: 0.85 };
+  if (dms > 50 && smartShare >= 0.20) return { signal: 'BULLISH', strength: 0.85 };
   if (dms > 20)
     return {
       signal: 'BULLISH',
@@ -238,12 +239,10 @@ export async function GET(req: Request) {
   const tSum = tErr ? null : findInTrending(trending, symbol);
 
   const mindshareChange = tSum?.mindshareChange ?? null;
-  const smartRatio =
-    mSum && mSum.mentionCount > 0
-      ? mSum.smartAccountMentions / mSum.mentionCount
-      : 0;
+  const totalReposts = (mSum?.smartReposts ?? 0) + (mSum?.ctReposts ?? 0);
+  const smartShare = totalReposts > 0 ? (mSum!.smartReposts / totalReposts) : 0;
 
-  const { signal, strength } = classify(mindshareChange, smartRatio);
+  const { signal, strength } = classify(mindshareChange, smartShare);
 
   return NextResponse.json({
     available: true,
@@ -254,8 +253,9 @@ export async function GET(req: Request) {
     strength,
     sentiment: null, // V2 strips raw content
     mentionCount: mSum?.mentionCount ?? null,
-    smartAccountMentions: mSum?.smartAccountMentions ?? null,
-    smartRatio: +smartRatio.toFixed(2),
+    smartReposts: mSum?.smartReposts ?? 0,
+    ctReposts: mSum?.ctReposts ?? 0,
+    smartShare: +smartShare.toFixed(2),
     avgViews: mSum?.avgViews ?? null,
     avgLikes: mSum?.avgLikes ?? null,
     mindshare: tSum?.mindshare ?? null,

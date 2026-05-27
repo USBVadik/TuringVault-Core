@@ -443,9 +443,10 @@ function buildPromptSummary({ regime, consensus, fundingData, flowData, yieldDat
   if (socialData?.available) {
     const ms = socialData.mindshare != null ? socialData.mindshare.toFixed(2) : '—';
     const dms = socialData.mindshareChange != null ? `${socialData.mindshareChange > 0 ? '+' : ''}${socialData.mindshareChange.toFixed(0)}%` : '—';
-    const sm = socialData.smartAccountMentions ?? 0;
-    const sr = socialData.smartRatio != null ? `${Math.round(socialData.smartRatio * 100)}%` : '—';
-    lines.push(`Social attention (Elfa, ${socialData.timeWindow || '24h'}): mindshare ${ms}% (${dms}), ${sm} smart-account mentions (${sr} ratio) → ${socialData.signal} (strength ${(socialData.strength * 100).toFixed(0)}%)`);
+    const sr = socialData.smartReposts ?? 0;
+    const ct = socialData.ctReposts ?? 0;
+    const ss = socialData.smartShare != null ? `${Math.round(socialData.smartShare * 100)}%` : '—';
+    lines.push(`Social attention (Elfa, ${socialData.timeWindow || '24h'}): mindshare ${ms}% (${dms}), reposts ${sr} smart / ${ct} ct (${ss} smart-share) → ${socialData.signal} (strength ${(socialData.strength * 100).toFixed(0)}%)`);
   }
 
   if (liqMap?.available) {
