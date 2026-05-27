@@ -1,5 +1,13 @@
 # Continuous Cron + Health — Tasks
 
+## Status: SHIPPED 2026-05-27
+
+All 13 top-level tasks (T1–T13) complete. Cron has run 114+ cycles
+hourly via GitHub Actions. `/api/health` live, runbook published,
+mascot turns green/red honestly based on freshness. Acceptance
+sub-checkboxes inside each T# block are checklists, not separate tasks.
+
+
 Sequenced execution plan for the design in `design.md`. Each task lists
 its requirement reference (R# from `requirements.md`) and component
 reference (C# from `design.md`). Tick `[x]` as you go.

@@ -1,5 +1,13 @@
 # Agent Reasoning Quality — Tasks
 
+## Status: SHIPPED 2026-05-27
+
+All actionable tasks complete (89 ticked, 1 marked N/A). Validator
+temperature lowered to 0.05, evolved prompts gated behind
+`EVOLVED_PROMPTS_ENABLED`, raw model outputs persisted with parse
+metrics + threshold state. Migration applied with `tierSource: inferred`.
+
+
 Decisions locked from design Q&A:
 
 - `runMultiAgentCycle({ dryRun })` opt-in parameter; default behavior unchanged.

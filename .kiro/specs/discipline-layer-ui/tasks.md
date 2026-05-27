@@ -5,9 +5,16 @@
 Surface the Discipline Layer's per-cycle verification on the dashboard.
 Spec: `requirements.md` — 5 requirements, all behind one cron commit-back.
 
+## Status: SHIPPED 2026-05-27
+
+All 6 tasks complete. `/discipline` page live, landing strip showing
+latest cycle gate statuses, README links in place. Per-cycle
+discipline detail persisted via `data/discipline-history.json`.
+
+
 ## Tasks
 
-- [ ] 1. Persist full Discipline detail per cycle
+- [x] 1. Persist full Discipline detail per cycle
 
   - Refs: R1
   - Files:
@@ -23,7 +30,7 @@ Spec: `requirements.md` — 5 requirements, all behind one cron commit-back.
 blockReason }` - `summary()` returns `{ acceptedCount, blockedCount,
 skippedCount, errorCount, gatePassRates }` over last 100
 
-- [ ] 2. Add `/api/discipline` endpoint
+- [x] 2. Add `/api/discipline` endpoint
 
   - Refs: R2
   - File: `frontend/app/api/discipline/route.ts` (NEW)
@@ -35,7 +42,7 @@ skippedCount, errorCount, gatePassRates }` over last 100
     - No secret leaks (grep check on route)
     - `npx next build` clean
 
-- [ ] 3. Landing-page Discipline strip
+- [x] 3. Landing-page Discipline strip
 
   - Refs: R3, R5
   - File: `frontend/app/page.tsx` (MODIFY)
@@ -49,7 +56,7 @@ skippedCount, errorCount, gatePassRates }` over last 100
     - When all gates PASS, row shows green
     - When any FAIL, row shows red gate name + blockReason in tooltip
 
-- [ ] 4. `/discipline` page (full history)
+- [x] 4. `/discipline` page (full history)
 
   - Refs: R4
   - File: `frontend/app/discipline/page.tsx` (NEW)
@@ -62,14 +69,14 @@ skippedCount, errorCount, gatePassRates }` over last 100
     - All states render (no data, all-pass, mixed, blocked)
     - No "always passing" or "24/7" copy
 
-- [ ] 5. README link
+- [x] 5. README link
 
   - Refs: Success Criteria #6
   - File: `README.md` (MODIFY)
   - Add 1-paragraph "Discipline Layer dashboard" subsection under
     Discipline Layer section, link to `/discipline` on live demo.
 
-- [ ] 6. Verify on prod
+- [x] 6. Verify on prod
   - Refs: Success Criteria #1-#4
   - Action (operator-side):
     - Wait for next cron cycle (≤ 60 min)

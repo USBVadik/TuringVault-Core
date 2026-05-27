@@ -6,9 +6,30 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
 
 **Test gate before merge:** tasks 1–11 done; tasks 12–15 are post-merge live verification with `CHALLENGE_LIVE_ENABLED=true`.
 
+## Status: PARTIAL — preview-rules mode live, LIVE pipeline deferred
+
+**Done (10/15):** Tasks 1–6, 8–11.
+- Backend modules ready: `attackVectors`, `runChallenge`, `challengeBudget`.
+- 37 unit tests passing.
+- `/api/challenge` route handles both modes.
+- `/challenge` page rewritten with mode badge.
+- Runbook + README link in place.
+- State isolation verified (challenge does NOT mutate cron state).
+
+**Deferred to v3 (5/15):** Tasks 7, 12, 13, 14, 15.
+- Vercel shim wiring `frontend/lib/runChallenge.ts` (live multi-agent on Vercel).
+- All live-mode verification tasks (12–14).
+- Spec close-out (15) blocked on the live runs.
+
+The current `/challenge` page works in PREVIEW mode — gates fire,
+attack vectors render, but reasoning is rule-based not LLM-generated.
+Live multi-agent pipeline runs on the cron (visible in `/api/decisions`)
+but is not yet plumbed through Vercel for interactive challenge UX.
+
+
 ## Tasks
 
-- [ ] 1. Create `src/orchestrator/attackVectors.js`
+- [x] 1. Create `src/orchestrator/attackVectors.js`
 
   - Refs: R2, design §C1, CP3
   - File: `src/orchestrator/attackVectors.js` (NEW)
@@ -19,7 +40,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - `attackProvenance` field set on returned context
     - Original input not mutated (immutable composition)
 
-- [ ] 2. Create `src/orchestrator/runChallenge.js`
+- [x] 2. Create `src/orchestrator/runChallenge.js`
 
   - Refs: R1, R2, R3, design §C2, CP6
   - File: `src/orchestrator/runChallenge.js` (NEW)
@@ -32,7 +53,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - IPFS pin uses `CHALLENGE-{type}` name prefix
     - Returns `pipelinePath`, `disagreementSignal`, `disagreementSummary`, `decisionTier`
 
-- [ ] 3. Add daily budget tracker `data/challenge-budget.json`
+- [x] 3. Add daily budget tracker `data/challenge-budget.json`
 
   - Refs: R4.2, design §C6
   - Files:
@@ -44,7 +65,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - When date changes, resets `used` to 0
     - Cron's commit-back step picks up the file naturally (no workflow changes)
 
-- [ ] 4. Unit tests
+- [x] 4. Unit tests
 
   - Refs: R7, design "Testing Strategy" Layer 1, CP3, CP4
   - Files:
@@ -56,7 +77,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - Date-reset test: stub Date.now, ensure used resets across UTC midnight
     - All tests pass via `node_modules/.bin/jest tests/unit`
 
-- [ ] 5. Rewrite `frontend/app/api/challenge/route.ts`
+- [x] 5. Rewrite `frontend/app/api/challenge/route.ts`
 
   - Refs: R1, R3, R4, R8, design §C3, CP1, CP2, CP5
   - File: `frontend/app/api/challenge/route.ts` (REWRITE)
@@ -73,7 +94,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - Rate-limit triggers after 5 requests from same IP within 1h
     - Daily cap enforced (test with `CHALLENGE_DAILY_CAP=2` + 3 invocations)
 
-- [ ] 6. Rewrite `frontend/app/challenge/page.tsx`
+- [x] 6. Rewrite `frontend/app/challenge/page.tsx`
 
   - Refs: R5, R6, R8, design §C4
   - File: `frontend/app/challenge/page.tsx` (REWRITE)
@@ -103,7 +124,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - Vercel build doesn't break on backend module resolution
     - Bundle size increase < 5MB
 
-- [ ] 8. Operator runbook `.kiro/runbooks/challenge-operations.md`
+- [x] 8. Operator runbook `.kiro/runbooks/challenge-operations.md`
 
   - Refs: R7
   - File: `.kiro/runbooks/challenge-operations.md` (NEW)
@@ -118,7 +139,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - All 6 sections present
     - Linked from README
 
-- [ ] 9. Update README "Adversarial Challenge" subsection
+- [x] 9. Update README "Adversarial Challenge" subsection
 
   - Refs: R7.2
   - File: `README.md` (MODIFY)
@@ -130,7 +151,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
     - Honesty rule passes (no false-live claim)
     - Internal links resolve
 
-- [ ] 10. Add new GitHub Actions secrets to runbook
+- [x] 10. Add new GitHub Actions secrets to runbook
 
   - Refs: R7.1
   - File: `.kiro/runbooks/challenge-operations.md` (already from task 8)
@@ -138,7 +159,7 @@ Sequenced execution plan for `design.md`. Each task references its requirement (
   - Acceptance:
     - Operator confirms 2 new secrets set (one initially `false`, one initially `false`)
 
-- [ ] 11. Verify backend doesn't shadow production state
+- [x] 11. Verify backend doesn't shadow production state
 
   - Refs: CP2
   - Action: run `runChallenge` locally with `anchor=false`, snapshot `src/data/outcomes.json`, `src/data/threshold_state.json`, `src/data/position_state.json` before and after, diff.
