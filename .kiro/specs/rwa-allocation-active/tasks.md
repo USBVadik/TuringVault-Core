@@ -8,9 +8,18 @@ requirement (R#) and component (C#). Tick `[x]` as you go.
 **Test gate before merge:** tasks 1–13 done; tasks 14–17 are
 post-merge live verification with `RWA_EXECUTE_ENABLED=true`.
 
+## Status: SHIPPED 2026-05-27
+
+All 18 tasks complete. First live RWA swap on Mantle:
+[`0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de).
+
+55%+ of agent NAV currently in USDT0 (LayerZero Treasury-collateralised).
+Frontend RWA strip live. Path A (LLM-driven) and Path B (deterministic
+idle-parking) both verified in production.
+
 ## Tasks
 
-- [ ] 1. Create `src/config/rwaLimits.js`
+- [x] 1. Create `src/config/rwaLimits.js`
 
   - Refs: R2.6, R2.7, R4.1, design §C2
   - Why first: every other task imports these constants.
@@ -22,7 +31,7 @@ post-merge live verification with `RWA_EXECUTE_ENABLED=true`.
     - Env-override test: setting `RWA_MAX_PER_CYCLE_USD=10` then
       `require('./rwaLimits')` returns 10.
 
-- [ ] 2. Create `src/rwa/usdt0Module.js`
+- [x] 2. Create `src/rwa/usdt0Module.js`
 
   - Refs: R1, design §C1
   - File: `src/rwa/usdt0Module.js` (NEW)
@@ -32,7 +41,7 @@ post-merge live verification with `RWA_EXECUTE_ENABLED=true`.
   - Acceptance: - Export `USDT0Module` and `USDT0_ADDRESS`. - `getPosition(addr)` returns `{ token, address, balance,
 decimals, totalSupply, apy: 0, underlying, issuer }`. - `getContextForAI` does NOT mention an APY for USDT0. - Unit test: mocked provider, asserts shape and zero APY.
 
-- [ ] 3. Patch `src/strategies/positionState.js` to track `flatSince`
+- [x] 3. Patch `src/strategies/positionState.js` to track `flatSince`
 
   - Refs: R2.3, design §C5
   - Change: in `exitPosition(reason)`, set
@@ -42,7 +51,7 @@ decimals, totalSupply, apy: 0, underlying, issuer }`. - `getContextForAI` does N
     - `flatSince` is ISO when status is FLAT, null otherwise.
     - Existing readers continue to work (additive field).
 
-- [ ] 4. Create `src/orchestrator/rwaAllocator.js`
+- [x] 4. Create `src/orchestrator/rwaAllocator.js`
 
   - Refs: R2, design §C3, CP1, CP2, CP3, CP4
   - File: `src/orchestrator/rwaAllocator.js` (NEW)
@@ -58,7 +67,7 @@ from:'USDT', to:'USDT0'}` when consensus + matching action. - Path A `rwa_exit` 
     parkUsd ≥ MIN_BALANCE_USD. - Returns `{skip:true, _gate:'min-balance'}` on dust wallet. - Returns `{skip:true, _gate:'daily-cap'}` when 24h spend at
     `MAX_PER_DAY_USD`. - CP1–CP4 verified via task 5 unit tests.
 
-- [ ] 5. Create unit tests
+- [x] 5. Create unit tests
 
   - Refs: R7, design §"Testing Strategy" Layer 1
   - Files:
@@ -71,7 +80,7 @@ from:'USDT', to:'USDT0'}` when consensus + matching action. - Path A `rwa_exit` 
       CP4 (determinism) explicitly asserted.
     - `npm run test:unit` passes 100% locally.
 
-- [ ] 6. Upgrade `MerchantMoeDEX.executeSwap`
+- [x] 6. Upgrade `MerchantMoeDEX.executeSwap`
 
   - Refs: R4, design §C4, CP6, CP7, CP8
   - File: `src/dex/merchantMoe.js` (MODIFY)
@@ -93,7 +102,7 @@ from:'USDT', to:'USDT0'}` when consensus + matching action. - Path A `rwa_exit` 
     - Allowance set once per token per process (no double-approve).
     - USDY path throws the typed error.
 
-- [ ] 7. Extend Analyst prompt + Zod schema
+- [x] 7. Extend Analyst prompt + Zod schema
 
   - Refs: R3.1, design §C7
   - File: `src/orchestrator/multiAgent.js` (MODIFY)
@@ -110,7 +119,7 @@ from:'USDT', to:'USDT0'}` when consensus + matching action. - Path A `rwa_exit` 
     - 2 new test cases: rwa_allocate and rwa_exit normalize OK.
     - `decisionTier` classification still works for new actions.
 
-- [ ] 8. Wire allocator + executor into `runMultiAgentCycle`
+- [x] 8. Wire allocator + executor into `runMultiAgentCycle`
 
   - Refs: R3, design §C6
   - File: `src/orchestrator/multiAgentLoop.js` (MODIFY)
@@ -129,7 +138,7 @@ from:'USDT', to:'USDT0'}` when consensus + matching action. - Path A `rwa_exit` 
     - Failure of `executeSwap` does not break the cycle —
       `cycle-failures.json` gains an entry, exit stays 0.
 
-- [ ] 9. Patch `outcomeTracker.record` for `rwaIntent` + helper
+- [x] 9. Patch `outcomeTracker.record` for `rwaIntent` + helper
 
   - Refs: R3.3, design "Data Models"
   - File: `src/orchestrator/outcomeTracker.js` (MODIFY)
@@ -143,7 +152,7 @@ from:'USDT', to:'USDT0'}` when consensus + matching action. - Path A `rwa_exit` 
     - `getLastRwaSwapAt()` returns the right ISO when there's a
       successful row, null otherwise.
 
-- [ ] 10. Patch `scripts/run-cycle.js` summary writer
+- [x] 10. Patch `scripts/run-cycle.js` summary writer
 
   - Refs: R3.3, design §C6 (last paragraph)
   - File: `scripts/run-cycle.js` (MODIFY)
@@ -154,7 +163,7 @@ to }` when intent existed.
       gains `rwa: { executed:false, ... }`.
     - No regressions on existing fields.
 
-- [ ] 11. Extend `/api/decisions` and `/api/strategy`
+- [x] 11. Extend `/api/decisions` and `/api/strategy`
 
   - Refs: R5, design §C8, §C9
   - Files:
@@ -172,7 +181,7 @@ to }` when intent existed.
       sources are missing (defaults to nulls / 0).
     - No secret leaks (grep check on routes).
 
-- [ ] 12. Frontend RWA strip on landing page
+- [x] 12. Frontend RWA strip on landing page
 
   - Refs: R6, R9, design §C10, no-lying-about-state.md
   - File: `frontend/app/page.tsx` (MODIFY)
@@ -188,7 +197,7 @@ to }` when intent existed.
     - When executeEnabled=false, no "live" claim anywhere.
     - When no real RWA TX yet, no "last allocation" shown.
 
-- [ ] 13. Smoke harness `npm run smoke:rwa`
+- [x] 13. Smoke harness `npm run smoke:rwa`
 
   - Refs: R7, design §C11, "Testing Strategy" Layer 2
   - Files:
@@ -201,7 +210,7 @@ to }` when intent existed.
     - Exits 0 if ≥ 4/12 produce non-null intent, else 1.
     - No Bedrock call, no IPFS pin, no on-chain TX.
 
-- [ ] 14. Operator runbook `.kiro/runbooks/rwa-operations.md`
+- [x] 14. Operator runbook `.kiro/runbooks/rwa-operations.md`
 
   - Refs: R8, design §C12
   - File: `.kiro/runbooks/rwa-operations.md` (NEW)
@@ -216,7 +225,7 @@ to }` when intent existed.
     - All 6 sections present and complete.
     - Linked from README (task 15).
 
-- [ ] 15. Update README "Strategy" + "Running" sections
+- [x] 15. Update README "Strategy" + "Running" sections
 
   - Refs: R6, R9
   - File: `README.md` (MODIFY)
@@ -229,7 +238,7 @@ to }` when intent existed.
     - Honesty rule passes (no fabricated APY claim).
     - Internal links resolve.
 
-- [ ] 16. First live workflow_dispatch with `RWA_EXECUTE_ENABLED=true`
+- [x] 16. First live workflow_dispatch with `RWA_EXECUTE_ENABLED=true`
 
   - Refs: R3.2, "Testing Strategy" Layer 3, Success Criteria #1, #2
   - Action (operator-side):
@@ -248,7 +257,7 @@ to }` when intent existed.
       the new row.
     - Frontend RWA strip flips to "live · last allocation <time>".
 
-- [ ] 17. Verify Path B fires on next idle cycle
+- [x] 17. Verify Path B fires on next idle cycle
 
   - Refs: Success Criteria #2 (idle-parking row)
   - Action: wait until conditions are met:
@@ -260,7 +269,7 @@ to }` when intent existed.
       `rwaIntent.source === 'idle-parking'`.
     - Cooldown holds: no second idle-parking fires within 6 h.
 
-- [ ] 18. Final spec close-out
+- [x] 18. Final spec close-out
   - Refs: all
   - Action: mark all `[ ]` boxes; tick Success Criteria 1–8 in
     `requirements.md`. Move spec under "shipped" if you have a
