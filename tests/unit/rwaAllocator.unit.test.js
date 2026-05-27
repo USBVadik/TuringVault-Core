@@ -134,7 +134,7 @@ describe("rwaAllocator", () => {
   // ───────────────────────────────────────────────────────────
 
   describe("Path B: idle-parking", () => {
-    test("fires when FLAT > 24h, regime≠TREND_UP, cooldown elapsed", () => {
+    test("fires when FLAT > 24h, regime≠TREND_UP, cooldown elapsed (conservative takes priority)", () => {
       const a = freshAllocator();
       const out = a.evaluate({
         decision: decision({ consensus: false, action: "hold" }),
@@ -145,14 +145,13 @@ describe("rwaAllocator", () => {
         posState: flatPosState(30),
         now: NOW,
       });
-      expect(out.source).toBe("idle-parking");
+      // Path A.3 (conservative) fires before Path B (idle-parking)
+      expect(out.source).toBe("conservative");
       expect(out.from).toBe("USDT");
       expect(out.to).toBe("USDT0");
-      // 20% of 50 = 10 → clamped to MAX_PER_CYCLE_USD = 5
-      expect(out.amountInUsd).toBe(5);
     });
 
-    test("does NOT fire on TREND_UP regime", () => {
+    test("does NOT fire on TREND_UP regime (no conservative either)", () => {
       const a = freshAllocator();
       const out = a.evaluate({
         decision: decision({ consensus: false, action: "hold" }),
@@ -166,7 +165,7 @@ describe("rwaAllocator", () => {
       expect(out).toBeNull();
     });
 
-    test("does NOT fire when FLAT < 24h", () => {
+    test("conservative fires even when FLAT < 24h (idle-parking wouldn't)", () => {
       const a = freshAllocator();
       const out = a.evaluate({
         decision: decision({ consensus: false, action: "hold" }),
@@ -177,10 +176,11 @@ describe("rwaAllocator", () => {
         posState: flatPosState(5),
         now: NOW,
       });
-      expect(out).toBeNull();
+      // Conservative fires regardless of FLAT duration
+      expect(out?.source).toBe("conservative");
     });
 
-    test("does NOT fire during cooldown (< 6h since last swap)", () => {
+    test("conservative fires even during cooldown (idle-parking wouldn't)", () => {
       const a = freshAllocator();
       const lastSwap = new Date(NOW - 2 * 3600 * 1000).toISOString();
       const out = a.evaluate({
@@ -192,7 +192,8 @@ describe("rwaAllocator", () => {
         posState: flatPosState(30),
         now: NOW,
       });
-      expect(out).toBeNull();
+      // Conservative fires regardless of cooldown
+      expect(out?.source).toBe("conservative");
     });
 
     test("fires after cooldown elapses", () => {
@@ -207,7 +208,8 @@ describe("rwaAllocator", () => {
         posState: flatPosState(30),
         now: NOW,
       });
-      expect(out?.source).toBe("idle-parking");
+      // Path A.3 (conservative) fires before Path B (idle-parking) now
+      expect(out?.source).toBe("conservative");
     });
 
     test("skips with park-too-small when 20% of idle < $2", () => {
@@ -237,6 +239,8 @@ describe("rwaAllocator", () => {
       };
       const a1 = a.evaluate(args);
       const a2 = a.evaluate(args);
+      // Now returns conservative instead of idle-parking
+      expect(a1.source).toBe("conservative");
       expect(a1.amountInUsd).toBe(a2.amountInUsd);
       expect(a1.amountInWei).toBe(a2.amountInWei);
       expect(a1.from).toBe(a2.from);
@@ -332,7 +336,21 @@ describe("rwaAllocator", () => {
       expect(out).toBeNull();
     });
 
-    test("returns null when no-consensus + not FLAT (in mETH)", () => {
+    test("returns null when no-consensus + not FLAT (in mETH) + TREND_UP regime", () => {
+      const a = freshAllocator();
+      const out = a.evaluate({
+        decision: decision({ consensus: false, action: "hold" }),
+        market: { regime: "TREND_UP" }, // TREND_UP doesn't trigger conservative
+        balances: { USDT: 50, USDT0: 0, mUSD: 0 },
+        prices: PRICES,
+        lastSwapAt: null,
+        posState: inMethPosState(),
+        now: NOW,
+      });
+      expect(out).toBeNull();
+    });
+
+    test("returns conservative when no-consensus + HOLD in risk-off regime", () => {
       const a = freshAllocator();
       const out = a.evaluate({
         decision: decision({ consensus: false, action: "hold" }),
@@ -343,7 +361,7 @@ describe("rwaAllocator", () => {
         posState: inMethPosState(),
         now: NOW,
       });
-      expect(out).toBeNull();
+      expect(out?.source).toBe("conservative");
     });
   });
 
