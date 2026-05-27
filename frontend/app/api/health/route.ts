@@ -174,8 +174,22 @@ async function getMantleBlock(): Promise<number | null> {
   }
 }
 
+// Fetch JSON from GitHub raw (works on Vercel where local files aren't available)
+async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
+  try {
+    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
+    const res = await fetch(url, { next: { revalidate: 30 } }); // Cache for 30 seconds
+    if (!res.ok) return null;
+    return await res.json() as T;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(): Promise<NextResponse> {
   try {
+    // Try local files first (works in dev), fall back to GitHub (works on Vercel)
+    
     // 1. data/loop_progress.json mtime
     const progressPath = backendPath("data", "loop_progress.json");
     const progressStat = safeStat(progressPath);
@@ -183,9 +197,12 @@ export async function GET(): Promise<NextResponse> {
       ? new Date(progressStat.mtimeMs).toISOString()
       : null;
 
-    // 2. src/data/outcomes.json — newest entry
+    // 2. src/data/outcomes.json — newest entry (try local, then GitHub)
     const outcomesPath = backendPath("src", "data", "outcomes.json");
-    const outcomes = safeReadJson<Outcomes>(outcomesPath);
+    let outcomes = safeReadJson<Outcomes>(outcomesPath);
+    if (!outcomes) {
+      outcomes = await fetchFromGitHub<Outcomes>("src/data/outcomes.json");
+    }
     const outcomesIso = newestOutcomeIso(outcomes);
 
     // 3. Combined freshness
@@ -205,14 +222,17 @@ export async function GET(): Promise<NextResponse> {
 
     // 6. Parse metrics rolling 24h (T14, agent-reasoning-quality)
     const parseMetricsPath = backendPath("src", "data", "parse_metrics.json");
-    let parseSuccessRate24h: number | null = null;
-    let parseFailureCount24h: number | null = null;
-    const parseMetrics = safeReadJson<{
+    let parseMetrics = safeReadJson<{
       byDay?: Record<
         string,
         Record<string, { json_ok?: number; yaml_ok?: number; failed?: number }>
       >;
     }>(parseMetricsPath);
+    if (!parseMetrics) {
+      parseMetrics = await fetchFromGitHub<typeof parseMetrics>("src/data/parse_metrics.json");
+    }
+    let parseSuccessRate24h: number | null = null;
+    let parseFailureCount24h: number | null = null;
     if (parseMetrics?.byDay) {
       const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
       let ok = 0;
@@ -237,12 +257,15 @@ export async function GET(): Promise<NextResponse> {
       "data",
       "threshold_state.json"
     );
-    let thresholdMode: "base" | "elevated" | null = null;
-    let consecutiveLosses: number | null = null;
-    const thresholdState = safeReadJson<{
+    let thresholdState = safeReadJson<{
       mode?: string;
       consecutiveLosses?: number;
     }>(thresholdStatePath);
+    if (!thresholdState) {
+      thresholdState = await fetchFromGitHub<typeof thresholdState>("src/data/threshold_state.json");
+    }
+    let thresholdMode: "base" | "elevated" | null = null;
+    let consecutiveLosses: number | null = null;
     if (thresholdState) {
       thresholdMode = thresholdState.mode === "elevated" ? "elevated" : "base";
       consecutiveLosses = thresholdState.consecutiveLosses ?? null;
@@ -250,10 +273,16 @@ export async function GET(): Promise<NextResponse> {
 
     // 8. Cron summary, run history, failures (continuous-cron-and-health T5)
     const summaryPath = backendPath("data", "last-cycle-summary.json");
-    const lastCycleSummary = safeReadJson<LastCycleSummary>(summaryPath);
+    let lastCycleSummary = safeReadJson<LastCycleSummary>(summaryPath);
+    if (!lastCycleSummary) {
+      lastCycleSummary = await fetchFromGitHub<LastCycleSummary>("data/last-cycle-summary.json");
+    }
 
     const historyPath = backendPath("data", "cycle-history.json");
-    const historyAll = safeReadJson<CycleHistoryRaw[]>(historyPath) ?? [];
+    let historyAll = safeReadJson<CycleHistoryRaw[]>(historyPath);
+    if (!historyAll) {
+      historyAll = await fetchFromGitHub<CycleHistoryRaw[]>("data/cycle-history.json");
+    }
     const runHistory: RunHistoryEntry[] = (
       Array.isArray(historyAll) ? historyAll : []
     )
@@ -265,7 +294,10 @@ export async function GET(): Promise<NextResponse> {
       }));
 
     const failuresPath = backendPath("data", "cycle-failures.json");
-    const failures = safeReadJson<CycleFailureRaw[]>(failuresPath);
+    let failures = safeReadJson<CycleFailureRaw[]>(failuresPath);
+    if (!failures) {
+      failures = await fetchFromGitHub<CycleFailureRaw[]>("data/cycle-failures.json");
+    }
     let cyclesFailed24h: number | null = null;
     if (Array.isArray(failures)) {
       const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;
@@ -276,10 +308,21 @@ export async function GET(): Promise<NextResponse> {
       }).length;
     }
 
+    // 9. Prefer lastCycleSummary.cycleEndedAt as the most accurate timestamp
+    // (it's written by the cron job after each cycle completes)
+    const summaryEndedAt = lastCycleSummary?.cycleEndedAt ?? null;
+    const finalLastCycleTimestamp = maxIso(lastCycleTimestamp, summaryEndedAt);
+    const finalLastCycleAge = finalLastCycleTimestamp
+      ? Math.max(
+          0,
+          Math.floor((Date.now() - Date.parse(finalLastCycleTimestamp)) / 1000)
+        )
+      : lastCycleAge;
+
     const body: HealthResponse = {
       status: "ok",
-      lastCycleTimestamp,
-      lastCycleAge,
+      lastCycleTimestamp: finalLastCycleTimestamp,
+      lastCycleAge: finalLastCycleAge,
       cyclesSucceeded24h: countSucceeded24h(outcomes),
       cyclesFailed24h,
       mode,
