@@ -402,6 +402,57 @@
       ],
       "arbiterVote": "approve",
       "arbiterReasoning": "Both the Analyst and Validator agree that holding mETH is the correct capital-preserving action given the highly mixed technical indicators and neutral market context."
+    },
+    {
+      "id": "1779886386085_109",
+      "decisionId": 109,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2079.68,
+      "ipfsCid": "QmdHsgxPf3hVMMCygpU7tX2v1zdum4nTwwZi6eSMeMLHBm",
+      "recordedAt": "2026-05-27T12:53:06.085Z",
+      "settleAfter": "2026-05-27T13:53:06.085Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779886386084
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD with 0% allocation change is a low-risk, capital-preserving action. Analyst reasoning aligns with raw signals: TREND_DOWN at 60% confidence, neutral funding, flat smart money, mixed technicals. Fear & Greed at 25 noted correctly as contrarian signal without overweighting it. No directional swap proposed, no R:R gate required for pure HOLD. Risk factors are accurately enumerated.",
+      "validatorFlaggedIssues": [
+        "Regime confidence label shows '0.6%' in raw signals vs '60%' in structured summary — minor data inconsistency worth monitoring",
+        "Bollinger position at 80% of band with only 0.9% width suggests coiled volatility — breakout risk underweighted",
+        "Yield spread -1% bearish signal not fully integrated into reasoning narrative"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "A hold decision is the most appropriate action given the mixed technicals, neutral funding, and downward market regime, aligning with the low-risk and capital-preservation goals highlighted by both agents."
     }
   ],
   "settled": [
