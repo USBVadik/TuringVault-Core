@@ -409,7 +409,7 @@
       <div class="stat-card purple">
         <div class="text-xs mono uppercase tracking-widest text-purple-400 mb-2">1. Analyst</div>
         <div class="text-base font-medium mb-1">Z.ai GLM-5</div>
-        <div class="text-xs text-white/50">Proposes allocation from unified market context (CoinGecko, Nansen MCP, Hyperliquid funding, DeFiLlama TVL).</div>
+        <div class="text-xs text-white/50">Proposes allocation from unified market context (CoinGecko, Nansen MCP, Hyperliquid funding, DeFiLlama TVL, Elfa social attention).</div>
       </div>
       <div class="stat-card" style="border-color:rgba(34,211,238,0.25);background:rgba(34,211,238,0.04);">
         <div class="text-xs mono uppercase tracking-widest text-cyan-400 mb-2">2. Validator</div>
@@ -426,7 +426,13 @@
 <span class="text-purple-400">Hourly GitHub Actions cron</span> (public verifiable log)
         │
         ▼
-unified market data ─▶ Analyst ─▶ Validator ─▶ Arbiter
+<span class="text-cyan-400">5 data sources</span>: CoinGecko · Nansen MCP · Hyperliquid · DeFiLlama · <span class="text-emerald-400">Elfa social attention</span>
+        │
+        ▼
+<span class="text-cyan-400">Signal Engine</span>: 5 structured signals (funding · on-chain flow · yield spread · liq map · social)
+        │
+        ▼
+unified market context ─▶ Analyst ─▶ Validator ─▶ Arbiter
         │
         ▼
 <span class="text-emerald-400">4 on-chain attestations</span>:  proposal · validation · decisionLog · reputation
@@ -500,6 +506,10 @@ Merchant Moe LB v2.2 swap ─▶ <span class="text-amber-400">Discipline Layer</
             <div class="text-white/50">Reasoning blobs (IPFS via Pinata)</div>
             <span class="mono text-purple-300">CHALLENGE-* · PoR-* · AgentCard-v*</span>
           </div>
+          <div>
+            <div class="text-white/50">Live social signal (Elfa)</div>
+            <span class="mono text-cyan-300">/api/elfa-snapshot · v2 REST</span>
+          </div>
         </div>
       </div>
     </div>
@@ -548,6 +558,11 @@ Merchant Moe LB v2.2 swap ─▶ <span class="text-amber-400">Discipline Layer</
         <span class="pill emerald" style="padding:2px 10px;">live</span>
         <span class="flex-1">RWA allocation to USDT0</span>
         <span class="text-white/40 text-xs mono">first swap 0x0af2336…</span>
+      </div>
+      <div class="flex items-center gap-3 p-3 bg-emerald-500/[0.04] border border-emerald-500/20 rounded">
+        <span class="pill emerald" style="padding:2px 10px;">live</span>
+        <span class="flex-1">Elfa social attention as 5th signal</span>
+        <span class="text-white/40 text-xs mono">REST v2 · /api/elfa-snapshot</span>
       </div>
       <div class="flex items-center gap-3 p-3 bg-amber-500/[0.04] border border-amber-500/20 rounded">
         <span class="pill amber" style="padding:2px 10px;">gated</span>

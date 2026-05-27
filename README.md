@@ -1,8 +1,29 @@
 # TuringVault 🏦🧠
 
-**Autonomous AI Agents with Provable On-Chain Reasoning — Built on Mantle**
+**Autonomous AI RWA Portfolio Manager · Mantle Turing Test 2026 · AI x RWA Track Path A (Infrastructure)**
 
 > _"When an AI agent executes a trade, you see the transaction. You don't see the reasoning. TuringVault changes that."_
+
+We ship the **three defining features** the Mantle hackathon brief calls out — on-chain benchmarking of AI, ERC-8004 agent identity reference implementation, and radical transparency — end-to-end on Mantle Mainnet, with hourly autonomous cycles judges can drop into at any time.
+
+---
+
+## ⚖️ Judge's Verification Path (60-second proof check)
+
+Every claim below points to an artefact you can open without our help.
+
+| # | Claim | Open this |
+|---|---|---|
+| 1 | **Live multi-agent decisions on Mantle Mainnet** | [DecisionLog contract](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) — scroll the events tab; every cycle writes a hashed reasoning anchor |
+| 2 | **ERC-8004 reference identity** with auto-updating tokenURI | [Identity NFT](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) — `tokenURI(0)` returns the live IPFS CID; resolves to current agent card |
+| 3 | **Adversarial validation gate working** (rejects unsafe proposals) | [ValidationRegistry](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) — totalRejected / totalApproved are public on-chain counters |
+| 4 | **Real RWA execution** — first tokenized-Treasury swap | [TX 0x0af2336…3e09de](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2 |
+| 5 | **Autonomous cron is observable** (not a screenshot) | [Agent Cycle workflow runs](https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml) — public GitHub Actions log, every hour, every step |
+| 6 | **Live social signal from Elfa V2** as 5th structured input | [`/api/elfa-snapshot`](https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH) (raw JSON) · [/social drill-down](https://frontend-seven-beta-46.vercel.app/social) (multi-ticker UI) |
+| 7 | **Discipline Layer** post-execution proof verification | [/discipline page](https://frontend-seven-beta-46.vercel.app/discipline) — 3-gate history (TX proof · price freshness · regime drift) |
+| 8 | **Adversarial challenge arena** (probe the agent yourself) | [/challenge page](https://frontend-seven-beta-46.vercel.app/challenge) — inject 4 attack vectors, watch the same multi-agent pipeline reason through them |
+
+> Honesty rule: every numeric stat in the dashboard traces to a contract read or a settled outcome. The workspace enforces this as a steering rule in [`.kiro/steering/no-lying-about-state.md`](.kiro/steering/no-lying-about-state.md).
 
 ---
 

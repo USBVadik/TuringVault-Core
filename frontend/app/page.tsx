@@ -999,6 +999,8 @@ function ElfaSocialStripRow({ data }: { data: any }) {
           {smartShare != null && smartReposts + ctReposts > 0 && (
             <> ({smartShare}% smart)</>
           )}
+          {' · '}
+          <a href="/social" className="text-purple-300/70 hover:text-purple-200 underline">drill down</a>
         </span>
       </div>
     </>
