@@ -4,6 +4,22 @@
  * Institutional-grade transaction signing via Tencent Cloud KMS HSM.
  * Private keys NEVER leave the hardware security module.
  * 
+ * ═══════════════════════════════════════════════════════════════════════════
+ * INVESTIGATION RESULT (May 2026):
+ * 
+ * Tencent Cloud KMS on international tier does NOT support secp256k1.
+ * The ListAlgorithms API returns only:
+ *   - RSA_2048
+ *   - ECC (NIST P-256, not secp256k1)
+ *   - Dilithium (post-quantum)
+ * 
+ * secp256k1 (Bitcoin/Ethereum curve) is NOT available.
+ * This module remains as a reference implementation with local fallback.
+ * 
+ * For production HSM signing, consider AWS CloudHSM, Azure Managed HSM,
+ * or crypto-native solutions like Fireblocks/Fordefi.
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
  * Architecture:
  *   Agent Intent → unsigned TX → Tencent KMS HSM → signature (v,r,s) → broadcast
  * 
@@ -11,8 +27,8 @@
  * local fallback with actual Tencent KMS API calls.
  * 
  * Tencent KMS API: https://cloud.tencent.com/document/product/573
- * Supported algos: RSA_2048, SM2 (Chinese national standard)
- * For EVM: We use ECDSA secp256k1 via asymmetric signing
+ * Supported algos: RSA_2048, SM2 (Chinese national standard), ECC (P-256)
+ * For EVM: secp256k1 NOT available on international tier
  */
 
 const { ethers } = require("ethers");

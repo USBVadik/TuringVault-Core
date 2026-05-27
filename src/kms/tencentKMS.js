@@ -4,6 +4,32 @@
  * Hardware-secured transaction signing via Tencent Cloud KMS.
  * The AI generates "intents" → Pre-Action Check → KMS signs with secp256k1.
  * 
+ * ═══════════════════════════════════════════════════════════════════════════
+ * INVESTIGATION RESULT (May 2026):
+ * 
+ * Tencent Cloud KMS on international tier (ap-singapore, etc.) does NOT
+ * support secp256k1. The ListAlgorithms API returns:
+ * 
+ *   AsymmetricSignVerifyAlgorithms: [
+ *     { KeyUsage: "ASYMMETRIC_SIGN_VERIFY_RSA_2048", Algorithm: "RSA_2048" },
+ *     { KeyUsage: "ASYMMETRIC_SIGN_VERIFY_ECC",      Algorithm: "ECC" },      // NIST P-256, not secp256k1
+ *     { KeyUsage: "ASYMMETRIC_SIGN_VERIFY_DILITHIUM",Algorithm: "Dilithium" }
+ *   ]
+ * 
+ * The "ECC" entry is NIST P-256 (FIPS-compliant), not secp256k1 (Bitcoin/Ethereum curve).
+ * If secp256k1 were available, it would appear as "ECC_SECG_P256K1" or similar.
+ * 
+ * This module remains as a reference implementation for:
+ * - DER ASN.1 parsing of ECDSA signatures
+ * - EIP-2 s-value canonicalization
+ * - EIP-155 chain replay protection
+ * 
+ * For production HSM signing on Mantle, consider:
+ * - AWS CloudHSM (supports secp256k1)
+ * - Azure Key Vault (supports secp256k1 via Managed HSM)
+ * - Fireblocks / Fordefi (crypto-native HSM)
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
  * Key architecture:
  *   AI Decision (unsigned intent) → Validation → KMS.Sign(digest)
  *     → DER decode → (r, s, v) → EIP-155 TX → broadcast

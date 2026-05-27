@@ -368,7 +368,7 @@ turingvault/
 - [x] RWA allocation active (USDT0 Treasury-collateralised, first swap on Mantlescan)
 - [x] Adversarial Challenge page (preview-rules mode live; LIVE multi-agent mode in v3 spec)
 - [x] Elfa social intelligence integrated as 5th structured signal (mindshare, smart-account mentions, entity-graph sentiment)
-- [ ] Tencent Cloud KMS migration (stub at `src/kms/tencentKMS.js` runs in `simulate: true`; pending verification of secp256k1 support on their international tier)
+- [ ] HSM-backed signing (investigated Tencent Cloud KMS — `ListAlgorithms` API confirmed secp256k1 not available on international tier, only NIST P-256 ECC; stub remains at `src/kms/tencentKMS.js` with `simulate: true`)
 - [ ] Cross-agent reputation marketplace
 - [ ] Multi-vault strategy templates
 - [ ] Governance: token-holder veto on prompt mutations
