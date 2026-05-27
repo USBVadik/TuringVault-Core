@@ -1,5 +1,56 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "id": "1779897947180_110",
+      "decisionId": 110,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 2068,
+      "ipfsCid": "QmWpnqtmWKqdaRMfaoowqPuduxkdCLKcTVZ6L3KuTvRU1G",
+      "recordedAt": "2026-05-27T16:05:47.180Z",
+      "settleAfter": "2026-05-27T17:05:47.180Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779897947179
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal with 0% allocation change is low-risk by default. Analyst reasoning accurately reflects raw signals: HOLD regime at 35% confidence, NEUTRAL consensus, flat smart money, bearish EMA/MACD offset by rising RSI. No directional trade proposed, so R:R gate and regime-directional-swap rules do not apply. Risk factors are correctly identified. No hallucinated data detected.",
+      "validatorFlaggedIssues": [
+        "Social mindshare +43% bullish signal not mentioned by Analyst — minor omission",
+        "Yield spread -1% bearish signal acknowledged implicitly but not explicitly cited"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "The hold proposal is approved because the market signals are highly mixed and the lack of smart money direction warrants keeping the current allocation unchanged."
+    }
+  ],
   "settled": [
     {
       "id": "1779427651480_9999",
