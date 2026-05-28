@@ -569,6 +569,60 @@
       "directionalSwap": null,
       "executedOnChain": false,
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780007070202_130",
+      "decisionId": 130,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2011.27,
+      "ipfsCid": "QmdcrzMhhSkLfD1yDikx3j8zpjh5qbFkd7vWVrotS2HRVX",
+      "recordedAt": "2026-05-28T22:24:30.202Z",
+      "settleAfter": "2026-05-28T23:24:30.202Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780007070200
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal with 0% allocation change requires minimal burden of proof. Analyst correctly identifies regime as undefined (35% confidence), bearish signal consensus, and conflicting signals: funding 0.696% (crowded longs) vs Fear&Greed 22 (contrarian bullish). Yield spread -1% bearish confirmed. No directional swap proposed, no R:R gate required. RSI 49.4 falling and MACD weakening support cautio",
+      "validatorFlaggedIssues": [
+        "Analyst states funding 0.696% annualizes to ~254% — this math is incorrect (0.696% * 3 * 365 = ~762% annualized), though directional interpretation remains valid",
+        "Regime confidence at 35% is extremely low — structured signals show raw values as undefined/n/a, weakening signal reliability",
+        "MACD histogram weakening despite BUY label warrants caution on bullish reads"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Approving the HOLD proposal is the most prudent path for capital preservation given conflicting market signals, extreme fear contrarian indicators, and a low-confidence market regime.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
