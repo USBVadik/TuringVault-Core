@@ -129,7 +129,7 @@ function buildAgentCard(stats) {
       "CoinGecko (ETH/MNT price, 24h change)",
       "DeFiLlama (Mantle TVL)",
       "Fear & Greed Index (market sentiment)",
-      "Nansen MCP (36 analytics tools, smart money signals)",
+      "Nansen MCP (36+ server tools available, 10 used in production)",
       "Merchant Moe LB v2.1 (on-chain DEX state, active bins)",
       "Byreal (perps funding rate, open interest)",
       "Ondo Finance USDY (RWA yield rates)",

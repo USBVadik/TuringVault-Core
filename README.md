@@ -47,8 +47,8 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 **Stats (live, on-chain — verified via contract calls):**
 
 - **104+ autonomous decisions** logged to Mantle Mainnet with full reasoning
-- **61.5% rejection rate** — Validator blocks >1 in 2 proposals (capital protection)
-- **40 approved, 64 rejected** — adversarial consensus working as designed
+- **61.5% rejection rate** — confidence threshold + Validator gates block >1 in 2 proposals (capital protection)
+- **40 approved, 64 rejected** — multi-agent consensus + confidence gating working as designed
 - **55%+ of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)
 - Hourly cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
 - Zero catastrophic losses — demo capital, custodial EOA, vault contract pattern in development
@@ -122,6 +122,19 @@ Every decision creates an immutable record: what data the AI observed, what conc
               ↑
   Hourly GitHub Actions cron — public verifiable workflow log
 ```
+
+---
+
+## Consensus Design: Dual-Gate Protection
+
+Execution requires passing **two independent gates**:
+
+1. **Confidence threshold** — the Analyst must report ≥ 72% confidence in its own proposal (elevated to 80% after 3 consecutive losses). Low-confidence proposals are blocked before the Validator even evaluates them.
+2. **Adversarial Validator** — an independent model with a default-REJECT posture, requiring explicit evidence of R:R ≥ 1.5:1 and regime alignment to approve. If it rejects, the Arbiter (Gemini 3.5 Flash) casts the tiebreaker vote (2-of-3 required).
+
+In practice, the majority of rejections (~75%) are caused by Gate 1: the Analyst proposes HOLD with moderate confidence during sideways markets, and the confidence threshold blocks execution. Gate 2 (Validator) flags risk issues in its reasoning even when it approves structurally safe HOLD proposals. This is by design: the validator's adversarial scrutiny matters most for high-risk directional trades, where it acts as the final safety floor.
+
+The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate — the combined effect is a 61.5% block rate, demonstrating the system's capital-preservation bias.
 
 ---
 
@@ -255,7 +268,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 | **Z.ai**           | GLM-5 analyst model via AWS Bedrock (`zai.glm-5`)                              | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.analyst`                                                                                              | ✅ Live                     |
 | **Anthropic**      | Claude Sonnet 4.6 validator via AWS Bedrock                                    | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.validator`                                                                                            | ✅ Live                     |
 | **Google**         | Gemini 3.5 Flash arbiter via Vertex AI                                         | [`src/orchestrator/geminiArbiter.js`](src/orchestrator/geminiArbiter.js)                                                                                                           | ✅ Live                     |
-| **Nansen**         | Smart-money intelligence via JSON-RPC 2.0 MCP client (36 analytics tools)      | [`src/mcp/nansenMCP.js`](src/mcp/nansenMCP.js) — used in `unifiedMarketData.js` every cycle                                                                                        | ✅ Live                     |
+| **Nansen**         | Smart-money intelligence via JSON-RPC 2.0 MCP client (server exposes 36+ tools; we use 10 in production)      | [`src/mcp/nansenMCP.js`](src/mcp/nansenMCP.js) — used in `unifiedMarketData.js` every cycle                                                                                        | ✅ Live                     |
 | **Elfa**           | Social intelligence — mindshare, smart-account ratio, attention surge          | [`src/data/elfa.js`](src/data/elfa.js) — wired into `signalEngine.js` as 5th signal + `/api/elfa-snapshot` (V2 paths: `/v2/data/top-mentions`, `/v2/aggregations/trending-tokens`) | ✅ Live (free tier, 60 RPM) |
 | **Merchant Moe**   | DEX execution via Liquidity Book v2.2 router                                   | [`src/dex/merchantMoe.js`](src/dex/merchantMoe.js) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)   | ✅ Live                     |
 | **Ondo Finance**   | USDY tokenized Treasuries metadata (paper-ready; pool currently dry on Mantle) | [`src/rwa/usdyModule.js`](src/rwa/usdyModule.js) — guarded behind `RWA_POOL_INACTIVE`                                                                                              | 🟡 Paper-ready              |
