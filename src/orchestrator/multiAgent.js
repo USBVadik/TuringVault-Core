@@ -195,8 +195,16 @@ HOLD only when: 2+ major signals conflict with no clear edge, OR regime is RANGI
 
 RISK RULES:
 - Never propose swapping more than 50% of portfolio in one move
-- Minimum confidence to act: 0.62
+- Minimum confidence to act: 0.55
 - Include slippage tolerance in reasoning
+
+CAPITAL READINESS:
+The wallet typically holds USDT0 as the idle reserve. When you propose
+risk_on (target=mETH or target=MNT/WMNT), the orchestrator will
+automatically route USDT0 → USDT → WMNT → mETH (3 legs on MerchantMoe).
+Do NOT skip risk_on opportunities because the wallet "isn't holding ETH" —
+USDT0 is the source-of-funds for any mETH purchase. Equally, when
+proposing risk_off, the orchestrator routes WMNT → USDT → USDT0.
 
 CRITICAL CONSISTENCY RULE:
 Your "action" and "targetAsset" MUST be logically consistent with your "reasoning" and "direction".

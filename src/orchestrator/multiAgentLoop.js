@@ -573,17 +573,24 @@ async function runMultiAgentCycle(opts = {}) {
 
         // Pick (sourceToken, intermediate, finalTarget) and the source
         // float balance for the picked direction.
-        let path; // [from, mid, to]
+        let path; // [from, mid1, mid2?..., to]
         let sourceBalance;
-        let sourceDecimals;
         if (swapDirection === "risk-on") {
-          path = ["USDT0", "USDT", "WMNT"];
+          // 3-leg path when analyst wants real ETH exposure (target=mETH):
+          //   USDT0 → USDT → WMNT → mETH
+          // 2-leg path when analyst wants raw MNT exposure (target=MNT/WMNT):
+          //   USDT0 → USDT → WMNT
+          // mETH/WMNT pool exists on MerchantMoe (binStep=10) and was
+          // verified live: 50 WMNT → 0.013 mETH at ~$2454/mETH.
+          if (targetAsset === "mETH" || targetAsset === "WETH") {
+            path = ["USDT0", "USDT", "WMNT", "mETH"];
+          } else {
+            path = ["USDT0", "USDT", "WMNT"];
+          }
           sourceBalance = balancesNow.USDT0 || 0;
-          sourceDecimals = 6;
         } else {
           path = ["WMNT", "USDT", "USDT0"];
           sourceBalance = balancesNow.WMNT || 0;
-          sourceDecimals = 18;
         }
 
         // Sizing: analyst's allocationPct of source balance, capped
@@ -657,152 +664,145 @@ async function runMultiAgentCycle(opts = {}) {
             executed: false,
             direction: swapDirection,
             from: path[0],
-            to: path[2],
+            to: path[path.length - 1],
             reason: `insufficient-balance: ${sourceBalance.toFixed(6)} ${path[0]}`,
           };
         } else {
-          // Two-leg swap. Each leg uses our patched MerchantMoeDEX
-          // (deep-pool selection + on-chain getSwapOut quote).
-          const amountInWei = ethers.parseUnits(
-            finalSourceAmount.toFixed(sourceDecimals),
-            sourceDecimals
-          );
-          console.log(
-            `   Leg 1: ${finalSourceAmount.toFixed(6)} ${path[0]} → ${path[1]}`
-          );
-          const leg1 = await liveDex.executeSwap(
-            path[0],
-            path[1],
-            amountInWei,
-            { maxPriceImpactBps: 100, slippageBps: 50 }
-          );
+          // N-leg swap loop. path = [from, mid1, mid2?..., to].
+          // Each step uses our patched MerchantMoeDEX (deep-pool
+          // selection + on-chain getSwapOut quote). Between legs we
+          // re-read live balances to avoid float drift.
+          //
+          // Configurable per-leg slippage/impact:
+          //   leg 0 (deepest hub→hub):     impact 100 bps, slip 50 bps
+          //   later legs (thinner pools):  impact 200 bps, slip 50 bps
+          //   final leg into mETH:         impact 250 bps, slip 75 bps
+          //                                (ETH price moves more than
+          //                                stable-stable, give it room)
+          const legResults = [];
+          let legFailed = false;
+          let lastLegOut = finalSourceAmount;
+          let nextAmountIn = finalSourceAmount;
 
-          if (!leg1?.executed) {
-            console.log(
-              `   ⚠️  Leg 1 blocked: ${leg1?.reason || "unknown"}`
+          for (let i = 0; i < path.length - 1; i++) {
+            const fromTok = path[i];
+            const toTok = path[i + 1];
+            const fromDec =
+              fromTok === "USDT" || fromTok === "USDT0" ? 6 : 18;
+
+            // For legs after the first, refresh actual balance to
+            // avoid float drift between estimatedOut and on-chain wei.
+            if (i > 0) {
+              const bal = await liveDex.getBalances(wallet.address);
+              const have = bal[fromTok] || 0;
+              nextAmountIn = have * 0.999; // leave dust
+              if (nextAmountIn < 0.0001) {
+                console.log(
+                  `   ⚠️  Leg ${i + 1} skipped: intermediate ${fromTok} balance ${have} too low`
+                );
+                legResults.push({
+                  leg: i + 1,
+                  from: fromTok,
+                  to: toTok,
+                  reason: `intermediate-balance-too-low: ${have}`,
+                });
+                legFailed = true;
+                break;
+              }
+            }
+
+            const amountInWei = ethers.parseUnits(
+              nextAmountIn.toFixed(fromDec),
+              fromDec
             );
+
+            // Per-leg gating: stable-stable is tight; final leg into
+            // a volatile asset (mETH) gets more room.
+            const isFinalLeg = i === path.length - 2;
+            const isVolatileTarget =
+              isFinalLeg && (toTok === "mETH" || toTok === "WETH");
+            const swapOpts = isVolatileTarget
+              ? { maxPriceImpactBps: 250, slippageBps: 75 }
+              : i === 0
+              ? { maxPriceImpactBps: 100, slippageBps: 50 }
+              : { maxPriceImpactBps: 200, slippageBps: 50 };
+
+            console.log(
+              `   Leg ${i + 1}/${path.length - 1}: ${nextAmountIn.toFixed(
+                6
+              )} ${fromTok} → ${toTok}`
+            );
+
+            const legResp = await liveDex.executeSwap(
+              fromTok,
+              toTok,
+              amountInWei,
+              swapOpts
+            );
+
+            if (!legResp?.executed) {
+              console.log(
+                `   ⚠️  Leg ${i + 1} blocked: ${legResp?.reason || "unknown"}`
+              );
+              legResults.push({
+                leg: i + 1,
+                from: fromTok,
+                to: toTok,
+                reason: legResp?.reason || "unknown",
+              });
+              legFailed = true;
+              break;
+            }
+
+            console.log(
+              `   ✅ Leg ${i + 1}: ${legResp.txHash.slice(0, 18)}... (block ${
+                legResp.blockNumber
+              }) → ${legResp.estimatedOut.toFixed(6)} ${toTok}`
+            );
+
+            legResults.push({
+              leg: i + 1,
+              from: fromTok,
+              to: toTok,
+              txHash: legResp.txHash,
+              blockNumber: legResp.blockNumber,
+              amountIn: nextAmountIn,
+              amountOut: legResp.estimatedOut,
+            });
+
+            lastLegOut = legResp.estimatedOut;
+            nextAmountIn = legResp.estimatedOut; // overridden next iteration via balance read
+          }
+
+          if (legFailed) {
+            const lastLegIdx = legResults.length;
             directionalSwapResult = {
               executed: false,
               direction: swapDirection,
               from: path[0],
-              to: path[2],
-              legs: [{ leg: 1, from: path[0], to: path[1], reason: leg1?.reason }],
-              reason: `leg1-failed: ${leg1?.reason || "unknown"}`,
+              to: path[path.length - 1],
+              legs: legResults,
+              reason: `leg${lastLegIdx}-failed: ${
+                legResults[legResults.length - 1]?.reason || "unknown"
+              }`,
             };
           } else {
-            console.log(
-              `   ✅ Leg 1: ${leg1.txHash.slice(0, 18)}... (block ${leg1.blockNumber}) → ${leg1.estimatedOut.toFixed(6)} ${path[1]}`
-            );
-
-            // Use the actual fresh balance of the intermediate token,
-            // not leg1.estimatedOut (avoids float drift vs wei).
-            const midBal = await liveDex.getBalances(wallet.address);
-            const midAmountFloat = midBal[path[1]] || 0;
-            // Spend almost all of the intermediate (leave dust).
-            const midSpend = midAmountFloat * 0.999;
-            const midDecimals = path[1] === "USDT" ? 6 : 18;
-
-            if (midSpend < 0.5) {
-              directionalSwapResult = {
-                executed: false,
-                direction: swapDirection,
-                from: path[0],
-                to: path[2],
-                legs: [
-                  {
-                    leg: 1,
-                    from: path[0],
-                    to: path[1],
-                    txHash: leg1.txHash,
-                    blockNumber: leg1.blockNumber,
-                    amountOut: leg1.estimatedOut,
-                  },
-                ],
-                reason: `intermediate-balance-too-low: ${midAmountFloat}`,
-              };
-            } else {
-              const midAmountWei = ethers.parseUnits(
-                midSpend.toFixed(midDecimals),
-                midDecimals
-              );
-              console.log(
-                `   Leg 2: ${midSpend.toFixed(6)} ${path[1]} → ${path[2]}`
-              );
-              const leg2 = await liveDex.executeSwap(
-                path[1],
-                path[2],
-                midAmountWei,
-                { maxPriceImpactBps: 200, slippageBps: 50 } // looser impact for thinner second leg
-              );
-
-              if (leg2?.executed) {
-                console.log(
-                  `   ✅ Leg 2: ${leg2.txHash.slice(0, 18)}... (block ${leg2.blockNumber}) → ${leg2.estimatedOut.toFixed(6)} ${path[2]}`
-                );
-                directionalSwapResult = {
-                  executed: true,
-                  direction: swapDirection,
-                  from: path[0],
-                  to: path[2],
-                  amountIn: finalSourceAmount,
-                  amountOut: leg2.estimatedOut,
-                  // Top-level txHash: surface the FINAL leg so dashboards
-                  // pointing at one TX show the user-visible outcome.
-                  txHash: leg2.txHash,
-                  legs: [
-                    {
-                      leg: 1,
-                      from: path[0],
-                      to: path[1],
-                      txHash: leg1.txHash,
-                      blockNumber: leg1.blockNumber,
-                      amountIn: finalSourceAmount,
-                      amountOut: leg1.estimatedOut,
-                    },
-                    {
-                      leg: 2,
-                      from: path[1],
-                      to: path[2],
-                      txHash: leg2.txHash,
-                      blockNumber: leg2.blockNumber,
-                      amountIn: midSpend,
-                      amountOut: leg2.estimatedOut,
-                    },
-                  ],
-                };
-                // Discipline layer reads decision.executionTxHash for
-                // a single proof; we surface the final leg.
-                decision.executionTxHash = leg2.txHash;
-              } else {
-                console.log(
-                  `   ⚠️  Leg 2 blocked: ${leg2?.reason || "unknown"}`
-                );
-                directionalSwapResult = {
-                  executed: false,
-                  direction: swapDirection,
-                  from: path[0],
-                  to: path[2],
-                  legs: [
-                    {
-                      leg: 1,
-                      from: path[0],
-                      to: path[1],
-                      txHash: leg1.txHash,
-                      blockNumber: leg1.blockNumber,
-                      amountIn: finalSourceAmount,
-                      amountOut: leg1.estimatedOut,
-                    },
-                    {
-                      leg: 2,
-                      from: path[1],
-                      to: path[2],
-                      reason: leg2?.reason,
-                    },
-                  ],
-                  reason: `leg2-failed: ${leg2?.reason || "unknown"}`,
-                };
-              }
-            }
+            const finalLegTxHash = legResults[legResults.length - 1].txHash;
+            directionalSwapResult = {
+              executed: true,
+              direction: swapDirection,
+              from: path[0],
+              to: path[path.length - 1],
+              amountIn: finalSourceAmount,
+              amountOut: lastLegOut,
+              // Top-level txHash: surface the FINAL leg so dashboards
+              // pointing at one TX show the user-visible outcome.
+              txHash: finalLegTxHash,
+              legs: legResults,
+            };
+            // Discipline layer reads decision.executionTxHash for
+            // a single proof; we surface the final leg.
+            decision.executionTxHash = finalLegTxHash;
           }
         }
       } catch (swapErr) {
