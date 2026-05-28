@@ -225,7 +225,12 @@ class MerchantMoeDEX {
     // size exceeded the very narrow active-bin liquidity even when the
     // surrounding bins held millions in TVL. That caused viable=false
     // and silently blocked every USDT/WMNT or USDT0/WMNT trade.
-    let estimatedOutFloat = null;
+    //
+    // estimatedOutFloat is unconditionally assigned in both the try
+    // success and catch fallback below, so we declare without init —
+    // ESLint no-useless-assignment otherwise (initial null was never
+    // read).
+    let estimatedOutFloat;
     let onchainFeeFloat = 0;
     try {
       const SWAP_OUT_ABI = [
