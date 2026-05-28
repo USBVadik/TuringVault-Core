@@ -396,6 +396,63 @@
           }
         ]
       }
+    },
+    {
+      "id": "1779997561221_127",
+      "decisionId": 127,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2015.96,
+      "ipfsCid": "QmeENsbESdAtWzHcM7dJdfJyUHpZJeiLTB6ZMFxjvP4FGK",
+      "recordedAt": "2026-05-28T19:46:01.221Z",
+      "settleAfter": "2026-05-28T20:46:01.221Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779997561220
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Swap to mUSD is a defensive/risk-off action, not a directional speculative trade. TREND_DOWN regime (60% conf) + bearish signal consensus + EMA bearish cross + Extreme Fear (22) + negative yield spread (-1%) provide multiple confirming signals for de-risking. 30% allocation is conservative. Analyst slightly overstates funding rate interpretation but core thesis holds. MACD improvement is acknowled",
+      "validatorFlaggedIssues": [
+        "Funding rate annualization claim (0.709% periodic ≠ ~260% annualized in standard terms — minor misread)",
+        "TREND_DOWN confidence listed as 60% in header but raw signals show 0.6% — ambiguous source data",
+        "Smart money flow neutral undermines conviction slightly",
+        "MACD improving histogram is a genuine counter-signal worth monitoring",
+        "No explicit stop-loss or re-entry trigger defined for the mUSD position"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "reason": "insufficient-balance: 3.271287 WMNT"
+      },
+      "executedOnChain": false,
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
