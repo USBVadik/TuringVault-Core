@@ -146,6 +146,12 @@ function record(params) {
     "validatorFlaggedIssues",
     "arbiterVote",
     "arbiterReasoning",
+    // directionalSwap is the {executed, txHash, from, to, amountIn,
+    // amountOut, reason?} object emitted by multiAgentLoop Step 4.7.
+    // Without this entry the field was silently dropped on persist
+    // and the trade became invisible to outcome metrics, even when
+    // it succeeded on-chain.
+    "directionalSwap",
   ]) {
     if (params[k] !== undefined) entry[k] = params[k];
   }
