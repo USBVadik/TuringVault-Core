@@ -195,6 +195,106 @@
       "arbiterReasoning": null,
       "executedOnChain": false,
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1779987824220_125",
+      "decisionId": 125,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2010.38,
+      "ipfsCid": "QmRhbQtv2EyKiqM6BrKWW4z7soT4EgnsUMX1eJ8Am7pYXD",
+      "recordedAt": "2026-05-28T17:03:44.220Z",
+      "settleAfter": "2026-05-28T18:03:44.220Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 95928755"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "WARN",
+            "detail": "Only 1 confirmations (need 2)"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "WARN",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779987824218
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Defensive swap to mUSD in TREND_DOWN regime is a risk-off action, not a directional speculative trade — approval gates apply differently. Bearish consensus is supported by: EMA_CROSS=SELL (9 EMA 1992 below 21 EMA 2003), yield spread -1% (mETH underperforming USDY), ETH -2.68% 24h, Fear & Greed at 22 (Extreme Fear). MACD improving and RSI 49.7 rising are acknowledged risk factors. 35% allocation is",
+      "validatorFlaggedIssues": [
+        "MACD histogram positive (3.91) and RSI rising suggest possible bounce — partial de-risk rather than full may be optimal",
+        "Regime confidence only 60% — mild conviction",
+        "Smart money flow neutral provides no institutional confirmation for urgency"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 2.7099415925153365,
+        "amountOut": 1.683363,
+        "txHash": "0xad683dedf6e290cf850319e71ce012c81a25f231b9c8eeb8678f4f1e8cee785f",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0xa8747f6c7271a825dcd757e93afd453c5da764673952598abe1221513143d125",
+            "blockNumber": 95928749,
+            "amountIn": 2.7099415925153365,
+            "amountOut": 1.682972
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0xad683dedf6e290cf850319e71ce012c81a25f231b9c8eeb8678f4f1e8cee785f",
+            "blockNumber": 95928755,
+            "amountIn": 1.683869445,
+            "amountOut": 1.683363
+          }
+        ]
+      }
     }
   ],
   "settled": [
