@@ -440,7 +440,7 @@ function PreviewResultBlock({
           {result.challenge.description}
         </p>
         <div className="bg-black/30 rounded p-3 font-mono text-xs text-red-300/80 mb-4">
-          <div className="text-white/30 mb-1">// Injected fake signal:</div>
+          <div className="text-white/30 mb-1">{`// Injected fake signal:`}</div>
           <pre>{JSON.stringify(result.challenge.fake_signal, null, 2)}</pre>
         </div>
       </div>

@@ -46,11 +46,11 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 
 **Stats (live, on-chain — verified via contract calls):**
 
-- **104+ autonomous decisions** logged to Mantle Mainnet with full reasoning
+- **104+ hourly autonomous decisions** logged to Mantle Mainnet with full reasoning
 - **61.5% rejection rate** — confidence threshold + Validator gates block >1 in 2 proposals (capital protection)
 - **40 approved, 64 rejected** — multi-agent consensus + confidence gating working as designed
 - **55%+ of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)
-- Hourly cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
+- Hourly autonomous cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
 - Zero catastrophic losses — demo capital, custodial EOA, vault contract pattern in development
 
 ---

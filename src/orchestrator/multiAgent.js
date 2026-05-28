@@ -286,7 +286,9 @@ APPROVAL CONDITIONS (ALL required):
 - Clear directional edge supported by multiple confirming signals
 - R:R >= 1.5:1 with defined stop-loss logic
 - Regime supports the proposed action type
-- If HOLD with reasonable reasoning → APPROVE (low risk)
+- If HOLD with reasonable reasoning → APPROVE (low risk). Vary your
+  reasoning each cycle by referencing the specific signals and numeric
+  values present in THIS market context rather than generic statements.
 - If swap to mUSD (risk-off/defensive) → APPROVE only if signals justify de-risking
 
 RISK SCORING (0-100):

@@ -53,6 +53,8 @@ export async function GET() {
       mantleTVL,
       mantleTVLChange1d,
       timestamp: Date.now(),
+    }, {
+      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

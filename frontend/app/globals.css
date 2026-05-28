@@ -20,7 +20,7 @@
 
   --text-primary: rgba(255, 255, 255, 0.95);
   --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-muted: rgba(255, 255, 255, 0.4);
+  --text-muted: rgba(255, 255, 255, 0.3);
 
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-accent: rgba(124, 58, 237, 0.25);
@@ -970,7 +970,8 @@ textarea:focus-visible {
 @media (max-width: 768px) {
   .max-w-5xl,
   .max-w-4xl,
-  .max-w-\[1100px\] {
+  .max-w-\[1100px\],
+  .max-w-\[1200px\] {
     padding-left: 16px;
     padding-right: 16px;
   }
@@ -999,6 +1000,14 @@ textarea:focus-visible {
 
   .partner-bar::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* DX-01: Tablet breakpoint — 2-col intermediate layout */
+@media (min-width: 641px) and (max-width: 767px) {
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
@@ -1041,3 +1050,24 @@ textarea:focus-visible {
   --max-w-page: 1200px;
   --nav-height: 56px;
 }
+
+/* ══════ FE-07: Formal 4px/8px spacing scale (design-playbook §3) ══════ */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+}
+
+/* ══════ FE-08: Consolidated opacity levels ══════ */
+/* Primary: 0.95, Secondary: 0.6, Muted: 0.3 — three levels only */
+.text-op-primary { color: rgba(255, 255, 255, 0.95); }
+.text-op-secondary { color: rgba(255, 255, 255, 0.6); }
+.text-op-muted { color: rgba(255, 255, 255, 0.3); }

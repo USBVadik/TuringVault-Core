@@ -103,6 +103,14 @@ jobs:
       - name: Audit (root)
         run: npm audit --omit=dev --audit-level=high
 
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: frontend
+
+      - name: Audit (frontend)
+        run: npm audit --omit=dev --audit-level=high
+        working-directory: frontend
+
       - name: Check for secrets
         run: |
           # Fail if any private keys or API keys are hardcoded

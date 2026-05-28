@@ -1,11 +1,18 @@
 /**
  * TuringVault — Process-Level Trajectory Logger
  *
+ * STATUS: ACTIVE — written every production cycle by multiAgentLoop.js (Step 7).
+ * File: src/data/trajectories.json (capped at 200 most recent entries).
+ *
  * Logs full decision trajectories (not just outcomes) for audit:
  * - Tool calls made by each agent
  * - Intermediate reasoning steps
  * - Time-to-decision metrics
  * - Consistency scores across identical inputs
+ *
+ * Note: timing fields (analystDuration, validatorDuration, onchainDuration)
+ * read 0 for legacy entries pre-2026-05-23 because instrumentation was added
+ * after the initial batch run. Current production cycles populate these fields.
  */
 const fs = require("fs");
 const path = require("path");

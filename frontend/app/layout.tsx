@@ -3,6 +3,7 @@ import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
+import PageTransition from "./components/PageTransition";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -67,7 +68,9 @@ export default function RootLayout({
             Skip to content
           </a>
           <Navbar />
-          <div id="main-content" className="pt-14">{children}</div>
+          <div id="main-content" className="pt-14">
+            <PageTransition>{children}</PageTransition>
+          </div>
         </Providers>
       </body>
     </html>

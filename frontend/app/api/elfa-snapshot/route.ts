@@ -228,5 +228,7 @@ export async function GET(req: Request) {
     mindshareChange,
     mindshareRank: tSum?.rank ?? null,
     source: "elfa-rest-v2",
+  }, {
+    headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
   });
 }
