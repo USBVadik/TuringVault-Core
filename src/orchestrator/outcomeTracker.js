@@ -155,6 +155,34 @@ function record(params) {
   ]) {
     if (params[k] !== undefined) entry[k] = params[k];
   }
+
+  // Inline honesty derivation. The backfill script
+  // scripts/backfill-outcomes-honesty.js retroactively adds these
+  // two fields to old rows. New rows must carry them too, so we
+  // compute them here at write time. Frontend `/api/decisions` and
+  // LiveTerminal both prefer these fields over a re-derivation, so
+  // baking them in keeps the surface consistent.
+  //
+  // executedOnChain is the ground truth for "did a DEX TX actually
+  // happen". _displayTier is what the UI should render: identical to
+  // decisionTier in the happy path, but rewritten to
+  // INTENT_SWAP_NO_EXEC when the classifier said EXECUTED_SWAP
+  // without a tx hash to back it.
+  //
+  // Workspace rule: .kiro/steering/no-lying-about-state.md §4.
+  const executedOnChain =
+    Boolean(entry.txHash) ||
+    (entry.rwaIntent && entry.rwaIntent.executed === true) ||
+    (entry.directionalSwap && entry.directionalSwap.executed === true) ||
+    (entry.directionalSwap &&
+      Array.isArray(entry.directionalSwap.legs) &&
+      entry.directionalSwap.legs.some((l) => l && l.txHash));
+  entry.executedOnChain = executedOnChain;
+  entry._displayTier =
+    entry.decisionTier === "EXECUTED_SWAP" && !executedOnChain
+      ? "INTENT_SWAP_NO_EXEC"
+      : entry.decisionTier ?? null;
+
   db.pending.push(entry);
   saveDB(db);
   console.log(
