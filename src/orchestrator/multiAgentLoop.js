@@ -482,22 +482,67 @@ async function runMultiAgentCycle(opts = {}) {
   // ─────────────────────────────────────────────────────────────
   // Step 4.7: Directional Swap Execution — when agent says "swap"
   // with consensus, execute the actual mUSD ↔ mETH trade.
-  // This is separate from RWA allocation (USDT ↔ USDT0).
+  // ─────────────────────────────────────────────────────────────
+  // Step 4.7: Directional Swap Execution
+  //
+  // Purpose: when consensus says "swap", actually move the wallet.
+  // The OLD implementation only knew mUSD ↔ mETH, neither of which
+  // the demo wallet has held in weeks, so every cycle fell straight
+  // into 'insufficient-balance' and the agent never traded.
+  //
+  // NEW MODEL: trade against what the wallet actually holds, using
+  // the audited liquid universe on Merchant Moe LB:
+  //   • USDT0 ↔ USDT  (binStep=1, ~$4.5M depth, fee 0.01%)  — stable hub
+  //   • USDT  ↔ WMNT  (binStep=25, ~$1.18M depth, fee 0.25%) — risk leg
+  //
+  // From those primitives we synthesise:
+  //   risk-on  (analyst wants exposure):  USDT0 → USDT → WMNT
+  //   risk-off (analyst wants stable):    WMNT  → USDT → USDT0
+  //
+  // The targetAsset alphabet stays the same the analyst already uses
+  // ('mETH' / 'mUSD' / 'MNT') — we just translate it into the path
+  // that the live wallet can actually execute. If a future PR adds
+  // an Agni V3 module, it plugs into the same _swapPath() contract.
+  //
+  // Spec: rwa-allocation-active R4 (audited execution path);
+  //       no-lying-about-state.md (no fake liveness on dashboards).
   // ─────────────────────────────────────────────────────────────
   let directionalSwapResult = null;
   const analystAction = decision.analyst?.action;
   const targetAsset = decision.analyst?.targetAsset;
 
+  // Map analyst's targetAsset to a swap direction:
+  //   mETH / MNT / WMNT  → risk-on  (acquire WMNT)
+  //   mUSD / USDT / USDT0 → risk-off (rotate to stable hub)
+  // Anything else → no directional swap.
+  let swapDirection = null;
   if (
     decision.consensus &&
     analystAction === "swap" &&
-    (targetAsset === "mETH" || targetAsset === "mUSD")
+    typeof targetAsset === "string"
   ) {
+    if (["mETH", "WETH", "MNT", "WMNT"].includes(targetAsset)) {
+      swapDirection = "risk-on"; // USDT0 → USDT → WMNT
+    } else if (["mUSD", "USDT", "USDT0"].includes(targetAsset)) {
+      swapDirection = "risk-off"; // WMNT → USDT → USDT0
+    }
+  }
+
+  if (swapDirection) {
     console.log(
-      `🔄 [STEP 4.7] Directional swap: → ${targetAsset} (consensus reached)`
+      `🔄 [STEP 4.7] Directional swap (${swapDirection}): target=${targetAsset}`
     );
 
-    if (process.env.RWA_EXECUTE_ENABLED === "true") {
+    if (process.env.RWA_EXECUTE_ENABLED !== "true") {
+      console.log(
+        `   [DRY] RWA_EXECUTE_ENABLED!='true' — directional swap skipped`
+      );
+      directionalSwapResult = {
+        executed: false,
+        direction: swapDirection,
+        reason: "execute-gate-off",
+      };
+    } else {
       try {
         const { MerchantMoeDEX } = require("../dex/merchantMoe");
         const liveDex = new MerchantMoeDEX({
@@ -505,85 +550,231 @@ async function runMultiAgentCycle(opts = {}) {
           dryRun: false,
         });
 
-        // Determine swap direction
-        const fromToken = targetAsset === "mETH" ? "mUSD" : "mETH";
-        const toToken = targetAsset;
+        // Read live balances; USDT0 isn't in the legacy whitelist, so
+        // we read it directly from the token contract.
+        const balancesNow = await liveDex.getBalances(wallet.address);
+        try {
+          const usdt0Tok = new ethers.Contract(
+            "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+            [
+              "function balanceOf(address) view returns (uint256)",
+              "function decimals() view returns (uint8)",
+            ],
+            wallet.provider
+          );
+          const [u0bal, u0dec] = await Promise.all([
+            usdt0Tok.balanceOf(wallet.address),
+            usdt0Tok.decimals(),
+          ]);
+          balancesNow.USDT0 = parseFloat(ethers.formatUnits(u0bal, u0dec));
+        } catch {
+          balancesNow.USDT0 = 0;
+        }
 
-        // Get current balance of source token
-        const balances = await liveDex.getBalances(wallet.address);
-        const sourceBalance = balances[fromToken] || 0;
+        // Pick (sourceToken, intermediate, finalTarget) and the source
+        // float balance for the picked direction.
+        let path; // [from, mid, to]
+        let sourceBalance;
+        let sourceDecimals;
+        if (swapDirection === "risk-on") {
+          path = ["USDT0", "USDT", "WMNT"];
+          sourceBalance = balancesNow.USDT0 || 0;
+          sourceDecimals = 6;
+        } else {
+          path = ["WMNT", "USDT", "USDT0"];
+          sourceBalance = balancesNow.WMNT || 0;
+          sourceDecimals = 18;
+        }
 
-        // Use allocation percentage from analyst, default 30%
-        const allocPct = decision.analyst?.allocationPct || 30;
-        const swapAmount = sourceBalance * (allocPct / 100);
+        // Sizing: analyst's allocationPct of source balance, capped
+        // by RWA_MAX_PER_CYCLE_USD ($5 default) so a confident agent
+        // can't drain the wallet in a single cycle. Floor at $1
+        // equivalent so the gas spend isn't the dominant cost.
+        const allocPct = decision.analyst?.allocationPct ?? 30;
+        const requestedFraction = Math.max(0.05, Math.min(1, allocPct / 100));
+        const requestedSourceAmount = sourceBalance * requestedFraction;
 
-        if (swapAmount < 0.001) {
+        // USD-equivalent cap. WMNT priced from market.mntPrice; USDT0
+        // priced 1:1.
+        const sourceUsdPrice =
+          path[0] === "WMNT" ? (market.mntPrice || 0.65) : 1;
+        const requestedUsd = requestedSourceAmount * sourceUsdPrice;
+        const cycleCapUsd = Number(
+          process.env.RWA_MAX_PER_CYCLE_USD || 5
+        );
+        const cappedUsd = Math.min(requestedUsd, cycleCapUsd);
+        const finalSourceAmount =
+          sourceUsdPrice > 0 ? cappedUsd / sourceUsdPrice : 0;
+        const minSourceAmount = path[0] === "WMNT" ? 1.5 : 1.5; // ~$1 worth
+
+        if (finalSourceAmount < minSourceAmount) {
           console.log(
-            `   ⚠️  Insufficient ${fromToken} balance: ${sourceBalance.toFixed(
+            `   ⚠️  Insufficient ${path[0]}: have ${sourceBalance.toFixed(
               6
-            )}`
+            )}, would-trade ${finalSourceAmount.toFixed(6)} (< floor)`
           );
           directionalSwapResult = {
             executed: false,
-            reason: `insufficient-balance: ${sourceBalance.toFixed(6)} ${fromToken}`,
+            direction: swapDirection,
+            from: path[0],
+            to: path[2],
+            reason: `insufficient-balance: ${sourceBalance.toFixed(6)} ${path[0]}`,
           };
         } else {
-          // Convert to wei (mUSD is 18 decimals, mETH is 18 decimals)
-          const { ethers } = require("ethers");
-          const amountInWei = ethers.parseEther(swapAmount.toFixed(8));
-
-          console.log(
-            `   Swapping ${swapAmount.toFixed(6)} ${fromToken} → ${toToken}`
+          // Two-leg swap. Each leg uses our patched MerchantMoeDEX
+          // (deep-pool selection + on-chain getSwapOut quote).
+          const amountInWei = ethers.parseUnits(
+            finalSourceAmount.toFixed(sourceDecimals),
+            sourceDecimals
           );
-
-          const swapResult = await liveDex.executeSwap(
-            fromToken,
-            toToken,
+          console.log(
+            `   Leg 1: ${finalSourceAmount.toFixed(6)} ${path[0]} → ${path[1]}`
+          );
+          const leg1 = await liveDex.executeSwap(
+            path[0],
+            path[1],
             amountInWei,
             { maxPriceImpactBps: 100, slippageBps: 50 }
           );
 
-          if (swapResult?.executed) {
+          if (!leg1?.executed) {
             console.log(
-              `   ✅ Directional swap: ${swapResult.txHash.slice(0, 18)}... (block ${swapResult.blockNumber})`
-            );
-            directionalSwapResult = {
-              executed: true,
-              txHash: swapResult.txHash,
-              from: fromToken,
-              to: toToken,
-              amountIn: swapAmount,
-              amountOut: swapResult.estimatedOut,
-            };
-            // Store txHash for discipline layer verification
-            decision.executionTxHash = swapResult.txHash;
-          } else {
-            console.log(
-              `   ⚠️  Directional swap blocked: ${swapResult?.reason || "unknown"}`
+              `   ⚠️  Leg 1 blocked: ${leg1?.reason || "unknown"}`
             );
             directionalSwapResult = {
               executed: false,
-              reason: swapResult?.reason || "unknown",
+              direction: swapDirection,
+              from: path[0],
+              to: path[2],
+              legs: [{ leg: 1, from: path[0], to: path[1], reason: leg1?.reason }],
+              reason: `leg1-failed: ${leg1?.reason || "unknown"}`,
             };
+          } else {
+            console.log(
+              `   ✅ Leg 1: ${leg1.txHash.slice(0, 18)}... (block ${leg1.blockNumber}) → ${leg1.estimatedOut.toFixed(6)} ${path[1]}`
+            );
+
+            // Use the actual fresh balance of the intermediate token,
+            // not leg1.estimatedOut (avoids float drift vs wei).
+            const midBal = await liveDex.getBalances(wallet.address);
+            const midAmountFloat = midBal[path[1]] || 0;
+            // Spend almost all of the intermediate (leave dust).
+            const midSpend = midAmountFloat * 0.999;
+            const midDecimals = path[1] === "USDT" ? 6 : 18;
+
+            if (midSpend < 0.5) {
+              directionalSwapResult = {
+                executed: false,
+                direction: swapDirection,
+                from: path[0],
+                to: path[2],
+                legs: [
+                  {
+                    leg: 1,
+                    from: path[0],
+                    to: path[1],
+                    txHash: leg1.txHash,
+                    blockNumber: leg1.blockNumber,
+                    amountOut: leg1.estimatedOut,
+                  },
+                ],
+                reason: `intermediate-balance-too-low: ${midAmountFloat}`,
+              };
+            } else {
+              const midAmountWei = ethers.parseUnits(
+                midSpend.toFixed(midDecimals),
+                midDecimals
+              );
+              console.log(
+                `   Leg 2: ${midSpend.toFixed(6)} ${path[1]} → ${path[2]}`
+              );
+              const leg2 = await liveDex.executeSwap(
+                path[1],
+                path[2],
+                midAmountWei,
+                { maxPriceImpactBps: 200, slippageBps: 50 } // looser impact for thinner second leg
+              );
+
+              if (leg2?.executed) {
+                console.log(
+                  `   ✅ Leg 2: ${leg2.txHash.slice(0, 18)}... (block ${leg2.blockNumber}) → ${leg2.estimatedOut.toFixed(6)} ${path[2]}`
+                );
+                directionalSwapResult = {
+                  executed: true,
+                  direction: swapDirection,
+                  from: path[0],
+                  to: path[2],
+                  amountIn: finalSourceAmount,
+                  amountOut: leg2.estimatedOut,
+                  // Top-level txHash: surface the FINAL leg so dashboards
+                  // pointing at one TX show the user-visible outcome.
+                  txHash: leg2.txHash,
+                  legs: [
+                    {
+                      leg: 1,
+                      from: path[0],
+                      to: path[1],
+                      txHash: leg1.txHash,
+                      blockNumber: leg1.blockNumber,
+                      amountIn: finalSourceAmount,
+                      amountOut: leg1.estimatedOut,
+                    },
+                    {
+                      leg: 2,
+                      from: path[1],
+                      to: path[2],
+                      txHash: leg2.txHash,
+                      blockNumber: leg2.blockNumber,
+                      amountIn: midSpend,
+                      amountOut: leg2.estimatedOut,
+                    },
+                  ],
+                };
+                // Discipline layer reads decision.executionTxHash for
+                // a single proof; we surface the final leg.
+                decision.executionTxHash = leg2.txHash;
+              } else {
+                console.log(
+                  `   ⚠️  Leg 2 blocked: ${leg2?.reason || "unknown"}`
+                );
+                directionalSwapResult = {
+                  executed: false,
+                  direction: swapDirection,
+                  from: path[0],
+                  to: path[2],
+                  legs: [
+                    {
+                      leg: 1,
+                      from: path[0],
+                      to: path[1],
+                      txHash: leg1.txHash,
+                      blockNumber: leg1.blockNumber,
+                      amountIn: finalSourceAmount,
+                      amountOut: leg1.estimatedOut,
+                    },
+                    {
+                      leg: 2,
+                      from: path[1],
+                      to: path[2],
+                      reason: leg2?.reason,
+                    },
+                  ],
+                  reason: `leg2-failed: ${leg2?.reason || "unknown"}`,
+                };
+              }
+            }
           }
         }
       } catch (swapErr) {
         console.log(
-          `   ⚠️  Directional swap threw: ${swapErr.message?.slice(0, 100)}`
+          `   ⚠️  Directional swap threw: ${swapErr.message?.slice(0, 120)}`
         );
         directionalSwapResult = {
           executed: false,
-          error: swapErr.message?.slice(0, 100),
+          direction: swapDirection,
+          error: swapErr.message?.slice(0, 200),
         };
       }
-    } else {
-      console.log(
-        `   [DRY] RWA_EXECUTE_ENABLED!='true' — directional swap skipped`
-      );
-      directionalSwapResult = {
-        executed: false,
-        reason: "execute-gate-off",
-      };
     }
   }
 
