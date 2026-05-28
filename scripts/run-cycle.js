@@ -179,21 +179,47 @@ async function main() {
     // Directional swap surface (multiAgentLoop Step 4.7). Persist into
     // the summary so the cron commit and downstream readers can tell a
     // real swap from a logged-but-unexecuted intent.
+    //
+    // 2-leg paths emit a `legs[]` array; we surface the full leg list
+    // and push every leg's txHash into summary.txHashes so the cron
+    // commit reflects the real on-chain footprint. The previous version
+    // only pushed the final-leg txHash, which silently hid leg-1 (e.g.
+    // cycle 123 USDT->USDT0 leg-1 was missing from the summary even
+    // though it landed on-chain in block 95926142).
     if (result?.directionalSwap) {
+      const ds = result.directionalSwap;
       summary.directionalSwap = {
-        executed: result.directionalSwap.executed === true,
-        from: result.directionalSwap.from ?? null,
-        to: result.directionalSwap.to ?? null,
-        amountIn: result.directionalSwap.amountIn ?? null,
-        amountOut: result.directionalSwap.amountOut ?? null,
-        reason: result.directionalSwap.reason ?? null,
-        error: result.directionalSwap.error ?? null,
+        executed: ds.executed === true,
+        direction: ds.direction ?? null,
+        from: ds.from ?? null,
+        to: ds.to ?? null,
+        amountIn: ds.amountIn ?? null,
+        amountOut: ds.amountOut ?? null,
+        reason: ds.reason ?? null,
+        error: ds.error ?? null,
+        legs: Array.isArray(ds.legs)
+          ? ds.legs.map((leg) => ({
+              leg: leg.leg ?? null,
+              from: leg.from ?? null,
+              to: leg.to ?? null,
+              txHash: leg.txHash ?? null,
+              blockNumber: leg.blockNumber ?? null,
+              amountIn: leg.amountIn ?? null,
+              amountOut: leg.amountOut ?? null,
+              reason: leg.reason ?? null,
+            }))
+          : null,
       };
-      if (
-        result.directionalSwap.executed === true &&
-        result.directionalSwap.txHash
-      ) {
-        summary.txHashes.push(result.directionalSwap.txHash);
+      // Push every leg's txHash that successfully landed on-chain.
+      // For single-shot swaps (rare path with no legs[]), fall back
+      // to ds.txHash.
+      const legHashes = Array.isArray(ds.legs)
+        ? ds.legs.map((l) => l.txHash).filter(Boolean)
+        : [];
+      if (legHashes.length > 0) {
+        summary.txHashes.push(...legHashes);
+      } else if (ds.executed === true && ds.txHash) {
+        summary.txHashes.push(ds.txHash);
       }
     }
 
