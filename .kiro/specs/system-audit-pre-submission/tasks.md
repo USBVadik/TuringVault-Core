@@ -1,10 +1,20 @@
 # Implementation Plan: System Audit Pre-Submission
 
-## Status: SHIPPED
+## Status: SHIPPED (with re-audit appendix 2026-05-28)
 
-All 20 tasks complete. Consolidated report at `.kiro/audits/99-consolidated.md`.
+All 20 tasks complete by checkbox. Consolidated report at `.kiro/audits/99-consolidated.md`.
 Remaining open findings converted to backlog spec at `.kiro/specs/post-submission-backlog/`.
 Closed 2026-05-28.
+
+> **Re-audit note (2026-05-28):** A targeted re-audit found that 4 of the 20
+> task output files (T3, T6, T9, T13) were never produced on disk despite the
+> `[x]` here. T6 (`04-on-chain.md`) and T13 (`11-secrets-and-supply.md`) have
+> been regenerated. T3 and T9 are deferred to the post-submission backlog
+> with explicit acknowledgement; their domains were partially covered by
+> reports that DID land (13-design-ux for UI, 06-pipeline-data-flow for
+> external APIs). Full re-audit results: `.kiro/audits/99-consolidated.md`
+> (appendix) and `.kiro/audits/2026-05-28-trading-unblock.md`. The original
+> SHIPPED line is preserved for the audit trail.
 
 ## Overview
 

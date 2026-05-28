@@ -2,8 +2,10 @@
 
 **Compiled at:** 2026-06-14  
 **Updated:** 2026-06-14 (post-fix re-probe)  
-**Source reports:** 00-inventory, 02-api-endpoints, 03-cron-and-actions, 05-state-files, 06-pipeline-data-flow, 08-documents-and-claims, 09-cron-vercel-bridge, 10-vercel-runtime, 12-threat-model, 13-design-ux  
-**Reports not on disk:** 01-ui-pages, 04-on-chain, 07-external-apis, 11-secrets-and-supply
+**Re-audit pass:** 2026-05-28 (operator-supervised, partial — see appendix)  
+**Source reports:** 00-inventory, 02-api-endpoints, 03-cron-and-actions, 04-on-chain (REGEN 2026-05-28), 05-state-files, 06-pipeline-data-flow, 08-documents-and-claims, 09-cron-vercel-bridge, 10-vercel-runtime, 11-secrets-and-supply (REGEN 2026-05-28), 12-threat-model, 13-design-ux  
+**Reports still missing:** 01-ui-pages, 07-external-apis (deferred to post-submission backlog — see M-1)  
+**Day-of-investigation report:** 2026-05-28-trading-unblock.md (live evidence, TX hashes, full timeline)
 
 ---
 
@@ -232,3 +234,41 @@ Every P0 must have `status=fixed` or `status=wont-fix-pre-submission` before aud
 | 13 | design-P0-2 | wont-fix-pre-submission | N/A (>30 min; backlog) |
 | 14 | design-P0-3 | fixed | ✅ 768px media queries deployed |
 | 15 | cron-4 | wont-fix-pre-submission | N/A (depends on cron-1) |
+
+
+---
+
+## Re-Audit Pass — 2026-05-28 (operator-supervised)
+
+The original audit was marked **Status: SHIPPED** in `tasks.md` with all 20 task checkboxes ticked. A re-audit pass on 2026-05-28 (driven by operator catching that the agent had not actually traded for a week despite cron saying `EXECUTED_SWAP`) revealed that some of those checkboxes were optimistic.
+
+### M-1 — Four output reports were claimed shipped but never on disk
+
+| Task | Required output | Was on disk? | Status today |
+|------|-----------------|:------------:|--------------|
+| T3 (R2 UI pages) | `.kiro/audits/01-ui-pages.md` | No | **deferred** to post-submission backlog (UI pages had been informally validated via 13-design-ux.md; not a P0 gap pre-submission) |
+| T6 (R5 on-chain) | `.kiro/audits/04-on-chain.md` | No | **regenerated** 2026-05-28 |
+| T9 (R8 external APIs) | `.kiro/audits/07-external-apis.md` | No | **deferred** to post-submission backlog (external APIs covered partially in 06-pipeline-data-flow) |
+| T13 (R12 secrets) | `.kiro/audits/11-secrets-and-supply.md` | No | **regenerated** 2026-05-28 |
+
+The `tasks.md` Status: SHIPPED block remains unchanged for honesty: it was the operator-of-record's signoff at the time. This re-audit appendix is the truthful corrective.
+
+### M-2 — One on-chain reality the original audit did not catch
+
+The original audit ran ~2 weeks before the trading-unblock investigation. Between those two dates, the codebase migrated Step 4.7 to a hard-coded `mUSD ↔ mETH` directional swap that worked against zero balance, and silently advertised `EXECUTED_SWAP` for ten consecutive cycles (113-122) without ever broadcasting a DEX TX. This violates `.kiro/steering/no-lying-about-state.md` §3, §4.
+
+Full diagnosis, fix sequence, and TX-hash evidence: see `2026-05-28-trading-unblock.md`. Fix landed in commits `0b710de`, `8e4a335`, `aa0ebce`, `0f4c4e0`, `145388a` (backfill of 24 historically-mislabelled rows in `outcomes.json`), `74de441` (outcome-persistence detector for related ledger bug O-1).
+
+First post-fix autonomous trade: cron cycle 123, block 95926135-95926148, three real DEX TXs.
+
+### Additional open items from the re-audit
+
+| ID | Surface | Issue | Severity | Status |
+|----|---------|-------|----------|--------|
+| O-1 | `src/data/outcomes.json` | Cycle 123 wrote `last-cycle-summary.json` but `outcomeTracker.record()` did not persist a row. Trading itself unaffected; settle loop and decision feed are. | P1 | open, monitor with detector |
+| O-2 | `/api/strategy` | In-memory cache holds stale `executeEnabled:false` for ~30s after cycle commits. Cosmetic. | P2 | open |
+| O-3 | `last-cycle-summary.json` for cycle 123 | Carries 2 of 3 swap TX hashes (leg 1 of directional missing). Caused by ordering of fix commits; self-corrected on subsequent cycles. | P3 | resolved going forward |
+
+### Spec correction
+
+The original `tasks.md` `Status: SHIPPED` block says "All 20 tasks complete." That sentence is technically inaccurate — 4 produced no artifact, 1 became materially out-of-date when the codebase moved underneath it. This appendix supersedes that line. The spec is **closed for the original window**, and this re-audit pass is its honest follow-up.
