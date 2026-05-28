@@ -220,9 +220,21 @@ export default function SocialPage() {
           }
 
           if (!d.available) {
-            const isMissingKey = /no_api_key|not configured/i.test(
-              d.reason || ""
-            );
+            const reason = d.reason || "";
+            const isMissingKey = /no_api_key|not configured/i.test(reason);
+            const isRateLimit =
+              /429|rate.?limit|RATE_LIMIT|monthly.*limit|quota/i.test(reason);
+            let message: string;
+            let badgeLabel = "unavailable";
+            if (isMissingKey) {
+              message = "ELFA_API_KEY not configured on this deployment.";
+            } else if (isRateLimit) {
+              message =
+                "Elfa free-tier monthly quota exceeded — refreshes on the 1st of next month. Live mindshare paused; the rest of the agent (CoinGecko, Nansen, Byreal, DeFiLlama) keeps running.";
+              badgeLabel = "rate-limited";
+            } else {
+              message = `Upstream error: ${reason.slice(0, 200)}`;
+            }
             return (
               <div
                 key={sym}
@@ -231,16 +243,11 @@ export default function SocialPage() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-base font-semibold">{sym}</span>
                   <span className="text-[10px] font-mono text-yellow-300/70">
-                    unavailable
+                    {badgeLabel}
                   </span>
                 </div>
                 <p className="text-xs text-white/50 leading-relaxed">
-                  {isMissingKey
-                    ? "ELFA_API_KEY not configured on this deployment."
-                    : `Upstream error: ${(d.reason || "unknown").slice(
-                        0,
-                        200
-                      )}`}
+                  {message}
                 </p>
               </div>
             );
