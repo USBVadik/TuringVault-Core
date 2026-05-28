@@ -34,14 +34,21 @@ export async function GET() {
       args: [BigInt(0)],
     });
 
+    const onChainWinRate = Number(rep[4]) / 100; // contract stores as bps-like (e.g. 4090 = 40.9%)
+    // normalizedScore reflects actual on-chain winRate mapped to 0–100 scale.
+    // Previous: 50 + cumulativeScore — inflated to 100 when positive count was high.
+    // Fixed: use on-chain winRate directly (it's already 0–100 range from contract).
+    const normalizedScore = Math.min(100, Math.max(0, Math.round(onChainWinRate)));
+
     return NextResponse.json({
       cumulativeScore: Number(rep[0]),
       totalFeedback: Number(rep[1]),
       positiveCount: Number(rep[2]),
       negativeCount: Number(rep[3]),
-      winRate: (Number(rep[4]) / 100).toFixed(1),
-      normalizedScore: Math.min(100, Math.max(0, 50 + Number(rep[0]))),
+      winRate: onChainWinRate.toFixed(1),
+      normalizedScore,
       source: "reputation_registry",
+      winRateDenominator: "on-chain: positiveCount / totalFeedback (ReputationRegistry)",
     });
   } catch {
     // Fallback: derive from ValidationRegistry on-chain data
@@ -69,6 +76,10 @@ export async function GET() {
       const rejected = Number(totalRejected);
       const approvalRate =
         total > 0 ? ((approved / total) * 100).toFixed(1) : "0";
+      // normalizedScore = approval rate mapped to 0–100.
+      const normalizedScore = total > 0
+        ? Math.min(100, Math.max(0, Math.round((approved / total) * 100)))
+        : 0;
 
       return NextResponse.json({
         cumulativeScore: approved * 100 - rejected * 50, // weighted scoring
@@ -76,8 +87,9 @@ export async function GET() {
         positiveCount: approved,
         negativeCount: rejected,
         winRate: approvalRate,
-        normalizedScore: Math.min(100, Math.max(0, 50 + approved - rejected)),
+        normalizedScore,
         source: "validation_registry_fallback",
+        winRateDenominator: "fallback: totalApproved / totalProposals (ValidationRegistry)",
       });
     } catch (e: any) {
       return NextResponse.json({ error: e.message }, { status: 500 });

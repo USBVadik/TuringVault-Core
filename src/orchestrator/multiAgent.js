@@ -591,6 +591,7 @@ and the agent loses an audit entry on Mantle.`;
  * Returns both agents' assessments + consensus result
  */
 async function getMultiAgentDecision(marketData) {
+  const _timingStart = Date.now();
   // Defensive defaults — prevent undefined in prompt
   const md = {
     ethPrice: marketData.ethPrice || 0,
@@ -648,12 +649,14 @@ async function getMultiAgentDecision(marketData) {
   console.log(
     `  [ANALYST] Analyzing market data... (model: ${MODELS.analyst})`
   );
+  const _analystStart = Date.now();
   const analystRaw = await callAgent(
     activeAnalystPrompt,
     marketPrompt,
     MODELS.analyst,
     "analyst"
   );
+  const _analystMs = Date.now() - _analystStart;
 
   // Normalize GLM-5 field names to match AnalystSchema
   const analystDecision = normalizeAnalystResponse(analystRaw);
@@ -733,11 +736,13 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
   console.log(
     `  [VALIDATOR] Verifying proposal... (model: ${MODELS.validator})`
   );
+  const _validatorStart = Date.now();
   const validatorRaw = await callValidatorWithRetry(
     activeValidatorPrompt,
     validatorPrompt,
     MODELS.validator
   );
+  const _validatorMs = Date.now() - _validatorStart;
   const validatorNorm = normalizeValidatorResponse(validatorRaw);
   const validatorResult = ValidatorSchema.safeParse(validatorNorm);
 
@@ -776,6 +781,7 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
     console.log(
       `  [ARBITER] Disagreement detected — calling arbiter (model: ${MODELS.arbiter})...`
     );
+    const _arbiterStart = Date.now();
     const arbiterPrompt = `You are the ARBITER AGENT — a neutral tiebreaker in a multi-agent trading system.
 
 The ANALYST proposed: ${analystDecision.action} ${
@@ -800,7 +806,9 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
         "You are a neutral arbiter in a multi-agent trading system. You ONLY output valid JSON. No markdown, no explanation outside JSON.",
         arbiterPrompt
       );
+      const _arbiterMs = Date.now() - _arbiterStart;
       arbiterVote = arbiterRaw;
+      arbiterVote._ms = _arbiterMs;
       console.log(
         `  [ARBITER] Vote: ${arbiterRaw.vote} (${(
           arbiterRaw.confidence * 100
@@ -843,6 +851,13 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
     ),
     _promptSource: promptSource,
     _activeThreshold: confidenceThreshold,
+    _timing: {
+      start: _timingStart,
+      analyst: _analystMs,
+      validator: _validatorMs,
+      arbiter: arbiterVote?._ms ?? null,
+      totalMs: Date.now() - _timingStart,
+    },
   };
 }
 

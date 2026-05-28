@@ -98,6 +98,7 @@ type PerformanceResponse = {
     onchain: "mantle-mainnet";
     aggregates: "src/data/outcomes.json";
   };
+  winRateDenominator: string;
   error?: string;
 };
 
@@ -269,6 +270,13 @@ export async function GET(): Promise<NextResponse> {
     cumulativePnlBps += typeof o.pnlBps === "number" ? o.pnlBps : 0;
   }
 
+  // Win Rate methodology (unified with /api/reputation denominator docs):
+  // Numerator = GOOD_CALL + CORRECT_BLOCK (favourable outcomes)
+  // Denominator = all settled outcomes (total sample)
+  // This differs from /api/reputation which uses on-chain positiveCount/totalFeedback
+  // from ReputationRegistry. That contract only counts explicit feedback submissions,
+  // whereas this counts all settled outcomes including those never submitted on-chain.
+  // Both methods are documented via `winRateDenominator` field.
   const winRate =
     settledCount > 0
       ? Math.round(
@@ -321,6 +329,7 @@ export async function GET(): Promise<NextResponse> {
       onchain: "mantle-mainnet",
       aggregates: "src/data/outcomes.json",
     },
+    winRateDenominator: "(GOOD_CALL + CORRECT_BLOCK) / settled.length from outcomes.json",
     ...(outcomes
       ? {}
       : { error: "outcomes.json unreachable in this deployment" }),

@@ -114,6 +114,7 @@ async function main() {
     cycleStartedAt,
     cycleEndedAt: null,
     durationSeconds: null,
+    stageTiming: null,
     decisionId: null,
     decisionTier: null,
     consensus: null,
@@ -138,6 +139,26 @@ async function main() {
     summary.decisionTier = result?.decisionTier ?? null;
     summary.consensus =
       typeof result?.consensus === "boolean" ? result.consensus : null;
+
+    // Per-stage timing instrumentation (CI-02). The decision object carries
+    // _timing from multiAgent.js: { start, analyst, validator, arbiter? }.
+    // We surface these as absolute durations in the summary so slow-stage
+    // spikes are observable without re-running the cycle.
+    const t = result?.decision?._timing;
+    if (t && t.start) {
+      summary.stageTiming = {
+        marketDataMs: t.marketReady ? t.marketReady - t.start : null,
+        analystMs: typeof t.analyst === "number" ? t.analyst : null,
+        validatorMs: typeof t.validator === "number" ? t.validator : null,
+        arbiterMs: typeof t.arbiter === "number" ? t.arbiter : null,
+        onChainMs: t.onChainEnd ? t.onChainEnd - (t.onChainStart || t.start) : null,
+        ipfsMs: typeof t.ipfs === "number" ? t.ipfs : null,
+        rwaMs: typeof t.rwa === "number" ? t.rwa : null,
+      };
+    } else {
+      // Fallback: at minimum record total pipeline time.
+      summary.stageTiming = { totalPipelineMs: Date.now() - startMs };
+    }
 
     // RWA execution surface (rwa-allocation-active T10).
     if (result?.rwaIntent) {
