@@ -133,7 +133,8 @@ async function main() {
 
     // After T4 patch, runMultiAgentCycle returns:
     //   { decision, decisionTier, disagreementSignal, consensus, proposalId,
-    //     rwaIntent, rwaResult } for both dryRun and live paths.
+    //     rwaIntent, rwaResult, directionalSwap } for both dryRun and
+    //     live paths.
     summary.decisionId =
       typeof result?.proposalId === "number" ? result.proposalId : null;
     summary.decisionTier = result?.decisionTier ?? null;
@@ -173,6 +174,60 @@ async function main() {
       if (result.rwaResult?.executed && result.rwaResult.txHash) {
         summary.txHashes.push(result.rwaResult.txHash);
       }
+    }
+
+    // Directional swap surface (multiAgentLoop Step 4.7). Persist into
+    // the summary so the cron commit and downstream readers can tell a
+    // real swap from a logged-but-unexecuted intent.
+    if (result?.directionalSwap) {
+      summary.directionalSwap = {
+        executed: result.directionalSwap.executed === true,
+        from: result.directionalSwap.from ?? null,
+        to: result.directionalSwap.to ?? null,
+        amountIn: result.directionalSwap.amountIn ?? null,
+        amountOut: result.directionalSwap.amountOut ?? null,
+        reason: result.directionalSwap.reason ?? null,
+        error: result.directionalSwap.error ?? null,
+      };
+      if (
+        result.directionalSwap.executed === true &&
+        result.directionalSwap.txHash
+      ) {
+        summary.txHashes.push(result.directionalSwap.txHash);
+      }
+    }
+
+    // Honest decisionTier: the upstream decisionTier classifier
+    // (src/orchestrator/decisionTier.js) marks any consensus + swap
+    // as EXECUTED_SWAP regardless of whether a DEX TX actually
+    // happened. That label is fine internally as a signal of intent,
+    // but it propagates into the cron commit message and into the
+    // dashboard's "Last cycle" badge, where it reads as a claim of
+    // execution. If neither rwa nor directional swap broadcast a tx,
+    // overwrite the tier to INTENT_SWAP_NO_EXEC so the commit log,
+    // the summary file, and any downstream UI consumer all see the
+    // same truthful status.
+    //
+    // Workspace rule: .kiro/steering/no-lying-about-state.md (4)
+    // — animation is fine; fake liveness is not. EXECUTED_SWAP without
+    // a TX is fake liveness on a high-prominence surface.
+    const hasOnchainSwap =
+      (result?.rwaResult?.executed === true && !!result?.rwaResult?.txHash) ||
+      (result?.directionalSwap?.executed === true &&
+        !!result?.directionalSwap?.txHash);
+    if (
+      summary.decisionTier === "EXECUTED_SWAP" &&
+      result?.consensus === true &&
+      !hasOnchainSwap
+    ) {
+      summary.executionStatus = "INTENT_ONLY";
+      summary.decisionTier = "INTENT_SWAP_NO_EXEC";
+    } else if (hasOnchainSwap) {
+      summary.executionStatus = "EXECUTED";
+    } else {
+      // Block / hold / dry-run paths keep their existing tier and
+      // get a synonymous executionStatus so the field is always set.
+      summary.executionStatus = result?.decisionTier ?? "UNKNOWN";
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
