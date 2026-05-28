@@ -588,24 +588,58 @@ async function runMultiAgentCycle(opts = {}) {
 
         // Sizing: analyst's allocationPct of source balance, capped
         // by RWA_MAX_PER_CYCLE_USD ($5 default) so a confident agent
-        // can't drain the wallet in a single cycle. Floor at $1
-        // equivalent so the gas spend isn't the dominant cost.
+        // can't drain the wallet in a single cycle. Floor 1.5 source
+        // units (~$1) so gas isn't dominant.
+        //
+        // On thin wallets, allocPct can produce a swap below the
+        // floor even though the wallet *could* support a swap above
+        // it. Example (cycle 128): WMNT=3.27, allocPct=30 → 0.98 WMNT
+        // which is below the 1.5 floor → gate blocks → INTENT_SWAP_NO_EXEC
+        // commits and looks like a stuck cycle. To rescue these, we
+        // bump the requested fraction up to whatever the wallet can
+        // support (capped at 100%) when the analyst's choice would
+        // produce a sub-floor amount, AS LONG AS the result still
+        // respects RWA_MAX_PER_CYCLE_USD. If even max-fraction would
+        // be sub-floor, the swap is genuinely infeasible and we fall
+        // through to insufficient-balance honestly.
         const allocPct = decision.analyst?.allocationPct ?? 30;
-        const requestedFraction = Math.max(0.05, Math.min(1, allocPct / 100));
-        const requestedSourceAmount = sourceBalance * requestedFraction;
+        let requestedFraction = Math.max(0.05, Math.min(1, allocPct / 100));
+        let requestedSourceAmount = sourceBalance * requestedFraction;
 
         // USD-equivalent cap. WMNT priced from market.mntPrice; USDT0
         // priced 1:1.
         const sourceUsdPrice =
           path[0] === "WMNT" ? (market.mntPrice || 0.65) : 1;
-        const requestedUsd = requestedSourceAmount * sourceUsdPrice;
         const cycleCapUsd = Number(
           process.env.RWA_MAX_PER_CYCLE_USD || 5
         );
+        const minSourceAmount = path[0] === "WMNT" ? 1.5 : 1.5; // ~$1 worth
+
+        // Thin-wallet rescue: scale the fraction up if the analyst's
+        // ask would land below floor and the wallet has room.
+        if (requestedSourceAmount < minSourceAmount) {
+          const rescueFraction = Math.min(
+            1,
+            (minSourceAmount * 1.05) / Math.max(sourceBalance, 1e-9)
+          );
+          if (
+            rescueFraction <= 1 &&
+            sourceBalance * rescueFraction * sourceUsdPrice <= cycleCapUsd
+          ) {
+            requestedFraction = rescueFraction;
+            requestedSourceAmount = sourceBalance * rescueFraction;
+            console.log(
+              `   ↗ thin-wallet rescue: bumping allocation ${allocPct}% → ${(
+                rescueFraction * 100
+              ).toFixed(1)}% so swap clears the ${minSourceAmount} ${path[0]} floor`
+            );
+          }
+        }
+
+        const requestedUsd = requestedSourceAmount * sourceUsdPrice;
         const cappedUsd = Math.min(requestedUsd, cycleCapUsd);
         const finalSourceAmount =
           sourceUsdPrice > 0 ? cappedUsd / sourceUsdPrice : 0;
-        const minSourceAmount = path[0] === "WMNT" ? 1.5 : 1.5; // ~$1 worth
 
         if (finalSourceAmount < minSourceAmount) {
           console.log(

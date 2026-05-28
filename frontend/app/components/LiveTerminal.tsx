@@ -254,6 +254,16 @@ export function LiveTerminal() {
               d.executedOnChain === true ||
               tier === "EXECUTED_SWAP" ||
               (apiTier == null && d.action === "swap");
+            // Honesty: when the API confirms there was no on-chain
+            // DEX TX (executedOnChain === false), the action verb
+            // ("swap") refers to *intent only*. The on-chain TX the
+            // user clicks through to is just an attestation row in
+            // DecisionLog, not a real swap. Render the verb in the
+            // muted tone the action+approved classifier already uses
+            // for non-approved cases, but tag it explicitly with the
+            // 'intent' qualifier so a judge isn't confused.
+            const isIntentOnly =
+              d.executedOnChain === false && d.action === "swap";
             const ts =
               new Date(d.timestamp * 1000).toISOString().slice(11, 19) + "Z";
             const conf = (d.confidence / 100).toFixed(1);
@@ -268,8 +278,21 @@ export function LiveTerminal() {
                     [{tier}]
                   </span>
                 )}{" "}
-                <span className={actionTone(d.action, approved)}>
+                <span
+                  className={actionTone(d.action, approved)}
+                  title={
+                    isIntentOnly
+                      ? "Cycle reached consensus to swap but no DEX TX was broadcast (insufficient balance, gate trip, or routing miss). The on-chain TX you can click is an attestation in DecisionLog, not a swap."
+                      : undefined
+                  }
+                >
                   {d.action.toUpperCase()}
+                  {isIntentOnly && (
+                    <span className="text-orange-400/60">
+                      {" "}
+                      (intent only)
+                    </span>
+                  )}
                 </span>{" "}
                 <span className="text-white/70">{d.targetAsset}</span>{" "}
                 <span className="text-white/40 font-mono">conf={conf}%</span>
@@ -281,7 +304,11 @@ export function LiveTerminal() {
                       target="_blank"
                       rel="noreferrer"
                       className="text-purple-300/60 hover:text-purple-300 font-mono text-[10px]"
-                      title="Open on Mantle Explorer"
+                      title={
+                        isIntentOnly
+                          ? "Attestation TX (logDecision) — not a DEX swap"
+                          : "Open on Mantle Explorer"
+                      }
                     >
                       tx:{shortHash(d.txHash)}
                     </a>
