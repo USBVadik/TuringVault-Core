@@ -83,7 +83,7 @@ Every decision creates an immutable record: what data the AI observed, what conc
 │                                                                    │
 │    DATA LAYER                                                      │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │
-│  │CoinGecko │ │Nansen MCP│ │Hyperliquid│ │DeFiLlama │ │Elfa REST │  │
+│  │CoinGecko │ │Nansen MCP│ │Byreal¹   │ │DeFiLlama │ │Elfa REST │  │
 │  │Price/Vol │ │SmartMoney│ │Funding/OI│ │Mantle TVL│ │Mindshare │  │
 │  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘  │
 │       └───────────┴────────────┼────────────┴────────────┘         │
@@ -122,6 +122,8 @@ Every decision creates an immutable record: what data the AI observed, what conc
               ↑
   Hourly GitHub Actions cron — public verifiable workflow log
 ```
+
+> ¹ Byreal aggregates perps data from Hyperliquid and other venues. No direct Hyperliquid integration exists.
 
 ---
 
@@ -236,14 +238,14 @@ secrets without redeploy. See
 The ANALYST prompt evolves based on performance, gated by safeguards:
 
 - Minimum 20 settled trades before any mutation
-- Validator prompt is **IMMUTABLE** — only Analyst evolves
+- Validator prompt is **not subject to auto-evolution** (operator-only changes) — only Analyst evolves
 - Every prompt version pinned to IPFS for auditability
 - An immutable `FORMAT_GUARD_SUFFIX` is appended to every loaded
   evolved prompt so format drift can't break the JSON output contract
   (see `src/orchestrator/multiAgent.js`)
 - Default-off behind `EVOLVED_PROMPTS_ENABLED=true` env flag while
   smoke tests confirm parse stability cycle-over-cycle (≥ 95% target;
-  current measurements at 100% on representative sampling — see
+  current measurements at 100% over a 24h measured window of N=24 cycles — see
   `npm run smoke:reasoning`)
 - AI prompt v3.0.0 currently pinned to IPFS; pre-evolution baseline
   is v2.1.1. Evolution logic is implemented end-to-end (mutation
@@ -277,7 +279,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 
 ### Why Mantle?
 
-- **~$0.007 gas per tx** (22-TX verified sample; [evidence](artifacts/gas-cost-analysis.json)) — enables logging EVERY decision on-chain (cost-prohibitive on L1)
+- **~$0.007 gas per tx** (22-TX verified sample; [evidence](artifacts/gas-cost-analysis.json)) — enables logging every completed cycle's decision on-chain (cost-prohibitive on L1)
 - **mETH native yield** — real staking returns as trading asset
 - **EVM compatible** — standard Solidity, standard tooling
 - **Growing AI ecosystem** — aligned with Mantle's AI agent vision
@@ -291,7 +293,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 | AI Models  | Z.ai GLM-5 Analyst (via AWS Bedrock) + Anthropic Claude Sonnet 4.6 Validator (via AWS Bedrock) + Google Gemini 3.5 Flash Arbiter (via Vertex AI) |
 | Blockchain | Mantle L2 Mainnet (chain 5000)                                                                                                                   |
 | DEX        | Merchant Moe Liquidity Book v2.2                                                                                                                 |
-| Data       | CoinGecko, Nansen MCP, Hyperliquid, DeFiLlama, Elfa REST v2                                                                                      |
+| Data       | CoinGecko, Nansen MCP, Byreal (aggregates Hyperliquid funding/OI), DeFiLlama, Elfa REST v2                                                       |
 | Storage    | IPFS (Pinata) for Proof-of-Reasoning blobs                                                                                                       |
 | Frontend   | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary)                                                                        |
 | RWA        | Ondo Finance USDY metadata (paper-ready) + USDT0 LayerZero (active)                                                                              |
@@ -362,7 +364,7 @@ turingvault/
 │   ├── onchain/            # Contract interactions, IPFS
 │   ├── mcp/                # Nansen MCP client
 │   └── cron/               # Automated trading loop
-├── contracts/              # Solidity (6 contracts, 5 verified on Sourcify; Router pending)
+├── contracts/              # Solidity (5 contracts deployed, 4 verified on Sourcify; Router pending)
 ├── frontend/               # Next.js dashboard + proof explorer
 ├── sdk/                    # TuringVault SDK for external integration
 ├── test/                   # Contract + integration tests
