@@ -47,7 +47,7 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 **Stats (live, on-chain — verified via contract calls):**
 
 - **104+ autonomous decisions** logged to Mantle Mainnet with full reasoning
-- **61% rejection rate** — Validator blocks ~2 out of 3 proposals (capital protection)
+- **57% rejection rate** — Validator blocks >1 in 2 proposals (capital protection)
 - **40 approved, 64 rejected** — adversarial consensus working as designed
 - **55%+ of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)
 - Hourly cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
@@ -127,7 +127,7 @@ Every decision creates an immutable record: what data the AI observed, what conc
 
 ## Smart Contracts (Mantle Mainnet, chain 5000)
 
-All contracts verified on Sourcify:
+All contracts verified on Sourcify (Router pending — code changed after deployment):
 
 | Contract                      | Address                                                                                                                        | Purpose                       |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
@@ -349,7 +349,7 @@ turingvault/
 │   ├── onchain/            # Contract interactions, IPFS
 │   ├── mcp/                # Nansen MCP client
 │   └── cron/               # Automated trading loop
-├── contracts/              # Solidity (5 contracts, verified on Sourcify)
+├── contracts/              # Solidity (6 contracts, 5 verified on Sourcify; Router pending)
 ├── frontend/               # Next.js dashboard + proof explorer
 ├── sdk/                    # TuringVault SDK for external integration
 ├── test/                   # Contract + integration tests
