@@ -613,7 +613,13 @@ async function runMultiAgentCycle(opts = {}) {
         const cycleCapUsd = Number(
           process.env.RWA_MAX_PER_CYCLE_USD || 5
         );
-        const minSourceAmount = path[0] === "WMNT" ? 1.5 : 1.5; // ~$1 worth
+        // Floor lowered from 1.5 → 0.5 source units after 2026-05-28
+        // calibration: Mantle gas is ~0.001 MNT per swap, so even a
+        // $0.30 swap nets positive after fees. The previous 1.5 floor
+        // was killing thin-wallet cycles for no real reason.
+        // Path-aware: WMNT priced ~$0.65 so 0.5 WMNT ≈ $0.33; USDT0
+        // is 1:1 so 0.5 USDT0 = $0.50. Both clear gas-vs-edge handily.
+        const minSourceAmount = path[0] === "WMNT" ? 0.5 : 0.5;
 
         // Thin-wallet rescue: scale the fraction up if the analyst's
         // ask would land below floor and the wallet has room.

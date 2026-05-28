@@ -7,7 +7,14 @@
 
 module.exports = {
   // === Confidence Thresholds ===
-  BASE_CONFIDENCE_THRESHOLD: 0.6, // Minimum analyst confidence to consider a trade
+  // 0.55 base after 2026-05-28 calibration. Last 30 cycles showed
+  // 5 cycles blocked at conf=0.58 with no actual concern from the
+  // validator beyond "regime confidence only 60% — mild conviction".
+  // 0.60 was killing 17% of otherwise-valid setups. The validator
+  // step still has its own gates (riskScore, approval, R:R), so
+  // 0.55 doesn't collapse the safety net — it just stops blocking
+  // on the analyst's self-rated humility.
+  BASE_CONFIDENCE_THRESHOLD: 0.55,
   ELEVATED_CONFIDENCE_THRESHOLD: 0.85, // Threshold after consecutive losses (circuit breaker)
   VALIDATOR_TOLERANCE: 0.05, // Validator can be this much below analyst threshold
   DEFAULT_CONFIDENCE_FALLBACK: 0.5, // When AI returns non-numeric confidence
