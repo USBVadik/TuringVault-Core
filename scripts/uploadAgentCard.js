@@ -152,8 +152,8 @@ function buildAgentCard(stats) {
       approvedExecutions: stats.approved,
       blockRate: `${stats.blockRate}%`,
       consensusRate: "100%",
-      avgVaR: "~100 bps",
-      gasEfficiency: "~0.005 MNT per TX",
+      avgVaR: "~100 bps (illustrative — no formal VaR model)",
+      gasEfficiency: "~0.0098 MNT per TX (~$0.007 at MNT=$0.72; 22-TX verified sample)",
       narrative: `Risk firewall blocked ${stats.rejected}/${stats.total} unsafe proposals — safety-first design`,
     },
   };

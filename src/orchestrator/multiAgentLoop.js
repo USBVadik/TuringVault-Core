@@ -816,8 +816,8 @@ async function runMultiAgentCycle(opts = {}) {
       approvedExecutions: Number(approved),
       blockRate: `${blockRate}%`,
       consensusRate: "100%",
-      avgVaR: "~100 bps",
-      gasEfficiency: "~0.005 MNT per TX",
+      avgVaR: "~100 bps (illustrative — no formal VaR model)",
+      gasEfficiency: "~0.0098 MNT per TX (~$0.007 at MNT=$0.72; 22-TX verified sample)",
       narrative: `Trust Firewall blocked ${Number(rejected)}/${Number(
         total
       )} unsafe proposals — 3-model consensus ensures safety-first execution`,

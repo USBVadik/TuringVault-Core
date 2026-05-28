@@ -100,6 +100,7 @@ async function uploadReasoningProof(decision, marketData) {
         "Fear&Greed",
         "Nansen MCP",
         "Byreal Perps",
+        "Elfa Social",
       ],
     },
 
@@ -213,6 +214,7 @@ async function uploadAgentCard() {
       "fear-and-greed-index",
       "nansen-mcp",
       "byreal-perps-signals",
+      "elfa-social",
     ],
   };
 
