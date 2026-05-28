@@ -453,6 +453,62 @@
       },
       "executedOnChain": false,
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1779998286708_128",
+      "decisionId": 128,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2014.55,
+      "ipfsCid": "QmQ7dfyp84Y1C2UAHxvEhawLrtKYYFAJQvW6xESe7My7u1",
+      "recordedAt": "2026-05-28T19:58:06.708Z",
+      "settleAfter": "2026-05-28T20:58:06.708Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779998286707
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Defensive rotation to mUSD (stable) in TREND_DOWN regime is appropriate. Bearish EMA cross (9=2005 below 21=2007) confirmed. RSI 51.1 falling supports mild bearish bias. 35% allocation is conservative. MACD improving is acknowledged as risk factor. Yield spread -1% adds bearish weight. Swap-to-stable is not a directional leveraged bet — R:R gate does not block defensive de-risking. No hallucinated",
+      "validatorFlaggedIssues": [
+        "MACD histogram improving (+6.75) is a mild contradicting signal",
+        "Regime confidence only 60% — not high conviction",
+        "Smart money flow neutral ($0.0M outflow) provides no directional confirmation",
+        "RSI at 51.1 is near neutral, not deeply bearish"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "reason": "insufficient-balance: 3.271287 WMNT"
+      },
+      "executedOnChain": false,
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
