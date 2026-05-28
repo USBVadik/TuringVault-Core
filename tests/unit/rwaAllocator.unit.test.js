@@ -267,6 +267,25 @@ describe("rwaAllocator", () => {
       expect(out).toEqual({ skip: true, _gate: "min-balance" });
     });
 
+    test("already-allocated gate triggers when wallet has dust idle stables but USDT0 is parked", () => {
+      // Mirrors current production reality on the demo wallet:
+      // 0 USDT/mUSD, 95 USDT0. Old code reported `min-balance` here,
+      // which read like a config error every cycle. New code reports
+      // `already-allocated`, telling the operator "you're done, sit
+      // tight" rather than "topping up needed".
+      const a = freshAllocator();
+      const out = a.evaluate({
+        decision: decision({ consensus: true, action: "rwa_allocate" }),
+        market: { regime: "HOLD" },
+        balances: { USDT: 0, USDT0: 95, mUSD: 0 },
+        prices: PRICES,
+        lastSwapAt: null,
+        posState: inMethPosState(),
+        now: NOW,
+      });
+      expect(out).toEqual({ skip: true, _gate: "already-allocated" });
+    });
+
     test("rwa_exit bypasses min-balance gate when USDT0 is the source", () => {
       const a = freshAllocator();
       const out = a.evaluate({

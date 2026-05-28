@@ -184,11 +184,21 @@ function evaluate(args) {
     (balances.USDT ?? 0) * (prices.USDT ?? 1) +
     (balances.mUSD ?? 0) * (prices.mUSD ?? 1);
 
+  // The USD value already parked in our RWA target. Used so we can
+  // distinguish "wallet is dust" (true blocker) from "we already moved
+  // everything into USDT0" (legitimate steady state). The old code
+  // returned `min-balance` for both, which made cron commits look like
+  // a config error every cycle once the position was fully allocated.
+  const rwaAllocatedUsd = (balances.USDT0 ?? 0) * (prices.USDT0 ?? 1);
+
   // Hard floor: dust wallet → never touch RWA.
   if (
     idleStableUsd < limits.MIN_BALANCE_USD &&
     !(decision?.consensus && decision?.analyst?.action === "rwa_exit")
   ) {
+    if (rwaAllocatedUsd >= limits.MIN_BALANCE_USD) {
+      return { skip: true, _gate: "already-allocated" };
+    }
     return { skip: true, _gate: "min-balance" };
   }
 

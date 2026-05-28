@@ -53,6 +53,7 @@ const LB_FACTORY_ABI = [
 const LB_PAIR_ABI = [
   "function getActiveId() view returns (uint24)",
   "function getBin(uint24 id) view returns (uint128 binReserveX, uint128 binReserveY)",
+  "function getReserves() view returns (uint128 reserveX, uint128 reserveY)",
   "function getTokenX() view returns (address)",
   "function getTokenY() view returns (address)",
   "function totalSupply(uint256 id) view returns (uint256)",
@@ -91,23 +92,56 @@ class MerchantMoeDEX {
   }
 
   /**
-   * Find the best LB pair for a token pair
+   * Find the best LB pair for a token pair.
+   *
+   * Strategy: pick the pair with the deepest active liquidity, not the
+   * lowest binStep. The factory may return multiple binSteps for the
+   * same token pair, where the canonical-deep pool is on a higher
+   * binStep (e.g. USDT/WMNT lives on binStep=25 with $1.18M, while
+   * binStep=15 has only $1.3K). Sorting by binStep silently routes
+   * trades through the shallow pool, which then trips the >10% price
+   * impact gate and blocks every realistic swap.
+   *
+   * We probe each non-ignored pair's reserves and rank by aggregated
+   * reserve magnitude. Single RPC roundtrip per candidate pair; pairs
+   * with both reserves zero are dropped.
    */
   async findPair(tokenA, tokenB) {
     try {
       const pairs = await this.factory.getAllLBPairs(tokenA, tokenB);
       if (!pairs || pairs.length === 0) return null;
 
-      // Filter out ignored pairs, prefer lowest binStep for best price
-      const valid = [...pairs].filter(
+      const candidates = [...pairs].filter(
         (p) => !p.ignoredForRouting && p.LBPair !== ethers.ZeroAddress
       );
-      if (valid.length === 0) return null;
+      if (candidates.length === 0) return null;
+      if (candidates.length === 1) return candidates[0];
 
-      // Sort by binStep (lower = tighter spread = better for traders)
-      valid.sort((a, b) => Number(a.binStep) - Number(b.binStep));
-      return valid[0];
-    } catch (e) {
+      // Probe reserves for each candidate. We don't need exact USD
+      // valuation — just a relative ranking. reserveX + reserveY in
+      // raw units is a good enough proxy because both tokens in a
+      // sane pair are within an order of magnitude of each other in
+      // 18-dec terms (or 6-dec, identically).
+      const PAIR_RES_ABI = [
+        "function getReserves() view returns (uint128 reserveX, uint128 reserveY)",
+      ];
+      const ranked = await Promise.all(
+        candidates.map(async (p) => {
+          try {
+            const c = new ethers.Contract(p.LBPair, PAIR_RES_ABI, this.provider);
+            const [rX, rY] = await c.getReserves();
+            const depth = rX + rY; // BigInt
+            return { pair: p, depth };
+          } catch {
+            return { pair: p, depth: 0n };
+          }
+        })
+      );
+      ranked.sort((a, b) => (b.depth > a.depth ? 1 : b.depth < a.depth ? -1 : 0));
+      const best = ranked[0];
+      if (best.depth === 0n) return null;
+      return best.pair;
+    } catch {
       return null;
     }
   }
@@ -134,14 +168,12 @@ class MerchantMoeDEX {
     );
     const tokenX = await pair.getTokenX();
     const activeId = await pair.getActiveId();
+    const [reserveX, reserveY] = await pair.getReserves();
 
     // Determine swap direction
     const swapForY = tokenInAddr.toLowerCase() === tokenX.toLowerCase();
 
-    // Get active bin reserves for price calculation
-    const [reserveX, reserveY] = await pair.getBin(activeId);
-
-    // Get decimals first (needed for price normalization)
+    // Get decimals (needed for price + impact normalization)
     const tokenInContract = new ethers.Contract(
       tokenInAddr,
       ERC20_ABI,
@@ -181,36 +213,104 @@ class MerchantMoeDEX {
     const priceYperX =
       rawPrice * Math.pow(10, Number(decimalsX) - Number(decimalsY));
 
-    // Estimate output
     const amountInFloat = parseFloat(ethers.formatUnits(amountIn, decimalsIn));
-    let estimatedOut;
-    if (swapForY) {
-      // Selling X for Y: output = amountIn * priceYperX
-      estimatedOut = amountInFloat * priceYperX;
-    } else {
-      // Selling Y for X: output = amountIn / priceYperX
-      estimatedOut = amountInFloat / priceYperX;
+    const feeRate = binStep / 10000;
+
+    // Use the LB pair's own getSwapOut() — this respects bin walking
+    // and returns the actual amount out for the requested amountIn,
+    // including fee. This is the single source of truth for the pool
+    // and is what the router will use at execution time. The previous
+    // implementation read only the active bin's reserves and divided
+    // amountIn by it, which produced 100% impact for any swap whose
+    // size exceeded the very narrow active-bin liquidity even when the
+    // surrounding bins held millions in TVL. That caused viable=false
+    // and silently blocked every USDT/WMNT or USDT0/WMNT trade.
+    let estimatedOutFloat = null;
+    let onchainFeeFloat = 0;
+    try {
+      const SWAP_OUT_ABI = [
+        "function getSwapOut(uint128 amountIn, bool swapForY) view returns (uint128 amountInLeft, uint128 amountOut, uint128 fee)",
+      ];
+      const pairForSwap = new ethers.Contract(
+        pairInfo.LBPair,
+        SWAP_OUT_ABI,
+        this.provider
+      );
+      const [amountInLeft, amountOut, feeOut] = await pairForSwap.getSwapOut(
+        amountIn,
+        swapForY
+      );
+      estimatedOutFloat = parseFloat(
+        ethers.formatUnits(amountOut, decimalsOut)
+      );
+      onchainFeeFloat = parseFloat(
+        ethers.formatUnits(feeOut, decimalsIn)
+      );
+      // If the pool can't fully consume amountIn (more than 1% remains
+      // unconsumed), treat as not-viable — pool is too thin.
+      if (amountInLeft > 0n) {
+        const leftFloat = parseFloat(
+          ethers.formatUnits(amountInLeft, decimalsIn)
+        );
+        if (leftFloat / Math.max(amountInFloat, 1e-12) > 0.01) {
+          estimatedOutFloat = null;
+        }
+      }
+    } catch {
+      // Fall back to the price-formula estimate. Only triggers on
+      // exotic pair configs.
+      const fallback = swapForY
+        ? amountInFloat * priceYperX
+        : amountInFloat / priceYperX;
+      estimatedOutFloat = fallback * (1 - feeRate);
     }
 
-    // Fee estimate (binStep basis points per swap)
-    const feeRate = binStep / 10000;
-    const amountOutAfterFee = estimatedOut * (1 - feeRate);
+    // Mid-market value of amountIn in tokenOut units (zero-impact
+    // theoretical fill, before fees and slippage).
+    const midOutFloat = swapForY
+      ? amountInFloat * priceYperX
+      : amountInFloat / priceYperX;
 
-    // Price impact estimate (based on active bin reserves depth)
-    const reserveFloat = swapForY
+    // priceImpact = relative shortfall of actual output vs midprice,
+    // expressed as a fraction (NOT a percent). 0.005 == 0.5%.
+    // We add the protocol fee back so impact reflects only depth
+    // slippage; the fee is reported separately as `fee`.
+    let priceImpact = 1;
+    if (estimatedOutFloat != null && midOutFloat > 0) {
+      const feeOutValueIn = onchainFeeFloat * (swapForY ? priceYperX : 1 / priceYperX);
+      const grossOut = estimatedOutFloat + feeOutValueIn;
+      priceImpact = Math.max(0, 1 - grossOut / midOutFloat);
+    }
+
+    // depthFraction = how much of the input-side reserve we are eating.
+    // Used as a sanity gate against draining a pool.
+    const inputReserveFloat = swapForY
       ? parseFloat(ethers.formatUnits(reserveX, decimalsX))
       : parseFloat(ethers.formatUnits(reserveY, decimalsY));
-    const priceImpact =
-      reserveFloat > 0 ? (amountInFloat / reserveFloat) * 100 : 100;
+    const depthFraction =
+      inputReserveFloat > 0 ? amountInFloat / inputReserveFloat : 1;
+
+    // viable when:
+    //   - getSwapOut returned a value (pool consumed our amountIn)
+    //   - price impact (excluding protocol fee) is below 5%
+    //   - we are not draining > 50% of the input-side reserves
+    const viable =
+      estimatedOutFloat != null &&
+      priceImpact < 0.05 &&
+      depthFraction < 0.5;
 
     return {
       tokenIn: symbolIn,
       tokenOut: symbolOut,
       amountIn: amountInFloat,
-      estimatedOut: amountOutAfterFee,
+      estimatedOut: estimatedOutFloat ?? 0,
       price: swapForY ? priceYperX : 1 / priceYperX,
       fee: feeRate * 100, // as percentage
-      priceImpact: Math.min(priceImpact, 100),
+      // priceImpact is a FRACTION (0.005 = 0.5%). Multiply by 100 for
+      // human display. executeSwap compares it to maxPriceImpactBps via
+      // (priceImpact * 100 > maxImpactBps), see below.
+      priceImpact,
+      depthFraction,
       binStep,
       activeId: Number(activeId),
       pairAddress: pairInfo.LBPair,
@@ -226,7 +326,7 @@ class MerchantMoeDEX {
       // correctly without re-fetching them. Spec: rwa-allocation-active C4.
       _decimalsIn: Number(decimalsIn),
       _decimalsOut: Number(decimalsOut),
-      viable: priceImpact < 10, // Less than 10% impact = viable (Mantle pools thin)
+      viable,
     };
   }
 
@@ -351,11 +451,14 @@ class MerchantMoeDEX {
     if (!quote.viable) {
       return { ...quote, executed: false, reason: quote.error || "not-viable" };
     }
-    if (quote.priceImpact * 100 > maxImpactBps) {
+    // priceImpact is a fraction (0.005 = 0.5%). Convert to bps (×10_000)
+    // for comparison with maxImpactBps.
+    const impactBps = quote.priceImpact * 10000;
+    if (impactBps > maxImpactBps) {
       return {
         ...quote,
         executed: false,
-        reason: `impact ${quote.priceImpact.toFixed(3)}% > ${(
+        reason: `impact ${(quote.priceImpact * 100).toFixed(3)}% > ${(
           maxImpactBps / 100
         ).toFixed(3)}%`,
       };
