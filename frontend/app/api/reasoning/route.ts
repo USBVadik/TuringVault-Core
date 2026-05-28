@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import * as fs from "fs";
 import * as path from "path";
 
+export const dynamic = "force-dynamic";
+
 /**
  * API endpoint: /api/reasoning
  * Returns latest AI reasoning cycle data for Glass Mode visualization

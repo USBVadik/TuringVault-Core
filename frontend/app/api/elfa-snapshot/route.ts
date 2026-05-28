@@ -19,7 +19,7 @@
 
 import { NextResponse } from "next/server";
 
-const ELFA_BASE = process.env.ELFA_BASE_URL || "https://api.elfa.ai";
+export const dynamic = "force-dynamic";const ELFA_BASE = process.env.ELFA_BASE_URL || "https://api.elfa.ai";
 const TIMEOUT_MS = 8000;
 
 async function fetchElfa(path: string) {

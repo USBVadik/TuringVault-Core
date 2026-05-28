@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createPublicClient, http } from "viem";
 import { mantle } from "viem/chains";
 
+export const dynamic = "force-dynamic";
+
 const IDENTITY_ADDRESS = "0x6f862802e0d5463DF18d267e422347BeCacc28bD";
 const IDENTITY_ABI = [
   {

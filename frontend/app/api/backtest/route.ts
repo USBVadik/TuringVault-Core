@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 // Fetch outcomes from GitHub raw (works on Vercel)
 async function fetchOutcomes(): Promise<any> {
   try {
