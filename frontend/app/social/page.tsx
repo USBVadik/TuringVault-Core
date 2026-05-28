@@ -127,7 +127,7 @@ export default function SocialPage() {
   }
 
   return (
-    <main className="relative min-h-screen px-6 py-10 max-w-[1100px] mx-auto text-white anim-fade-up">
+    <main className="relative min-h-screen px-6 py-10 max-w-[1200px] mx-auto text-white anim-fade-up">
       <header className="mb-8">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
@@ -198,13 +198,23 @@ export default function SocialPage() {
             return (
               <div
                 key={sym}
-                className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02]"
+                className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02] animate-pulse"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-3">
                   <span className="text-base font-semibold">{sym}</span>
-                  <span className="text-[10px] font-mono text-white/30">
-                    loading…
-                  </span>
+                  <span className="h-3 w-16 bg-white/5 rounded" />
+                </div>
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="p-2.5 rounded bg-white/[0.03]">
+                      <div className="h-2 w-12 bg-white/5 rounded mb-2" />
+                      <div className="h-5 w-16 bg-white/5 rounded" />
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="h-14 bg-white/[0.02] rounded border border-white/[0.04]" />
+                  <div className="h-14 bg-white/[0.02] rounded border border-white/[0.04]" />
                 </div>
               </div>
             );

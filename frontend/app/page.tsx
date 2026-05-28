@@ -1101,7 +1101,7 @@ export default function Home() {
             </a>
           </div>
           <div className="table-v2">
-            <div className="table-v2-header grid-cols-6">
+            <div className="table-v2-header" style={{ gridTemplateColumns: "auto 1fr auto auto auto 2fr" }}>
               <span>Time</span>
               <span>Action</span>
               <span>Asset</span>
@@ -1112,7 +1112,7 @@ export default function Home() {
             {recentDecisions == null ? (
               <div className="space-y-1 animate-pulse">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="table-v2-row grid-cols-6">
+                  <div key={i} className="table-v2-row" style={{ gridTemplateColumns: "auto 1fr auto auto auto 2fr" }}>
                     <span className="h-3 w-12 bg-white/5 rounded" />
                     <span className="h-3 w-10 bg-white/5 rounded" />
                     <span className="h-3 w-14 bg-white/5 rounded" />
@@ -1137,7 +1137,7 @@ export default function Home() {
                       }`
                     : "—";
                 return (
-                  <div key={i} className="table-v2-row grid-cols-6">
+                  <div key={i} className="table-v2-row" style={{ gridTemplateColumns: "auto 1fr auto auto auto 2fr" }}>
                     <span className="text-white/40 font-mono text-[11px]">
                       {tsLabel}
                     </span>

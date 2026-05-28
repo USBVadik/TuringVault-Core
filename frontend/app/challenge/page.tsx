@@ -160,7 +160,7 @@ export default function ChallengePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
-      <div className="max-w-4xl mx-auto anim-fade-up">
+      <div className="max-w-[1200px] mx-auto anim-fade-up">
         <div className="mb-10">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
             <Swords className="w-7 h-7 text-red-400" />
@@ -245,10 +245,15 @@ export default function ChallengePage() {
         )}
 
         {!result && !loading && (
-          <div className="p-8 rounded-lg border border-white/[0.04] bg-white/[0.01] text-center">
-            <p className="text-white/30 text-sm">
-              Select an attack vector above. The agent must detect and block
-              every adversarial signal.
+          <div className="p-12 rounded-lg border border-white/[0.04] bg-white/[0.01] flex flex-col items-center text-center">
+            <Shield className="w-12 h-12 text-white/10 mb-4" />
+            <h3 className="text-white/50 text-sm font-medium mb-1">
+              No attack selected
+            </h3>
+            <p className="text-white/25 text-xs max-w-sm">
+              Choose an attack vector above to inject adversarial signals into
+              the live multi-agent pipeline. The agent must detect and block
+              every manipulated signal in real-time.
             </p>
           </div>
         )}
