@@ -509,6 +509,62 @@
       },
       "executedOnChain": false,
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1780006239043_129",
+      "decisionId": 129,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2014.64,
+      "ipfsCid": "QmcAcn9cvRynHe9GNbbCsKq2hU7nW3xnJvPCEZJyHqJbzF",
+      "recordedAt": "2026-05-28T22:10:39.043Z",
+      "settleAfter": "2026-05-28T23:10:39.043Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780006239041
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD with 0% allocation change is a low-risk defensive action. Analyst correctly identifies mixed signals: bearish EMA cross and -1% yield spread vs USDY conflict with mild bullish funding (0.728%). Regime confidence at 35% is too low to justify directional action. Fear & Greed at 22 adds uncertainty. No capital is being deployed, so R:R gate does not apply. Signal consensus is BEARISH, supporting",
+      "validatorFlaggedIssues": [
+        "Regime confidence only 35% — undefined regime correctly flagged",
+        "Signal consensus BEARISH conflicts with mild bullish funding rate",
+        "Yield spread -1% vs USDY is a meaningful bearish drag not fully weighted",
+        "Bollinger position at 82% suggests price near upper band — downside risk elevated",
+        "MACD histogram weakening despite BUY signal — momentum fading"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Both agents agree on a defensive HOLD stance due to low regime confidence, conflict between bearish EMA crossover and bullish funding rates, and lack of clear directional edge.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
