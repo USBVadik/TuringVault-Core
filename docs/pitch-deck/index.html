@@ -331,7 +331,7 @@
               Chain
             </div>
             <div class="text-base font-medium leading-snug">Mantle Mainnet</div>
-            <div class="text-xs text-white/40 mt-1">5 verified contracts</div>
+            <div class="text-xs text-white/40 mt-1">6 contracts deployed · 4/5 Sourcify-verified</div>
           </div>
           <div class="stat-card">
             <div
@@ -389,8 +389,8 @@
               </div>
               <div class="text-sm text-white/60 leading-relaxed">
                 Every cycle writes 4 attestation TXs to Mantle Mainnet (proposal
-                · validation · decisionLog · reputation). 104+ decisions logged
-                with full reasoning hashes. The hourly cron's public GitHub
+                · validation · decisionLog · reputation). 127 decisions logged
+                with full reasoning hashes. The scheduled cron's public GitHub
                 Actions workflow log gives judges a verifiable artefact, not a
                 claim.
               </div>
@@ -426,7 +426,7 @@
                 Radical transparency
               </div>
               <div class="text-sm text-white/60 leading-relaxed">
-                Public hourly cron · IPFS-pinned reasoning · live mascot
+                Public scheduled cron · IPFS-pinned reasoning · live mascot
                 reflecting real cycle freshness · /challenge page lets visitors
                 probe the agent's gates · /discipline page shows post-execution
                 proof per cycle · honesty-rule documented
@@ -438,8 +438,8 @@
         <div
           class="mt-auto pt-5 text-xs text-white/40 mono italic border-t border-white/[0.06]"
         >
-          Live-stream ready: GitHub Actions workflow runs hourly, judges can
-          drop into any past or current run.
+          Live-stream ready: GitHub Actions workflow runs on a public schedule
+          (best-effort hourly), judges can drop into any past or current run.
         </div>
       </div>
     </section>
@@ -467,7 +467,7 @@
             <div
               class="text-xs text-red-400 mono uppercase tracking-widest mb-3"
             >
-              Today's autonomous agent (hourly cycle)
+              Today's autonomous agent (scheduled cron)
             </div>
             <ul class="text-sm space-y-2 text-white/70">
               <li>→ Receives capital</li>
@@ -574,9 +574,9 @@
             >
               Decision quality
             </div>
-            <div class="text-2xl mono font-semibold">61.5%</div>
+            <div class="text-2xl mono font-semibold">51%</div>
             <div class="text-xs text-white/50 mt-1">
-              Validator rejection rate · capital preservation
+              Validator rejection rate · 65 / 127 proposals (live, 2026-05-28)
             </div>
           </div>
           <div
@@ -587,9 +587,9 @@
             >
               RWA exposure
             </div>
-            <div class="text-2xl mono font-semibold">55% NAV</div>
+            <div class="text-2xl mono font-semibold">76% NAV</div>
             <div class="text-xs text-white/50 mt-1">
-              Currently in tokenized Treasuries (USDT0)
+              Currently in tokenized Treasuries (USDT0) · live wallet
             </div>
           </div>
           <div class="p-4 border-l-2 border-cyan-500/30 bg-cyan-500/[0.02]">
@@ -639,7 +639,8 @@
             <div class="text-base font-medium mb-1">Z.ai GLM-5</div>
             <div class="text-xs text-white/50">
               Proposes allocation from unified market context (CoinGecko, Nansen
-              MCP, Hyperliquid funding, DeFiLlama TVL, Elfa social attention).
+              MCP, Byreal Perps funding/OI, DeFiLlama TVL, Elfa social
+              attention).
             </div>
           </div>
           <div
@@ -675,10 +676,10 @@
         <div
           class="ascii mb-8 p-4 rounded-lg bg-white/[0.02] border border-white/[0.04]"
         >
-          <span class="text-purple-400">Hourly GitHub Actions cron</span>
+          <span class="text-purple-400">GitHub Actions cron (scheduled)</span>
           (public verifiable log) │ ▼
           <span class="text-cyan-400">5 data sources</span>: CoinGecko · Nansen
-          MCP · Hyperliquid · DeFiLlama ·
+          MCP · Byreal Perps · DeFiLlama ·
           <span class="text-emerald-400">Elfa social attention</span>
           │ ▼
           <span class="text-cyan-400">Signal Engine</span>: 5 structured signals
@@ -714,21 +715,28 @@
         </h2>
         <div class="grid grid-cols-4 gap-4 mb-8">
           <div class="stat-card emerald">
-            <div class="stat-number text-emerald-400">104+</div>
+            <div class="stat-number text-emerald-400">127</div>
             <div class="stat-label">on-chain decisions</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number text-purple-400">61.5%</div>
+            <div class="stat-number text-purple-400">51%</div>
             <div class="stat-label">validator block rate</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number text-cyan-400">55%</div>
+            <div class="stat-number text-cyan-400">76%</div>
             <div class="stat-label">NAV in RWA</div>
           </div>
           <div class="stat-card">
             <div class="stat-number text-amber-400">100%</div>
             <div class="stat-label">parse success (24h)</div>
           </div>
+        </div>
+
+        <div class="text-[10px] text-white/30 italic mb-4">
+          Snapshot 2026-05-28T17:35Z. Live values refresh on the dashboard
+          (frontend-seven-beta-46.vercel.app). Block rate / NAV % drift cycle
+          to cycle as the agent rebalances; only on-chain decision count
+          increases monotonically.
         </div>
 
         <div class="grid grid-cols-2 gap-6 flex-1">
@@ -773,7 +781,7 @@
                 <code class="hash">0x0af2336…3e09de</code>
               </div>
               <div>
-                <div class="text-white/50">Hourly cron (GitHub Actions)</div>
+                <div class="text-white/50">Scheduled cron (GitHub Actions)</div>
                 <span class="mono text-emerald-300"
                   >Agent Cycle workflow · public log</span
                 >
@@ -836,13 +844,13 @@
           >
             <span class="pill emerald" style="padding: 2px 10px">live</span>
             <span class="flex-1">ERC-8004 identity + reputation</span>
-            <span class="text-white/40 text-xs mono">5 verified contracts</span>
+            <span class="text-white/40 text-xs mono">4/5 Sourcify-verified</span>
           </div>
           <div
             class="flex items-center gap-3 p-3 bg-emerald-500/[0.04] border border-emerald-500/20 rounded"
           >
             <span class="pill emerald" style="padding: 2px 10px">live</span>
-            <span class="flex-1">Hourly cron via GitHub Actions</span>
+            <span class="flex-1">Scheduled cron via GitHub Actions</span>
             <span class="text-white/40 text-xs mono">public workflow log</span>
           </div>
           <div
@@ -965,11 +973,11 @@
               Cron
             </div>
             <div class="text-base font-medium leading-snug">
-              GitHub Actions hourly
+              GitHub Actions scheduled
             </div>
             <div class="text-xs text-white/50 mt-1">
-              ~0.005 MNT / cycle gas → free-tier sustainable, public verifiable
-              workflow log
+              ~0.08 MNT / full cycle gas (8 TXs incl. 3 swaps) ≈ \$0.05 ·
+              free-tier sustainable, verifiable in Mantlescan
             </div>
           </div>
           <div class="stat-card">
@@ -1065,7 +1073,7 @@
               <li>
                 → Spec-first workflow (9 specs, &gt;340 acceptance criteria)
               </li>
-              <li>→ 176/176 unit tests · CI on every push</li>
+              <li>→ 177/177 unit tests · CI on every push</li>
               <li>→ Honesty rule enforced as steering doc</li>
               <li>
                 → Every deploy verifiable on Mantlescan + GitHub Actions log
