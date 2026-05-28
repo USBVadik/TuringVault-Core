@@ -157,6 +157,33 @@ const PARTNERS = [
 // multiAgent.js where activeAnalystPrompt = ANALYST_SYSTEM_PROMPT.
 // Re-enabling is tracked in spec agent-reasoning-quality.
 
+// ═══ QW-1: CountUp animation hook (requestAnimationFrame, no lib) ═══
+function useCountUp(end: number | null | undefined, duration = 1200): string {
+  const [display, setDisplay] = useState("—");
+  const hasRun = useRef(false);
+
+  useEffect(() => {
+    if (end == null || hasRun.current) return;
+    hasRun.current = true;
+    const start = 0;
+    const startTime = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(start + (end - start) * eased);
+      setDisplay(String(current));
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }, [end, duration]);
+
+  return end == null ? "—" : display;
+}
+
 export default function Home() {
   const { address, isConnected } = useAccount();
   const [marketData, setMarketData] = useState<any>(null);
@@ -247,6 +274,12 @@ export default function Home() {
   // than 65 min is genuinely missed, not just "between cycles".
   const STALE_THRESHOLD_S = 65 * 60;
   const isStale = health?.lastCycleAge != null && health.lastCycleAge > STALE_THRESHOLD_S;
+
+  // QW-1: CountUp on hero stats (first-load animation)
+  const countProofs = useCountUp(totalProposals || totalDecisions);
+  const countBlocked = useCountUp(totalRejected);
+  const safetyPct = totalProposals ? Math.round(((totalRejected || 0) / totalProposals) * 100) : null;
+  const countSafety = useCountUp(safetyPct);
 
   // Compose hero badge text from card; fallback to generic when card unavailable
   const heroBadge = (() => {
@@ -358,7 +391,7 @@ export default function Home() {
         {/* ═══ HEADER ═══ */}
         <header className="flex items-center justify-end pb-8 anim-fade-up">
           <div className="flex items-center gap-4">
-            <div className="badge-live">MAINNET</div>
+            <div className="badge-live"><span className="pulse-dot" />MAINNET</div>
             <ConnectButton />
           </div>
         </header>
@@ -392,7 +425,9 @@ export default function Home() {
         </div>
 
         {/* ═══ HERO ═══ */}
-        <section className="glass-hero p-10 mb-8 anim-fade-up anim-delay-2">
+        <section className="glass-hero p-10 mb-8 anim-fade-up anim-delay-2 relative">
+          {/* QW-2: Radial gradient mesh behind hero */}
+          <div className="hero-mesh-bg" />
           <div className="flex flex-col lg:flex-row items-center gap-10">
             {/* AI Brain Visual */}
             <div className="ai-brain-container shrink-0">
@@ -430,7 +465,7 @@ export default function Home() {
                 reasoning step.{" "}
                 {totalRejected && totalProposals
                   ? `${totalRejected}/${totalProposals}`
-                  : "—"}{" "}
+                  : ""}{" "}
                 proposals blocked by validator before execution.
               </p>
             </div>
@@ -442,7 +477,7 @@ export default function Home() {
                 title="Proposals submitted by Analyst, recorded on Mantle Mainnet (ValidationRegistry.totalProposals)"
               >
                 <div className="stat-number">
-                  {totalProposals || totalDecisions || "—"}
+                  {countProofs}
                 </div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">
                   On-Chain Proofs
@@ -453,7 +488,7 @@ export default function Home() {
                 title="Proposals rejected by Validator before any swap executed (ValidationRegistry.totalRejected)"
               >
                 <div className="stat-number text-red-400">
-                  {totalRejected || "—"}
+                  {countBlocked}
                 </div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">
                   Trades Blocked
@@ -464,11 +499,7 @@ export default function Home() {
                 title="Percentage of proposals blocked by adversarial validation (totalRejected / totalProposals)"
               >
                 <div className="stat-number stat-number-green">
-                  {totalProposals
-                    ? `${Math.round(
-                        ((totalRejected || 0) / totalProposals) * 100
-                      )}%`
-                    : "—"}
+                  {safetyPct != null ? `${countSafety}%` : "—"}
                 </div>
                 <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">
                   Safety Rate
@@ -480,7 +511,7 @@ export default function Home() {
 
         {/* ═══ PERFORMANCE & REPUTATION ═══ */}
         <section
-          className="glass-card p-8 mb-8 anim-fade-up"
+          className={`glass-card p-8 mb-8 anim-fade-up ${!isStale ? 'live-border-top' : 'live-border-top stale'}`}
           style={{ animationDelay: "0.25s" }}
         >
           <div className="flex items-center gap-2 mb-6">
@@ -616,7 +647,7 @@ export default function Home() {
           style={{ animationDelay: "0.35s" }}
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
+            <div className="space-y-2 anim-fade-up anim-delay-1">
               <AlertCircle className="w-5 h-5 text-red-400" />
               <h3 className="text-sm font-bold text-white/90">The Problem</h3>
               <p className="text-xs text-white/40 leading-relaxed">
@@ -625,7 +656,7 @@ export default function Home() {
                 actions = unacceptable risk.
               </p>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 anim-fade-up anim-delay-2">
               <CheckCircle className="w-5 h-5 text-green-400" />
               <h3 className="text-sm font-bold text-white/90">Our Solution</h3>
               <p className="text-xs text-white/40 leading-relaxed">
@@ -634,7 +665,7 @@ export default function Home() {
                 IPFS and anchored on Mantle.
               </p>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 anim-fade-up anim-delay-3">
               <LinkIcon className="w-5 h-5 text-purple-400" />
               <h3 className="text-sm font-bold text-white/90">The Proof</h3>
               <p className="text-xs text-white/40 leading-relaxed">
@@ -772,7 +803,7 @@ export default function Home() {
                       href="https://explorer.mantle.xyz/address/0xDC783CDBfA993f3FC299460627b204E83bf4fb5a"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[10px] font-mono text-purple-400/70 hover:text-purple-400 transition-colors flex items-center gap-1"
+                      className="text-[10px] font-mono addr-mono text-purple-400/70 hover:text-purple-400 transition-colors flex items-center gap-1"
                     >
                       0xDC78…fb5a <ExternalLink className="w-2.5 h-2.5" />
                     </a>
@@ -1167,11 +1198,12 @@ export default function Home() {
               })
             ) : (
               <div className="px-6 py-16 text-center">
-                <div className="text-white/15 text-sm">
-                  No decisions recorded yet
+                <div className="empty-state-msg text-sm justify-center">
+                  <Activity className="w-4 h-4 text-purple-400/40" />
+                  Awaiting first cycle...
                 </div>
                 <div className="text-white/10 text-xs mt-2">
-                  AI Agent is analyzing market conditions...
+                  AI Agent is analyzing market conditions
                 </div>
               </div>
             )}
@@ -1186,7 +1218,7 @@ export default function Home() {
               {contractsData.map((c) => (
                 <div
                   key={c.address}
-                  className="flex items-center gap-2 text-[10px] font-mono"
+                  className="flex items-center gap-2 text-[10px] font-mono addr-mono"
                 >
                   <a
                     href={c.explorer}
