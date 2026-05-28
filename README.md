@@ -4,7 +4,7 @@
 
 > _"When an AI agent executes a trade, you see the transaction. You don't see the reasoning. TuringVault changes that."_
 
-We ship the **three defining features** the Mantle hackathon brief calls out — on-chain benchmarking of AI, ERC-8004 agent identity reference implementation, and radical transparency — end-to-end on Mantle Mainnet, with hourly autonomous cycles judges can drop into at any time.
+We ship the **three defining features** the Mantle hackathon brief calls out — on-chain benchmarking of AI, ERC-8004 agent identity reference implementation, and radical transparency — end-to-end on Mantle Mainnet, with scheduled autonomous cycles judges can drop into at any time.
 
 ---
 
@@ -18,7 +18,7 @@ Every claim below points to an artefact you can open without our help.
 | 2   | **ERC-8004 reference identity** with auto-updating tokenURI        | [Identity NFT](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) — `tokenURI(0)` returns the live IPFS CID; resolves to current agent card                             |
 | 3   | **Adversarial validation gate working** (rejects unsafe proposals) | [ValidationRegistry](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) — totalRejected / totalApproved are public on-chain counters                                    |
 | 4   | **Real RWA execution** — first tokenized-Treasury swap             | [TX 0x0af2336…3e09de](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2                                                          |
-| 5   | **Autonomous cron is observable** (not a screenshot)               | [Agent Cycle workflow runs](https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml) — public GitHub Actions log, every hour, every step                                      |
+| 5   | **Autonomous cron is observable** (not a screenshot)               | [Agent Cycle workflow runs](https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml) — public GitHub Actions log, every scheduled run, every step                              |
 | 6   | **Live social signal from Elfa V2** as 5th structured input        | [`/api/elfa-snapshot`](https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH) (raw JSON) · [/social drill-down](https://frontend-seven-beta-46.vercel.app/social) (multi-ticker UI) |
 | 7   | **Discipline Layer** post-execution proof verification             | [/discipline page](https://frontend-seven-beta-46.vercel.app/discipline) — 3-gate history (TX proof · price freshness · regime drift)                                                                |
 | 8   | **Adversarial challenge arena** (probe the agent yourself)         | [/challenge page](https://frontend-seven-beta-46.vercel.app/challenge) — inject 4 attack vectors, watch the same multi-agent pipeline reason through them                                            |
@@ -44,13 +44,13 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **DecisionLog on Explorer:** [explorer.mantle.xyz/address/0x7bCd...cfbB5](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5)  
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
-**Stats (live, on-chain — verified via contract calls):**
+**Stats (snapshot 2026-05-28, refreshable on dashboard `/api/health`):**
 
-- **104+ hourly autonomous decisions** logged to Mantle Mainnet with full reasoning
-- **61.5% rejection rate** — confidence threshold + Validator gates block >1 in 2 proposals (capital protection)
-- **40 approved, 64 rejected** — multi-agent consensus + confidence gating working as designed
-- **55%+ of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)
-- Hourly autonomous cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
+- **127 scheduled-cron autonomous decisions** logged to Mantle Mainnet with full reasoning
+- **51% rejection rate** — confidence threshold + Validator gates block >1 in 2 proposals (capital protection)
+- **62 approved, 65 rejected** — multi-agent consensus + confidence gating working as designed
+- **76% of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de); first autonomous-cron swap [`0x313c0fc…`](https://mantlescan.xyz/tx/0x313c0fc20541a7662ecfe2f9f5966c7f5e57a06495b6aae9ee30ade140b57c96) (cycle 123, 2026-05-28)
+- Scheduled cron via GitHub Actions (public log linked below); adaptive regime detection on each tick. Schedule is best-effort hourly — GH Actions skips slots under platform load; the `/api/health` `lastCycleAge` field always reflects ground truth.
 - Zero catastrophic losses — demo capital, custodial EOA, vault contract pattern in development
 
 ---
@@ -120,7 +120,7 @@ Every decision creates an immutable record: what data the AI observed, what conc
 │                                                                    │
 └────────────────────────────────────────────────────────────────────┘
               ↑
-  Hourly GitHub Actions cron — public verifiable workflow log
+  Scheduled GitHub Actions cron — public verifiable workflow log
 ```
 
 > ¹ Byreal aggregates perps data from Hyperliquid and other venues. No direct Hyperliquid integration exists.
@@ -131,18 +131,18 @@ Every decision creates an immutable record: what data the AI observed, what conc
 
 Execution requires passing **two independent gates**:
 
-1. **Confidence threshold** — the Analyst must report ≥ 72% confidence in its own proposal (elevated to 80% after 3 consecutive losses). Low-confidence proposals are blocked before the Validator even evaluates them.
+1. **Confidence threshold** — the Analyst must report ≥ 60% confidence in its own proposal (elevated to 85% after 3 consecutive losses, see `BASE_CONFIDENCE_THRESHOLD` / `ELEVATED_CONFIDENCE_THRESHOLD` in `src/config/constants.js`). Low-confidence proposals are blocked before the Validator even evaluates them.
 2. **Adversarial Validator** — an independent model with a default-REJECT posture, requiring explicit evidence of R:R ≥ 1.5:1 and regime alignment to approve. If it rejects, the Arbiter (Gemini 3.5 Flash) casts the tiebreaker vote (2-of-3 required).
 
 In practice, the majority of rejections (~75%) are caused by Gate 1: the Analyst proposes HOLD with moderate confidence during sideways markets, and the confidence threshold blocks execution. Gate 2 (Validator) flags risk issues in its reasoning even when it approves structurally safe HOLD proposals. This is by design: the validator's adversarial scrutiny matters most for high-risk directional trades, where it acts as the final safety floor.
 
-The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate — the combined effect is a 61.5% block rate, demonstrating the system's capital-preservation bias.
+The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate — the combined effect today is a 51% block rate, demonstrating the system's capital-preservation bias. Live value drifts cycle-to-cycle; check `totalRejected() / totalProposals()` on ValidationRegistry for the current ratio.
 
 ---
 
 ## Smart Contracts (Mantle Mainnet, chain 5000)
 
-All contracts verified on Sourcify (Router pending — code changed after deployment):
+All contracts verified on Sourcify except the Router, which had a code change after first deployment (4 of 5 audited contracts verified; one ERC-8004 helper present alongside):
 
 | Contract                      | Address                                                                                                                        | Purpose                       |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
@@ -151,6 +151,7 @@ All contracts verified on Sourcify (Router pending — code changed after deploy
 | TuringVaultRouter             | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | Trade execution & routing     |
 | TuringVaultValidationRegistry | [`0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) | Multi-agent validation scores |
 | ReputationRegistry            | [`0xC78119F3274B05046Ac7c38a14298a6cbD946e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) | On-chain AI reputation        |
+| TuringVaultValidation         | [`0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705`](https://explorer.mantle.xyz/address/0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705) | ERC-8004 pre-action validation helper |
 
 ---
 
@@ -245,7 +246,9 @@ The ANALYST prompt evolves based on performance, gated by safeguards:
   (see `src/orchestrator/multiAgent.js`)
 - Default-off behind `EVOLVED_PROMPTS_ENABLED=true` env flag while
   smoke tests confirm parse stability cycle-over-cycle (≥ 95% target;
-  current measurements at 100% over a 24h measured window of N=24 cycles — see
+  current measurements at 100% over the rolling 24h window — see
+  `/api/health.parseSuccessRate24h` for the live value, refreshed each
+  cycle from `src/data/parse_metrics.json`)
   `npm run smoke:reasoning`)
 - AI prompt v3.0.0 currently pinned to IPFS; pre-evolution baseline
   is v2.1.1. Evolution logic is implemented end-to-end (mutation
@@ -270,7 +273,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 | **Z.ai**           | GLM-5 analyst model via AWS Bedrock (`zai.glm-5`)                              | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.analyst`                                                                                              | ✅ Live                     |
 | **Anthropic**      | Claude Sonnet 4.6 validator via AWS Bedrock                                    | [`src/orchestrator/multiAgent.js`](src/orchestrator/multiAgent.js) — `MODELS.validator`                                                                                            | ✅ Live                     |
 | **Google**         | Gemini 3.5 Flash arbiter via Vertex AI                                         | [`src/orchestrator/geminiArbiter.js`](src/orchestrator/geminiArbiter.js)                                                                                                           | ✅ Live                     |
-| **Nansen**         | Smart-money intelligence via JSON-RPC 2.0 MCP client (server exposes 36+ tools; we use 10 in production)      | [`src/mcp/nansenMCP.js`](src/mcp/nansenMCP.js) — used in `unifiedMarketData.js` every cycle                                                                                        | ✅ Live                     |
+| **Nansen**         | Smart-money intelligence via JSON-RPC 2.0 MCP client (we wire 9 named tools used per cycle: smart-money balances, smart-money perp trades, token top-holders, token DEX trades, general search, wallet PnL, address portfolio, token god-mode, growth chain rank) | [`src/mcp/nansenMCP.js`](src/mcp/nansenMCP.js) — used in `unifiedMarketData.js` every cycle                                                                                        | ✅ Live                     |
 | **Elfa**           | Social intelligence — mindshare, smart-account ratio, attention surge          | [`src/data/elfa.js`](src/data/elfa.js) — wired into `signalEngine.js` as 5th signal + `/api/elfa-snapshot` (V2 paths: `/v2/data/top-mentions`, `/v2/aggregations/trending-tokens`) | ✅ Live (free tier, 60 RPM) |
 | **Merchant Moe**   | DEX execution via Liquidity Book v2.2 router                                   | [`src/dex/merchantMoe.js`](src/dex/merchantMoe.js) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)   | ✅ Live                     |
 | **Ondo Finance**   | USDY tokenized Treasuries metadata (paper-ready; pool currently dry on Mantle) | [`src/rwa/usdyModule.js`](src/rwa/usdyModule.js) — guarded behind `RWA_POOL_INACTIVE`                                                                                              | 🟡 Paper-ready              |
@@ -279,7 +282,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 
 ### Why Mantle?
 
-- **~$0.007 gas per tx** (22-TX verified sample; [evidence](artifacts/gas-cost-analysis.json)) — enables logging every completed cycle's decision on-chain (cost-prohibitive on L1)
+- **~$0.006 gas per attestation tx** (cycle 123 verified sample, 8 TXs incl. 3 swaps = 0.077 MNT @ \$0.62/MNT ≈ \$0.048 per full cycle — see [trading-unblock postmortem](.kiro/audits/2026-05-28-trading-unblock.md) for the exact block-by-block breakdown) — enables logging every completed cycle's decision on-chain (cost-prohibitive on L1)
 - **mETH native yield** — real staking returns as trading asset
 - **EVM compatible** — standard Solidity, standard tooling
 - **Growing AI ecosystem** — aligned with Mantle's AI agent vision
@@ -297,16 +300,17 @@ them per `.kiro/steering/no-lying-about-state.md`.
 | Storage    | IPFS (Pinata) for Proof-of-Reasoning blobs                                                                                                       |
 | Frontend   | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary)                                                                        |
 | RWA        | Ondo Finance USDY metadata (paper-ready) + USDT0 LayerZero (active)                                                                              |
-| Infra      | GitHub Actions cron (hourly), Vercel (frontend), Pinata (IPFS pinning)                                                                           |
+| Infra      | GitHub Actions cron (best-effort hourly), Vercel (frontend), Pinata (IPFS pinning)                                                              |
 
 ---
 
 ## Running the Agent
 
-### Production: GitHub Actions cron (hourly)
+### Production: GitHub Actions cron (best-effort hourly)
 
 Production runs are driven by [`.github/workflows/agent-cycle.yml`](.github/workflows/agent-cycle.yml),
-which fires every hour at `:00` UTC. Each run:
+which fires twice an hour at `:17` and `:47` UTC (best-effort — GH Actions
+schedules under platform load; see audit notes). Each run:
 
 1. Executes one `runMultiAgentCycle()` against live market data.
 2. Writes a `data/last-cycle-summary.json` record.
@@ -315,8 +319,11 @@ which fires every hour at `:00` UTC. Each run:
 4. Vercel auto-deploys the front-end on the resulting push, so the
    mascot turns 🟢 within ~2 minutes.
 
-Cadence is hourly, not sub-minute — the mascot's threshold is
-calibrated for that. Operator runbook with the secrets list, manual
+Cadence is best-effort hourly, not sub-minute — the mascot's threshold is
+calibrated for that, and `/api/health.lastCycleAge` always reflects ground
+truth (slots can be skipped by GitHub Actions under platform load; see
+`.kiro/audits/2026-05-28-pipeline-and-bridge-recheck.md` for the
+known-skipped-slot rate). Operator runbook with the secrets list, manual
 trigger, pause/resume, and cost monitoring is at
 [`.kiro/runbooks/cron-operations.md`](.kiro/runbooks/cron-operations.md).
 
@@ -364,7 +371,7 @@ turingvault/
 │   ├── onchain/            # Contract interactions, IPFS
 │   ├── mcp/                # Nansen MCP client
 │   └── cron/               # Automated trading loop
-├── contracts/              # Solidity (5 contracts deployed, 4 verified on Sourcify; Router pending)
+├── contracts/              # Solidity (6 contracts deployed, 4/5 Sourcify-verified; Router pending)
 ├── frontend/               # Next.js dashboard + proof explorer
 ├── sdk/                    # TuringVault SDK for external integration
 ├── test/                   # Contract + integration tests
@@ -376,8 +383,8 @@ turingvault/
 ## Roadmap
 
 - [x] Multi-agent consensus (GLM-5 + Claude Sonnet 4.6 + Gemini 3.5 arbiter)
-- [x] On-chain decision logging (104+ decisions, growing)
-- [x] Adversarial validation (61.5% rejection rate)
+- [x] On-chain decision logging (127 decisions, growing)
+- [x] Adversarial validation (51% rejection rate live)
 - [x] Self-evolving AI prompts (v3.0.0 pinned to IPFS, default-off behind env flag while smoke tests confirm parse stability)
 - [x] Grid bot with regime detection (RANGING/TREND_UP/TREND_DOWN/CRISIS)
 - [x] Live dashboard + proof explorer
