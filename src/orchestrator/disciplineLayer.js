@@ -87,11 +87,25 @@ async function verify(params) {
           });
         }
 
-        // Check confirmations
+        // Check confirmations. Mantle block time ≈ 2-3s; discipline
+        // verify often runs <1s after a swap broadcast, so the receipt
+        // exists but currentBlock - receipt.blockNumber == 0. Wait up
+        // to ~8s for MIN_CONFIRMATIONS to land before warning. This
+        // moves the typical case from WARN to PASS without weakening
+        // the gate (still requires real on-chain finality).
         const receipt = await provider.getTransactionReceipt(params.txHash);
         if (receipt) {
-          const currentBlock = await provider.getBlockNumber();
-          const confirmations = currentBlock - receipt.blockNumber;
+          let currentBlock = await provider.getBlockNumber();
+          let confirmations = currentBlock - receipt.blockNumber;
+          const startWait = Date.now();
+          while (
+            confirmations < MIN_CONFIRMATIONS &&
+            Date.now() - startWait < 8000
+          ) {
+            await new Promise((r) => setTimeout(r, 1500));
+            currentBlock = await provider.getBlockNumber();
+            confirmations = currentBlock - receipt.blockNumber;
+          }
 
           if (confirmations < MIN_CONFIRMATIONS) {
             checks.push({
