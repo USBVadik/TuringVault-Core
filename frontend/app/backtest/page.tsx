@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { BarChart3 } from "lucide-react";
 import { Skeleton, SkeletonCard } from "../components/Skeleton";
 
@@ -147,108 +147,7 @@ export default function BacktestPage() {
           <h3 className="text-xs font-bold text-white/60 uppercase mb-4">
             Equity Curve (normalized $100 start · real execution)
           </h3>
-          <div className="relative h-48 w-full">
-            <svg
-              viewBox={`0 0 ${equityCurve.length} 100`}
-              className="w-full h-full"
-              preserveAspectRatio="none"
-            >
-              {/* Grid lines */}
-              <line
-                x1="0"
-                y1="50"
-                x2={equityCurve.length}
-                y2="50"
-                stroke="rgba(255,255,255,0.05)"
-              />
-              <line
-                x1="0"
-                y1="25"
-                x2={equityCurve.length}
-                y2="25"
-                stroke="rgba(255,255,255,0.03)"
-              />
-              <line
-                x1="0"
-                y1="75"
-                x2={equityCurve.length}
-                y2="75"
-                stroke="rgba(255,255,255,0.03)"
-              />
-
-              {/* Equity line */}
-              <polyline
-                points={equityCurve
-                  .map((p: any, i: number) => {
-                    const y =
-                      100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
-                    return `${i},${y}`;
-                  })
-                  .join(" ")}
-                fill="none"
-                stroke="url(#gradient)"
-                strokeWidth="0.8"
-              />
-
-              {/* Gradient fill under curve */}
-              <polygon
-                points={`0,100 ${equityCurve
-                  .map((p: any, i: number) => {
-                    const y =
-                      100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
-                    return `${i},${y}`;
-                  })
-                  .join(" ")} ${equityCurve.length - 1},100`}
-                fill="url(#fillGradient)"
-              />
-
-              {/* Trade markers */}
-              {equityCurve
-                .filter((p: any) => p.action)
-                .map((p: any, i: number) => {
-                  const idx = equityCurve.indexOf(p);
-                  const y =
-                    100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
-                  return (
-                    <circle
-                      key={i}
-                      cx={idx}
-                      cy={y}
-                      r="1.5"
-                      fill={p.action === "swap" ? "#4ade80" : "#a78bfa"}
-                    />
-                  );
-                })}
-
-              <defs>
-                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#a78bfa" />
-                  <stop offset="100%" stopColor="#34d399" />
-                </linearGradient>
-                <linearGradient
-                  id="fillGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="0%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="rgba(167,139,250,0.15)" />
-                  <stop offset="100%" stopColor="rgba(167,139,250,0)" />
-                </linearGradient>
-              </defs>
-            </svg>
-
-            {/* Y axis labels */}
-            <div className="absolute top-0 left-0 text-[9px] text-white/20">
-              ${maxNav.toFixed(2)}
-            </div>
-            <div className="absolute bottom-0 left-0 text-[9px] text-white/20">
-              ${minNav.toFixed(2)}
-            </div>
-            <div className="absolute bottom-0 right-2 text-[9px] text-green-400/60">
-              ● SWAP &nbsp; <span className="text-purple-400/60">● HOLD</span>
-            </div>
-          </div>
+          <EquityCurveChart equityCurve={equityCurve} maxNav={maxNav} minNav={minNav} />
         </div>
 
         {/* Trade Table */}
@@ -299,6 +198,165 @@ export default function BacktestPage() {
             simulation, no backtesting — pure live performance.
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function EquityCurveChart({
+  equityCurve,
+  maxNav,
+  minNav,
+}: {
+  equityCurve: any[];
+  maxNav: number;
+  minNav: number;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<{
+    idx: number;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect || equityCurve.length === 0) return;
+      const relX = e.clientX - rect.left;
+      const pct = relX / rect.width;
+      const idx = Math.max(
+        0,
+        Math.min(equityCurve.length - 1, Math.round(pct * (equityCurve.length - 1)))
+      );
+      setHover({ idx, x: relX, y: e.clientY - rect.top });
+    },
+    [equityCurve.length]
+  );
+
+  const hoverPoint = hover ? equityCurve[hover.idx] : null;
+  const pnlFromStart = hoverPoint
+    ? ((hoverPoint.nav - 100) * 100).toFixed(0)
+    : null;
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative h-48 w-full cursor-crosshair"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setHover(null)}
+    >
+      <svg
+        viewBox={`0 0 ${equityCurve.length} 100`}
+        className="w-full h-full"
+        preserveAspectRatio="none"
+      >
+        {/* Grid lines */}
+        <line x1="0" y1="50" x2={equityCurve.length} y2="50" stroke="rgba(255,255,255,0.05)" />
+        <line x1="0" y1="25" x2={equityCurve.length} y2="25" stroke="rgba(255,255,255,0.03)" />
+        <line x1="0" y1="75" x2={equityCurve.length} y2="75" stroke="rgba(255,255,255,0.03)" />
+
+        {/* Equity line */}
+        <polyline
+          points={equityCurve
+            .map((p: any, i: number) => {
+              const y = 100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
+              return `${i},${y}`;
+            })
+            .join(" ")}
+          fill="none"
+          stroke="url(#gradient)"
+          strokeWidth="0.8"
+        />
+
+        {/* Gradient fill under curve */}
+        <polygon
+          points={`0,100 ${equityCurve
+            .map((p: any, i: number) => {
+              const y = 100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
+              return `${i},${y}`;
+            })
+            .join(" ")} ${equityCurve.length - 1},100`}
+          fill="url(#fillGradient)"
+        />
+
+        {/* Trade markers */}
+        {equityCurve
+          .filter((p: any) => p.action)
+          .map((p: any, i: number) => {
+            const idx = equityCurve.indexOf(p);
+            const y = 100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
+            return (
+              <circle
+                key={i}
+                cx={idx}
+                cy={y}
+                r="1.5"
+                fill={p.action === "swap" ? "#4ade80" : "#a78bfa"}
+              />
+            );
+          })}
+
+        {/* Hover crosshair */}
+        {hover && (
+          <line
+            x1={hover.idx}
+            y1="0"
+            x2={hover.idx}
+            y2="100"
+            stroke="rgba(255,255,255,0.2)"
+            strokeWidth="0.3"
+            strokeDasharray="2,2"
+          />
+        )}
+
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#a78bfa" />
+            <stop offset="100%" stopColor="#34d399" />
+          </linearGradient>
+          <linearGradient id="fillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(167,139,250,0.15)" />
+            <stop offset="100%" stopColor="rgba(167,139,250,0)" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {/* Hover tooltip */}
+      {hover && hoverPoint && (
+        <div
+          className="absolute pointer-events-none z-10 px-2.5 py-1.5 rounded-md bg-black/90 border border-white/10 text-[10px] font-mono shadow-lg backdrop-blur-sm whitespace-nowrap"
+          style={{
+            left: Math.min(hover.x + 12, (containerRef.current?.clientWidth ?? 300) - 140),
+            top: Math.max(hover.y - 40, 0),
+          }}
+        >
+          <div className="text-white/80">
+            NAV: <span className="text-green-400">${hoverPoint.nav?.toFixed(2)}</span>
+          </div>
+          <div className="text-white/50">
+            PnL: <span className={Number(pnlFromStart) >= 0 ? "text-green-400" : "text-red-400"}>
+              {Number(pnlFromStart) >= 0 ? "+" : ""}{pnlFromStart} bps
+            </span>
+          </div>
+          {hoverPoint.action && (
+            <div className="text-purple-300 uppercase">{hoverPoint.action}</div>
+          )}
+          {hoverPoint.date && (
+            <div className="text-white/30">{hoverPoint.date}</div>
+          )}
+        </div>
+      )}
+
+      {/* Y axis labels */}
+      <div className="absolute top-0 left-0 text-[9px] text-white/20">
+        ${maxNav.toFixed(2)}
+      </div>
+      <div className="absolute bottom-0 left-0 text-[9px] text-white/20">
+        ${minNav.toFixed(2)}
+      </div>
+      <div className="absolute bottom-0 right-2 text-[9px] text-green-400/60">
+        ● SWAP &nbsp; <span className="text-purple-400/60">● HOLD</span>
       </div>
     </div>
   );

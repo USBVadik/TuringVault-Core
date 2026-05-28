@@ -106,6 +106,23 @@ jobs:
       - name: Check for secrets
         run: |
           # Fail if any private keys or API keys are hardcoded
-          ! grep -rn "0x[0-9a-fA-F]\{64\}" src/ --include="*.js" | grep -vi "address\|hash\|topic"
+          ! grep -rn "0x[0-9a-fA-F]\{64\}" src/ --include="*.js" | grep -vi "address\|hash\|topic\|txHash\|onChainTx"
           ! grep -rn "sk-[a-zA-Z0-9]\{20,\}" src/ --include="*.js"
           echo "✅ No hardcoded secrets found"
+
+      - name: State file change guard (PRs only)
+        if: github.event_name == 'pull_request'
+        run: |
+          PROTECTED="src/data/outcomes.json src/data/position_state.json src/data/outcome_history.json agent-card-v2.json assets/agent-card.json"
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD)
+          FLAGGED=""
+          for f in $PROTECTED; do
+            if echo "$CHANGED" | grep -q "^$f$"; then
+              FLAGGED="$FLAGGED $f"
+            fi
+          done
+          if [ -n "$FLAGGED" ]; then
+            echo "⚠️  PR modifies protected state files:$FLAGGED"
+            echo "These files are normally written by the automated cron cycle."
+            echo "Ensure this change is intentional and reviewed by CODEOWNERS."
+          fi

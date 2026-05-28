@@ -277,7 +277,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 
 ### Why Mantle?
 
-- **$0.004 gas per tx** — enables logging EVERY decision on-chain (impossible on L1)
+- **~$0.007 gas per tx** (22-TX verified sample; [evidence](artifacts/gas-cost-analysis.json)) — enables logging EVERY decision on-chain (cost-prohibitive on L1)
 - **mETH native yield** — real staking returns as trading asset
 - **EVM compatible** — standard Solidity, standard tooling
 - **Growing AI ecosystem** — aligned with Mantle's AI agent vision

@@ -1,0 +1,23 @@
+# TuringVault Code Owners
+# Protects critical state files and configuration from unreviewed changes.
+# Spec: post-submission-backlog SE-02.
+
+# State files — any modification must be reviewed
+/src/data/outcomes.json @USBVadik
+/src/data/position_state.json @USBVadik
+/src/data/outcome_history.json @USBVadik
+/src/data/threshold_state.json @USBVadik
+/data/ @USBVadik
+
+# Smart contract artifacts — prevent accidental overwrites
+/contracts/ @USBVadik
+/artifacts/ @USBVadik
+
+# Security-sensitive files
+/.env* @USBVadik
+/scripts/uploadAgentCard.js @USBVadik
+/.github/workflows/ @USBVadik
+
+# Agent-card identity
+/agent-card-v2.json @USBVadik
+/assets/agent-card.json @USBVadik
