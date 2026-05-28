@@ -255,6 +255,48 @@ async function main() {
       // get a synonymous executionStatus so the field is always set.
       summary.executionStatus = result?.decisionTier ?? "UNKNOWN";
     }
+
+    // Outcome-persistence detector. Step 6 in multiAgentLoop calls
+    // outcomeTracker.record({ decisionId, ... }) inside a try/catch
+    // that silently swallows any throw. If it fails, the cycle still
+    // writes last-cycle-summary.json + commits to main, but the row
+    // never lands in src/data/outcomes.json — meaning the settle loop
+    // never gets a chance to grade the decision and the dashboard's
+    // decision feed is missing one row.
+    //
+    // We can't fix that condition from here (the data is in a
+    // different process by the time run-cycle.js sees it), but we can
+    // at least surface the discrepancy as an error in summary so the
+    // operator knows to investigate. Cycle 123 (commit f2cc66c) was
+    // the canonical example of this silent failure.
+    if (
+      typeof summary.decisionId === "number" &&
+      result?.consensus !== null
+    ) {
+      try {
+        const outcomesPath = path.join(REPO_ROOT, "src/data/outcomes.json");
+        if (fs.existsSync(outcomesPath)) {
+          const outcomesDb = JSON.parse(
+            fs.readFileSync(outcomesPath, "utf-8")
+          );
+          const all = [
+            ...(outcomesDb.pending ?? []),
+            ...(outcomesDb.settled ?? []),
+          ];
+          const found = all.some((e) => e?.decisionId === summary.decisionId);
+          if (!found) {
+            const msg = `outcome-not-persisted: cycle ${summary.decisionId} missing from src/data/outcomes.json after Step 6`;
+            summary.errors.push(msg);
+            console.error(`⚠️  ${msg}`);
+          }
+        }
+      } catch (e) {
+        // best-effort detector; never fail the cycle on it
+        summary.errors.push(
+          `outcome-detector-failed: ${(e?.message || String(e)).slice(0, 100)}`
+        );
+      }
+    }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     summary.errors.push(msg.slice(0, 200));
