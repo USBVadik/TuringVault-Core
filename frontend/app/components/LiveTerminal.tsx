@@ -39,6 +39,13 @@ type Decision = {
   txHash: string;
   timestamp: number;
   block: number;
+  // Honesty surface (workspace rule no-lying-about-state §4):
+  // displayTier is what the UI should render, distinct from the
+  // legacy [TIER] prefix encoded into reasoning at submission time
+  // (which can claim EXECUTED_SWAP even for cycles that never broadcast
+  // a DEX TX). executedOnChain is the ground truth.
+  displayTier?: string | null;
+  executedOnChain?: boolean;
 };
 
 type Health = {
@@ -91,6 +98,12 @@ function extractTier(reasoning: string | undefined): string | null {
 function tierTone(tier: string | null): string {
   if (!tier) return "text-white/30";
   if (tier === "EXECUTED_SWAP") return "text-green-400/80";
+  // INTENT_SWAP_NO_EXEC = the cycle reached consensus to swap but no
+  // DEX TX was broadcast (e.g. pre-fix-of-dex-deep-pool cycles 113-122,
+  // or future cycles where the wallet hits insufficient-balance).
+  // Render as orange warning so the dashboard never claims "executed"
+  // when the on-chain footprint is empty.
+  if (tier === "INTENT_SWAP_NO_EXEC") return "text-orange-400/80";
   if (tier === "BLOCKED_BY_VALIDATOR") return "text-red-400/70";
   if (tier === "BLOCKED_BY_LOW_CONFIDENCE") return "text-yellow-400/70";
   if (tier === "BLOCKED_BY_REGIME") return "text-blue-400/70";
@@ -229,8 +242,18 @@ export function LiveTerminal() {
 
         {decisions &&
           decisions.map((d, i) => {
-            const tier = extractTier(d.reasoning ?? d.reasoningHash);
-            const approved = tier === "EXECUTED_SWAP" || d.action === "swap";
+            // Prefer the API-supplied displayTier (rewritten honestly
+            // by /api/decisions when no DEX TX backed an EXECUTED_SWAP
+            // claim). Fall back to the [TIER] prefix encoded in the
+            // on-chain reasoning string for legacy entries that don't
+            // have an outcomes.json row.
+            const apiTier = d.displayTier ?? null;
+            const reasoningTier = extractTier(d.reasoning ?? d.reasoningHash);
+            const tier = apiTier ?? reasoningTier;
+            const approved =
+              d.executedOnChain === true ||
+              tier === "EXECUTED_SWAP" ||
+              (apiTier == null && d.action === "swap");
             const ts =
               new Date(d.timestamp * 1000).toISOString().slice(11, 19) + "Z";
             const conf = (d.confidence / 100).toFixed(1);

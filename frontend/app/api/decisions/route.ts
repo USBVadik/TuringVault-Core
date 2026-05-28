@@ -70,15 +70,44 @@ function classifyAsset(
  */
 async function loadOutcomesIndex(): Promise<Map<
   number,
-  { rwaIntent: { source?: string; executed?: boolean } | null }
+  {
+    rwaIntent: { source?: string; executed?: boolean } | null;
+    executedOnChain: boolean;
+    displayTier: string | null;
+    decisionTier: string | null;
+  }
 >> {
   const out = new Map<
     number,
-    { rwaIntent: { source?: string; executed?: boolean } | null }
+    {
+      rwaIntent: { source?: string; executed?: boolean } | null;
+      executedOnChain: boolean;
+      displayTier: string | null;
+      decisionTier: string | null;
+    }
   >();
   try {
     const p = path.resolve(process.cwd(), "..", "src", "data", "outcomes.json");
-    let db: { pending?: Array<{ decisionId?: number; rwaIntent?: { source?: string; executed?: boolean } }>; settled?: Array<{ decisionId?: number; rwaIntent?: { source?: string; executed?: boolean } }> } | null = null;
+    let db: {
+      pending?: Array<{
+        decisionId?: number;
+        rwaIntent?: { source?: string; executed?: boolean };
+        decisionTier?: string;
+        _displayTier?: string;
+        executedOnChain?: boolean;
+        txHash?: string | null;
+        directionalSwap?: { executed?: boolean; legs?: Array<{ txHash?: string }> };
+      }>;
+      settled?: Array<{
+        decisionId?: number;
+        rwaIntent?: { source?: string; executed?: boolean };
+        decisionTier?: string;
+        _displayTier?: string;
+        executedOnChain?: boolean;
+        txHash?: string | null;
+        directionalSwap?: { executed?: boolean; legs?: Array<{ txHash?: string }> };
+      }>;
+    } | null = null;
     if (fs.existsSync(p)) {
       db = JSON.parse(fs.readFileSync(p, "utf-8"));
     } else {
@@ -87,9 +116,33 @@ async function loadOutcomesIndex(): Promise<Map<
     if (!db) return out;
     const all = [...(db.pending ?? []), ...(db.settled ?? [])];
     for (const e of all) {
-      if (typeof e?.decisionId === "number") {
-        out.set(e.decisionId, { rwaIntent: e.rwaIntent ?? null });
-      }
+      if (typeof e?.decisionId !== "number") continue;
+      // Prefer the backfilled fields when present (scripts/
+      // backfill-outcomes-honesty.js); fall back to inline derivation
+      // so a fresh entry written before the next backfill run is
+      // also rendered honestly.
+      const fallbackExecuted =
+        Boolean(e.txHash) ||
+        e.rwaIntent?.executed === true ||
+        e.directionalSwap?.executed === true ||
+        (Array.isArray(e.directionalSwap?.legs) &&
+          e.directionalSwap!.legs!.some((l) => Boolean(l?.txHash)));
+      const executedOnChain =
+        typeof e.executedOnChain === "boolean"
+          ? e.executedOnChain
+          : fallbackExecuted;
+      const tier = e.decisionTier ?? null;
+      const displayTier =
+        e._displayTier ??
+        (tier === "EXECUTED_SWAP" && !executedOnChain
+          ? "INTENT_SWAP_NO_EXEC"
+          : tier);
+      out.set(e.decisionId, {
+        rwaIntent: e.rwaIntent ?? null,
+        executedOnChain,
+        displayTier,
+        decisionTier: tier,
+      });
     }
   } catch {
     /* best-effort */
@@ -184,6 +237,16 @@ export async function GET() {
             rwaIntent && rwaIntent.executed
               ? { source: rwaIntent.source ?? null, executed: true }
               : null,
+          // Honesty surface (workspace rule no-lying-about-state §4).
+          // executedOnChain reflects whether this decision actually
+          // produced any DEX TX (via rwaResult.txHash, directionalSwap
+          // legs, or row.txHash in outcomes.json). displayTier is the
+          // tier the UI should render — equal to decisionTier in the
+          // happy path, but rewritten to INTENT_SWAP_NO_EXEC when the
+          // classifier said EXECUTED_SWAP without a tx hash to back it.
+          executedOnChain: outcomeRow?.executedOnChain ?? false,
+          displayTier:
+            outcomeRow?.displayTier ?? outcomeRow?.decisionTier ?? null,
         };
       })
     );
