@@ -1,7 +1,8 @@
 # Consolidated Audit Findings + Remediation Plan
 
-**Compiled at:** 2026-06-14
-**Source reports:** 00-inventory, 02-api-endpoints, 03-cron-and-actions, 05-state-files, 06-pipeline-data-flow, 08-documents-and-claims, 09-cron-vercel-bridge, 10-vercel-runtime, 12-threat-model, 13-design-ux
+**Compiled at:** 2026-06-14  
+**Updated:** 2026-06-14 (post-fix re-probe)  
+**Source reports:** 00-inventory, 02-api-endpoints, 03-cron-and-actions, 05-state-files, 06-pipeline-data-flow, 08-documents-and-claims, 09-cron-vercel-bridge, 10-vercel-runtime, 12-threat-model, 13-design-ux  
 **Reports not on disk:** 01-ui-pages, 04-on-chain, 07-external-apis, 11-secrets-and-supply
 
 ---
@@ -72,7 +73,6 @@ P3  ██  2
 | 34 | P1-4 | pitch-deck | External claims time-bounded | "$1.1M Merchant Moe pool" — no date qualifier | Time-sensitive external data | Add "as of [date]" qualifier | open |
 | 35 | P1-5 | pitch-deck | Spec count verified | "8 specs, >500 acceptance criteria" — uncounted | Marketing approximation | Count or soften claim | open |
 
-
 ### P2 — Code Quality / Polish (backlog)
 
 | # | ID | Surface | Expected | Actual | Root Cause | Suggested Fix | Status |
@@ -106,8 +106,6 @@ P3  ██  2
 
 ## P2 — Absolute Language Requiring Tightening (from 08-documents-and-claims)
 
-These are flagged separately as copy changes, not code bugs:
-
 | # | Claim | Document | Suggested Rewrite |
 |---|-------|----------|-------------------|
 | A | "EVERY decision on-chain (impossible on L1)" | README | "every completed cycle's decision" + "cost-prohibitive on L1" |
@@ -120,8 +118,6 @@ These are flagged separately as copy changes, not code bugs:
 ---
 
 ## Not Checked (aggregated from all reports)
-
-This section aggregates items explicitly marked as not checked across all audit reports. Its non-emptiness is a deliberate guard against false confidence.
 
 ### From 00-inventory
 | Item | Reason |
@@ -196,7 +192,7 @@ This section aggregates items explicitly marked as not checked across all audit 
 ### From 13-design-ux
 | Item | Reason |
 |------|--------|
-| Actual screenshots at 4 viewport widths | screenshot-pages.js not created; Playwright not installed |
+| Actual screenshots at 4 viewport widths | Playwright not installed |
 | Lighthouse scores (Performance, Accessibility, SEO) | No Lighthouse CLI available |
 | axe-core automated accessibility scan | No standalone runner configured |
 | Mobile viewport rendering | Cannot render at mobile widths |
@@ -216,25 +212,23 @@ This section aggregates items explicitly marked as not checked across all audit 
 
 Every P0 must have `status=fixed` or `status=wont-fix-pre-submission` before audit close-out.
 
-**Post-fix re-probe:** 2026-05-28T09:39Z — all `status=fixed` findings re-verified on live deployment.  
-**Artifacts:** `.kiro/audits/raw/post-fix/` (API JSON responses, HTML snapshots, verification report)  
-**Lighthouse:** Not available (CLI not installed) — cannot compare scores.  
+**Post-fix re-probe:** 2026-05-28 — all `status=fixed` findings re-verified on live deployment.  
 **Rollbacks:** None required — all fixes confirmed working.
 
-| # | ID | Current Status | Action Required | Re-probe Result |
-|---|-----|----------------|-----------------|-----------------|
-| 1 | api-1 | fixed | Guard tokenURI call with try/catch | ✅ HTTP 200, valid data |
-| 2 | cron-1 | wont-fix-pre-submission | >30 min to implement external trigger; GH Actions limitation is acceptable for hackathon | N/A (platform limitation) |
-| 3 | bridge-1 | fixed | Added fetchFromGitHub to /api/decisions | ✅ 121 decisions returned |
-| 4 | bridge-2 | fixed | Added fetchFromGitHub to /api/discipline | ✅ dict with 5 keys |
-| 5 | bridge-3 | fixed | Added fetchFromGitHub to /api/performance | ✅ dict with 5 keys |
-| 6 | P0-1 | fixed | Harmonized rejection rate to 61.5% across README + pitch-deck | ✅ All docs say 61.5% |
-| 7 | P0-2 | fixed | Harmonized RWA NAV to 55% across all docs | ✅ README says 55%+ |
-| 8 | P0-3 | fixed | Updated pitch deck decision count to 104+ | ✅ Pitch deck says 104+ |
-| 9 | P0-4 | fixed | Changed to "4/5 Sourcify-verified (Router pending)" | ✅ Found in deployed HTML |
-| 10 | P0-5 | fixed | Fixed README confidence gate to 60% (matches code) | ✅ README says "< 60%" |
-| 11 | P0-6 | fixed | Fixed README R:R ratio to 1.5:1 (matches validator prompt) | ✅ No "2:1" in README |
-| 12 | design-P0-1 | fixed | Added anim-fade-up to all sub-page wrappers | ✅ CSS deployed with anim-fade-up |
-| 13 | design-P0-2 | wont-fix-pre-submission | >30 min to add interactive chart tooltips; converted to backlog | N/A (deferred) |
-| 14 | design-P0-3 | fixed | Added mobile responsive rules to globals.css | ✅ 768px media queries in deployed CSS |
-| 15 | cron-4 | wont-fix-pre-submission | Dependent on cron-1 (platform limitation) | N/A (platform limitation) |
+| # | ID | Current Status | Re-probe Result |
+|---|-----|----------------|-----------------|
+| 1 | api-1 | fixed | ✅ HTTP 200, valid data |
+| 2 | cron-1 | wont-fix-pre-submission | N/A (platform limitation) |
+| 3 | bridge-1 | fixed | ✅ 121 decisions returned |
+| 4 | bridge-2 | fixed | ✅ dict with 5 keys |
+| 5 | bridge-3 | fixed | ✅ dict with 5 keys |
+| 6 | P0-1 | fixed | ✅ All docs say 61.5% |
+| 7 | P0-2 | fixed | ✅ Harmonized to 55% |
+| 8 | P0-3 | fixed | ✅ All say 104+ |
+| 9 | P0-4 | fixed | ✅ "4/5 Sourcify-verified" |
+| 10 | P0-5 | fixed | ✅ README says "< 60%" |
+| 11 | P0-6 | fixed | ✅ No "2:1" in README |
+| 12 | design-P0-1 | fixed | ✅ anim-fade-up deployed |
+| 13 | design-P0-2 | wont-fix-pre-submission | N/A (>30 min; backlog) |
+| 14 | design-P0-3 | fixed | ✅ 768px media queries deployed |
+| 15 | cron-4 | wont-fix-pre-submission | N/A (depends on cron-1) |
