@@ -1,57 +1,5 @@
 {
-  "pending": [
-    {
-      "id": "1779899851325_111",
-      "decisionId": 111,
-      "action": "hold",
-      "targetAsset": "mETH",
-      "consensus": false,
-      "confidence": 0.58,
-      "priceAtDecision": 2060.37,
-      "ipfsCid": "QmWxddkyRLSNJPifsdpmWubZYmr7eSxaPWGS1vidpiqV8b",
-      "recordedAt": "2026-05-27T16:37:31.326Z",
-      "settleAfter": "2026-05-27T17:37:31.326Z",
-      "settled": false,
-      "rwaIntent": null,
-      "disciplineStatus": "ACCEPTED",
-      "disciplineDetail": {
-        "status": "ACCEPTED",
-        "checks": [
-          {
-            "name": "tx_proof",
-            "status": "SKIP",
-            "detail": "Hold action — no tx to verify"
-          },
-          {
-            "name": "price_freshness",
-            "status": "PASS",
-            "detail": "Price data was 5s old"
-          },
-          {
-            "name": "drift_detection",
-            "status": "PASS",
-            "detail": "Action aligns with RANGING regime"
-          }
-        ],
-        "blockReason": null,
-        "repairStep": null,
-        "timestamp": 1779899851325
-      },
-      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
-      "tierSource": "live",
-      "confidencePath": "native_unit",
-      "promptSource": "static",
-      "disagreementSignal": false,
-      "validatorReasoning": "HOLD with 0% allocation change is a low-risk defensive action. Analyst reasoning accurately reflects raw signals: regime undefined at 35% confidence, neutral consensus, flat smart money, conflicting technicals (RSI bullish vs EMA/MACD bearish), and yield spread favoring stablecoins. No directional swap proposed. R:R gate not applicable to HOLD. No hallucinated data detected. Confidence threshold l",
-      "validatorFlaggedIssues": [
-        "Analyst confidence 58% is below internal threshold — correctly self-flagged",
-        "Yield spread -1% bearish signal slightly underweighted in reasoning",
-        "Social mindshare +41% bullish signal not explicitly weighed against bearish technicals"
-      ],
-      "arbiterVote": "approve",
-      "arbiterReasoning": "The decision to hold is approved as the analyst's confidence of 58% fails to meet the 62% threshold required for active directional trades amid highly conflicting technical indicators and neutral market flows."
-    }
-  ],
+  "pending": [],
   "settled": [
     {
       "id": "1779427651480_9999",
@@ -1697,6 +1645,64 @@
       "scoreDelta": 40,
       "pnlBps": 22,
       "onChainTx": "0xcc25c80332e1030ca34e92c70f7a045e89576d35187d55ca8e6c70cb8e48558c"
+    },
+    {
+      "id": "1779899851325_111",
+      "decisionId": 111,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2060.37,
+      "ipfsCid": "QmWxddkyRLSNJPifsdpmWubZYmr7eSxaPWGS1vidpiqV8b",
+      "recordedAt": "2026-05-27T16:37:31.326Z",
+      "settleAfter": "2026-05-27T17:37:31.326Z",
+      "settled": true,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779899851325
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD with 0% allocation change is a low-risk defensive action. Analyst reasoning accurately reflects raw signals: regime undefined at 35% confidence, neutral consensus, flat smart money, conflicting technicals (RSI bullish vs EMA/MACD bearish), and yield spread favoring stablecoins. No directional swap proposed. R:R gate not applicable to HOLD. No hallucinated data detected. Confidence threshold l",
+      "validatorFlaggedIssues": [
+        "Analyst confidence 58% is below internal threshold — correctly self-flagged",
+        "Yield spread -1% bearish signal slightly underweighted in reasoning",
+        "Social mindshare +41% bullish signal not explicitly weighed against bearish technicals"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "The decision to hold is approved as the analyst's confidence of 58% fails to meet the 62% threshold required for active directional trades amid highly conflicting technical indicators and neutral market flows.",
+      "settledAt": "2026-05-28T05:01:12.889Z",
+      "priceAtSettlement": 1978.5,
+      "pricePct": -3.974,
+      "outcome": "CORRECT_BLOCK",
+      "scoreDelta": 40,
+      "pnlBps": 119,
+      "onChainTx": "0x7af12808eb5800130c8d53885b9ec8eb15ff1fc881a035add5584829c33fb4be"
     }
   ],
   "schemaVersion": 2
