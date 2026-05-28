@@ -250,6 +250,8 @@ function EquityCurveChart({
         viewBox={`0 0 ${equityCurve.length} 100`}
         className="w-full h-full"
         preserveAspectRatio="none"
+        role="img"
+        aria-label={`Equity curve chart showing NAV from $${minNav.toFixed(2)} to $${maxNav.toFixed(2)} over ${equityCurve.length} data points. Hover for details.`}
       >
         {/* Grid lines */}
         <line x1="0" y1="50" x2={equityCurve.length} y2="50" stroke="rgba(255,255,255,0.05)" />
@@ -379,7 +381,7 @@ function StatCard({
     white: "text-white/80",
   };
   return (
-    <div className="p-3 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+    <div className="p-3 rounded-lg border border-white/[0.06] bg-white/[0.02] stat-card-interactive">
       <div className={`text-lg font-bold ${colors[color]}`}>{value}</div>
       <div className="text-[10px] text-white/30 uppercase">{label}</div>
     </div>

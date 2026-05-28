@@ -60,8 +60,14 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans bg-[#06060e] text-gray-200 min-h-screen antialiased`}
       >
         <Providers>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-purple-600 focus:text-white focus:rounded-lg focus:text-sm"
+          >
+            Skip to content
+          </a>
           <Navbar />
-          <div className="pt-14">{children}</div>
+          <div id="main-content" className="pt-14">{children}</div>
         </Providers>
       </body>
     </html>

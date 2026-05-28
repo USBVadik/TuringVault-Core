@@ -20,7 +20,7 @@
 
   --text-primary: rgba(255, 255, 255, 0.95);
   --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-muted: rgba(255, 255, 255, 0.3);
+  --text-muted: rgba(255, 255, 255, 0.4);
 
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-accent: rgba(124, 58, 237, 0.25);
@@ -1009,4 +1009,35 @@ textarea:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ══════ FE-14: WCAG AA contrast fix ══════ */
+/* text-white/30 against #030308 fails WCAG AA (3.1:1 needed for small text).
+   Override muted text minimum to 0.4 opacity (4.2:1 contrast ratio). */
+.text-muted-accessible {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ══════ FE-17: Input error state ══════ */
+.input-glass.input-error {
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+}
+
+.input-glass.input-error:focus {
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15),
+    0 0 20px rgba(239, 68, 68, 0.05);
+}
+
+.input-error-message {
+  color: rgba(239, 68, 68, 0.8);
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* ══════ DX-03: Layout constraint tokens ══════ */
+:root {
+  --max-w-page: 1200px;
+  --nav-height: 56px;
 }

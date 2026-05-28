@@ -20,7 +20,6 @@
  */
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 
 type Snapshot = {
@@ -374,7 +373,7 @@ export default function SocialPage() {
       <div className="mt-10 pt-6 border-t border-white/[0.05] text-[11px] text-white/40 leading-relaxed max-w-3xl">
         <p>
           The agent reads the same payload every cycle (rolled into the
-          analyst's structured-signals prompt alongside funding rate, on-chain
+          analyst&apos;s structured-signals prompt alongside funding rate, on-chain
           flow, yield spread, and liquidation map). The classifier turns
           mindshare-surge + smart-share into BULLISH / BEARISH / NEUTRAL;
           sentiment itself is intentionally left null because Elfa V2 strips raw
