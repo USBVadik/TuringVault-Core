@@ -73,6 +73,17 @@ function safeReadJson<T>(p: string): T | null {
   }
 }
 
+async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
+  try {
+    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
+    const res = await fetch(url, { next: { revalidate: 30 } });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Build the aggregate summary in pure TypeScript (mirror of the
  * backend `disciplineHistory.summary`, kept in sync via this comment).
@@ -147,8 +158,11 @@ function readLatestDetail(): DisciplineDetail | null {
 
 export async function GET() {
   const historyPath = backendPath("data", "discipline-history.json");
-  const history = (safeReadJson<HistoryEntry[]>(historyPath) ??
-    []) as HistoryEntry[];
+  let history = safeReadJson<HistoryEntry[]>(historyPath);
+  if (!history) {
+    history = await fetchFromGitHub<HistoryEntry[]>("data/discipline-history.json");
+  }
+  history = history ?? [];
 
   const last30 = history.slice(-30).reverse(); // newest first for display
   const summary = buildSummary(history);

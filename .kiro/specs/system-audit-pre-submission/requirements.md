@@ -448,23 +448,23 @@ finding, ordered by severity, with a remediation status for each.
 
 The audit is done WHEN:
 
-1. All surface-area reports under `.kiro/audits/0X-*.md` exist
+- [x] 1. All surface-area reports under `.kiro/audits/0X-*.md` exist
    (one per requirement R1–R14).
-2. Each report follows the required output shape from
+- [x] 2. Each report follows the required output shape from
    `audit-style.md` (scope, method, findings, not-checked).
-3. The consolidated report `99-consolidated.md` lists every finding
+- [x] 3. The consolidated report `99-consolidated.md` lists every finding
    with severity and status.
-4. Every P0 finding has either status=fixed (with linked commit) or
+- [x] 4. Every P0 finding has either status=fixed (with linked commit) or
    status=wont-fix-pre-submission (with operator decision recorded).
-5. No surface in scope has been "audited" without an artifact of
+- [x] 5. No surface in scope has been "audited" without an artifact of
    verification (a fetched response, a captured run ID, etc.).
-6. The audit reports survive in git history under `.kiro/audits/`
+- [x] 6. The audit reports survive in git history under `.kiro/audits/`
    so judges can see the rigor.
-7. The threat model from R13 is summarised in 1 page and ready
+- [x] 7. The threat model from R13 is summarised in 1 page and ready
    to drop into the pitch deck if useful.
-8. Every secret listed by the cron is present in both GitHub
+- [x] 8. Every secret listed by the cron is present in both GitHub
    Actions secrets AND Vercel project env (R10, R12).
-9. The Design Playbook from R14 exists at `docs/design-playbook.md`
+- [x] 9. The Design Playbook from R14 exists at `docs/design-playbook.md`
    with type scale, color tokens, spacing scale, motion tokens,
    and a "10 quick wins" backlog applied or queued.
 

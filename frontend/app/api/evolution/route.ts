@@ -23,13 +23,19 @@ export async function GET() {
       transport: http("https://rpc.mantle.xyz"),
     });
 
-    // Read current tokenURI to get latest version
-    const tokenURI = await client.readContract({
-      address: IDENTITY_ADDRESS,
-      abi: IDENTITY_ABI,
-      functionName: "tokenURI",
-      args: [BigInt(0)],
-    });
+    // Read current tokenURI to get latest version (guard: may revert if token doesn't exist)
+    let tokenURI: string | null = null;
+    try {
+      tokenURI = await client.readContract({
+        address: IDENTITY_ADDRESS,
+        abi: IDENTITY_ABI,
+        functionName: "tokenURI",
+        args: [BigInt(0)],
+      });
+    } catch {
+      // Token 0 may not exist; continue without it
+      tokenURI = null;
+    }
 
     let currentCard = null;
     if (tokenURI && tokenURI.startsWith("ipfs://")) {

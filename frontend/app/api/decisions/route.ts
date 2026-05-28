@@ -68,18 +68,23 @@ function classifyAsset(
  * Read outcomes.json once and index by decisionId so we can look up
  * each event's matching rwaIntent in O(1).
  */
-function loadOutcomesIndex(): Map<
+async function loadOutcomesIndex(): Promise<Map<
   number,
   { rwaIntent: { source?: string; executed?: boolean } | null }
-> {
+>> {
   const out = new Map<
     number,
     { rwaIntent: { source?: string; executed?: boolean } | null }
   >();
   try {
     const p = path.resolve(process.cwd(), "..", "src", "data", "outcomes.json");
-    if (!fs.existsSync(p)) return out;
-    const db = JSON.parse(fs.readFileSync(p, "utf-8"));
+    let db: { pending?: Array<{ decisionId?: number; rwaIntent?: { source?: string; executed?: boolean } }>; settled?: Array<{ decisionId?: number; rwaIntent?: { source?: string; executed?: boolean } }> } | null = null;
+    if (fs.existsSync(p)) {
+      db = JSON.parse(fs.readFileSync(p, "utf-8"));
+    } else {
+      db = await fetchFromGitHub("src/data/outcomes.json");
+    }
+    if (!db) return out;
     const all = [...(db.pending ?? []), ...(db.settled ?? [])];
     for (const e of all) {
       if (typeof e?.decisionId === "number") {
@@ -90,6 +95,17 @@ function loadOutcomesIndex(): Map<
     /* best-effort */
   }
   return out;
+}
+
+async function fetchFromGitHub(filePath: string): Promise<Record<string, unknown> | null> {
+  try {
+    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
+    const res = await fetch(url, { next: { revalidate: 30 } });
+    if (!res.ok) return null;
+    return (await res.json()) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
 }
 
 export async function GET() {
@@ -120,7 +136,7 @@ export async function GET() {
     const events = await contract.queryFilter("DecisionLogged", fromBlock);
     const recentEvents = events.slice(-RECENT_LIMIT);
 
-    const outcomesIndex = loadOutcomesIndex();
+    const outcomesIndex = await loadOutcomesIndex();
 
     // For each event, also fetch the on-chain Decision struct so we get
     // the real timestamp + amounts. This is N reads (≤ 20 in practice)

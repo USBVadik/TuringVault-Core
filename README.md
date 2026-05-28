@@ -47,7 +47,7 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 **Stats (live, on-chain — verified via contract calls):**
 
 - **104+ autonomous decisions** logged to Mantle Mainnet with full reasoning
-- **57% rejection rate** — Validator blocks >1 in 2 proposals (capital protection)
+- **61.5% rejection rate** — Validator blocks >1 in 2 proposals (capital protection)
 - **40 approved, 64 rejected** — adversarial consensus working as designed
 - **55%+ of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de)
 - Hourly cycle via GitHub Actions cron (public log linked below); adaptive regime detection on each tick
@@ -156,10 +156,10 @@ Traditional grid bots are dumb — fixed parameters, no regime awareness. Pure A
 | ------------------ | ------------------------ | -------------------------- |
 | Regime Filter      | Trending market detected | HOLD (no trades)           |
 | Validator Veto     | Risk > threshold         | REJECT (logged on-chain)   |
-| Confidence Gate    | Score < 65%              | Skip execution             |
+| Confidence Gate    | Score < 60%              | Skip execution             |
 | Channel Too Narrow | < 0.7% width             | HOLD (slippage protection) |
 | Crisis Mode        | ATR spike                | Flight to USDY safety      |
-| Trailing Stops     | Active position          | Adaptive R:R ≥ 2:1         |
+| Trailing Stops     | Active position          | Adaptive R:R ≥ 1.5:1       |
 
 ### Discipline Layer (Post-Execution Verification)
 
@@ -362,7 +362,7 @@ turingvault/
 
 - [x] Multi-agent consensus (GLM-5 + Claude Sonnet 4.6 + Gemini 3.5 arbiter)
 - [x] On-chain decision logging (104+ decisions, growing)
-- [x] Adversarial validation (61% rejection rate)
+- [x] Adversarial validation (61.5% rejection rate)
 - [x] Self-evolving AI prompts (v3.0.0 pinned to IPFS, default-off behind env flag while smoke tests confirm parse stability)
 - [x] Grid bot with regime detection (RANGING/TREND_UP/TREND_DOWN/CRISIS)
 - [x] Live dashboard + proof explorer

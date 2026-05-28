@@ -160,7 +160,7 @@ export default function ChallengePage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto anim-fade-up">
         <div className="mb-10">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
             <Swords className="w-7 h-7 text-red-400" />

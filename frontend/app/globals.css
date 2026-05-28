@@ -943,3 +943,70 @@ body {
     height: 80px;
   }
 }
+
+/* ══════ QUICK WINS — Audit R14 ══════ */
+
+/* QW: Tabular nums for all stat/mono elements — prevents layout shift on counters */
+.mono, [class*="font-mono"], .stat-number, .stat-number-green {
+  font-variant-numeric: tabular-nums;
+}
+
+/* QW: Focus-visible rings globally on interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--vault-bg), 0 0 0 4px rgba(124, 58, 237, 0.5);
+}
+
+/* QW: Consistent border-radius — sub-page cards use rounded-xl (12px) */
+.sub-page-card {
+  border-radius: 12px;
+}
+
+/* QW: Mobile responsive for sub-pages (backtest, discipline, social, challenge) */
+@media (max-width: 768px) {
+  .max-w-5xl,
+  .max-w-4xl,
+  .max-w-\[1100px\] {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Stack 2-col and 4-col grids to 1-col on mobile */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Reduce stat numbers on mobile */
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  /* Partner bar horizontal scroll on mobile */
+  .partner-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .partner-bar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* QW: Reduced motion — accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

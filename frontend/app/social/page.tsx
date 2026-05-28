@@ -127,7 +127,7 @@ export default function SocialPage() {
   }
 
   return (
-    <main className="relative min-h-screen px-6 py-10 max-w-[1100px] mx-auto text-white">
+    <main className="relative min-h-screen px-6 py-10 max-w-[1100px] mx-auto text-white anim-fade-up">
       <header className="mb-8">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">

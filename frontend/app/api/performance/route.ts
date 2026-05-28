@@ -113,6 +113,17 @@ function safeReadJson<T>(filePath: string): T | null {
   }
 }
 
+async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
+  try {
+    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
+    const res = await fetch(url, { next: { revalidate: 30 } });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 function newestSettlementIso(settled: SettledOutcome[]): string | null {
   let newest: string | null = null;
   let newestMs = -Infinity;
@@ -225,7 +236,10 @@ export async function GET(): Promise<NextResponse> {
 
   // ── Outcomes aggregate (lifetime) ───────────────────────────────
   const outcomesPath = backendPath("src", "data", "outcomes.json");
-  const outcomes = safeReadJson<Outcomes>(outcomesPath);
+  let outcomes = safeReadJson<Outcomes>(outcomesPath);
+  if (!outcomes) {
+    outcomes = await fetchFromGitHub<Outcomes>("src/data/outcomes.json");
+  }
   const settled: SettledOutcome[] = outcomes?.settled ?? [];
 
   const settledCount = settled.length;

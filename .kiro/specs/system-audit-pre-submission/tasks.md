@@ -1,5 +1,11 @@
 # Implementation Plan: System Audit Pre-Submission
 
+## Status: SHIPPED
+
+All 20 tasks complete. Consolidated report at `.kiro/audits/99-consolidated.md`.
+Remaining open findings converted to backlog spec at `.kiro/specs/post-submission-backlog/`.
+Closed 2026-05-28.
+
 ## Overview
 
 Sequenced execution plan for `design.md`. Each task produces ONE
@@ -13,7 +19,7 @@ work — context drift is the enemy of accurate audits.
 
 ## Tasks
 
-- [ ] 1. Audit infrastructure: probe scripts + audits/ directory
+- [x] 1. Audit infrastructure: probe scripts + audits/ directory
     - Refs: design §C1, §C4
     - Outputs:
         - `.kiro/audits/.gitkeep` (NEW)
@@ -53,7 +59,7 @@ work — context drift is the enemy of accurate audits.
         - shellcheck clean for shell scripts; `node --check` clean
           for JS.
 
-- [ ] 2. R1: Surface inventory
+- [x] 2. R1: Surface inventory
     - Refs: R1, design §C1
     - Output: `.kiro/audits/00-inventory.md` (NEW)
     - Method:
@@ -71,7 +77,7 @@ work — context drift is the enemy of accurate audits.
         - Cross-check: any surface mentioned in README that isn't
           live → flagged in "orphaned claims" table.
 
-- [ ] 3. R2: UI pages audit
+- [x] 3. R2: UI pages audit
     - Refs: R2
     - Output: `.kiro/audits/01-ui-pages.md` (NEW)
     - Method (per page in inventory):
@@ -88,7 +94,7 @@ work — context drift is the enemy of accurate audits.
         - At least one verbatim quoted UI claim per page that the
           auditor verified against backend reality.
 
-- [ ] 4. R3: API endpoints audit
+- [x] 4. R3: API endpoints audit
     - Refs: R3
     - Output: `.kiro/audits/02-api-endpoints.md` (NEW)
     - Method (per endpoint in inventory):
@@ -104,7 +110,7 @@ work — context drift is the enemy of accurate audits.
           stale timestamps, any secret hits.
         - Raw responses preserved under `.kiro/audits/raw/api/`.
 
-- [ ] 5. R4: Cron + GitHub Actions audit
+- [x] 5. R4: Cron + GitHub Actions audit
     - Refs: R4
     - Output: `.kiro/audits/03-cron-and-actions.md` (NEW)
     - Method:
@@ -122,7 +128,7 @@ work — context drift is the enemy of accurate audits.
         - If any P0 reliability issue (cron skipped > 2 hours) →
           flagged with suggested fix.
 
-- [ ] 6. R5: On-chain audit
+- [x] 6. R5: On-chain audit
     - Refs: R5
     - Output: `.kiro/audits/04-on-chain.md` (NEW)
     - Method:
@@ -142,7 +148,7 @@ work — context drift is the enemy of accurate audits.
         - README claim "Sourcify-verified" cross-referenced with
           actual status; mismatch = P0.
 
-- [ ] 7. R6: State files audit
+- [x] 7. R6: State files audit
     - Refs: R6
     - Output: `.kiro/audits/05-state-files.md` (NEW)
     - Method:
@@ -162,7 +168,7 @@ work — context drift is the enemy of accurate audits.
         - Stale-file findings: any file with mtime older than its
           expected cadence + 2x buffer is P1.
 
-- [ ] 8. R7: Pipeline data-flow audit
+- [x] 8. R7: Pipeline data-flow audit
     - Refs: R7
     - Output: `.kiro/audits/06-pipeline-data-flow.md` (NEW)
     - Method:
@@ -192,7 +198,7 @@ work — context drift is the enemy of accurate audits.
         - Any signal that README claims is in the pipeline but is
           NOT in the prompt context is P0 honesty violation.
 
-- [ ] 9. R8: External APIs audit
+- [x] 9. R8: External APIs audit
     - Refs: R8
     - Output: `.kiro/audits/07-external-apis.md` (NEW)
     - Method:
@@ -209,7 +215,7 @@ work — context drift is the enemy of accurate audits.
         - Any "blocking" failure mode that doesn't surface to UI
           is a P0 honesty risk.
 
-- [ ] 10. R9: Documents + claims audit
+- [x] 10. R9: Documents + claims audit
     - Refs: R9
     - Output: `.kiro/audits/08-documents-and-claims.md` (NEW)
     - Method:
@@ -226,7 +232,7 @@ work — context drift is the enemy of accurate audits.
         - Claims using "always", "never", "100%", "running 24/7"
           flagged for tightening regardless of artifact.
 
-- [ ] 11. R10: GitHub Actions ↔ Vercel bridge audit
+- [x] 11. R10: GitHub Actions ↔ Vercel bridge audit
     - Refs: R10
     - Output: `.kiro/audits/09-cron-vercel-bridge.md` (NEW)
     - Method:
@@ -252,7 +258,7 @@ work — context drift is the enemy of accurate audits.
         - Any cron commit without a corresponding READY Vercel
           deploy is P0.
 
-- [ ] 12. R11: Vercel deployment + runtime audit
+- [x] 12. R11: Vercel deployment + runtime audit
     - Refs: R11
     - Output: `.kiro/audits/10-vercel-runtime.md` (NEW)
     - Method:
@@ -280,7 +286,7 @@ work — context drift is the enemy of accurate audits.
         - Bundle-bloat findings recorded but only P2 unless they
           cause a build failure.
 
-- [ ] 13. R12: Secrets + supply-chain audit
+- [x] 13. R12: Secrets + supply-chain audit
     - Refs: R12
     - Output: `.kiro/audits/11-secrets-and-supply.md` (NEW)
     - Method:
@@ -311,7 +317,7 @@ work — context drift is the enemy of accurate audits.
         - Any active credential found in git history is P0
           (rotate + force-push if needed).
 
-- [ ] 14. R13: Security architecture + threat model
+- [x] 14. R13: Security architecture + threat model
     - Refs: R13
     - Output: `.kiro/audits/12-threat-model.md` (NEW)
     - Method:
@@ -352,7 +358,7 @@ work — context drift is the enemy of accurate audits.
         - Any FAIL on the 7 tests is P0 unless it's a known
           accepted risk (custodial EOA pattern is accepted).
 
-- [ ] 15. R14: Design + UX audit
+- [x] 15. R14: Design + UX audit
     - Refs: R14
     - Outputs:
         - `.kiro/audits/13-design-ux.md` (NEW)
@@ -425,7 +431,7 @@ work — context drift is the enemy of accurate audits.
           critical, content unreadable). Most design findings are
           P1 / P2.
 
-- [ ] 16. R15: Consolidated findings + remediation
+- [x] 16. R15: Consolidated findings + remediation
     - Refs: R15
     - Output: `.kiro/audits/99-consolidated.md` (NEW)
     - Method:
@@ -444,7 +450,7 @@ work — context drift is the enemy of accurate audits.
         - "Not checked" section is non-empty (false-confidence
           guard).
 
-- [ ] 17. Apply trivial inline fixes
+- [x] 17. Apply trivial inline fixes
     - Refs: R15, design §C6
     - Action:
         - For each finding in 99-consolidated.md flagged "trivial"
@@ -462,7 +468,7 @@ work — context drift is the enemy of accurate audits.
         - No commit references audit but breaks a passing test
           (`npm test` clean after).
 
-- [ ] 18. Re-run probes after fixes
+- [x] 18. Re-run probes after fixes
     - Refs: R15
     - Action:
         - Re-run `fetch-frontend.sh`, `vercel-deployments.sh`,
@@ -476,7 +482,7 @@ work — context drift is the enemy of accurate audits.
         - Any fix that didn't actually move the metric → status
           rolled back to open with note.
 
-- [ ] 19. Convert remaining open findings into a backlog spec
+- [x] 19. Convert remaining open findings into a backlog spec
     - Refs: R15
     - Action:
         - For all P1+ findings still open, generate a single
@@ -490,7 +496,7 @@ work — context drift is the enemy of accurate audits.
         - Each backlog task has refs back to the audit finding ID
           for traceability.
 
-- [ ] 20. Final audit close-out
+- [x] 20. Final audit close-out
     - Refs: R15, all
     - Action:
         - Add Status: SHIPPED block to this tasks.md.
