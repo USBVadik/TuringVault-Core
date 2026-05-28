@@ -5,6 +5,10 @@ import { mantle } from "viem/chains";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// ── In-memory cache (30s TTL) ──────────────────────────────────
+let cachedStrategy: { body: any; ts: number } | null = null;
+const STRATEGY_CACHE_TTL_MS = 30_000;
+
 const WALLET = "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a";
 
 // Same token list + decimals as /api/performance.
@@ -187,6 +191,13 @@ async function readLatestRwaSwap(): Promise<{
 }
 
 export async function GET() {
+  // Return cached if fresh
+  if (cachedStrategy && Date.now() - cachedStrategy.ts < STRATEGY_CACHE_TTL_MS) {
+    return NextResponse.json(cachedStrategy.body, {
+      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
+    });
+  }
+
   try {
     // Read position state and grid signal from backend data files
     const fs = await import("fs");
@@ -314,7 +325,7 @@ export async function GET() {
       paperReadyAssets: ["USDY"], // pool dry; honest label per no-lying rule
     };
 
-    return NextResponse.json({
+    const responseBody = {
       regime,
       position,
       channel: {
@@ -334,6 +345,11 @@ export async function GET() {
       dataScope: "agent-lifetime",
       cached: true,
       rwaAllocation,
+    };
+
+    cachedStrategy = { body: responseBody, ts: Date.now() };
+    return NextResponse.json(responseBody, {
+      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

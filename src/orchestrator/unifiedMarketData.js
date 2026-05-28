@@ -11,6 +11,8 @@
  * Returns formatted context string for LLM prompt injection.
  */
 
+const { sanitizeExternalText } = require("../utils/sanitize");
+
 require("dotenv").config({
   path: require("path").resolve(__dirname, "../../.env"),
 });
@@ -169,10 +171,10 @@ async function getUnifiedMarketContext() {
 
   if (nansenData.available && nansenData.meth) {
     context += `[NANSEN SMART MONEY - mETH/Mantle]\n`;
-    const text =
+    const rawText =
       nansenData.meth?.content?.[0]?.text ||
       JSON.stringify(nansenData.meth).slice(0, 500);
-    context += text.slice(0, 800) + "\n\n";
+    context += sanitizeExternalText(rawText, 800) + "\n\n";
   }
 
   if (
@@ -181,16 +183,18 @@ async function getUnifiedMarketContext() {
     !nansenData.smartMoney?.isError
   ) {
     context += `[NANSEN SMART MONEY - Token Holdings]\n`;
-    const text =
+    const rawText =
       nansenData.smartMoney?.content?.[0]?.text ||
       JSON.stringify(nansenData.smartMoney).slice(0, 500);
-    context += text.slice(0, 800) + "\n\n";
+    context += sanitizeExternalText(rawText, 800) + "\n\n";
   }
 
   if (byrealData.available && byrealData.topSignals?.length > 0) {
     context += `[BYREAL PERPS SIGNALS]\n`;
     for (const sig of byrealData.topSignals) {
-      context += `  ${sig.coin} ${sig.direction} (RSI=${sig.rsi}, funding=${sig.fundingAnnualized}, score=${sig.score})\n`;
+      const coin = sanitizeExternalText(String(sig.coin || ""), 20);
+      const dir = sanitizeExternalText(String(sig.direction || ""), 10);
+      context += `  ${coin} ${dir} (RSI=${sig.rsi}, funding=${sig.fundingAnnualized}, score=${sig.score})\n`;
     }
     context += "\n";
   }

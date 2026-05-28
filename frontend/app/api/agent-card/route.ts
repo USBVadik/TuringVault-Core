@@ -34,7 +34,13 @@ import { mantle } from "viem/chains";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const NO_STORE: HeadersInit = { "Cache-Control": "no-store, max-age=0" };
+const CACHE_HEADERS: HeadersInit = {
+  "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+};
+
+// ── In-memory cache (60s TTL) ──────────────────────────────────
+let cachedResponse: { body: AgentCardResponse; ts: number } | null = null;
+const CACHE_TTL_MS = 60_000;
 
 const IDENTITY_ADDR = "0x6f862802e0d5463DF18d267e422347BeCacc28bD" as const;
 const AGENT_TOKEN_ID = BigInt(0);
@@ -230,6 +236,11 @@ function buildBody(args: {
 }
 
 export async function GET(): Promise<NextResponse> {
+  // ── 0. Return cached if fresh ─────────────────────────────────
+  if (cachedResponse && Date.now() - cachedResponse.ts < CACHE_TTL_MS) {
+    return NextResponse.json(cachedResponse.body, { headers: CACHE_HEADERS });
+  }
+
   // ── 1. Try the live on-chain → IPFS path ──────────────────────
   const tokenURI = await readTokenURI();
   if (tokenURI) {
@@ -237,17 +248,16 @@ export async function GET(): Promise<NextResponse> {
     if (cid) {
       const { data, gateway } = await fetchFromIpfs(cid);
       if (data) {
-        return NextResponse.json(
-          buildBody({
-            raw: data,
-            status: "ok",
-            source: "on-chain-tokenURI",
-            ipfsCid: cid,
-            tokenURI,
-            gateway,
-          }),
-          { headers: NO_STORE }
-        );
+        const body = buildBody({
+          raw: data,
+          status: "ok",
+          source: "on-chain-tokenURI",
+          ipfsCid: cid,
+          tokenURI,
+          gateway,
+        });
+        cachedResponse = { body, ts: Date.now() };
+        return NextResponse.json(body, { headers: CACHE_HEADERS });
       }
       // tokenURI valid but IPFS unreachable — fall through to snapshot
     }
@@ -256,34 +266,34 @@ export async function GET(): Promise<NextResponse> {
   // ── 2. Fallback: in-repo snapshot ─────────────────────────────
   const local = await readLocalCard();
   if (local) {
-    return NextResponse.json(
-      buildBody({
-        raw: local,
-        status: "degraded",
-        source: "repo-snapshot",
-        ipfsCid: null,
-        tokenURI: tokenURI ?? null,
-        gateway: null,
-        error:
-          tokenURI == null
-            ? "tokenURI unreadable; using repo snapshot"
-            : "IPFS gateway unreachable; using repo snapshot",
-      }),
-      { headers: NO_STORE }
-    );
-  }
-
-  // ── 3. Both paths failed — minimal honest degraded body ───────
-  return NextResponse.json(
-    buildBody({
-      raw: null,
+    const body = buildBody({
+      raw: local,
       status: "degraded",
-      source: "none",
+      source: "repo-snapshot",
       ipfsCid: null,
       tokenURI: tokenURI ?? null,
       gateway: null,
-      error: "agent card unreachable from both on-chain and snapshot",
-    }),
-    { headers: NO_STORE }
-  );
+      error:
+        tokenURI == null
+          ? "tokenURI unreadable; using repo snapshot"
+          : "IPFS gateway unreachable; using repo snapshot",
+    });
+    cachedResponse = { body, ts: Date.now() };
+    return NextResponse.json(body, { headers: CACHE_HEADERS });
+  }
+
+  // ── 3. Both paths failed — minimal honest degraded body ───────
+  const body = buildBody({
+    raw: null,
+    status: "degraded",
+    source: "none",
+    ipfsCid: null,
+    tokenURI: tokenURI ?? null,
+    gateway: null,
+    error: "agent card unreachable from both on-chain and snapshot",
+  });
+  // Don't cache failures
+  return NextResponse.json(body, {
+    headers: { "Cache-Control": "no-store, max-age=0" },
+  });
 }

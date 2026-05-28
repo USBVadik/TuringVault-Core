@@ -26,6 +26,7 @@ const {
 } = require("@aws-sdk/client-bedrock-runtime");
 const { validateDecision } = require("./validator");
 const { z } = require("zod");
+const { sanitizeExternalText } = require("../utils/sanitize");
 const {
   BASE_CONFIDENCE_THRESHOLD,
   ELEVATED_CONFIDENCE_THRESHOLD,
@@ -605,7 +606,7 @@ async function getMultiAgentDecision(marketData) {
 
   // Use rich promptContext from unifiedMarketData if available, else build basic prompt
   const marketPrompt =
-    marketData.promptContext ||
+    sanitizeExternalText(marketData.promptContext, 4000) ||
     `Current market data (${new Date().toISOString()}):
 - ETH Price: $${md.ethPrice} (24h change: ${md.ethChange24h.toFixed(2)}%)
 - mETH Yield: ${md.mETHYield}% APY
