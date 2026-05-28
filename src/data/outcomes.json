@@ -295,6 +295,107 @@
           }
         ]
       }
+    },
+    {
+      "id": "1779989416979_126",
+      "decisionId": 126,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2011.09,
+      "ipfsCid": "QmW2RyXzw4vbTkJy32cQmxjcU795h63PeyzopLzci1WSdq",
+      "recordedAt": "2026-05-28T17:30:16.979Z",
+      "settleAfter": "2026-05-28T18:30:16.979Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 95929551"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "WARN",
+            "detail": "Only 1 confirmations (need 2)"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "WARN",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1779989416977
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Defensive swap to mUSD (stablecoin) in TREND_DOWN regime is appropriate. BEARISH consensus confirmed by: bearish EMA cross (9=1996.54 < 21=2004.56), negative yield spread (-1%), Extreme Fear (22), ETH -2.13%. MACD histogram improving and RSI 50.3 rising are acknowledged risk factors. R:R not applicable for risk-off stablecoin rotation — capital preservation is the objective. 35% allocation is cons",
+      "validatorFlaggedIssues": [
+        "MACD histogram positive (5.13) and RSI rising suggest possible bottoming — partial contrarian signal",
+        "Regime confidence only 60% — moderate conviction",
+        "Smart money flow neutral ($0.0M outflow) does not confirm bearish thesis",
+        "Low volatility (0.33%) may indicate consolidation not breakdown"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 1.7614620351349686,
+        "amountOut": 1.096924,
+        "txHash": "0x635a31e713adbc3f0d308a8ad4d1c738b3bddad3b94f11e5d9cc2d00315306ef",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0xf531a44344a260a8e025b5cb484bf4470451a44672894ebc8b5c209ba7617bb8",
+            "blockNumber": 95929543,
+            "amountIn": 1.7614620351349686,
+            "amountOut": 1.096666
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0x635a31e713adbc3f0d308a8ad4d1c738b3bddad3b94f11e5d9cc2d00315306ef",
+            "blockNumber": 95929551,
+            "amountIn": 1.097253648,
+            "amountOut": 1.096924
+          }
+        ]
+      }
     }
   ],
   "settled": [
