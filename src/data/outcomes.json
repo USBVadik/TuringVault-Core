@@ -731,6 +731,61 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780012642041_134",
+      "decisionId": 134,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2005.64,
+      "ipfsCid": "Qmc5c6NxGhiw3GxFP6rCLZHKPpThRek1eNbuoNoy3jJJiq",
+      "recordedAt": "2026-05-28T23:57:22.041Z",
+      "settleAfter": "2026-05-29T00:57:22.041Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780012642038
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% — insufficient for directional action. Signal consensus is BEARISH while Fear & Greed at 22 is contrarian bullish, creating genuine conflict. Analyst correctly identifies EMA cross bearish vs MACD buy divergence. Yield spread -1% bearish confirmed. No hallucinated data: ETH $2005.64, RSI 47, funding 0.692% all match raw signals. HOLD c",
+      "validatorFlaggedIssues": [
+        "Regime confidence 35% is extremely low — no actionable edge",
+        "Signal consensus BEARISH conflicts with contrarian Fear & Greed reading",
+        "Yield spread -1% penalizes mETH holders vs stablecoin alternatives",
+        "MACD histogram weakening despite positive value — momentum fading"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Both the analyst and validator agree that a HOLD stance is optimal due to highly conflicting signals, low regime confidence, and extreme fear sentiment creating an unclear market direction.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
