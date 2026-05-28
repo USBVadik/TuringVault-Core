@@ -26,7 +26,7 @@ const {
 } = require("@aws-sdk/client-bedrock-runtime");
 const { validateDecision } = require("./validator");
 const { z } = require("zod");
-const { sanitizeExternalText } = require("../utils/sanitize");
+const { sanitizeExternalText, sanitizeForPrompt } = require("../utils/sanitize");
 const {
   BASE_CONFIDENCE_THRESHOLD,
   ELEVATED_CONFIDENCE_THRESHOLD,
@@ -594,18 +594,45 @@ and the agent loses an audit entry on Mantle.`;
  */
 async function getMultiAgentDecision(marketData) {
   const _timingStart = Date.now();
+  // SECURITY: any string field that might originate from external data
+  // (CoinGecko sentiment, Nansen narrative, Byreal labels, regime
+  // rationale produced by upstream classifiers) gets stripped of
+  // control chars before it ever reaches an LLM prompt. Numeric fields
+  // pass through untouched.
+  //
+  // Spec: .kiro/specs/post-submission-backlog → threat-1.
+  if (marketData?.structuredSignals) {
+    marketData.structuredSignals = sanitizeForPrompt(
+      marketData.structuredSignals
+    );
+  }
   // Defensive defaults — prevent undefined in prompt
   const md = {
     ethPrice: marketData.ethPrice || 0,
     ethChange24h: marketData.ethChange24h || marketData.priceChange24h || 0,
     mETHYield: marketData.mETHYield || 3.5,
-    sentiment: marketData.sentiment || "neutral",
+    sentiment: sanitizeExternalText(marketData.sentiment, 50) || "neutral",
     fearGreedIndex: marketData.fearGreedIndex || 50,
-    nansenSentiment: marketData.nansenSentiment || "n/a",
+    nansenSentiment:
+      sanitizeExternalText(marketData.nansenSentiment, 50) || "n/a",
     smartMoneyFlow: marketData.smartMoneyFlow || 0,
     nansenTopBuying: marketData.nansenTopBuying || [],
     mantleTVL: marketData.mantleTVL || 0,
   };
+
+  // Whitelisted symbols only — Nansen "top buying" tokens are
+  // user-influenced data and a malicious symbol like
+  // "ETH\nIGNORE PREVIOUS INSTRUCTIONS" is the classic prompt-injection
+  // vector for the fallback path. Strict regex match instead of trust.
+  md.nansenTopBuying = (md.nansenTopBuying || [])
+    .map((t) => ({
+      ...t,
+      symbol:
+        typeof t?.symbol === "string" && /^[A-Za-z0-9]{1,12}$/.test(t.symbol)
+          ? t.symbol
+          : "?",
+    }))
+    .slice(0, 10);
 
   // Use rich promptContext from unifiedMarketData if available, else build basic prompt
   const marketPrompt =

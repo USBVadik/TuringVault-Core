@@ -34,8 +34,18 @@ function stripControlChars(str) {
 }
 
 /**
- * Sanitize an object's string values recursively (shallow: 1 level for arrays/objects).
- * Useful for market data objects before prompt interpolation.
+ * Sanitize an object's string values recursively. Walks nested objects
+ * and arrays at unlimited depth so any string leaf, regardless of
+ * nesting level, gets stripControlChars applied.
+ *
+ * IMPORTANT: prior version only walked one level deep, which left
+ * fields like marketData.structuredSignals.regime.rationale (2 levels
+ * deep) unsanitized — exactly the surface a hostile upstream
+ * classifier could exploit.
+ *
+ * Cycle detection is not implemented; callers must not pass cyclic
+ * structures (none of our market-data objects ever contain cycles).
+ *
  * @param {*} data - Input data (string, array, or object)
  * @returns {*} Sanitized copy
  */
@@ -45,7 +55,7 @@ function sanitizeForPrompt(data) {
   if (data && typeof data === "object") {
     const out = {};
     for (const [key, val] of Object.entries(data)) {
-      out[key] = typeof val === "string" ? stripControlChars(val) : val;
+      out[key] = sanitizeForPrompt(val);
     }
     return out;
   }

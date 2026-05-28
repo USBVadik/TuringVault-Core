@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "sample": "cycle-123",
+  "capturedAt": "2026-05-28T21:26:41.717Z",
+  "cycleStartedAt": "2026-05-28T15:35:24.328Z",
+  "cycleEndedAt": "2026-05-28T15:37:02.156Z",
+  "chain": {
+    "name": "Mantle Mainnet",
+    "chainId": 5000
+  },
+  "eoa": "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a",
+  "mntPriceUsdAssumed": 0.62,
+  "txs": [
+    {
+      "block": 95926118,
+      "txHash": "0x06da809b70672ca8ab9e715a17ed880ebc66747e15f2e5e73b5f45678127ac8d",
+      "method": "submitProposal",
+      "kind": "attestation",
+      "target": "ValidationRegistry",
+      "gasUsed": "329052",
+      "gasPriceWei": "50000100000",
+      "costWei": "16452632905200000",
+      "costMnt": 0.0164526329052
+    },
+    {
+      "block": 95926122,
+      "txHash": "0x66a7e809f882b716af6bca78d40fde7cc1c9c5c3f34a819b083a1c3e0442ce41",
+      "method": "validateProposal",
+      "kind": "attestation",
+      "target": "ValidationRegistry",
+      "gasUsed": "327787",
+      "gasPriceWei": "50000100000",
+      "costWei": "16389382778700000",
+      "costMnt": 0.0163893827787
+    },
+    {
+      "block": 95926125,
+      "txHash": "0x98f12b0f2da0eae513880c8c65c89148d9f2be51d977ec664f19a8a56ac2b060",
+      "method": "logDecision",
+      "kind": "attestation",
+      "target": "DecisionLog",
+      "gasUsed": "271259",
+      "gasPriceWei": "50000100000",
+      "costWei": "13562977125900000",
+      "costMnt": 0.0135629771259
+    },
+    {
+      "block": 95926128,
+      "txHash": "0x484eedc71e02895d708f4bf1680d7f9ff8d3df36a494fafad73b3cee17618b1b",
+      "method": "submitFeedback",
+      "kind": "attestation",
+      "target": "ReputationRegistry",
+      "gasUsed": "175152",
+      "gasPriceWei": "50000100000",
+      "costWei": "8757617515200000",
+      "costMnt": 0.0087576175152
+    },
+    {
+      "block": 95926135,
+      "txHash": "0x313c0fc20541a7662ecfe2f9f5966c7f5e57a06495b6aae9ee30ade140b57c96",
+      "method": "swapExactTokensForTokens",
+      "kind": "dex-swap",
+      "target": "MoeLBRouter (RWA: USDT->USDT0)",
+      "gasUsed": "125131",
+      "gasPriceWei": "50000100000",
+      "costWei": "6256562513100000",
+      "costMnt": 0.0062565625131
+    },
+    {
+      "block": 95926142,
+      "txHash": "0xfacd2eb7d7b7bf96aa9b09471622832d66f9a5db52abbe59ba85dea88257204f",
+      "method": "swapExactTokensForTokens",
+      "kind": "dex-swap",
+      "target": "MoeLBRouter (directional leg 1: WMNT->USDT)",
+      "gasUsed": "137945",
+      "gasPriceWei": "50000100000",
+      "costWei": "6897263794500000",
+      "costMnt": 0.0068972637945
+    },
+    {
+      "block": 95926148,
+      "txHash": "0x4e2107826167d16ae59512ebb401ff965105bfd8102e8ebb6001f26ffea752f2",
+      "method": "swapExactTokensForTokens",
+      "kind": "dex-swap",
+      "target": "MoeLBRouter (directional leg 2: USDT->USDT0)",
+      "gasUsed": "130153",
+      "gasPriceWei": "50000100000",
+      "costWei": "6507663015300000",
+      "costMnt": 0.0065076630153
+    },
+    {
+      "block": 95926153,
+      "txHash": "0x8c868e18f5d1975ea11c709f8da7b235cba5cd44cf4956633589c849b2494c1f",
+      "method": "setAgentURI",
+      "kind": "attestation",
+      "target": "TuringVaultIdentity",
+      "gasUsed": "42384",
+      "gasPriceWei": "50000100000",
+      "costWei": "2119204238400000",
+      "costMnt": 0.0021192042384
+    }
+  ],
+  "summary": {
+    "txCount": 8,
+    "attestationTxCount": 5,
+    "dexSwapCount": 3,
+    "totalGasUsed": "1538863",
+    "totalGasCostWei": "76943303886300000",
+    "totalGasCostMnt": 0.0769433038863,
+    "totalGasCostUsd": 0.047704848409506,
+    "avgPerTxMnt": 0.0096179129857875,
+    "avgPerTxUsd": 0.00596310605118825
+  },
+  "note": "Single representative cycle. Per-cycle cost varies with tx count: HOLD cycles produce 5 attestations only; SWAP cycles produce 5 attestations + 1-3 DEX swaps. mntPriceUsdAssumed locked here for reproducibility; live MNT price drifts.",
+  "sourceCommit": "f2cc66c"
+}

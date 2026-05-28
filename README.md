@@ -282,7 +282,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 
 ### Why Mantle?
 
-- **~$0.006 gas per attestation tx** (cycle 123 verified sample, 8 TXs incl. 3 swaps = 0.077 MNT @ \$0.62/MNT ≈ \$0.048 per full cycle — see [trading-unblock postmortem](.kiro/audits/2026-05-28-trading-unblock.md) for the exact block-by-block breakdown) — enables logging every completed cycle's decision on-chain (cost-prohibitive on L1)
+- **~$0.006 gas per attestation tx** (cycle 123 verified sample, 8 TXs incl. 3 swaps = 0.077 MNT @ \$0.62/MNT ≈ \$0.048 per full cycle — block-by-block breakdown in [`.kiro/audits/raw/gas-samples/cycle-123.json`](.kiro/audits/raw/gas-samples/cycle-123.json), regenerable via `node scripts/audit/gas-cost-sample.js`) — enables logging every completed cycle's decision on-chain (cost-prohibitive on L1)
 - **mETH native yield** — real staking returns as trading asset
 - **EVM compatible** — standard Solidity, standard tooling
 - **Growing AI ecosystem** — aligned with Mantle's AI agent vision
