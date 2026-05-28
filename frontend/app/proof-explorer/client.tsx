@@ -365,7 +365,7 @@ export function ProofExplorerClient({
 
       {/* ═══ COMPACT HEADER ═══ */}
       <FadeIn>
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/5">
+        <div className="max-w-[1200px] mx-auto px-6 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-md bg-gradient-to-br from-purple-500/80 to-green-500/80 flex items-center justify-center float-gentle">
               <svg
@@ -379,9 +379,9 @@ export function ProofExplorerClient({
               </svg>
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-white/80">
+              <h3 className="text-sm font-semibold text-white/80">
                 Proof Explorer
-              </h2>
+              </h3>
               <p className="text-[10px] text-white/30">
                 Full audit log &middot; {totalDecisions} on-chain decisions
               </p>
@@ -410,12 +410,12 @@ export function ProofExplorerClient({
         </div>
       </FadeIn>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
+      <main className="max-w-[1200px] mx-auto px-6 py-8 space-y-10">
         {/* ═══ CAPITAL SAVED SECTION ═══ */}
         <FadeIn>
           <section>
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-5 h-5 rounded bg-purple-500/20 flex items-center justify-center">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-white/60 mb-5 flex items-center gap-3">
+              <span className="inline-flex w-5 h-5 rounded bg-purple-500/20 items-center justify-center">
                 <svg
                   className="w-3 h-3 text-purple-400"
                   viewBox="0 0 24 24"
@@ -425,14 +425,12 @@ export function ProofExplorerClient({
                 >
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
                 </svg>
-              </div>
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-white/60">
-                Protected Capital — Trades That Would Have Lost
-              </h2>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+              </span>
+              <span>Protected Capital — Trades That Would Have Lost</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 font-normal normal-case tracking-normal">
                 LIVE PROOF
               </span>
-            </div>
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {blockedCases.map((c, idx) => (
@@ -560,10 +558,11 @@ export function ProofExplorerClient({
 
         {/* ═══ DECISION PIPELINE ═══ */}
         <FadeIn delay={0.1}>
-          <section className="glass-card p-6 relative overflow-hidden">
+          <section>
             <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider relative">
               Decision Pipeline
             </h2>
+            <div className="glass-card p-6 relative overflow-hidden">
             <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-2 md:gap-1 overflow-x-auto pb-2 relative">
               {[
                 {
@@ -637,15 +636,17 @@ export function ProofExplorerClient({
                 </div>
               ))}
             </div>
+            </div>
           </section>
         </FadeIn>
 
         {/* ═══ ECOSYSTEM PROOF STACK ═══ */}
         <FadeIn delay={0.15}>
-          <section className="glass-card p-6">
+          <section>
             <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider">
               Ecosystem Stack Used In This Proof
             </h2>
+            <div className="glass-card p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
               {[
                 {
@@ -749,6 +750,7 @@ export function ProofExplorerClient({
                   </p>
                 </a>
               ))}
+            </div>
             </div>
           </section>
         </FadeIn>
@@ -1101,8 +1103,12 @@ const stats = await sdk.getConsensusRate();
         <div className="grid grid-cols-1 gap-4 mb-10">
           <FadeIn delay={1.8}>
             <div className="rounded-xl border border-green-500/10 bg-green-500/[0.02] p-5">
-              <h3 className="text-[11px] text-green-400/70 uppercase tracking-widest mb-4 font-medium">
-                📊 Grid Strategy Backtest (500h simulations)
+              <h3 className="text-[11px] text-green-400/70 uppercase tracking-widest mb-4 font-medium flex items-center gap-2">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M3 3v18h18" />
+                  <path d="M7 14l4-4 4 4 5-5" />
+                </svg>
+                Grid Strategy Backtest (500h simulations)
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div className="rounded-lg bg-black/30 p-3 border border-white/5">
@@ -1170,13 +1176,20 @@ const stats = await sdk.getConsensusRate();
                 </div>
               </div>
               <div className="mt-4 pt-3 border-t border-white/5">
-                <p className="text-[9px] text-white/30">
-                  ⚠️ Adverse (trending) market: -24.66% — but{" "}
+                <p className="text-[9px] text-white/30 flex items-start gap-1.5">
+                  <svg className="w-3 h-3 shrink-0 mt-px text-yellow-400/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <span>
+                  Adverse (trending) market: -24.66% — but{" "}
                   <span className="text-green-400/60">
                     regime filter detects TREND and switches to HOLD
                   </span>
                   , preventing grid losses. Strategy only activates in confirmed
                   RANGING regime with channel width {">"} 0.7%.
+                  </span>
                 </p>
               </div>
             </div>

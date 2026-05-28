@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Shield } from "lucide-react";
+import { Shield, Check, X, AlertTriangle, Circle, MinusCircle } from "lucide-react";
 import { Skeleton } from "../components/Skeleton";
 
 function DisciplineSkeleton() {
@@ -106,23 +106,14 @@ const GATE_LABEL: Record<string, string> = {
   drift_detection: "Drift",
 };
 
-function statusColor(status: string | undefined): string {
+function StatusIcon({ status, className = "w-3.5 h-3.5" }: { status: string | undefined; className?: string }) {
   const s = (status ?? "").toLowerCase();
-  if (s === "pass") return "text-emerald-400";
-  if (s === "fail") return "text-red-400";
-  if (s === "warn") return "text-yellow-400";
-  if (s === "skip") return "text-white/30";
-  if (s === "error") return "text-red-300";
-  return "text-white/40";
-}
-
-function statusSymbol(status: string | undefined): string {
-  const s = (status ?? "").toLowerCase();
-  if (s === "pass") return "✓";
-  if (s === "fail") return "✗";
-  if (s === "warn") return "⚠";
-  if (s === "skip") return "○";
-  return "·";
+  if (s === "pass") return <Check className={`${className} text-emerald-400`} aria-label="pass" />;
+  if (s === "fail") return <X className={`${className} text-red-400`} aria-label="fail" />;
+  if (s === "warn") return <AlertTriangle className={`${className} text-yellow-400`} aria-label="warn" />;
+  if (s === "skip") return <Circle className={`${className} text-white/30`} aria-label="skip" />;
+  if (s === "error") return <AlertTriangle className={`${className} text-red-300`} aria-label="error" />;
+  return <MinusCircle className={`${className} text-white/20`} aria-label="unknown" />;
 }
 
 function relativeTime(iso: string | null | undefined): string {
@@ -224,8 +215,8 @@ export default function DisciplinePage() {
                       key={i}
                       className="flex items-center gap-3 text-xs font-mono"
                     >
-                      <span className={`${statusColor(c.status)} w-4`}>
-                        {statusSymbol(c.status)}
+                      <span className="w-4 inline-flex items-center justify-center">
+                        <StatusIcon status={c.status} />
                       </span>
                       <span className="text-white/70 w-32">
                         {GATE_LABEL[c.name] ?? c.name}
@@ -309,16 +300,16 @@ export default function DisciplinePage() {
                               return (
                                 <td
                                   key={g}
-                                  className={`py-2 pr-3 ${statusColor(
-                                    c?.status
-                                  )}`}
+                                  className="py-2 pr-3"
                                   title={
                                     c?.status
                                       ? `${c.status}${c.detail ? ` — ${c.detail}` : ""}`
                                       : "no check recorded for this cycle"
                                   }
                                 >
-                                  {statusSymbol(c?.status)}
+                                  <span className="inline-flex items-center">
+                                    <StatusIcon status={c?.status} />
+                                  </span>
                                 </td>
                               );
                             })}

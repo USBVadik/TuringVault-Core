@@ -405,7 +405,7 @@ export default function Home() {
         <div
           role="note"
           aria-live="polite"
-          className="mb-6 -mx-6 px-6 py-2 text-center text-[10px] text-yellow-300/80 bg-yellow-400/[0.04] border-y border-yellow-400/10 anim-fade-up anim-delay-1"
+          className="demo-mode-banner mb-6 -mx-6 px-6 py-2 text-center text-[10px] text-yellow-300/80 bg-yellow-400/[0.04] border-y border-yellow-400/10 anim-fade-up anim-delay-1"
         >
           Demo Mode · No public deposits · Stats below are agent-lifetime
           aggregate (agentId=0)
@@ -446,7 +446,7 @@ export default function Home() {
 
             {/* Hero Content */}
             <div className="flex-1 text-center lg:text-left">
-              <div className="flex items-center gap-3 justify-center lg:justify-start mb-3 flex-wrap">
+              <div className="flex items-center gap-2 justify-center lg:justify-start mb-3 flex-wrap">
                 <Shield className="w-4 h-4 text-purple-400" />
                 <span
                   className="text-xs font-mono text-purple-300/60"
@@ -621,7 +621,7 @@ export default function Home() {
           </div>
           )}
           <div className="mt-4 pt-4 border-t border-white/[0.04]">
-            <div className="flex flex-wrap items-center gap-3 text-[10px] text-white/30">
+            <div className="flex flex-wrap items-center gap-2 text-[10px] text-white/30">
               <span title="src/cron/agentCron.js — pauses after MAX_CONSECUTIVE_ERRORS=3, capped at MAX_DAILY_CYCLES=288">
                 Circuit breaker:{" "}
                 <span className="text-white/50">
@@ -684,7 +684,7 @@ export default function Home() {
 
         {/* ═══ LIVE TERMINAL + 3-COL GRID (combined) ═══ */}
         <div
-          className="grid grid-cols-3 gap-5 mb-8 anim-fade-up"
+          className="grid grid-cols-3 gap-4 mb-8 anim-fade-up"
           style={{ animationDelay: "0.45s" }}
         >
           {/* Live Agent Pipeline — cols 1-2, row 1 */}
@@ -709,22 +709,25 @@ export default function Home() {
             {isStale ? (
               <div
                 role="alert"
-                className="mb-3 border border-yellow-400/30 bg-yellow-400/[0.04] text-yellow-300/80 px-3 py-2 rounded text-[11px] font-mono"
+                className="mb-3 border border-yellow-400/30 bg-yellow-400/[0.04] text-yellow-300/80 px-3 py-2 rounded text-[11px] font-mono flex items-center gap-2"
               >
-                ⚠ Last cycle was{" "}
+                <AlertCircle className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
+                <span>
+                Last cycle was{" "}
                 <RelativeTime ts={health.lastCycleTimestamp} />. Cron mode:{" "}
                 <span className="text-yellow-200/80">
                   {health?.mode ?? "unknown"}
                 </span>
                 . Lifetime stats below remain valid; recent decision feed is
                 paused until next scheduled run.
+                </span>
               </div>
             ) : null}
             <LiveTerminal />
           </div>
 
           {/* Right column — col 3, rows 1+2: Funding above Verify */}
-          <div className="row-span-2 flex flex-col gap-5">
+          <div className="row-span-2 flex flex-col gap-4">
             {/* Agent Wallet · Operator Account (T11) */}
             <div>
               <div className="flex items-center gap-2 mb-3 pl-1">
@@ -1130,14 +1133,14 @@ export default function Home() {
             </span>
             <a
               href="/proof-explorer"
-              className="ml-auto flex items-center gap-1.5 text-xs text-purple-400/60 hover:text-purple-400 transition-colors group"
+              className="ml-auto flex items-center gap-2 text-xs text-purple-400/60 hover:text-purple-400 transition-colors group"
             >
               View Full Proof Explorer
               <ArrowRightLeft className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
             </a>
           </div>
           <div className="table-v2">
-            <div className="table-v2-header" style={{ gridTemplateColumns: "auto 1fr auto auto auto 2fr" }}>
+            <div className="table-v2-header" style={{ gridTemplateColumns: "70px 1fr 80px 110px 90px 2fr" }}>
               <span>Time</span>
               <span>Action</span>
               <span>Asset</span>
@@ -1148,7 +1151,7 @@ export default function Home() {
             {recentDecisions == null ? (
               <div className="space-y-1 animate-pulse">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="table-v2-row" style={{ gridTemplateColumns: "auto 1fr auto auto auto 2fr" }}>
+                  <div key={i} className="table-v2-row" style={{ gridTemplateColumns: "70px 1fr 80px 110px 90px 2fr" }}>
                     <span className="h-3 w-12 bg-white/5 rounded" />
                     <span className="h-3 w-10 bg-white/5 rounded" />
                     <span className="h-3 w-14 bg-white/5 rounded" />
@@ -1173,7 +1176,7 @@ export default function Home() {
                       }`
                     : "—";
                 return (
-                  <div key={i} className="table-v2-row" style={{ gridTemplateColumns: "auto 1fr auto auto auto 2fr" }}>
+                  <div key={i} className="table-v2-row" style={{ gridTemplateColumns: "70px 1fr 80px 110px 90px 2fr" }}>
                     <span className="text-white/40 font-mono text-[11px]">
                       {tsLabel}
                     </span>

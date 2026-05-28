@@ -25,8 +25,8 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-[#030308]/80 border-b border-white/[0.06]">
-      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 backdrop-blur-xl bg-[#030308]/80 border-b border-white/[0.06]" style={{ zIndex: "var(--z-nav)" }}>
+      <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative w-8 h-8">
