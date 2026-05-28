@@ -683,7 +683,7 @@ export function ProofExplorerClient({
                 {
                   name: "Nansen",
                   role: "Smart-money intelligence",
-                  detail: "JSON-RPC 2.0 MCP client · 36 analytics tools",
+                  detail: "JSON-RPC 2.0 MCP client · 9 analytics tools",
                   proof:
                     "https://github.com/USBVadik/TuringVault-Core/blob/main/src/mcp/nansenMCP.js",
                   proofLabel: "src/mcp/nansenMCP.js",

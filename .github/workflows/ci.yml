@@ -122,7 +122,8 @@ jobs:
             fi
           done
           if [ -n "$FLAGGED" ]; then
-            echo "⚠️  PR modifies protected state files:$FLAGGED"
+            echo "❌ PR modifies protected state files:$FLAGGED"
             echo "These files are normally written by the automated cron cycle."
             echo "Ensure this change is intentional and reviewed by CODEOWNERS."
+            exit 1
           fi
