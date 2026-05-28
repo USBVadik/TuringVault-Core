@@ -165,15 +165,20 @@ function useCountUp(end: number | null | undefined, duration = 1200): string {
   useEffect(() => {
     if (end == null || hasRun.current) return;
     hasRun.current = true;
-    const start = 0;
+    // Capture non-null end and start values into locals so the nested
+    // tick() closure preserves narrowing across requestAnimationFrame.
+    const endValue: number = end;
+    const startValue = 0;
     const startTime = performance.now();
 
     function tick(now: number) {
+      // Defensive: if endValue somehow became invalid, bail out cleanly.
+      if (endValue == null || Number.isNaN(endValue)) return;
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
       // ease-out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
-      const current = Math.round(start + (end - start) * eased);
+      const current = Math.round(startValue + (endValue - startValue) * eased);
       setDisplay(String(current));
       if (progress < 1) requestAnimationFrame(tick);
     }
