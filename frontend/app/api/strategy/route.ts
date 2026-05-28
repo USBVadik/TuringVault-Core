@@ -215,8 +215,16 @@ export async function GET() {
       "../src/data/position_state.json"
     );
     try {
-      const raw = fs.readFileSync(statePath, "utf-8");
-      positionState = JSON.parse(raw);
+      if (fs.existsSync(statePath)) {
+        const raw = fs.readFileSync(statePath, "utf-8");
+        positionState = JSON.parse(raw);
+      } else {
+        // Vercel serverless: local files don't exist, fetch from GitHub raw.
+        const url =
+          "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/src/data/position_state.json";
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) positionState = await res.json();
+      }
     } catch {}
 
     // Grid signal — fetch live from CoinGecko to compute channel

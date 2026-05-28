@@ -132,8 +132,15 @@ function normaliseModels(raw: AgentCardRaw["models"]) {
 async function readLocalCard(): Promise<AgentCardRaw | null> {
   try {
     const filePath = projectAgentCardPath();
-    if (!fs.existsSync(filePath)) return null;
-    return JSON.parse(fs.readFileSync(filePath, "utf-8")) as AgentCardRaw;
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, "utf-8")) as AgentCardRaw;
+    }
+    // Vercel serverless: local file doesn't exist, fetch from GitHub raw.
+    const url =
+      "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-card.json";
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (res.ok) return (await res.json()) as AgentCardRaw;
+    return null;
   } catch {
     return null;
   }

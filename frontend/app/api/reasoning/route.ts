@@ -28,20 +28,28 @@ export async function GET() {
     let intents = [];
     let progress = null;
 
-    // Parse loop progress
-    if (fs.existsSync(progressPath)) {
-      progress = JSON.parse(fs.readFileSync(progressPath, "utf8"));
+    // Helper: read local file or fetch from GitHub raw as fallback (Vercel serverless)
+    async function readOrFetchJson(localPath: string, githubPath: string): Promise<any> {
+      if (fs.existsSync(localPath)) {
+        return JSON.parse(fs.readFileSync(localPath, "utf8"));
+      }
+      try {
+        const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${githubPath}`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) return await res.json();
+      } catch {}
+      return null;
     }
+
+    // Parse loop progress
+    progress = await readOrFetchJson(progressPath, "data/loop_progress.json");
 
     // Parse evolution log
-    if (fs.existsSync(evolutionLogPath)) {
-      evolution = JSON.parse(fs.readFileSync(evolutionLogPath, "utf8"));
-    }
+    evolution = await readOrFetchJson(evolutionLogPath, "src/data/evolution_log.json");
 
     // Parse intent queue
-    if (fs.existsSync(intentQueuePath)) {
-      intents = JSON.parse(fs.readFileSync(intentQueuePath, "utf8"));
-    }
+    const rawIntents = await readOrFetchJson(intentQueuePath, "data/intent_queue.json");
+    intents = Array.isArray(rawIntents) ? rawIntents : [];
 
     // Parse last cycle from loop output
     if (fs.existsSync(loopLogPath)) {
