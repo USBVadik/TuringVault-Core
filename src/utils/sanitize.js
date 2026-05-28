@@ -7,11 +7,14 @@
  */
 
 // Characters that should never appear in prompt data
+// eslint-disable-next-line no-control-regex
 const CONTROL_CHAR_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
 
 // Zero-width / invisible Unicode (often used to hide instructions)
+/* eslint-disable no-misleading-character-class */
 const INVISIBLE_UNICODE_RE =
   /[\u200B\u200C\u200D\u200E\u200F\uFEFF\u2060\u2061\u2062\u2063\u2064\u2066\u2067\u2068\u2069\u206A-\u206F]/g;
+/* eslint-enable no-misleading-character-class */
 
 // Common injection delimiters that attempt to break out of data context
 const INJECTION_DELIMITERS_RE =
