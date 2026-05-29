@@ -226,8 +226,9 @@ through two paths, both routed through Merchant Moe Liquidity Book:
 Treasury-collateralised, 1:1 USD peg). USDT0 itself is not
 yield-bearing — the dashboard never claims an APY on it.
 
-**Paper-ready target:** USDY (Ondo Finance tokenized Treasuries, 5.25%
-APY). Mantle pool depth is currently zero, so the swap path throws
+**Paper-ready target:** USDY (Ondo Finance tokenized US Treasuries —
+~3.55% APY on Mantle, $29.5M TVL per AprScope on 2026-05-23). Mantle
+pool depth is currently zero, so the swap path throws
 `RWA_POOL_INACTIVE` until reactivated. Module is shipped, gated off.
 
 Per-swap and per-day caps are operator-tunable via GitHub Actions
