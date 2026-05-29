@@ -160,6 +160,17 @@ function record(params) {
     "manifestHash",
     "combinedAnchor",
     "decisionLogTxHash",
+    // Data-source provenance (audit 19/20). Records which upstream
+    // feed produced this cycle's prices and candles, plus whether
+    // they came from a stale on-disk snapshot. Surfaced on
+    // /api/decisions and the proof-explorer "data path" pill so
+    // the multi-source resilience is visible to a judge.
+    "priceSource",
+    "priceFromSnapshot",
+    "priceSnapshotAgeSec",
+    "candleSource",
+    "candleFromSnapshot",
+    "candleSnapshotAgeSec",
   ]) {
     if (params[k] !== undefined) entry[k] = params[k];
   }

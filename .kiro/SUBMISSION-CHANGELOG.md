@@ -33,6 +33,57 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — Provenance surface: dashboard shows when fallback feeds fired (P1)
+
+**Commit**: pending push
+
+Audit 19/20 added multi-source candle + price fallback chains, but
+the resilience was invisible to a judge — manifests carry `_source`
+tags, but `outcomes.json` and the dashboard didn't surface them.
+Closed that loop:
+
+1. `multiAgentLoop.js` — pulls `_priceSource`/`_priceFromSnapshot`
+   from `unified` and `dataSource`/`fromDiskSnapshot` from
+   `structuredSignals.signals.ranging.channel`. Passes both into
+   `outcomeTracker.record({...})`.
+2. `outcomeTracker.js` — whitelists 6 new optional fields:
+   `priceSource`, `priceFromSnapshot`, `priceSnapshotAgeSec`,
+   `candleSource`, `candleFromSnapshot`, `candleSnapshotAgeSec`.
+3. `/api/decisions` — surfaces these in the JSON response per cycle.
+4. `LiveTerminal.tsx` — renders a small provenance pill **only when
+   a fallback fired**:
+   - `via:binance+bybit` (cyan) when CoinGecko was rate-limited and
+     a fallback feed served the cycle cleanly.
+   - `cached:coingecko` (yellow) when ALL upstream feeds failed and
+     we served from the on-disk snapshot (steering rule §1 — never
+     silently lie about freshness).
+   - Hidden entirely on normal CoinGecko cycles to keep the UI clean.
+
+Tooltip on the pill explains: "CoinGecko was rate-limited for this
+cycle; data came from a fallback source. Cycle reasoning was
+unaffected."
+
+This makes the multi-source resilience auditable in real time.
+A judge dropping into `/proof-explorer` mid-week sees a yellow pill
+on cycles where upstream had hiccups and immediately understands
+why the bot kept running.
+
+Validation:
+- jest: 245 / 245 passing
+- ESLint src/: 0 errors / 47 warnings
+- TypeScript: clean
+- next build: clean (24 routes)
+
+**Pitch line**:
+> *"Every decision row on the dashboard carries a provenance pill
+> when a fallback feed fired — `via:binance+bybit`, `cached:hyperliquid`,
+> etc. Multi-source resilience isn't just an internal detail; it's
+> a visible part of the proof surface. Steering rule §1 enforced:
+> we never claim a cycle saw fresh prices when it actually got them
+> from a stale snapshot."*
+
+---
+
 ### 🎯 FOR PITCH — Multi-source ticker fetch closes second layer of CoinGecko starvation (P0)
 
 **Commit**: pending push

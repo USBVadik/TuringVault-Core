@@ -46,6 +46,13 @@ type Decision = {
   // a DEX TX). executedOnChain is the ground truth.
   displayTier?: string | null;
   executedOnChain?: boolean;
+  // Audit 19/20: which upstream feed served this cycle's prices /
+  // candles. Only displayed when non-CoinGecko (i.e. fallback fired)
+  // — surfaces the multi-source resilience to a judge.
+  priceSource?: string | null;
+  priceFromSnapshot?: boolean;
+  candleSource?: string | null;
+  candleFromSnapshot?: boolean;
 };
 
 type Health = {
@@ -314,6 +321,47 @@ export function LiveTerminal() {
                     </a>
                   </>
                 )}
+                {/* Audit 19/20 provenance pill — only render when a
+                    fallback feed actually served this cycle. Keeps
+                    the line clean on normal CoinGecko cycles while
+                    making the resilience visible when it kicks in. */}
+                {(() => {
+                  const anySnap =
+                    d.priceFromSnapshot === true ||
+                    d.candleFromSnapshot === true;
+                  const priceFallback =
+                    d.priceSource &&
+                    d.priceSource !== "coingecko";
+                  const candleFallback =
+                    d.candleSource &&
+                    d.candleSource !== "coingecko";
+                  if (!anySnap && !priceFallback && !candleFallback)
+                    return null;
+                  const tone = anySnap
+                    ? "text-yellow-300/70"
+                    : "text-cyan-300/70";
+                  const tag = anySnap
+                    ? `cached:${
+                        d.priceFromSnapshot
+                          ? d.priceSource
+                          : d.candleSource
+                      }`
+                    : `via:${d.priceSource || d.candleSource}`;
+                  const tooltip = anySnap
+                    ? "Upstream feeds were unreachable; this cycle's data was served from the on-disk snapshot. Steering rule §1 — never silently lie about freshness."
+                    : "CoinGecko was rate-limited for this cycle; data came from a fallback source (Binance/Bybit/Hyperliquid). Cycle reasoning was unaffected.";
+                  return (
+                    <>
+                      {" "}
+                      <span
+                        className={`font-mono text-[9px] ${tone}`}
+                        title={tooltip}
+                      >
+                        {tag}
+                      </span>
+                    </>
+                  );
+                })()}
               </div>
             );
           })}

@@ -1139,6 +1139,23 @@ async function runMultiAgentCycle(opts = {}) {
   }
 
   try {
+    // Audit 19/20 provenance — record which upstream feed produced
+    // the prices and candles for this cycle. A future "the bot is
+    // blind" investigation can grep outcomes.json for source != coingecko
+    // (or fromDiskSnapshot=true) instead of trawling cron logs.
+    const _priceProv = unified?._priceSource || null;
+    const _priceFromSnap = unified?._priceFromSnapshot === true;
+    const _priceSnapAge = unified?._priceSnapshotAgeSec ?? null;
+    const _candleProv =
+      market.structuredSignals?.signals?.ranging?.channel?.dataSource ||
+      null;
+    const _candleFromSnap =
+      market.structuredSignals?.signals?.ranging?.channel
+        ?.fromDiskSnapshot === true;
+    const _candleSnapAge =
+      market.structuredSignals?.signals?.ranging?.channel?.snapshotAgeSec ??
+      null;
+
     outcomeTracker.record({
       decisionId: Number(proposalId),
       action: decision.analyst?.action || "hold",
@@ -1175,6 +1192,16 @@ async function runMultiAgentCycle(opts = {}) {
       manifestHash: manifestHashHex,
       combinedAnchor,
       decisionLogTxHash: decisionLogTxHash || null,
+      // Data-source provenance (audit 19/20). When non-null, indicates
+      // which upstream feed served this cycle's prices / candles. The
+      // dashboard surfaces this as a "fed by Binance fallback" pill on
+      // /proof-explorer + /api/decisions, making the resilience visible.
+      priceSource: _priceProv,
+      priceFromSnapshot: _priceFromSnap,
+      priceSnapshotAgeSec: _priceSnapAge,
+      candleSource: _candleProv,
+      candleFromSnapshot: _candleFromSnap,
+      candleSnapshotAgeSec: _candleSnapAge,
     });
     console.log(
       `   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`
