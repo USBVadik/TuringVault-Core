@@ -519,6 +519,9 @@ async function getStructuredSignals(marketCtx = {}) {
         rangingContext += `\n  Override: ${gridSignal.overrideReason}`;
       }
     } catch (e) {
+      console.warn(
+        `  [GRID] getGridSignal threw: ${e.message?.slice(0, 200)}`
+      );
       rangingContext = `RANGING GRID: unavailable — ${e.message}`;
     }
   }
