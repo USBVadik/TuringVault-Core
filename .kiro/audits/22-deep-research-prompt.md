@@ -642,8 +642,32 @@ When Gemini's output lands:
 - agent-card-v2.json: JSON valid
 - assets/agent-card.json: JSON valid
 
-### Deferred to next session
+### Deferred / re-classified to AVOID at submission scope
 
-- Aave V3 Mantle integration (idle USDT0 → aUSDT0 supply path).
-  ~8-10h. Spec-first: `.kiro/specs/aave-v3-yield-park/`.
-  Largest single remaining lift on the AI x RWA Depth axis.
+- Aave V3 Mantle integration (idle USDT0 → aUSDT0 supply path) was
+  initially recommended by Gemini and forwarded by me to the
+  operator without due diligence. Operator pushed back: "а ааве
+  после взлома уже реабилитировались?" Subsequent research
+  (2026-05-29) found:
+
+  - 2026-03-10 CAPO oracle misconfig → $26M wstETH liquidations
+  - 2026-04-18 KelpDAO bridge cascade → $200-230M Aave V3 bad debt,
+    $6.6B liquidity drained in 24h, **Mantle was heaviest L2
+    exposure**
+  - Recovery still partial as of 2026-05-13 — bad debt resolution
+    ongoing, $71M ETH return tied up in litigation
+
+  Net verdict: **AVOID at submission scope.** Recommending we wire
+  our cron's signing key into a protocol still in partial recovery
+  six weeks before submission deadline is the exact integration
+  shape our project's narrative exists to refuse.
+
+  Full Risk panel + replacement plan (native yield path through
+  mETH staking, no counterparty contract risk) appended as
+  CORRECTION section in `.kiro/SUBMISSION-CHANGELOG.md`.
+
+- New steering rule shipped this session to prevent recurrence:
+  `.kiro/steering/external-integration-due-diligence.md` — every
+  external on-chain integration recommendation must include a
+  filled Risk panel with cited sources, defaulting to AVOID when
+  research surfaces meaningful risk.

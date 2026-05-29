@@ -915,3 +915,94 @@ Validation:
   router test window before introducing a second on-chain
   integration. Spec-first when picking it back up:
   `.kiro/specs/aave-v3-yield-park/{requirements,design,tasks}.md`.
+
+### CORRECTION (later in same session) — Aave V3 deferred AVOID, not "next session"
+
+After operator pushed back ("а ааве после взлома уже
+реабилитировались?") I ran the due-diligence research I should have
+run BEFORE recommending the integration. Findings on Aave's
+incident history in the last 90 days:
+
+- **2026-03-10** — Aave's CAPO oracle misconfiguration → $26-27M
+  unfair wstETH liquidations (undervaluation by 2.85%). Source:
+  https://www.ccn.com/analysis/crypto/aave-founder-refunds-trader-swaps-mistake-aave-price/
+- **2026-04-18** — KelpDAO 1-of-1 DVN bridge flaw → $292M unbacked
+  rsETH used as collateral on Aave V3 → ~$200M borrowed in WETH →
+  **~$177-230M bad debt** in WETH pool. **Mantle and Arbitrum
+  were the heaviest L2 exposure.** $6.6B liquidity drained from
+  Aave in 24h, $15.1B deposits left. Source:
+  https://www.forbes.com/sites/digital-assets/2026/04/18/withdraw-now-inside-aaves-sudden-200m-bad-debt-crisis/
+- **2026-04-27** — "DeFi United" $300M recovery fund pledged by
+  Consensys, Lido, EtherFi, Mantle DAO, Arbitrum DAO, Solana
+  Foundation. Mantle proposed lending up to 30,000 ETH to Aave
+  DAO to cover bad debt. Source:
+  https://www.coindesk.com/tech/2026/04/27/industry-leaders-are-pouring-hundreds-of-millions-into-a-rescue-plan-for-aave-users-after-massive-crypto-hack
+- **2026-05-13** — Aave restored WETH borrowing limits across six
+  networks; bad debt recovery still partial; $71M ETH return
+  blocked by North Korea sanctions claims litigation. Source:
+  https://www.kucoin.com/news/flash/aave-restores-weth-borrowing-across-six-networks
+
+Risk panel — Aave V3 on Mantle (filled per the new steering rule
+`.kiro/steering/external-integration-due-diligence.md`):
+
+  Incident history (90d):    YES — March CAPO oracle ($26M) +
+                             April KelpDAO cascade ($230M bad debt,
+                             Mantle was heaviest L2 exposure)
+  Active bad debt:           YES — $123-230M in WETH pool, recovery
+                             partial. Source: mexc.com/news/1050687
+  Oracle integrity (90d):    ISSUE — CAPO misconfiguration
+                             liquidated $26M wstETH on Mar 10.
+  Cross-chain exposure:      KelpDAO bridge dependency was the
+                             attack surface; the same class of
+                             import remains for any rsETH-shaped
+                             collateral.
+  Active governance crisis:  YES — $71M ETH return litigated
+                             through US courts; Recovery Guardian
+                             still active.
+  Recovery status:           PARTIAL — borrowing limits restored,
+                             bad debt resolution ongoing.
+  Net verdict:               AVOID at submission scope.
+  Last checked:              2026-05-29 ISO + sources above.
+
+This is exactly the integration shape this project's narrative
+exists to refuse. Recommending we wire our signing key into a
+protocol that drained $6.6B in 24h six weeks before our submission
+deadline is a self-inflicted narrative collapse. Going on-stage with
+"AI portfolio agent that proved every allocation survived adversarial
+challenge BEFORE execution — supplied to a protocol still in partial
+recovery" reads as either disconnected from current events or aware
+and reckless. Either reading loses the prize.
+
+### Replacement — native yield path (no counterparty contract risk)
+
+The competitive position **"light uncertainty / capital preservation"**
+is the right read of the moment. We close the "no actual yield"
+rubric gap through assets we already hold whose yield does not
+require us to call any external contract:
+
+- **mETH staking yield** (~3.4% APY, native to Mantle, no
+  counterparty contract — agent's existing balance accrues yield
+  without any new on-chain call). Surface this as the existing
+  yield path on the dashboard and in the README.
+- **USDT0 peg stability** as capital preservation, not yield, with
+  honest framing: "We chose to NOT chase yield through hot lending
+  markets in 2026 — capital preservation through adversarial
+  validation > yield optimization through counterparty risk."
+- This framing fits the DAO Treasury target user perfectly. They
+  remember April. They are exactly the cohort that will read
+  "we did not integrate Aave V3 because we won't recommend our
+  agent supply USDT0 to a protocol still resolving $200M in bad
+  debt" as a strength, not a weakness.
+
+What ships next session (estimated ~1h, not the previously-quoted
+~10h Aave build):
+
+1. README "Yield strategy" section explaining the native-only
+   posture, citing mETH yield rate and refusing external lending
+   exposure with explicit reference to April 2026.
+2. Pitch deck slide: "Why we did not integrate Aave V3 (or Lendle,
+   or Init Capital) before submission" — turn the negative space
+   into a positive narrative beat.
+3. Surface mETH balance + accrued yield on `/api/performance` and
+   the homepage Performance card as a separate yield row (already
+   tracked in NAV; just needs a yield-specific label).
