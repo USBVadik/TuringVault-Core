@@ -315,6 +315,42 @@ async function runMultiAgentCycle(opts = {}) {
   } | Validator: ${
     decision.validator?.approved ? "APPROVED" : "REJECTED"
   } (risk=${riskScore})`.substring(0, 200);
+
+  // Reproducible AI: bind the on-chain decision row to BOTH the IPFS
+  // proof-of-reasoning (via its CID) AND the replay manifest (via its
+  // SHA-256 hash). The DecisionLog struct only has one bytes32 field
+  // we can use, so we collapse the two anchors into a single keccak256
+  // over their concatenation. Verifiers reproduce this client-side as:
+  //   anchor = keccak256( utf8(ipfsCid) ‖ bytes32(manifestHash) )
+  // Audit 18 documents the binding semantics + verifier tooling.
+  //
+  // We compute the manifest hash from peekCapture() (read-only — the
+  // end-of-cycle drainCapture call still owns the buffer for the file
+  // write). If the buffer is empty (rare — would mean every model call
+  // failed before captureCall ran), fall back to all-zero so the row
+  // still anchors the IPFS CID.
+  const {
+    peekCapture,
+    manifestHash: computeManifestHash,
+  } = require("../replay/captureManifest");
+  const _captureSnapshot = peekCapture();
+  const manifestHashHex =
+    _captureSnapshot.length > 0
+      ? computeManifestHash(_captureSnapshot)
+      : "0x" + "0".repeat(64);
+  // ethers v6 concat takes BytesLike; toUtf8Bytes for the CID string,
+  // manifestHashHex is already 0x-prefixed bytes32.
+  const combinedAnchor = ethers.keccak256(
+    ethers.concat([
+      ethers.toUtf8Bytes(ipfsResult.cid),
+      manifestHashHex,
+    ])
+  );
+  console.log(
+    `   ⚓ Anchor: combined=${combinedAnchor.slice(0, 18)}... ` +
+      `(IPFS+manifest ${manifestHashHex.slice(0, 14)}...)`
+  );
+
   const tx3 = await decisionLog.logDecision(
     decision.action,
     decision.analyst?.targetAsset || "mUSD",
@@ -322,17 +358,19 @@ async function runMultiAgentCycle(opts = {}) {
     ethers.parseEther("0"),
     confidenceBps,
     reasoningText,
-    ethers.keccak256(ethers.toUtf8Bytes(ipfsResult.cid)),
+    combinedAnchor,
     { nonce: currentNonce + 2 }
   );
-  await tx3.wait();
+  const receipt3 = await tx3.wait();
+  const decisionLogTxHash = receipt3?.hash || tx3.hash;
   console.log(`   ✅ Decision logged to DecisionLog`);
 
   // Step 5: Record reputation feedback
   try {
-    const reasoningHashBytes = ethers.keccak256(
-      ethers.toUtf8Bytes(ipfsResult.cid)
-    );
+    // Same combined anchor on Reputation: judges can cross-reference
+    // a single bytes32 across DecisionLog + ReputationRegistry events
+    // and prove they refer to the same IPFS proof + replay manifest.
+    const reasoningHashBytes = combinedAnchor;
     // Score based on consensus: approved = positive (+confidence*50), rejected = neutral (0)
     const repScore = decision.consensus
       ? Math.round((decision.analyst?.confidence || 0.5) * 50)
@@ -1128,6 +1166,15 @@ async function runMultiAgentCycle(opts = {}) {
       rwaIntent: rwaIntent || null,
       // Directional swap execution result
       directionalSwap: directionalSwapResult || null,
+      // Reproducible AI on-chain anchor (audit 18). manifestHash is the
+      // SHA-256 over the captured prompts + raw responses. combinedAnchor
+      // is keccak256(utf8(ipfsCid) ‖ manifestHash) and is the bytes32
+      // value persisted in DecisionLog.txHash + ReputationRegistry.
+      // reasoningHash for this cycle. The frontend can verify by
+      // recomputing keccak256 client-side from ipfsCid + manifestHash.
+      manifestHash: manifestHashHex,
+      combinedAnchor,
+      decisionLogTxHash: decisionLogTxHash || null,
     });
     console.log(
       `   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`
@@ -1365,6 +1412,16 @@ async function runMultiAgentCycle(opts = {}) {
             typeof proposalId === "bigint"
               ? Number(proposalId)
               : proposalId || null,
+          // Audit 18: replay manifest is now bound to the on-chain
+          // DecisionLog row via combinedAnchor stored in the row's
+          // bytes32 txHash slot. A verifier reproduces the binding
+          // by recomputing keccak256(utf8(ipfsCid) ‖ manifestHash)
+          // and matching it against the on-chain value.
+          manifestHash: manifestHashHex || null,
+          combinedAnchor: combinedAnchor || null,
+          decisionLogTxHash: decisionLogTxHash || null,
+          decisionLogContract: DECISION_LOG_ADDR,
+          chainId: 5000,
         },
       });
       if (manifestResult) {

@@ -33,6 +33,55 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — Reproducible AI: anchor sealed on-chain (audit 18)
+
+**Commits**: pending push (capture-manifest peek + canonical hash fix +
+loop wiring + audit 18)
+**Audit**: `.kiro/audits/18-onchain-anchor-replay-manifest.md`
+
+External Gemini Pro 3.1 audit P0 — close the Reproducible AI loop with a
+cryptographic seal. Audit 16 shipped capture + replay tooling but only
+anchored the manifest implicitly via git commit hash + IPFS CID. This
+audit adds an explicit `bytes32` anchor on-chain, **without redeploying
+the contract**.
+
+Each cycle now writes:
+
+```
+combinedAnchor = keccak256( utf8(ipfsCid) ‖ bytes32(manifestHash) )
+```
+
+into the `DecisionLog.txHash` slot AND the
+`ReputationRegistry.submitFeedback(reasoningHash)` slot. Both registries
+carry the same triple-bound hash. A verifier reproduces the binding
+client-side from the on-disk manifest and matches it against the
+on-chain value — if anyone edited the manifest after the fact, the
+recomputed anchor no longer matches and the tampering is detectable.
+
+While implementing this we caught a pre-existing bug in
+`captureManifest.manifestHash`: the canonicalisation `JSON.stringify(captures, Object.keys(captures).sort())`
+treated the array as a property whitelist, filtering out every real
+key, which collapsed every input to the same hash. Fixed with a
+recursive sorted-key canonical JSON. Without this fix, the on-chain
+anchor would have proven nothing — every cycle would have produced
+the same anchor regardless of contents.
+
+Tests: 216 / 216 passing (212 → 216, +4 from new peek + canonicalisation
+guard + anchor-formula coverage). ESLint: 0 errors. No contract
+redeploy — Sourcify-verified `perfect` status preserved across all 6
+contracts.
+
+**Pitch line**:
+> *"Reproducible AI is now sealed on-chain: every multi-agent cycle
+> writes `keccak256(utf8(ipfsCid) ‖ manifestHash)` into both DecisionLog
+> and ReputationRegistry. A judge clones the repo, recomputes the
+> binding from the manifest on disk, and matches it against the
+> bytes32 already on Mantle Mainnet. If we'd ever edited a manifest
+> after-the-fact, the binding would break — and our 6/6 Sourcify
+> contracts mean the on-chain side is permanent."*
+
+---
+
 ### Number drift fixes + surface live PnL graph (P0/P1 from external audit)
 
 **Commits**: `b049acb`

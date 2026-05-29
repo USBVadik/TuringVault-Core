@@ -484,7 +484,12 @@ const MODELS = {
 
 const { callGeminiArbiter } = require("./geminiArbiter");
 const { recordParseMetric, persistRawOutput } = require("./parseMetrics");
-const { captureCall, resetCapture, drainCapture } = require("../replay/captureManifest");
+const {
+  captureCall,
+  resetCapture,
+  drainCapture,
+  peekCapture,
+} = require("../replay/captureManifest");
 
 async function callAgent(
   systemPrompt,
@@ -939,4 +944,8 @@ module.exports = {
   // the per-call replay set. multiAgentLoop wires this into manifest
   // writes and on-chain anchoring.
   drainCapture,
+  // peekCapture: read the buffer without clearing it. Lets the loop
+  // compute manifestHash for on-chain anchoring mid-cycle and still
+  // drain the same buffer for the file write at end of cycle.
+  peekCapture,
 };

@@ -152,6 +152,14 @@ function record(params) {
     // and the trade became invisible to outcome metrics, even when
     // it succeeded on-chain.
     "directionalSwap",
+    // Reproducible AI on-chain anchor (audit 18). The DecisionLog
+    // contract carries combinedAnchor in its bytes32 txHash slot;
+    // we surface the underlying values here so the frontend can
+    // recompute and verify keccak256(utf8(ipfsCid) ‖ manifestHash)
+    // matches what's on-chain — no contract redeploy required.
+    "manifestHash",
+    "combinedAnchor",
+    "decisionLogTxHash",
   ]) {
     if (params[k] !== undefined) entry[k] = params[k];
   }

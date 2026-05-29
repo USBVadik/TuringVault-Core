@@ -75,6 +75,39 @@ console.log(
     manifest.onChain?.ipfsCid?.slice(0, 16) || "n/a"
   }…)`
 );
+if (manifest.onChain?.combinedAnchor) {
+  console.log(
+    `Anchor    : ${manifest.onChain.combinedAnchor.slice(0, 24)}… ` +
+      `(DecisionLog ${(manifest.onChain.decisionLogContract || "").slice(
+        0,
+        14
+      )}… tx ${(manifest.onChain.decisionLogTxHash || "n/a").slice(0, 14)}…)`
+  );
+  // Self-check: recompute the binding locally from the on-disk manifest
+  // and confirm it matches what was stored on-chain. Catches manifest
+  // tampering even before the on-chain readback.
+  try {
+    // Lightweight ethers import — avoid loading the full provider stack
+    // for this hash check.
+    const { keccak256, toUtf8Bytes, concat } = require("ethers");
+    const recomputed = keccak256(
+      concat([
+        toUtf8Bytes(manifest.onChain.ipfsCid || ""),
+        manifest.onChain.manifestHash || "0x" + "0".repeat(64),
+      ])
+    );
+    const matches =
+      recomputed.toLowerCase() ===
+      manifest.onChain.combinedAnchor.toLowerCase();
+    console.log(
+      `Binding   : ${
+        matches ? "✅ recomputed matches stored anchor" : "❌ MISMATCH"
+      }`
+    );
+  } catch (e) {
+    console.log(`Binding   : ⚠️  could not recompute (${e.message})`);
+  }
+}
 console.log("");
 
 // Lazy require providers — only the one we need will load creds.

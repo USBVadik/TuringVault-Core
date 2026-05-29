@@ -86,16 +86,58 @@ function drainCapture() {
 }
 
 /**
+ * Return a shallow copy of the current capture buffer WITHOUT clearing
+ * it. Used by multiAgentLoop.js to compute the manifestHash mid-cycle
+ * (so it can be anchored on-chain) while leaving the buffer in place
+ * for the end-of-cycle drainCapture() that writes the manifest file.
+ *
+ * Pure read; does not mutate state.
+ */
+function peekCapture() {
+  return _buffer.slice();
+}
+
+/**
  * Compute a deterministic SHA-256 over the canonical capture set.
  * The hash is what we'd anchor on-chain to bind a specific manifest
  * to a specific decision id, even before it's committed to git.
  *
- * Canonicalisation: stringify with sorted keys per object so the same
- * logical payload always produces the same hash.
+ * Canonicalisation: stringify with **recursively sorted keys** per
+ * object so the same logical payload always produces the same hash
+ * regardless of property insertion order. The previous implementation
+ * passed `Object.keys(captures).sort()` as the JSON.stringify replacer,
+ * which is a property-name whitelist — for an Array that's just the
+ * numeric indices, so all real keys got filtered out and every input
+ * collapsed to the same hash. Audit 18 fixed this when introducing
+ * the on-chain anchor that depends on a meaningful hash.
  */
 function manifestHash(captures) {
-  const canonical = JSON.stringify(captures, Object.keys(captures).sort());
+  const canonical = _canonicalStringify(captures);
   return "0x" + crypto.createHash("sha256").update(canonical).digest("hex");
+}
+
+/**
+ * Recursive canonical JSON: arrays preserve order, objects sort keys
+ * alphabetically, primitives + null + undefined serialise as JSON.
+ */
+function _canonicalStringify(value) {
+  if (value === null || value === undefined) return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    return "[" + value.map(_canonicalStringify).join(",") + "]";
+  }
+  if (typeof value === "object") {
+    const keys = Object.keys(value).sort();
+    return (
+      "{" +
+      keys
+        .map(
+          (k) => JSON.stringify(k) + ":" + _canonicalStringify(value[k])
+        )
+        .join(",") +
+      "}"
+    );
+  }
+  return JSON.stringify(value);
 }
 
 /**
@@ -163,6 +205,7 @@ module.exports = {
   resetCapture,
   captureCall,
   drainCapture,
+  peekCapture,
   manifestHash,
   writeManifest,
   // Exposed for unit tests — no other consumer should touch.
