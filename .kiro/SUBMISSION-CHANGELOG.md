@@ -33,6 +33,44 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — Live status badge gated by /api/health (P1)
+
+**Commits**: `0e13714`, `6c7b069`
+
+External Gemini Pro 3.1 audit weakness #5: "GitHub Actions 'Live' cron
+is brittle — if a judge checks /api/health and lastCycleAge is 3 hours,
+it looks dead". Audit recommended a Vercel cron fallback (rejected: would
+invite double-nonce races on the on-chain TX) or a status badge.
+
+Shipped the badge with a four-tier honesty model:
+
+  age <  10 min         → LIVE     (cron firing on schedule)
+  age 10-35 min         → IDLE     (between scheduled slots)
+  age 35-90 min         → STALE    (one slot missed — within tolerance)
+  age >= 90 min OR null → OFFLINE  (multiple slots missed)
+
+Mode label appended per workspace honesty rule §2:
+  "cron-github-actions" → "Cron · GH Actions"
+  "manual"              → "Manual run"
+  "showcase-*"          → "Showcase mode"
+  "unknown"             → suppressed (no fake autonomy claim)
+
+Wired onto: homepage hero, /proof-explorer header, /replay index,
+/replay/[id] cycle pages.
+
+Logic lives in a single source of truth (`live-status.shared.js`) so
+all "live" copy decisions can be audited from one file. 14 unit tests
+pin the threshold model and the modeLabel mapping (root jest 230/230,
+was 216).
+
+**Pitch line**:
+> *"Every 'live' claim on the dashboard is gated by /api/health and
+> degrades honestly through LIVE → IDLE → STALE → OFFLINE. We never
+> assert 'Autonomous · 24/7' on a screen where the cron actually
+> skipped a slot — workspace steering rule §2 enforced in code."*
+
+---
+
 ### 🎯 FOR PITCH — `/replay/<id>` public verification page (P1)
 
 **Commits**: `909e1ed` (page + API), `818a98d` (offset-tolerant lookup)
