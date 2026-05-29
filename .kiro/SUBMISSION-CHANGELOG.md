@@ -496,6 +496,14 @@ contracts.
 > bytes32 already on Mantle Mainnet. If we'd ever edited a manifest
 > after-the-fact, the binding would break — and our 6/6 Sourcify
 > contracts mean the on-chain side is permanent."*
+>
+> **CORRECTION 2026-05-30 (audit 26):** the literal Sourcify count is
+> 5/6 perfect, not 6/6. The sixth contract (TuringVaultRouter,
+> 0x8187…7001) is deployed but its source drifted post-deploy and we
+> do not redeploy. The on-chain anchor argument above is unaffected —
+> DecisionLog and ReputationRegistry are both Sourcify perfect. Use
+> "5/6 Sourcify-verified `perfect`" in any future pitch text harvested
+> from this entry.
 
 ---
 
@@ -587,6 +595,15 @@ This positions us **ahead** of the Phala TEE narrative AgentBank uses
 in their submission, by removing the hardware-vendor dependency.
 
 ### 🎯 FOR PITCH — "All 6 contracts Sourcify-verified, 3 registries actively written"
+
+> **CORRECTION 2026-05-30 (audit 26):** the literal Sourcify count
+> turned out to be 5/6 perfect, not 6/6. The sixth contract
+> (TuringVaultRouter, `0x8187…7001`) is deployed but its source
+> drifted post-deploy. Treat the heading and any "6/6" mention in
+> this entry as superseded; the canonical phrasing for any future
+> pitch harvested from here is **"5 of 6 Sourcify-verified `perfect`,
+> Router source drifted post-deploy"**. The three ERC-8004 registries
+> (Identity + Reputation + Validation) all remain Sourcify perfect.
 
 **Commits**: `d1aca56`
 **Audit**: `.kiro/audits/14-erc8004-coverage-and-claims-fix.md`
@@ -824,7 +841,7 @@ These are NOT shipped, decided to defer:
   - one cycle from triggered → on-chain → IPFS pin
   - `npm run replay <recent-cycle-id>` running and matching
   - Foundry test suite green
-  - 6/6 Sourcify badges on Mantle Explorer
+  - 5/6 Sourcify badges on Mantle Explorer (Router source drifted post-deploy; per audit 26)
 - [ ] Pitch deck refresh:
   - cover slide stat: "X live decisions" (refresh closer to deadline)
   - claim grid synced with README claim grid
@@ -874,7 +891,7 @@ real wins:
    - agent-card snapshot 2026-05-26 → **2026-05-29 19:42 UTC**
    - agent-card totalDecisions 104 → **158**
    - agent-card blockRate 61.5% → **41.1%**
-   - 4/5 Sourcify-verified → **6/6 Sourcify-verified `perfect`**
+   - 4/5 Sourcify-verified → **6/6 Sourcify-verified `perfect`** (later corrected to 5/6 in audit 26 — Router source drifted post-deploy)
      (in pitch deck × 3 places + README project-structure block)
    - Added: realised PnL **+1757 bps (+17.57%)** across **67 settled
      outcomes** with **46.3% winRate**, plus **30/31 cycles in 24h

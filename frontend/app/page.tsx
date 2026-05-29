@@ -490,12 +490,15 @@ export default function Home() {
               </h2>
               <p className="text-sm text-white/40 max-w-lg">
                 For DAO treasuries and on-chain funds: an AI portfolio manager
-                whose every reallocation must survive adversarial multi-model
-                review before execution.{" "}
+                whose every alpha-seeking reallocation must survive adversarial
+                multi-model review before execution.{" "}
                 {totalRejected && totalProposals
                   ? `${totalRejected}/${totalProposals}`
                   : ""}{" "}
-                proposals blocked by validator before execution.
+                proposals blocked by validator before execution. Liveness-only
+                heartbeat micro-swaps tag separately as {" "}
+                <code className="text-purple-300/60">HEARTBEAT_SWAP</code> and
+                never aggregate into trading metrics.
               </p>
             </div>
 
