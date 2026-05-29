@@ -161,6 +161,61 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780035320874_138",
+      "decisionId": 138,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2011.5,
+      "ipfsCid": "Qme5Sov5KsyAevQiHS5Djd6esabW4huUpn2WMJuug3wSMW",
+      "recordedAt": "2026-05-29T06:15:20.874Z",
+      "settleAfter": "2026-05-29T07:15:20.874Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780035320872
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in RANGING regime with no grid channel established. Analyst correctly identifies mixed signals: EMA bearish, MACD improving, F&G=23 extreme fear, flat smart money flows, -1% yield spread. No directional trade proposed, so RANGING regime restriction does not apply. 0% allocation change means no capital at risk. Reasoning accurately reflects raw signals — funding 0.729% neutral, techni",
+      "validatorFlaggedIssues": [
+        "Grid channel undefined — mean-reversion strategy unavailable",
+        "Yield spread -1% bearish for mETH vs stablecoin alternatives",
+        "EMA cross bearish despite MACD improvement — contradictory technicals",
+        "Extreme Fear F&G=23 without smart money confirmation limits contrarian conviction"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Both the Analyst and Validator agree on a HOLD action due to mixed technical indicators, flat smart money flows, and the lack of a clear grid channel in a ranging market regime.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
