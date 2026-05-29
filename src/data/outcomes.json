@@ -319,6 +319,61 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780051473264_142",
+      "decisionId": 142,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2008.77,
+      "ipfsCid": "QmNrC8SDgXTJcFWG3UQmq5upprUcUeuWz9wPdcV1XRfCvL",
+      "recordedAt": "2026-05-29T10:44:33.264Z",
+      "settleAfter": "2026-05-29T11:44:33.264Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780051473263
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on mETH is well-supported. Grid channels unestablished for both ETH and MNT — no actionable ranging edge exists. Signal consensus BEARISH, F&G=23 (Extreme Fear), yield spread -1% all weigh against entry. Funding 0.604% is mild-long but insufficient alone to justify directional swap. Analyst correctly identifies conflicting signals and defers action. No capital at risk; HOLD is appropriate cap",
+      "validatorFlaggedIssues": [
+        "Grid confidence only 30% — channel undefined, confirms no trade",
+        "BEARISH consensus conflicts with contrarian F&G=23 read — analyst correctly flags this tension",
+        "Yield spread -1% reduces mETH attractiveness vs alternatives",
+        "Low intraday vol 0.27% limits any mean-reversion upside even if grid were established"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Both the Analyst and Validator agree that holding mETH is the optimal decision due to conflicting market signals, unestablished grid channels, and a high-fear environment prioritizing capital preservation.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
