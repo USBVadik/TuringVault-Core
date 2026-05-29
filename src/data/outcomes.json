@@ -537,6 +537,91 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780061182968_146",
+      "decisionId": 146,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1992.31,
+      "ipfsCid": "QmbYmwavmLKUXC4qzpwPxmdGXeTSF2gScPuEsxoMniqnp1",
+      "recordedAt": "2026-05-29T13:26:22.968Z",
+      "settleAfter": "2026-05-29T14:26:22.968Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780061182966
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. RANGING regime (55% confidence) with no established grid channels on either ETH or MNT eliminates directional swap eligibility. Analyst correctly identifies mixed technicals: ETH score -0.13 with EMA_CROSS=SELL and MACD=SELL vs MNT BUY score +0.25. Funding 0.524% is neutral, not a directional trigger. Bearish yield spread (-1%) and F&G=23 Extreme Fear noted accurat",
+      "validatorFlaggedIssues": [
+        "Grid channels unestablished on both assets — no mean-reversion edge available",
+        "Signal consensus BEARISH conflicts with F&G contrarian long bias — unresolved tension",
+        "Analyst confidence 58% is modest; only 1-2 weak confirming signals present",
+        "Yield spread -1% bearish on mETH not prominently weighted in reasoning"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "A holding stance is highly justified given the ranging regime, mixed technical indicators between ETH and MNT, and the lack of established grid channels to exploit.",
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 0.8,
+        "amountUsd": 0.8,
+        "tier": "HEARTBEAT_SWAP",
+        "rationale": "Heartbeat micro-swap to maintain on-chain liveness during a passive window. NOT alpha-seeking. Quiet cycles: 6. Direction: risk-on. Cap: $0.80.",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0x66f65279c2c1e89b9ab2d8974d114827fb91eae6dedafce5023f1d7a716f53b2",
+            "blockNumber": 95965429,
+            "amountIn": 0.8,
+            "amountOut": 0.800079
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0x501999441051a28316093fafcb226d11902483930896f441dcf1e6d7b1d21c71",
+            "blockNumber": 95965434,
+            "amountIn": 0.800934264,
+            "amountOut": 1.2515876964296373
+          }
+        ],
+        "txHash": "0x501999441051a28316093fafcb226d11902483930896f441dcf1e6d7b1d21c71"
+      },
+      "executedOnChain": true,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
