@@ -245,7 +245,20 @@ export async function GET() {
           onchain = null;
         }
         const targetAsset = args[2] as string;
-        const outcomeRow = outcomesIndex.get(id);
+        // ValidationRegistry.totalProposals drifted +1 ahead of
+        // DecisionLog.totalDecisions historically (one early cycle
+        // wrote a proposal but not a DecisionLog entry). The
+        // outcomes ledger is keyed by `decisionId` from the
+        // ValidationRegistry side (i.e. proposalId = manifest
+        // cycle id). On-chain events here are keyed by
+        // DecisionLog row index = proposalId - 1. Probe both
+        // candidates: prefer the +1 match (which corresponds to
+        // the same cycle) and fall back to exact id for legacy
+        // rows that pre-date the drift.
+        // Audit ref: .kiro/audits/19, /api/replay/[id]/route.ts
+        // uses the same offset-tolerant lookup.
+        const outcomeRow =
+          outcomesIndex.get(id + 1) || outcomesIndex.get(id);
         const rwaIntent = outcomeRow?.rwaIntent ?? null;
         return {
           id,
