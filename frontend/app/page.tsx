@@ -461,7 +461,10 @@ export default function Home() {
                     Reads cron mode + lastCycleAge and renders LIVE / IDLE
                     / STALE / OFFLINE so we never assert "running" on a
                     screen where the cron actually skipped a slot. */}
-                <LiveStatusBadge variant="compact" />
+                <LiveStatusBadge
+                  variant="compact"
+                  initialHealth={health}
+                />
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-3">
                 <span className="bg-gradient-to-r from-purple-400 to-green-400 bg-clip-text text-transparent">
