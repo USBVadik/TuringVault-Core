@@ -1,23 +1,58 @@
 {
-  "cycleStartedAt": "2026-05-29T06:30:51.604Z",
-  "cycleEndedAt": "2026-05-29T06:32:50.675Z",
-  "durationSeconds": 119.07,
+  "cycleStartedAt": "2026-05-29T08:51:52.069Z",
+  "cycleEndedAt": "2026-05-29T08:53:13.434Z",
+  "durationSeconds": 81.36,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 2619,
-    "validatorMs": 6701,
-    "arbiterMs": 1752,
+    "analystMs": 3111,
+    "validatorMs": 8210,
+    "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 139,
-  "decisionTier": "BLOCKED_BY_REGIME",
-  "consensus": false,
-  "txHashes": [],
+  "decisionId": 140,
+  "decisionTier": "EXECUTED_SWAP",
+  "consensus": true,
+  "txHashes": [
+    "0xa7cd06c0d8e7a5daf305eeb2fa5384dfe17cb15952ba60650dc09c3ecd1f2b55",
+    "0x8489ff40ad697425bf3bc6ad5153f64e3b48a3279d8ab2371ef23aa6f0b6112a"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26622018735",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26627866504",
   "errors": [],
-  "executionStatus": "BLOCKED_BY_REGIME"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-off",
+    "from": "WMNT",
+    "to": "USDT0",
+    "amountIn": 0.525,
+    "amountOut": 1.655145,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "WMNT",
+        "to": "USDT",
+        "txHash": "0xa7cd06c0d8e7a5daf305eeb2fa5384dfe17cb15952ba60650dc09c3ecd1f2b55",
+        "blockNumber": 95957230,
+        "amountIn": 0.525,
+        "amountOut": 0.335123,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "USDT0",
+        "txHash": "0x8489ff40ad697425bf3bc6ad5153f64e3b48a3279d8ab2371ef23aa6f0b6112a",
+        "blockNumber": 95957234,
+        "amountIn": 1.6556427,
+        "amountOut": 1.655145,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }

@@ -162,6 +162,108 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780044785568_140",
+      "decisionId": 140,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2005.62,
+      "ipfsCid": "QmNk3hV3zyvEpArBfJ7q2dabtBGFvFn16o33VEemrJ4XQa",
+      "recordedAt": "2026-05-29T08:53:05.568Z",
+      "settleAfter": "2026-05-29T09:53:05.568Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 95957234"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780044785566
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies PRIMARY EDGE on MNT grid: SELL_mETH at 100% channel position, resistance $0.64, 80% confidence, R:R 2.5:1 (exceeds 1.5 threshold). Regime is RANGING — swap to mUSD (defensive/risk-off) is NOT a directional speculative swap, it is capital preservation, which is valid in RANGING with bearish consensus. F&G=23 supports de-risking. ETH grid BUY_mETH correctly deprioritized",
+      "validatorFlaggedIssues": [
+        "MNT RSI at 71 — overbought but momentum could persist briefly",
+        "Low vol (0.27%) may slow mean-reversion, reducing urgency",
+        "Funding rate mild long (0.532%) — not extreme contrarian signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 0.525,
+        "amountOut": 1.655145,
+        "txHash": "0x8489ff40ad697425bf3bc6ad5153f64e3b48a3279d8ab2371ef23aa6f0b6112a",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0xa7cd06c0d8e7a5daf305eeb2fa5384dfe17cb15952ba60650dc09c3ecd1f2b55",
+            "blockNumber": 95957230,
+            "amountIn": 0.525,
+            "amountOut": 0.335123
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0x8489ff40ad697425bf3bc6ad5153f64e3b48a3279d8ab2371ef23aa6f0b6112a",
+            "blockNumber": 95957234,
+            "amountIn": 1.6556427,
+            "amountOut": 1.655145
+          }
+        ]
+      },
+      "executedOnChain": true,
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
