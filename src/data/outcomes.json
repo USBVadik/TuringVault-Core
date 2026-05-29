@@ -107,6 +107,60 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780034908976_137",
+      "decisionId": 137,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2010.66,
+      "ipfsCid": "QmXHE89BR4JsNnjZA51CTVXga1nx8tB1jFCFNfFoJQjQGm",
+      "recordedAt": "2026-05-29T06:08:28.976Z",
+      "settleAfter": "2026-05-29T07:08:28.976Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780034908975
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal with 0% allocation change is low-risk by nature. Analyst correctly identifies regime as undefined (35% confidence), bearish signal consensus, flat smart money flows, and negative yield spread (-1%). Technical conflict between EMA_CROSS=SELL and MACD=BUY is acknowledged. Fear & Greed at 23 noted as insufficient alone to act. No capital deployment proposed, so R:R gate and directional ",
+      "validatorFlaggedIssues": [
+        "Analyst confidence at 58% seems elevated given only 35% regime confidence and bearish consensus",
+        "Yield spread signal listed as 'undefined' in raw data but analyst interprets as -1% bearish — minor inconsistency",
+        "Funding rate annualization (0.734% periodic to ~8.8% annual) methodology unverified but directionally plausible"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Maintaining the current 'hold' stance is the most prudent decision given the conflicting technical indicators, low regime confidence, and lack of clear directional momentum in the market.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
