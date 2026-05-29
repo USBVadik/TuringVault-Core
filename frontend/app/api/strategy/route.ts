@@ -3,7 +3,10 @@ import { createPublicClient, http } from "viem";
 import { mantle } from "viem/chains";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Audit Section 3 weakness #3 — was 0. The route already had a 30s
+// in-memory cache, but with revalidate=0 every cold-start hit the
+// lambda fresh. Now the edge caches for 30s too; in-memory stays.
+export const revalidate = 30;
 
 // ── In-memory cache (30s TTL) ──────────────────────────────────
 let cachedStrategy: { body: any; ts: number } | null = null;

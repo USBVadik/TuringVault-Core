@@ -20,7 +20,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Audit Section 3 weakness #3 — was 0. The route reads from
+// outcomes.json + discipline-history.json (small files via GitHub
+// raw on Vercel). Adding 30s ISR + s-maxage cache cuts cold-start
+// pressure when GitHub raw is slow (502s during stampede).
+export const revalidate = 30;
 
 type Check = { name: string; status: string; detail?: string };
 type HistoryEntry = {
@@ -58,7 +62,15 @@ type Summary = {
   latestCycleAt: string | null;
 };
 
-const NO_STORE: HeadersInit = { "Cache-Control": "no-store, max-age=0" };
+/**
+ * SWR cache headers — same pattern as /api/health, /api/decisions,
+ * /api/market. Use SWR for the happy path so a transient GitHub raw
+ * 502 doesn't break the dashboard.
+ */
+const SWR_CACHE: HeadersInit = {
+  "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300",
+  "X-Cache-Mode": "swr",
+};
 const KNOWN_GATES = ["tx_proof", "price_freshness", "drift_detection"] as const;
 
 function backendPath(...segments: string[]): string {
@@ -191,6 +203,6 @@ export async function GET() {
       gatesKnown: KNOWN_GATES,
       dataScope: "agent-lifetime",
     },
-    { headers: NO_STORE }
+    { headers: SWR_CACHE }
   );
 }

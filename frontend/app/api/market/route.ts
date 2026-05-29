@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+// Audit Section 3 weakness #3: was force-dynamic, every request hits
+// CoinGecko + alternative.me + DeFiLlama. With the SWR headers below
+// the edge keeps the last good response for 60s and serves it stale
+// up to 10min while it re-fetches.
+export const revalidate = 60;
 export const dynamic = "force-dynamic";
 
 const ENDPOINTS = {
@@ -10,18 +15,38 @@ const ENDPOINTS = {
   DEFILLAMA_YIELDS: "https://yields.llama.fi/pools",
 };
 
+const FETCH_TIMEOUT_MS = 5000;
+
+// Module-scoped snapshot of the last fully-successful market payload.
+// Survives across warm-function invocations on Vercel and lets us
+// gracefully degrade when CoinGecko / DeFiLlama 502s. Steering rule
+// §1: every snapshot reuse is labelled with X-Cache-Mode so callers
+// know they got cached vs fresh.
+let lastOkMarket: Record<string, unknown> | null = null;
+
+async function fetchJson<T = unknown>(url: string): Promise<T | null> {
+  try {
+    const r = await fetch(url, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    if (!r.ok) return null;
+    return (await r.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET() {
   try {
     const [priceRes, fgRes, tvlRes] = await Promise.all([
-      fetch(ENDPOINTS.COINGECKO_ETH)
-        .then((r) => r.json())
-        .catch(() => null),
-      fetch(ENDPOINTS.FEAR_GREED)
-        .then((r) => r.json())
-        .catch(() => null),
-      fetch(ENDPOINTS.DEFILLAMA_TVL)
-        .then((r) => r.json())
-        .catch(() => null),
+      fetchJson<{
+        ethereum?: { usd?: number; usd_24h_change?: number };
+        mantle?: { usd?: number };
+      }>(ENDPOINTS.COINGECKO_ETH),
+      fetchJson<{ data?: Array<{ value: string }> }>(ENDPOINTS.FEAR_GREED),
+      fetchJson<Array<{ name?: string; tvl?: number; change_1d?: number }>>(
+        ENDPOINTS.DEFILLAMA_TVL
+      ),
     ]);
 
     const ethPrice = priceRes?.ethereum?.usd || 0;
@@ -36,11 +61,30 @@ export async function GET() {
     else if (fgValue <= 80) sentiment = "bullish";
     else sentiment = "extreme_greed";
 
-    const mantle = tvlRes?.find((c: any) => c.name === "Mantle");
+    const mantle = Array.isArray(tvlRes)
+      ? tvlRes.find((c) => c.name === "Mantle")
+      : undefined;
     const mantleTVL = mantle?.tvl || 0;
     const mantleTVLChange1d = mantle?.change_1d || 0;
 
-    return NextResponse.json({
+    // Honesty: if every upstream returned null, don't fake fresh data.
+    // Serve the snapshot if we have one; otherwise return zeros with
+    // an explicit `degraded` flag so the UI can render "stale" copy.
+    const allUpstreamFailed = !priceRes && !fgRes && !tvlRes;
+    if (allUpstreamFailed && lastOkMarket) {
+      return NextResponse.json(
+        { ...lastOkMarket, degraded: true, source: "snapshot" },
+        {
+          headers: {
+            "Cache-Control":
+              "public, s-maxage=60, stale-while-revalidate=600",
+            "X-Cache-Mode": "swr-stale-snapshot",
+          },
+        }
+      );
+    }
+
+    const body = {
       ethPrice,
       ethChange24h,
       mantlePrice,
@@ -53,10 +97,42 @@ export async function GET() {
       mantleTVL,
       mantleTVLChange1d,
       timestamp: Date.now(),
-    }, {
-      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
+    };
+
+    // Update snapshot only if at least the price upstream succeeded
+    // — partial responses with all-zero prices would poison the
+    // fallback otherwise.
+    if (priceRes && ethPrice > 0) {
+      lastOkMarket = body;
+    }
+
+    return NextResponse.json(body, {
+      headers: {
+        "Cache-Control":
+          "public, s-maxage=60, stale-while-revalidate=600",
+        "X-Cache-Mode": "swr",
+      },
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "unknown error";
+    // Last-resort fallback to snapshot if available.
+    if (lastOkMarket) {
+      return NextResponse.json(
+        {
+          ...lastOkMarket,
+          degraded: true,
+          source: "snapshot",
+          error: message.slice(0, 120),
+        },
+        {
+          headers: {
+            "Cache-Control":
+              "public, s-maxage=60, stale-while-revalidate=600",
+            "X-Cache-Mode": "swr-stale-snapshot",
+          },
+        }
+      );
+    }
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -26,9 +26,19 @@ import { createPublicClient, http } from "viem";
 import { mantle } from "viem/chains";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Audit Section 3 weakness #3 — was 0. Performance reads live RPC
+// for wallet balances + CoinGecko for prices. With s-maxage=30 below,
+// the edge serves the last good payload during transient 502s.
+export const revalidate = 30;
 
-const NO_STORE: HeadersInit = { "Cache-Control": "no-store, max-age=0" };
+/**
+ * SWR cache headers — same pattern as /api/health, /api/decisions etc.
+ * Reduces RPC + CoinGecko 502 stress on the user-facing surface.
+ */
+const SWR_CACHE: HeadersInit = {
+  "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300",
+  "X-Cache-Mode": "swr",
+};
 
 const WALLET = "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a";
 
@@ -335,5 +345,5 @@ export async function GET(): Promise<NextResponse> {
       : { error: "outcomes.json unreachable in this deployment" }),
   };
 
-  return NextResponse.json(body, { headers: NO_STORE });
+  return NextResponse.json(body, { headers: SWR_CACHE });
 }

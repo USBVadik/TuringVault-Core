@@ -3,7 +3,10 @@ import { createPublicClient, http, parseAbi } from "viem";
 import { mantle } from "viem/chains";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Audit Section 3 weakness #3 — was 0. Reputation reads ReputationRegistry
+// + falls back to ValidationRegistry. Both are RPC reads that 502 under
+// load. SWR header below caches the last good payload.
+export const revalidate = 30;
 
 const REPUTATION = "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a" as const;
 const VALIDATION_REGISTRY =
@@ -40,16 +43,26 @@ export async function GET() {
     // Fixed: use on-chain winRate directly (it's already 0–100 range from contract).
     const normalizedScore = Math.min(100, Math.max(0, Math.round(onChainWinRate)));
 
-    return NextResponse.json({
-      cumulativeScore: Number(rep[0]),
-      totalFeedback: Number(rep[1]),
-      positiveCount: Number(rep[2]),
-      negativeCount: Number(rep[3]),
-      winRate: onChainWinRate.toFixed(1),
-      normalizedScore,
-      source: "reputation_registry",
-      winRateDenominator: "on-chain: positiveCount / totalFeedback (ReputationRegistry)",
-    });
+    return NextResponse.json(
+      {
+        cumulativeScore: Number(rep[0]),
+        totalFeedback: Number(rep[1]),
+        positiveCount: Number(rep[2]),
+        negativeCount: Number(rep[3]),
+        winRate: onChainWinRate.toFixed(1),
+        normalizedScore,
+        source: "reputation_registry",
+        winRateDenominator:
+          "on-chain: positiveCount / totalFeedback (ReputationRegistry)",
+      },
+      {
+        headers: {
+          "Cache-Control":
+            "public, s-maxage=30, stale-while-revalidate=300",
+          "X-Cache-Mode": "swr",
+        },
+      }
+    );
   } catch {
     // Fallback: derive from ValidationRegistry on-chain data
     try {
@@ -81,16 +94,26 @@ export async function GET() {
         ? Math.min(100, Math.max(0, Math.round((approved / total) * 100)))
         : 0;
 
-      return NextResponse.json({
-        cumulativeScore: approved * 100 - rejected * 50, // weighted scoring
-        totalFeedback: total,
-        positiveCount: approved,
-        negativeCount: rejected,
-        winRate: approvalRate,
-        normalizedScore,
-        source: "validation_registry_fallback",
-        winRateDenominator: "fallback: totalApproved / totalProposals (ValidationRegistry)",
-      });
+      return NextResponse.json(
+        {
+          cumulativeScore: approved * 100 - rejected * 50, // weighted scoring
+          totalFeedback: total,
+          positiveCount: approved,
+          negativeCount: rejected,
+          winRate: approvalRate,
+          normalizedScore,
+          source: "validation_registry_fallback",
+          winRateDenominator:
+            "fallback: totalApproved / totalProposals (ValidationRegistry)",
+        },
+        {
+          headers: {
+            "Cache-Control":
+              "public, s-maxage=30, stale-while-revalidate=300",
+            "X-Cache-Mode": "swr-fallback",
+          },
+        }
+      );
     } catch (e: any) {
       return NextResponse.json({ error: e.message }, { status: 500 });
     }

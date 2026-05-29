@@ -345,7 +345,7 @@ export function ProofExplorerClient({
           </div>
 
           {/* Proof link */}
-          <div className="mt-6 flex items-center gap-4 animate-[fadeIn_0.6s_ease-out_1.8s_both]">
+          <div className="mt-6 flex items-center gap-4 animate-[fadeIn_0.6s_ease-out_1.8s_both] flex-wrap">
             <a
               href={`https://mantlescan.xyz/tx/${featuredCase.txHash}`}
               target="_blank"
@@ -362,6 +362,17 @@ export function ProofExplorerClient({
                 <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
               Verify on Mantlescan
+            </a>
+            {/* Audit Section 3 weakness #3 — give the judge a Mantle
+                official explorer fallback in case Mantlescan is 502'ing. */}
+            <a
+              href={`https://explorer.mantle.xyz/tx/${featuredCase.txHash}`}
+              target="_blank"
+              rel="noopener"
+              className="text-[10px] font-mono text-white/30 hover:text-white/70 underline decoration-dotted"
+              title="explorer.mantle.xyz — official Mantle explorer (use as fallback when Mantlescan returns 502)"
+            >
+              alt: explorer.mantle.xyz
             </a>
             <span className="text-[10px] font-mono text-white/15">
               Proposal #12 · ValidationRegistry 0x6841...63b6
