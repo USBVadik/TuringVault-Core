@@ -128,7 +128,7 @@ const AnalystSchema = z.object({
   // - rwa_exit      : exit Treasury-backed allocation (USDT0 → USDT)
   action: z.enum(["swap", "hold", "rwa_allocate", "rwa_exit"]),
   direction: z.enum(["risk_on", "risk_off", "neutral"]),
-  targetAsset: z.enum(["mUSD", "mETH", "USDT", "USDT0"]),
+  targetAsset: z.enum(["mUSD", "mETH", "USDT", "USDT0", "MNT", "WMNT"]),
   allocationPct: z.number().min(0).max(100),
   confidence: z.number().min(0).max(1),
   reasoning: z.string().max(1000),
@@ -174,12 +174,18 @@ REGIME-BASED LOGIC:
 - TREND_UP: Aggressive risk-on → swap to mETH (30-50% allocation)
 - CONTRARIAN_LONG: Crowded shorts + negative funding → contrarian long mETH (20-40%)
 - TREND_DOWN: Risk-off → swap to mUSD (20-40%)
-- RANGING: Use RANGING GRID STRATEGY data from signals. Act on grid signal:
-    * If grid signal = BUY_mETH → propose swap to mETH (confidence from grid)
-    * If grid signal = SELL_mETH → propose swap to mUSD (take profit / pre-sell at resistance)
+- RANGING: Use RANGING GRID STRATEGY data from signals. Two grids run
+  in parallel — one over ETH (target=mETH), one over MNT (target=MNT/WMNT).
+  The signals block names them 'ETH GRID:' and 'MNT GRID:' with a
+  PRIMARY EDGE marker on whichever has the strongest setup.
+  Act on whichever signal is actionable:
+    * If ETH grid signal = BUY_mETH → propose swap to mETH (3-leg path)
+    * If MNT grid signal = BUY_mETH → propose swap to MNT (target=MNT)
+    * If ETH grid signal = SELL_mETH → propose swap to mUSD (take profit)
+    * If MNT grid signal = SELL_mETH → propose swap to mUSD (take profit)
     * If grid signal = EXIT_RANGING → do NOT use grid logic, switch to trend regime
-    * If grid signal = HOLD → wait, price in middle of channel
-    * RANGING is NOT a reason to do nothing — it is the highest-frequency strategy
+    * If both grids = HOLD → wait, neither price near edge
+    * RANGING is NOT a reason to do nothing — pick the asset with the edge
 - CRISIS: Defensive → mUSD unless funding is extreme negative (short squeeze setup)
 
 FUNDING RATE LOGIC (most reliable signal):
@@ -237,7 +243,7 @@ Output STRICT JSON:
 {
   "action": "swap" | "hold",
   "direction": "risk_on" | "risk_off" | "neutral",
-  "targetAsset": "mETH" | "mUSD",
+  "targetAsset": "mETH" | "mUSD" | "MNT" | "WMNT",
   "allocationPct": 0-100,
   "confidence": 0.0-1.0,
   "reasoning": "2-3 sentence explanation referencing specific signals (regime, funding, flows)",
@@ -353,6 +359,8 @@ function normalizeAnalystResponse(raw) {
       .replace(/[^a-z0-9]/g, "");
     if (t.includes("meth")) r.targetAsset = "mETH";
     else if (t === "eth") r.targetAsset = "mETH";
+    else if (t === "wmnt") r.targetAsset = "WMNT";
+    else if (t === "mnt") r.targetAsset = "MNT";
     else if (t === "usdt0" || t.includes("usdt0")) r.targetAsset = "USDT0";
     else if (t === "usdt") r.targetAsset = "USDT";
     else if (t.includes("musd")) r.targetAsset = "mUSD";
@@ -591,7 +599,7 @@ const FORMAT_GUARD_SUFFIX = `
 You MUST respond with EXACTLY one minified JSON object. No markdown fences.
 No prose before or after. No "Here is my analysis…" preambles.
 Required keys (no extras): action ("swap" | "hold"), direction ("risk_on" | "risk_off" | "neutral"),
-targetAsset ("mUSD" | "mETH"), allocationPct (number 0..100), confidence (number 0..1),
+targetAsset ("mUSD" | "mETH" | "MNT" | "WMNT"), allocationPct (number 0..100), confidence (number 0..1),
 reasoning (string ≤ 1000 chars), riskFactors (string[]).
 The schema is non-negotiable. Output failures are discarded by the parser
 and the agent loses an audit entry on Mantle.`;

@@ -68,14 +68,22 @@ async function getLiveEthPrice() {
 }
 
 /**
- * Fetch hourly OHLC candles for MNT from CoinGecko (free, no key needed)
- * Returns last N hours of price data
+ * Fetch hourly OHLC candles from CoinGecko for an arbitrary asset.
+ *
+ * @param {object|number} optsOrHours
+ *   number → legacy form: hours, asset defaults to 'mantle' for backward
+ *            compat with the previous `fetchEthCandles(48)` call site.
+ *   object → { hours, asset } — explicit form. asset is the CoinGecko id
+ *            ('mantle' or 'ethereum').
  */
-async function fetchEthCandles(hours = 48) {
-  return cached(`mnt_candles_${hours}`, async () => {
-    // CoinGecko market_chart for Mantle (MNT)
+async function fetchPriceCandles(optsOrHours = 48) {
+  const opts =
+    typeof optsOrHours === "number" ? { hours: optsOrHours } : optsOrHours;
+  const hours = opts.hours ?? 48;
+  const asset = opts.asset || "mantle";
+  return cached(`${asset}_candles_${hours}`, async () => {
     const days = Math.ceil(hours / 24);
-    const url = `https://api.coingecko.com/api/v3/coins/mantle/market_chart?vs_currency=usd&days=${days}&interval=hourly`;
+    const url = `https://api.coingecko.com/api/v3/coins/${asset}/market_chart?vs_currency=usd&days=${days}&interval=hourly`;
     const data = await fetchJson(url, 10000);
     if (!data?.prices) throw new Error("No price data");
 
@@ -91,6 +99,12 @@ async function fetchEthCandles(hours = 48) {
   });
 }
 
+// Back-compat alias. Old call sites still work; the function did MNT
+// despite the misleading name (commit history bears scars), so the
+// alias preserves that behaviour exactly.
+const fetchEthCandles = (hours = 48) =>
+  fetchPriceCandles({ hours, asset: "mantle" });
+
 /**
  * Detect price channel (support/resistance) from recent candles
  * Uses rolling percentile approach — robust to wicks/noise
@@ -99,10 +113,25 @@ async function fetchEthCandles(hours = 48) {
  * @param {number} channelPct - what % move defines the channel width (default 5%)
  * @returns {object} channel data
  */
-async function detectChannel(hours = 48, channelPct = 0.05) {
-  const candles = await fetchEthCandles(hours);
+async function detectChannel(opts = {}, channelPctArg) {
+  // Back-compat: detectChannel(48, 0.05) used to be the call shape.
+  // If first arg is a number, fall back to legacy form.
+  let hours;
+  let asset;
+  let channelPct;
+  if (typeof opts === "number") {
+    hours = opts;
+    channelPct = channelPctArg ?? 0.05;
+    asset = "mantle";
+  } else {
+    hours = opts.hours ?? 48;
+    asset = opts.asset || "mantle";
+    channelPct = opts.channelPct ?? 0.05;
+  }
+
+  const candles = await fetchPriceCandles({ hours, asset });
   if (!candles || candles.length < 10) {
-    return { valid: false, reason: "Insufficient price history" };
+    return { valid: false, reason: "Insufficient price history", asset };
   }
 
   const prices = candles.map((c) => c.price);
@@ -148,6 +177,7 @@ async function detectChannel(hours = 48, channelPct = 0.05) {
 
   return {
     valid: isRanging,
+    asset,
     tooNarrow,
     currentPrice,
     support: Math.round(support * 100) / 100,
@@ -201,9 +231,18 @@ function computeGridLevels(support, resistance, n = 5) {
  *   R:R = 2.3:1 ← profitable at >30% win rate
  *
  * @param {number} [currentPrice] - override price (optional, fetches if not provided)
+ * @param {object} [opts] - { asset } — 'mantle' (default for back-compat) or 'ethereum'
  */
-async function getGridSignal(currentPrice) {
-  const channel = await detectChannel(48);
+async function getGridSignal(currentPrice, opts = {}) {
+  const asset = opts.asset || "mantle";
+  const result = await _getGridSignalImpl(currentPrice, asset);
+  // Stamp asset on every return shape uniformly so callers don't have
+  // to remember to inject it across N branches inside the impl.
+  return { ...result, asset };
+}
+
+async function _getGridSignalImpl(currentPrice, asset) {
+  const channel = await detectChannel({ hours: 48, asset });
 
   if (!channel.valid) {
     return {
@@ -452,48 +491,107 @@ function linearSlope(arr) {
 }
 
 /**
- * Build a human-readable summary for the ANALYST prompt
+ * Get grid signals for both MNT and ETH in parallel.
+ * Picks the strongest edge (BUY/SELL beats HOLD; tighter zone wins).
+ *
+ * Returns { mantle, ethereum, primary } where primary is the asset
+ * whose signal the analyst should preferentially act on.
+ */
+async function getMultiAssetGridSignal() {
+  const [mnt, eth] = await Promise.allSettled([
+    getGridSignal(undefined, { asset: "mantle" }),
+    getGridSignal(undefined, { asset: "ethereum" }),
+  ]);
+
+  const mantle = mnt.status === "fulfilled" ? mnt.value : null;
+  const ethereum = eth.status === "fulfilled" ? eth.value : null;
+
+  // Strength score: actionable signals beat HOLD; narrower zone is better.
+  // Penalise EXIT_RANGING since that's a "switch regimes" flag, not an edge.
+  function strength(sig) {
+    if (!sig) return -1;
+    if (sig.action === "EXIT_RANGING") return -0.5;
+    if (sig.action === "BUY_mETH" || sig.action === "SELL_mETH") {
+      // closer to edge = better. position 0 (at support) or 1 (at resistance)
+      // is best; 0.3/0.7 is borderline.
+      const pos = sig.channel?.channelPosition ?? 0.5;
+      const edgeDistance = Math.min(pos, 1 - pos);
+      return 1 - edgeDistance; // 1.0 at edge, 0.5 at midpoint
+    }
+    return 0; // HOLD or other
+  }
+
+  const mntStrength = strength(mantle);
+  const ethStrength = strength(ethereum);
+  const primary =
+    ethStrength > mntStrength ? "ethereum" : "mantle";
+
+  return { mantle, ethereum, primary };
+}
+
+/**
+ * Build a human-readable summary for the ANALYST prompt.
+ * Now produces TWO grid views (MNT and ETH) so the analyst can pick
+ * the asset with a stronger edge. Both pools exist on Mantle and the
+ * orchestrator routes appropriately:
+ *   target=mETH → USDT0→USDT→WMNT→mETH (buys ETH-pegged exposure)
+ *   target=MNT  → USDT0→USDT→WMNT       (buys MNT exposure)
  */
 async function buildRangingContext() {
   try {
-    const signal = await getGridSignal();
-    const ch = signal.channel;
+    const multi = await getMultiAssetGridSignal();
+    const blocks = [];
 
-    if (!ch) {
-      return `RANGING GRID: Channel not established. Insufficient data for mean-reversion strategy.`;
+    function renderOne(label, sig) {
+      if (!sig) return null;
+      const ch = sig.channel;
+      if (!ch) {
+        return `${label} GRID: Channel not established (${sig.reason || "insufficient data"})`;
+      }
+      return [
+        `${label} GRID:`,
+        `  Channel: $${ch.support} (support) → $${ch.resistance} (resistance) | Width: ${ch.channelWidthPct}%`,
+        `  Current price: $${ch.currentPrice} | Position in channel: ${(
+          ch.channelPosition * 100
+        ).toFixed(0)}%`,
+        `  Channel integrity: ${
+          ch.isRanging ? "INTACT" : "QUESTIONABLE"
+        } | Trend forming: ${ch.hasTrend} | Vol expanding: ${
+          ch.volatilityExpanding
+        }`,
+        `  Grid signal: ${sig.action} | Confidence: ${(
+          sig.confidence * 100
+        ).toFixed(0)}%`,
+        `  Reasoning: ${sig.reason}`,
+        sig.targetExit ? `  Take profit target: $${sig.targetExit}` : "",
+        sig.stopLoss ? `  Stop loss: $${sig.stopLoss}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
     }
 
-    return [
-      `RANGING GRID STRATEGY:`,
-      `  Channel: $${ch.support} (support) → $${ch.resistance} (resistance) | Width: ${ch.channelWidthPct}%`,
-      `  Current price: $${ch.currentPrice} | Position in channel: ${(
-        ch.channelPosition * 100
-      ).toFixed(0)}%`,
-      `  Channel integrity: ${
-        ch.isRanging ? "INTACT" : "QUESTIONABLE"
-      } | Trend forming: ${ch.hasTrend} | Vol expanding: ${
-        ch.volatilityExpanding
-      }`,
-      `  Grid signal: ${signal.action} | Confidence: ${(
-        signal.confidence * 100
-      ).toFixed(0)}%`,
-      `  Reasoning: ${signal.reason}`,
-      signal.targetExit ? `  Take profit target: $${signal.targetExit}` : "",
-      signal.stopLoss ? `  Stop loss: $${signal.stopLoss}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const ethBlock = renderOne("ETH (target=mETH)", multi.ethereum);
+    const mntBlock = renderOne("MNT (target=MNT/WMNT)", multi.mantle);
+    if (ethBlock) blocks.push(ethBlock);
+    if (mntBlock) blocks.push(mntBlock);
+    blocks.push(
+      `PRIMARY EDGE: ${multi.primary.toUpperCase()} — analyst should preferentially act on this asset's grid signal when proposing a swap.`
+    );
+
+    return blocks.join("\n\n");
   } catch (e) {
-    return `RANGING GRID: Error computing channel — ${e.message}`;
+    return `RANGING GRID: Error computing channels — ${e.message}`;
   }
 }
 
 module.exports = {
   detectChannel,
   getGridSignal,
+  getMultiAssetGridSignal,
   shouldExitPosition,
   buildRangingContext,
   fetchEthCandles,
+  fetchPriceCandles,
   computeGridLevels,
 };
 

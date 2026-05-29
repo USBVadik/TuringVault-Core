@@ -34,6 +34,7 @@ const { getSocialSignal: getElfaSignal } = require("../data/elfa");
 const {
   buildRangingContext,
   getGridSignal,
+  getMultiAssetGridSignal,
 } = require("../strategies/rangingGrid");
 const {
   applyPositionAwareness,
@@ -498,7 +499,19 @@ async function getStructuredSignals(marketCtx = {}) {
   let rangingContext = "";
   if (regime.regime === "RANGING") {
     try {
-      const rawGridSignal = await getGridSignal(currentPrice || undefined);
+      // Compute BOTH MNT and ETH grid channels in parallel.
+      // The analyst gets to see both and act on whichever has the
+      // stronger edge. orchestrator routes the swap correspondingly:
+      //   target=mETH → 3-leg path through mETH/WMNT pool
+      //   target=MNT  → 2-leg path ending at WMNT
+      const multi = await getMultiAssetGridSignal();
+
+      // Pick the asset with the stronger edge as the "primary" signal
+      // for downstream (position state, log line, prompt).
+      const primarySignal =
+        multi.primary === "ethereum" ? multi.ethereum : multi.mantle;
+
+      const rawGridSignal = primarySignal || (await getGridSignal());
       // Apply position awareness — prevents double-buying, handles TP/SL
       const gridSignal = applyPositionAwareness(
         rawGridSignal,
@@ -509,7 +522,12 @@ async function getStructuredSignals(marketCtx = {}) {
       // Update high water mark for trailing stop
       if (currentPrice) updateHWM(currentPrice);
       const ctx = await buildRangingContext();
-      rangingData = gridSignal;
+      rangingData = {
+        ...gridSignal,
+        // Multi-asset view so callers (and outcomes ledger) can see
+        // both channels.
+        multiAsset: multi,
+      };
       rangingContext = ctx;
       // Annotate context with position state
       if (gridSignal.positionState?.status !== "FLAT") {
