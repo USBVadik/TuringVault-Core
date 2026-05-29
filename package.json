@@ -8,9 +8,11 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "npx hardhat test && jest",
+    "test": "npx hardhat test && jest && npm run test:foundry",
     "test:contracts": "npx hardhat test",
     "test:unit": "jest",
+    "test:foundry": "forge test",
+    "test:foundry:fuzz": "FOUNDRY_PROFILE=default forge test -vv --gas-report",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "check:sourcify": "bash scripts/check-sourcify.sh",

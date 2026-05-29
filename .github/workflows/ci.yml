@@ -32,6 +32,22 @@ jobs:
         env:
           REPORT_GAS: "false"
 
+      - name: Setup Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Install forge-std
+        run: forge install foundry-rs/forge-std --no-commit
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Foundry property + fuzz tests
+        run: forge test
+        env:
+          # FOUNDRY_FUZZ_RUNS overrides the toml; keep CI runs reasonable.
+          FOUNDRY_FUZZ_RUNS: "256"
+
   backend:
     name: Backend Tests & Lint
     runs-on: ubuntu-latest
