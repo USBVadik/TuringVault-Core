@@ -116,6 +116,14 @@ jobs:
             [ -f "$f" ] && git add "$f"
           done
 
+          # Reproducible AI replay manifests — one per cycle. These are
+          # committed every cycle so the public git history carries the
+          # full prompt+response trail for every decision (see
+          # .kiro/audits/16-reproducible-ai-capture.md).
+          if compgen -G ".kiro/audits/raw/replay-manifests/cycle-*.json" > /dev/null; then
+            git add .kiro/audits/raw/replay-manifests/cycle-*.json
+          fi
+
           git status --short
 
           if git diff --cached --quiet; then
