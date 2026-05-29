@@ -679,6 +679,63 @@
       "decisionLogTxHash": "0x45b299c249b9cbe977b42521678300e7f4a6d473d028846bc3c3524934e1720a",
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780069992980_148",
+      "decisionId": 148,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2028.99,
+      "ipfsCid": "QmXaT5RjYAz6p994MXg3PrVWD7r718XKNuwsSGaAcAeDj6",
+      "recordedAt": "2026-05-29T15:53:12.980Z",
+      "settleAfter": "2026-05-29T16:53:12.980Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780069992978
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on mETH is appropriate given RANGING regime (55% confidence) with ETH grid at 68% of channel — neither near support ($1983.2) nor resistance ($2051.2). No directional swap proposed, so RANGING restriction does not trigger. Analyst correctly identifies no actionable edge: funding 0.596% neutral, smart money flow $0.0M neutral, F&G=23 contrarian signal but no entry trigger confirmed. Yield spre",
+      "validatorFlaggedIssues": [
+        "Analyst confidence 58% is modest — only 2 weak confirming signals (grid HOLD + neutral funding)",
+        "MNT volatility expansion could spill over to ETH — monitor channel integrity closely",
+        "Bollinger at 122% band position signals potential mean reversion downward"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Both the Analyst and Validator agree that holding mETH is the optimal strategy given that ETH is trading in the middle of its ranging channel without any actionable directional triggers.",
+      "directionalSwap": null,
+      "manifestHash": "0x5587db4af060db01f5e683b9f3d7a8d90b0b0ee280fe18ea4d7dd6314ff2db7e",
+      "combinedAnchor": "0xf29c37ea8ef349c360ffa469147ecda35080aa068e71ee506af923f9d3743f5e",
+      "decisionLogTxHash": "0x10e917d20d172d8a769227d70b3419f5df9ac19dc8e15f9055c5c2d98a461753",
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
