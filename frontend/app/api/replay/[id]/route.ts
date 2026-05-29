@@ -94,7 +94,8 @@ async function readManifest(cycleId: number): Promise<Manifest | null> {
 }
 
 async function readOnChainAnchor(
-  decisionId: number
+  decisionId: number,
+  expectedAnchor?: string
 ): Promise<{
   txHash: string;
   reasoning: string;
@@ -102,6 +103,7 @@ async function readOnChainAnchor(
   targetAsset: string;
   confidence: number;
   timestamp: number;
+  resolvedDecisionLogIndex: number;
 } | null> {
   try {
     const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -110,17 +112,59 @@ async function readOnChainAnchor(
       DECISION_LOG_ABI,
       provider
     );
-    const total = await dl.totalDecisions();
-    if (decisionId >= Number(total)) return null;
-    const d = await dl.getDecision(BigInt(decisionId));
-    return {
-      timestamp: Number(d[0]),
-      action: String(d[1]),
-      targetAsset: String(d[2]),
-      confidence: Number(d[5]),
-      reasoning: String(d[6]),
-      txHash: String(d[7]), // bytes32 — our combinedAnchor
-    };
+    const total = Number(await dl.totalDecisions());
+    if (total === 0) return null;
+    // Manifest's decisionId comes from ValidationRegistry.totalProposals
+    // which historically drifted ahead of DecisionLog.totalDecisions by
+    // one row. We probe a small window of candidate indices and, when
+    // an expected anchor is supplied, return the row whose txHash slot
+    // matches it. Otherwise we fall back to the closest candidate that
+    // exists.
+    const candidates = [
+      decisionId,
+      decisionId - 1,
+      decisionId - 2,
+    ].filter((i) => i >= 0 && i < total);
+    if (candidates.length === 0) return null;
+    for (const idx of candidates) {
+      try {
+        const d = await dl.getDecision(BigInt(idx));
+        const row = {
+          timestamp: Number(d[0]),
+          action: String(d[1]),
+          targetAsset: String(d[2]),
+          confidence: Number(d[5]),
+          reasoning: String(d[6]),
+          txHash: String(d[7]),
+          resolvedDecisionLogIndex: idx,
+        };
+        if (
+          !expectedAnchor ||
+          row.txHash.toLowerCase() === expectedAnchor.toLowerCase()
+        ) {
+          return row;
+        }
+      } catch {
+        /* skip invalid index, try next */
+      }
+    }
+    // Nothing matched — return the highest-valid candidate so the UI
+    // can still show a row + flag mismatch.
+    try {
+      const idx = candidates[0];
+      const d = await dl.getDecision(BigInt(idx));
+      return {
+        timestamp: Number(d[0]),
+        action: String(d[1]),
+        targetAsset: String(d[2]),
+        confidence: Number(d[5]),
+        reasoning: String(d[6]),
+        txHash: String(d[7]),
+        resolvedDecisionLogIndex: idx,
+      };
+    } catch {
+      return null;
+    }
   } catch {
     return null;
   }
@@ -158,7 +202,15 @@ export async function GET(
     );
   }
 
-  const onChain = await readOnChainAnchor(cycleId);
+  const expectedAnchor =
+    manifest.onChain?.combinedAnchor ||
+    (manifest.onChain?.ipfsCid && manifest.onChain?.manifestHash
+      ? recomputeAnchor(
+          manifest.onChain.ipfsCid,
+          manifest.onChain.manifestHash
+        )
+      : undefined);
+  const onChain = await readOnChainAnchor(cycleId, expectedAnchor);
 
   // Server-side binding self-check. We deliberately do this here
   // (not just in the client) so the API consumer gets a

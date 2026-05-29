@@ -79,7 +79,10 @@ async function loadManifest(cycleId: number): Promise<Manifest | null> {
   return null;
 }
 
-async function loadOnChainAnchor(cycleId: number): Promise<string | null> {
+async function loadOnChainAnchor(
+  cycleId: number,
+  expectedAnchor?: string
+): Promise<{ txHash: string; resolvedIndex: number } | null> {
   try {
     const provider = new ethers.JsonRpcProvider("https://rpc.mantle.xyz");
     const dl = new ethers.Contract(
@@ -90,10 +93,37 @@ async function loadOnChainAnchor(cycleId: number): Promise<string | null> {
       ],
       provider
     );
-    const total: bigint = await dl.totalDecisions();
-    if (BigInt(cycleId) >= total) return null;
-    const d = await dl.getDecision(BigInt(cycleId));
-    return String(d[7]);
+    const total = Number(await dl.totalDecisions());
+    if (total === 0) return null;
+    // ValidationRegistry.totalProposals drifted +1 ahead of
+    // DecisionLog.totalDecisions historically (one early cycle wrote
+    // a proposal but not a DecisionLog entry). Probe a small window
+    // and prefer the row whose bytes32 matches the expected anchor.
+    const candidates = [cycleId, cycleId - 1, cycleId - 2].filter(
+      (i) => i >= 0 && i < total
+    );
+    for (const idx of candidates) {
+      try {
+        const d = await dl.getDecision(BigInt(idx));
+        const txHash = String(d[7]);
+        if (
+          !expectedAnchor ||
+          txHash.toLowerCase() === expectedAnchor.toLowerCase()
+        ) {
+          return { txHash, resolvedIndex: idx };
+        }
+      } catch {
+        /* invalid index, try next */
+      }
+    }
+    if (candidates.length === 0) return null;
+    try {
+      const idx = candidates[0];
+      const d = await dl.getDecision(BigInt(idx));
+      return { txHash: String(d[7]), resolvedIndex: idx };
+    } catch {
+      return null;
+    }
   } catch {
     return null;
   }
@@ -135,10 +165,23 @@ export default async function ReplayPage({
     );
   }
 
-  const [manifest, onChainAnchor] = await Promise.all([
+  const [manifest, onChainResult] = await Promise.all([
     loadManifest(cycleId),
-    loadOnChainAnchor(cycleId),
+    // Pre-compute expected anchor from manifest fields so we can
+    // search the contract candidate window for the matching row.
+    (async () => {
+      const m = await loadManifest(cycleId);
+      if (!m) return null;
+      const expected =
+        m.onChain?.combinedAnchor ||
+        (m.onChain?.ipfsCid && m.onChain?.manifestHash
+          ? recomputeAnchor(m.onChain.ipfsCid, m.onChain.manifestHash)
+          : undefined);
+      return loadOnChainAnchor(cycleId, expected);
+    })(),
   ]);
+  const onChainAnchor = onChainResult?.txHash ?? null;
+  const onChainIndex = onChainResult?.resolvedIndex ?? null;
 
   if (!manifest) {
     return (
@@ -287,6 +330,15 @@ export default async function ReplayPage({
               }
             />
           </div>
+          {onChainIndex !== null && onChainIndex !== cycleId && (
+            <div className="mt-3 text-[10px] font-mono text-white/40">
+              Note: manifest decisionId={cycleId} resolves to
+              DecisionLog index {onChainIndex} on-chain
+              (ValidationRegistry.totalProposals drifted +
+              {cycleId - onChainIndex} ahead of
+              DecisionLog.totalDecisions historically).
+            </div>
+          )}
           {!isLegacy && (
             <div className="mt-5 rounded-md border border-white/5 bg-black/30 p-3 text-[11px] font-mono text-white/60">
               Verifier formula:{" "}
