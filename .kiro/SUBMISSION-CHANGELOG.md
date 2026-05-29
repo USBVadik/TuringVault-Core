@@ -33,6 +33,56 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — SWR caching + snapshot fallback for upstream 502s (P2)
+
+**Commit**: `01a2575`
+
+External Gemini Pro 3.1 audit Section 3 weakness #3: "If a judge clicks
+a proof link and gets a Cloudflare error, your radical transparency
+claim instantly dies." Mantlescan, the official explorer, CoinGecko,
+and DeFiLlama all 502 periodically under load. The dashboard was
+re-fetching every of them on every request — a single transient outage
+was enough to surface zeros across the entire UI.
+
+Three-layer mitigation:
+
+1. **SWR cache headers on every public read API** (was `revalidate=0`
+   on most). Now the edge caches each route for 30–60s and serves
+   stale up to 5–10min while it re-fetches behind the scenes.
+   Verified live: `curl -I /api/decisions` → `x-vercel-cache: HIT`,
+   `age: 5`, `x-cache-mode: swr`.
+
+2. **Module-scoped snapshot fallback** for `/api/health` and
+   `/api/market`. If RPC + GitHub raw + CoinGecko all return null on
+   one request, the route serves the last successful payload from
+   warm-function memory with `degraded: true` flag and
+   `X-Cache-Mode: swr-stale-snapshot`. Steering rule §1 still holds:
+   `lastCycleAge` is recomputed against `Date.now()` before reuse so
+   the snapshot doesn't lie about freshness.
+
+3. **Explorer fallback links**. Mantlescan and explorer.mantle.xyz
+   are independent — when one is 502 the other is usually up. Added
+   visible "alt: explorer.mantle.xyz" / "Open same tx on
+   explorer.mantle.xyz mirror →" fallbacks on the two highest-traffic
+   surfaces: `/proof-explorer` hero CTA + `/replay/[id]` cycle detail.
+   Centralised the URL builder in `frontend/app/lib/explorer.ts`.
+
+Validation:
+  npx tsc --noEmit       → clean
+  npx next build         → clean (24 routes)
+  npx jest               → 230 / 230 passing
+  Live edge cache verified post-deploy: `x-vercel-cache: HIT`
+
+**Pitch line**:
+> *"Every read API on the dashboard is served from Vercel's edge
+> cache (30–60s fresh, 5–10min stale-while-revalidate). Even if
+> Mantlescan, CoinGecko, or the official Mantle explorer 502s in
+> the middle of a judge's session, the UI keeps rendering the last
+> successful payload — explicitly flagged as `stale` per the
+> workspace honesty rule, never silently zeroed."*
+
+---
+
 ### 🎯 FOR PITCH — Daily CI Replay Validator (P1)
 
 **Commits**: pending push (replay-validator workflow + verify-onchain-anchor.js)
