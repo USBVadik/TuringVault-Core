@@ -1,23 +1,58 @@
 {
-  "cycleStartedAt": "2026-05-29T15:52:07.187Z",
-  "cycleEndedAt": "2026-05-29T15:53:22.206Z",
-  "durationSeconds": 75.02,
+  "cycleStartedAt": "2026-05-29T16:06:20.684Z",
+  "cycleEndedAt": "2026-05-29T16:07:46.018Z",
+  "durationSeconds": 85.33,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 16265,
-    "validatorMs": 7968,
-    "arbiterMs": 2119,
+    "analystMs": 3459,
+    "validatorMs": 6855,
+    "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 148,
-  "decisionTier": "BLOCKED_BY_REGIME",
-  "consensus": false,
-  "txHashes": [],
+  "decisionId": 149,
+  "decisionTier": "EXECUTED_SWAP",
+  "consensus": true,
+  "txHashes": [
+    "0x8c97557c634ca8e3ec3d9e8950d4345da751d73dc5634d2c1c2a23b07e7c7daa",
+    "0xcdf6a8a22c9939726f36c182125e4d089113b0897fbccdf3d00a0b5ed068c20a"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26647327165",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26648056837",
   "errors": [],
-  "executionStatus": "BLOCKED_BY_REGIME"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-off",
+    "from": "WMNT",
+    "to": "USDT0",
+    "amountIn": 0.525,
+    "amountOut": 0.823314,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "WMNT",
+        "to": "USDT",
+        "txHash": "0x8c97557c634ca8e3ec3d9e8950d4345da751d73dc5634d2c1c2a23b07e7c7daa",
+        "blockNumber": 95970264,
+        "amountIn": 0.525,
+        "amountOut": 0.3368,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "USDT0",
+        "txHash": "0xcdf6a8a22c9939726f36c182125e4d089113b0897fbccdf3d00a0b5ed068c20a",
+        "blockNumber": 95970270,
+        "amountIn": 0.8235616139999999,
+        "amountOut": 0.823314,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
