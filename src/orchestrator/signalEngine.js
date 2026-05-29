@@ -392,35 +392,48 @@ function detectRegime({ fearGreed, ethChange24h, fundingSignal, flowSignal }) {
     };
   }
 
-  // RANGING: low realized volatility regardless of sentiment.
-  // Sentiment (Fear&Greed) lags price by hours; if price IS NOT moving,
-  // a sub-1.5% range is a tradeable mean-reversion regime even when
-  // F&G shows Extreme Fear or Greed. We just lower confidence when
-  // sentiment disagrees with the chart so downstream gates can size
-  // smaller. The previous "fg between 30 and 65" gate caused the bot
-  // to spend overnight bear-tape windows in HOLD when ETH was actually
-  // moving 0.2% — a textbook ranging regime mislabelled UNKNOWN.
-  if (Math.abs(change) < 1.5 && Math.abs(funding) < 12) {
-    const sentimentAligned = fg > 30 && fg < 65;
-    const sentimentExtreme = fg <= 30 || fg >= 65;
-    return {
-      regime: "RANGING",
-      // Aligned sentiment → 0.60 (clears 0.55 threshold cleanly).
-      // Extreme sentiment → 0.55 (still tradeable, but downstream
-      // gates and validator scrutiny will be tighter).
-      confidence: sentimentAligned ? 0.6 : sentimentExtreme ? 0.55 : 0.5,
-      implication: sentimentExtreme
-        ? `Low volatility but sentiment extreme (F&G=${fg}). Mean-reversion grid OK; size conservatively. Contrarian bias possible.`
-        : "Low volatility, no directional pressure. Mean-reversion grid strategy active.",
-    };
-  }
-
-  // Soft TREND_DOWN: mild bearish but not crisis
+  // Soft TREND_DOWN: mild bearish but not crisis. Catches -1% to -3%
+  // moves before RANGING, so a clear bearish slide doesn't get
+  // mislabelled as ranging.
   if (change < -1 || (fg < 40 && funding > 5)) {
     return {
       regime: "TREND_DOWN",
       confidence: 0.6,
       implication: "Mild bearish. Reduce risk exposure, rotate toward mUSD.",
+    };
+  }
+
+  // RANGING: tradeable when realized volatility is moderate.
+  // The previous bug: a 24h change of 1.6% with extreme F&G fell
+  // into HOLD because RANGING required |change|<1.5% AND aligned
+  // sentiment, while no trend regime fired (TREND_UP needs fg>60,
+  // TREND_DOWN needs change<-1). That left the bot frozen on tame
+  // upside moves with lagging fear sentiment.
+  //
+  // Now: |change|<3% is RANGING territory unless a trend regime
+  // already fired above. Soft TREND_DOWN catches the negative side
+  // (change<-1), so this branch effectively covers -1<change<3.
+  // Confidence scales with two factors:
+  //   - tighter range → higher confidence
+  //   - sentiment aligned with chart → higher confidence
+  // Funding still gates: if longs are paying way too much
+  // (funding>12 annualized), the move probably has trend-extension
+  // risk and we let the trend branches catch it next cycle.
+  if (Math.abs(change) < 3 && Math.abs(funding) < 12) {
+    const tightRange = Math.abs(change) < 1.5;
+    const sentimentAligned = fg > 30 && fg < 65;
+    const sentimentExtreme = fg <= 30 || fg >= 65;
+    let confidence;
+    if (tightRange && sentimentAligned) confidence = 0.6;
+    else if (tightRange && sentimentExtreme) confidence = 0.55;
+    else if (sentimentAligned) confidence = 0.55; // medium range, aligned
+    else confidence = 0.55; // medium range, extreme — still tradeable, validator scrutinises
+    return {
+      regime: "RANGING",
+      confidence,
+      implication: sentimentExtreme
+        ? `Sub-3% range, sentiment extreme (F&G=${fg}). Mean-reversion grid OK; size conservatively. Contrarian bias possible.`
+        : "Sub-3% range, no directional pressure. Mean-reversion grid strategy active.",
     };
   }
 
