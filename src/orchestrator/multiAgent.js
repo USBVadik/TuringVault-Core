@@ -484,6 +484,7 @@ const MODELS = {
 
 const { callGeminiArbiter } = require("./geminiArbiter");
 const { recordParseMetric, persistRawOutput } = require("./parseMetrics");
+const { captureCall, resetCapture, drainCapture } = require("../replay/captureManifest");
 
 async function callAgent(
   systemPrompt,
@@ -502,12 +503,31 @@ async function callAgent(
     },
   });
 
+  const _captureStart = Date.now();
   const response = await client.send(command);
+  const _captureEnd = Date.now();
   const text = response.output.message.content[0].text;
 
   // R2: persist raw output for diagnostics (best-effort).
   try {
     persistRawOutput(text, resolvedModelId, agentRole);
+  } catch {}
+
+  // Reproducible AI: capture exact prompt + raw response for replay.
+  // Best-effort and non-blocking; failure here must never affect the
+  // existing parse/return path.
+  try {
+    captureCall({
+      role: agentRole,
+      provider: "aws-bedrock",
+      modelId: resolvedModelId,
+      temperature: VALIDATOR_TEMPERATURE,
+      maxTokens: MAX_TOKENS_VALIDATOR,
+      systemPrompt,
+      userPrompt: userMessage,
+      rawText: text,
+      timing: { startMs: _captureStart, endMs: _captureEnd },
+    });
   } catch {}
 
   // Extract JSON — handle markdown code blocks and raw JSON
@@ -610,6 +630,9 @@ and the agent loses an audit entry on Mantle.`;
  */
 async function getMultiAgentDecision(marketData) {
   const _timingStart = Date.now();
+  // Reproducible AI: clear any leftover capture from a prior cycle so
+  // this cycle's manifest only contains its own model calls.
+  resetCapture();
   // SECURITY: any string field that might originate from external data
   // (CoinGecko sentiment, Nansen narrative, Byreal labels, regime
   // rationale produced by upstream classifiers) gets stripped of
@@ -912,4 +935,8 @@ module.exports = {
   normalizeAnalystResponse,
   normalizeValidatorResponse,
   getDynamicConfidenceThreshold,
+  // Reproducible AI capture surface — drain after a cycle to retrieve
+  // the per-call replay set. multiAgentLoop wires this into manifest
+  // writes and on-chain anchoring.
+  drainCapture,
 };

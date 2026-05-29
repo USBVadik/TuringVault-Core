@@ -1106,6 +1106,58 @@ async function runMultiAgentCycle(opts = {}) {
   );
   console.log(`╚${"═".repeat(boxW)}╝\n`);
 
+  // Reproducible AI: write replay manifest for this cycle. This is
+  // the proof artefact that lets any third party clone the repo,
+  // re-invoke the same providers (Bedrock, Vertex) with the same
+  // prompts + temperatures, and verify the outputs match.
+  // Best-effort and fully non-blocking — if disk is full or the
+  // capture buffer is empty, the cycle still completes normally.
+  try {
+    const { drainCapture } = require("./multiAgent");
+    const { writeManifest } = require("../replay/captureManifest");
+    const captures = drainCapture();
+    if (captures && captures.length) {
+      const manifestResult = writeManifest({
+        decisionId:
+          typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
+        cycleStartedAt: decision._timing?.start
+          ? new Date(decision._timing.start).toISOString()
+          : null,
+        cycleEndedAt: new Date().toISOString(),
+        decisionTier,
+        captures,
+        marketContext: {
+          ethPrice: market.ethPrice,
+          ethChange24h: market.ethChange24h,
+          fearGreedIndex: market.fearGreedIndex,
+          mntPrice: market.mntPrice,
+          regime: market.structuredSignals?.regime?.regime || null,
+        },
+        onChain: {
+          ipfsCid: ipfsResult?.cid || null,
+          proposalId:
+            typeof proposalId === "bigint"
+              ? Number(proposalId)
+              : proposalId || null,
+        },
+      });
+      if (manifestResult) {
+        console.log(
+          `   ✅ Replay manifest: ${manifestResult.path
+            .split("/")
+            .slice(-2)
+            .join("/")} (${manifestResult.sizeBytes} bytes, ${
+            manifestResult.hash.slice(0, 18)
+          }...)`
+        );
+      }
+    }
+  } catch (manifestErr) {
+    console.log(
+      `   ⚠️  Replay manifest skipped: ${manifestErr.message?.slice(0, 80)}`
+    );
+  }
+
   // Unified return shape (matches dryRun branch). `consensus` is hoisted
   // to the top level so legacy callers (mainMultiAgent.js, runBatch.js)
   // that read result.consensus keep working.

@@ -79,6 +79,7 @@ async function getAccessToken() {
 async function callGeminiArbiter(systemPrompt, userMessage) {
   const token = await getAccessToken();
 
+  const _captureStart = Date.now();
   const resp = await fetch(ENDPOINT, {
     method: "POST",
     headers: {
@@ -95,6 +96,7 @@ async function callGeminiArbiter(systemPrompt, userMessage) {
       },
     }),
   });
+  const _captureEnd = Date.now();
 
   if (!resp.ok) {
     const errText = await resp.text();
@@ -109,6 +111,27 @@ async function callGeminiArbiter(systemPrompt, userMessage) {
   for (const p of parts) {
     if (p.text) text += p.text;
   }
+
+  // Reproducible AI: capture exact prompt + raw response. Best-effort
+  // and lazy-required to avoid a circular import — this file lives at
+  // the same depth as captureManifest, but Vertex never crosses the
+  // multiAgent boundary so a require() at call time is fine.
+  try {
+    const { captureCall } = require("../replay/captureManifest");
+    captureCall({
+      role: "arbiter",
+      provider: "gcp-vertex",
+      modelId: MODEL,
+      // Gemini 3.5 Flash uses Vertex thinking config; temperature is
+      // not surfaced in the request body here, but maxOutputTokens is.
+      temperature: null,
+      maxTokens: 512,
+      systemPrompt,
+      userPrompt: userMessage,
+      rawText: text,
+      timing: { startMs: _captureStart, endMs: _captureEnd },
+    });
+  } catch {}
 
   if (!text) {
     // Fallback: check if response was cut short
