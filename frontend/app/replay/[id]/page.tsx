@@ -21,6 +21,7 @@ import Link from "next/link";
 import { ethers } from "ethers";
 import * as fs from "fs";
 import * as path from "path";
+import { LiveStatusBadge } from "../../components/LiveStatusBadge";
 
 interface CaptureEntry {
   role: string;
@@ -255,6 +256,9 @@ export default async function ReplayPage({
                 ? new Date(manifest.cycleEndedAt).toISOString()
                 : "—"}
             </p>
+            <div className="mt-3">
+              <LiveStatusBadge variant="compact" />
+            </div>
           </div>
           {/* Verdict badge */}
           {isLegacy ? (

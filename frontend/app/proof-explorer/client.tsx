@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, ReactNode } from "react";
 import "./animations.css";
+import { LiveStatusBadge } from "../components/LiveStatusBadge";
 
 interface Decision {
   timestamp: number;
@@ -229,7 +230,7 @@ export function ProofExplorerClient({
 
         <div className="relative max-w-5xl mx-auto px-6 py-12">
           {/* Timestamp & network */}
-          <div className="flex items-center gap-3 mb-6 animate-[fadeIn_0.8s_ease-out_0.2s_both]">
+          <div className="flex items-center gap-3 mb-6 animate-[fadeIn_0.8s_ease-out_0.2s_both] flex-wrap">
             <span className="text-[11px] font-mono text-white/30">
               {formatTime(featuredCase.timestamp)}
             </span>
@@ -240,6 +241,12 @@ export function ProofExplorerClient({
                 Mantle Mainnet
               </span>
             </div>
+            {/* Steering rule §2 §3: gate "live" claims by /api/health.
+                If the cron skipped a slot the badge here will read STALE
+                and the static "Mantle Mainnet · Live" pulse next to it
+                stops being the only signal a judge has. */}
+            <span className="text-white/10">|</span>
+            <LiveStatusBadge variant="compact" />
           </div>
 
           {/* Hero statement */}

@@ -10,6 +10,7 @@
 import Link from "next/link";
 import * as fs from "fs";
 import * as path from "path";
+import { LiveStatusBadge } from "../components/LiveStatusBadge";
 
 interface ManifestSummary {
   cycleId: number;
@@ -103,6 +104,9 @@ export default async function ReplayIndexPage() {
       <div className="mx-auto max-w-4xl">
         <div className="text-xs uppercase tracking-wider text-white/40">
           Reproducible AI · Replay Manifests
+        </div>
+        <div className="mt-1 mb-2">
+          <LiveStatusBadge variant="compact" />
         </div>
         <h1 className="mt-2 text-3xl font-bold font-mono">
           Verify any past decision
