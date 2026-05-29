@@ -33,6 +33,60 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — Smart wallet router: agent finally uses idle native MNT (P0)
+
+**Commit**: pending push
+
+Operator pushback: «почему не работает как смарт роутер?». Diagnostic
+on cycles 149-151 showed bot reading WMNT 0.09 (drained from 1.05
+across two ~$0.35 swaps) and stamping INTENT_SWAP_NO_EXEC — while
+**29 native MNT sat idle** ($18+ of trade-able value the pipeline
+couldn't see).
+
+Root cause: step 4.7 hardcoded `risk-off → start from WMNT`. No
+awareness of native MNT (1:1 wrappable to WMNT instantly via
+`WMNT.deposit() payable`, no slippage). No fallback to mETH or
+USDT.
+
+**The fix:**
+
+New `src/dex/walletRouter.js` with three primitives:
+- `readAllBalances` — single read of MNT + WMNT + USDT0 + USDT + mETH.
+- `pickSource` — pure function picking the best source token + path.
+- `wrapMnt` — executes `WMNT.deposit()` and returns receipt.
+
+Decision tree for risk-off:
+  WMNT ≥ floor → direct
+  **MNT  ≥ (floor + gas) → wrap MNT→WMNT then swap**
+  mETH ≥ floor → mETH→WMNT→USDT→USDT0 fallback
+
+For risk-on: USDT0 → USDT fallback.
+
+The wrap is recorded as leg 0 in `directionalSwap.legs[]` so the
+dashboard + outcomes ledger show the full data path on-chain.
+
+11 new unit tests pin: WMNT above floor → direct, WMNT below + MNT
+available → wrap-first, both depleted → mETH fallback, everything
+empty → infeasible, never wrap below gas reserve, risk-on
+USDT0/USDT fallback, etc.
+
+Full audit: `.kiro/audits/21-smart-wallet-router.md`.
+
+Validation:
+- jest: 256 / 256 passing (was 245; +11 walletRouter)
+- ESLint src/: 0 errors / 47 warnings
+- node --check multiAgentLoop.js: clean
+
+**Pitch line**:
+> *"The agent now sees the entire wallet, not just one token. Idle
+> native MNT auto-wraps to WMNT before a risk-off swap when the
+> direct WMNT float is depleted — recorded as leg 0 on-chain so a
+> judge sees `MNT → WMNT → USDT → USDT0` end-to-end. No more
+> 'INTENT_SWAP_NO_EXEC: insufficient WMNT' while $18 of native MNT
+> sits idle."*
+
+---
+
 ### 🎯 FOR PITCH — Provenance surface: dashboard shows when fallback feeds fired (P1)
 
 **Commit**: pending push
