@@ -1113,3 +1113,84 @@ Validation:
 - Update agent-card descriptions with dual-engine framing.
 - After 24h+ of cron capturing rate, evaluate adding the second
   curve on `/backtest`.
+
+
+---
+
+## 2026-05-30 (early morning — audit 26 honest Sourcify recount)
+
+### CORRECTION — 6/6 → 5/6 Sourcify-verified `perfect`
+
+**Audit**: `.kiro/audits/26-honest-sourcify-recount.md`
+**Trigger**: Independent re-probe of an external reviewer's
+"6/6 perfect" claim (audit 25 reviewer pass). The reviewer's claim
+was wrong; the live Sourcify reality is 5/6 perfect.
+
+What was wrong:
+- TuringVaultRouter (`0x8187…7001`) is deployed but its source
+  drifted between deploy date (2026-05-18) and the current repo
+  because the ERC-8004 cleanup that happened afterwards touched
+  the codebase. `npx hardhat verify` confirms the bytecode no
+  longer matches local source. We do **not** redeploy because the
+  Sourcify perfect status of the verified five is load-bearing
+  and the Router is not on the production execution path
+  (audit-21 smart wallet router supersedes it).
+
+What changed:
+- README.md Smart Contracts section + project-structure block
+- docs/pitch-deck/index.html × 4 places
+- assets/agent-card.json `contracts.comment`
+- agent-card-v2.json `erc8004.sourcify`
+- src/ipfs/storage.js agent-card builder comment
+
+Audit 22's "4/5 → 6/6" change is preserved in the changelog but
+this audit supersedes its Sourcify copy.
+
+The README claim grid row #2 — about the three ERC-8004 registries
+— is unchanged because all three (Identity, Reputation, Validation)
+remain Sourcify perfect.
+
+**Pitch line**:
+> *"5 of 6 Sourcify-verified `perfect` on Mantle Mainnet — Identity,
+> Reputation, Validation, ValidationHelper, DecisionLog — together
+> covering the entire ERC-8004 three-registry stack plus the on-chain
+> reasoning anchor. The sixth contract (TuringVaultRouter) was
+> deployed early-iteration; its source drifted before re-verification
+> shipped, and we do not redeploy because the perfect status of the
+> verified five is load-bearing. The production swap path uses
+> Merchant Moe LB v2.2 directly — TuringVaultRouter is deployed
+> inventory, not active execution."*
+
+Validation:
+- jest: 266 / 266 passing (no source-code changes other than
+  comment edits)
+- ESLint src/: 0 errors / 48 warnings
+- frontend lint: 0 errors / 15 warnings
+- Both agent-cards: JSON valid
+- Independent Sourcify v1 + v2 probes confirm the new copy
+
+### Reviewer integrity flag
+
+The same external reviewer also produced a false-negative on probe B
+(claimed "0 matches" for the four feature flags
+EVOLVED_PROMPTS_ENABLED, RWA_EXECUTE_ENABLED, CHALLENGE_LIVE_ENABLED,
+HEARTBEAT_MODE_ENABLED — all four exist and are checked at runtime).
+
+Going forward:
+- External reviewer outputs are not authoritative without
+  operator-driven re-verification.
+- Audit 25's reviewer protocol updated to require literal pasted
+  HTTP response bodies for every probe, not summarised
+  conclusions.
+
+### Next ships (audit 27)
+
+Two items the reviewer correctly identified as not-yet-shipped:
+
+1. EXECUTED_SWAP integrity invariant test — jest assertion that
+   every `decisionTier === "EXECUTED_SWAP"` row in outcomes.json
+   has a real `directionalSwap.legs[0].txHash`.
+2. Gas Runway sanity check on `/api/health` — surfaces
+   `nativeMnt`, `estimatedCyclesRemaining`, status pill so the
+   Live badge degrades honestly to "low gas" before EOA bricks
+   mid-judging.

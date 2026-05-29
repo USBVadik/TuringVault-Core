@@ -195,7 +195,11 @@ async function uploadAgentCard() {
 
     contracts: {
       // ERC-8004 three-registry implementation on Mantle Mainnet (chain 5000).
-      // All six contracts Sourcify-verified perfect (checked 2026-05-29).
+      // 5 of 6 contracts Sourcify-verified `perfect` (checked 2026-05-30):
+      // Identity, ReputationRegistry, ValidationRegistry, ValidationHelper,
+      // DecisionLog. The sixth (TuringVaultRouter) was deployed but its
+      // source drifted post-deploy; not on the production execution path
+      // (audit-21 smart router supersedes it).
       // The first three are the canonical ERC-8004 registries; the rest
       // are application-specific.
       identity: "0x6f862802e0d5463DF18d267e422347BeCacc28bD",

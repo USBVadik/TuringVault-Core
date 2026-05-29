@@ -150,11 +150,27 @@ The on-chain `totalRejected` counter on ValidationRegistry reflects proposals bl
 
 ## Smart Contracts (Mantle Mainnet, chain 5000)
 
-Six contracts deployed on Mantle Mainnet, **all six Sourcify-verified**
-(checked 2026-05-29 via `sourcify.dev/server/check-by-addresses`,
-status `perfect` for every entry). Together they form a complete
+Six contracts deployed on Mantle Mainnet, **5 of 6 Sourcify-verified**
+status `perfect` (Identity, ReputationRegistry, ValidationRegistry,
+ValidationHelper, DecisionLog — checked 2026-05-30 via
+`sourcify.dev/server/v2/contract/5000/<address>`). The sixth contract,
+TuringVaultRouter (`0x8187…7001`), is deployed and live but its
+on-chain bytecode no longer matches the current source in this repo
+because the source drifted between deploy time (2026-05-18) and the
+ERC-8004 cleanup that landed afterwards. We do **not** redeploy
+because:
+
+- Redeploy would break the deployer history of the verified five.
+- The Router does not store any state that justifies the cost.
+- The execution path that judges actually evaluate (`MerchantMoe LB
+  v2.2 swaps`, RWA allocator, walletRouter) bypasses
+  `TuringVaultRouter` entirely — it was an early-iteration helper
+  that didn't survive the audit-21 smart-router refactor.
+
+The five verified contracts together form the complete
 **ERC-8004 three-registry implementation** (Identity + Reputation +
-Validation) plus the application-specific DecisionLog and Router.
+Validation) plus the application-specific DecisionLog and the
+ValidationHelper.
 
 | Role | Contract | Address |
 | --- | --- | --- |
@@ -391,7 +407,7 @@ turingvault/
 │   ├── onchain/            # Contract interactions, IPFS
 │   ├── mcp/                # Nansen MCP client
 │   └── cron/               # Automated trading loop
-├── contracts/              # Solidity (6 contracts deployed, 6/6 Sourcify-verified `perfect`)
+├── contracts/              # Solidity (6 contracts deployed; 5/6 Sourcify-verified `perfect`, Router source drifted post-deploy)
 ├── frontend/               # Next.js dashboard + proof explorer
 ├── sdk/                    # TuringVault SDK for external integration
 ├── test/                   # Contract + integration tests
