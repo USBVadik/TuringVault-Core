@@ -428,6 +428,61 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780057715534_144",
+      "decisionId": 144,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1998.66,
+      "ipfsCid": "QmPABXybjAXVfQXboV6DbS7KX4AihBB6WG3qGo74TjNU7R",
+      "recordedAt": "2026-05-29T12:28:35.534Z",
+      "settleAfter": "2026-05-29T13:28:35.534Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780057715533
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in RANGING regime with no grid channels established. Analyst correctly identifies: (1) insufficient price history for both ETH and MNT grids, (2) neutral smart money flow at $0.0M, (3) funding at 0.567% within normal range, (4) F&G=23 extreme fear without confirming reversal signals. EMA_CROSS=SELL and bearish signal consensus support caution. No directional swap proposed, so R:R gat",
+      "validatorFlaggedIssues": [
+        "Grid confidence only 30% — channel boundaries undefined",
+        "Signal consensus BEARISH conflicts with contrarian long framing",
+        "Yield spread -1% vs mETH adds bearish weight analyst underweighted",
+        "RSI 44.2 falling with bearish EMA cross reinforces downside risk"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "The decision to hold mETH is correct and capital-protective due to a ranging regime, insufficient price history for grid boundaries, and a lack of clear directional or reversal signals despite extreme market fear.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
