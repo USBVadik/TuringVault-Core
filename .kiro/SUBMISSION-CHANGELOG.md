@@ -33,6 +33,28 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### Number drift fixes + surface live PnL graph (P0/P1 from external audit)
+
+**Commits**: `b049acb`
+
+External audit (Gemini Pro 3.1) flagged 4 stale numbers in submission
+surfaces and noted that "financial agents without a PnL graph look
+like toys". All resolved:
+
+- **127 → 147+ live cycles** (README, pitch-deck × 4, agent-card)
+- **51% → 44% rejection rate** (live ValidationRegistry: 65/147)
+- **104 → 147 totalDecisions** in agent-card stats; blockRate 61.5% → 44.2%
+- **Snapshot timestamp** refreshed to 2026-05-29T13:30Z everywhere
+- **Source of truth** pointer added: `ValidationRegistry.totalProposals()`
+  on contract `0x6841…63b6` is the canonical live count
+- **Claim #10** added to README's top grid: link to `/backtest` page
+  with live equity curve from settled PnL — we already had it, just
+  weren't surfacing it
+
+The "Pitch line" addition for submission: "Live realized PnL — not
+backtest, not simulation. Equity curve built cycle-by-cycle from
+settled on-chain outcomes."
+
 ### 🎯 FOR PITCH — Heartbeat Mode (submission-window liveness, gated + honest)
 
 **Commits**: pending push (heartbeatMode + decisionTier override + 11 unit tests)
