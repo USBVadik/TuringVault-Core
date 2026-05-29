@@ -23,6 +23,7 @@ Every claim below points to an artefact you can open without our help.
 | 7   | **Live social signal from Elfa V2** as 5th structured input        | [`/api/elfa-snapshot`](https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH) (raw JSON) · [/social drill-down](https://frontend-seven-beta-46.vercel.app/social) (multi-ticker UI) |
 | 8   | **Discipline Layer** post-execution proof verification             | [/discipline page](https://frontend-seven-beta-46.vercel.app/discipline) — 3-gate history (TX proof · price freshness · regime drift)                                                                |
 | 9   | **Adversarial challenge arena** (probe the agent yourself)         | [/challenge page](https://frontend-seven-beta-46.vercel.app/challenge) — inject 4 attack vectors, watch the same multi-agent pipeline reason through them                                            |
+| 10  | **Live realized PnL graph from settled outcomes** (no simulation, no backtest) | [/backtest page](https://frontend-seven-beta-46.vercel.app/backtest) — equity curve built cycle-by-cycle from on-chain settled PnL; cumulative bps + trade-level table |
 
 > Honesty rule: every numeric stat in the dashboard traces to a contract read or a settled outcome. The workspace enforces this as a steering rule in [`.kiro/steering/no-lying-about-state.md`](.kiro/steering/no-lying-about-state.md).
 
@@ -45,12 +46,12 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **DecisionLog on Explorer:** [explorer.mantle.xyz/address/0x7bCd...cfbB5](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5)  
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
-**Stats (snapshot 2026-05-28, refreshable on dashboard `/api/health`):**
+**Stats (snapshot 2026-05-29 — refreshable on dashboard `/api/health`; ValidationRegistry counts on Mantlescan are the on-chain ground truth):**
 
-- **127 scheduled-cron autonomous decisions** logged to Mantle Mainnet with full reasoning
-- **51% rejection rate** — confidence threshold + Validator gates block >1 in 2 proposals (capital protection)
-- **62 approved, 65 rejected** — multi-agent consensus + confidence gating working as designed
-- **76% of agent NAV in tokenized Treasuries** (USDT0 LayerZero) — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de); first autonomous-cron swap [`0x313c0fc…`](https://mantlescan.xyz/tx/0x313c0fc20541a7662ecfe2f9f5966c7f5e57a06495b6aae9ee30ade140b57c96) (cycle 123, 2026-05-28)
+- **147+ scheduled-cron autonomous decisions** logged to Mantle Mainnet with full reasoning (live count: [`ValidationRegistry.totalProposals()`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6))
+- **44% rejection rate on-chain** (65 rejected / 147 total) — adversarial Validator + confidence gates blocking unsafe proposals; the gate split is intentionally sensitive in ranging markets
+- **82 approved, 65 rejected** at the contract level — proposals reaching consensus go on-chain; off-chain block reasons (regime, low confidence) shown in tier breakdown on `/proof-explorer`
+- **Real DEX execution path verified end-to-end** on Merchant Moe LB v2.2 — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de); first autonomous-cron swap [`0x313c0fc…`](https://mantlescan.xyz/tx/0x313c0fc20541a7662ecfe2f9f5966c7f5e57a06495b6aae9ee30ade140b57c96) (cycle 123, 2026-05-28); first heartbeat-mode liveness swap (`HEARTBEAT_SWAP` tier) cycle 146, 2026-05-29 — see [`heartbeatMode.js`](src/orchestrator/heartbeatMode.js) and [audit 17](.kiro/audits/17-heartbeat-mode.md)
 - Scheduled cron via GitHub Actions (public log linked below); adaptive regime detection on each tick. Schedule is best-effort hourly — GH Actions skips slots under platform load; the `/api/health` `lastCycleAge` field always reflects ground truth.
 - Zero catastrophic losses — demo capital, custodial EOA, vault contract pattern in development
 
@@ -137,7 +138,7 @@ Execution requires passing **two independent gates**:
 
 In practice, the majority of rejections (~75%) are caused by Gate 1: the Analyst proposes HOLD with moderate confidence during sideways markets, and the confidence threshold blocks execution. Gate 2 (Validator) flags risk issues in its reasoning even when it approves structurally safe HOLD proposals. This is by design: the validator's adversarial scrutiny matters most for high-risk directional trades, where it acts as the final safety floor.
 
-The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate — the combined effect today is a 51% block rate, demonstrating the system's capital-preservation bias. Live value drifts cycle-to-cycle; check `totalRejected() / totalProposals()` on ValidationRegistry for the current ratio.
+The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate. Today's snapshot is **65 rejected / 147 total = 44%**, demonstrating the system's capital-preservation bias. The ratio drifts cycle-to-cycle as market conditions change; the **live ratio** is always the on-chain value (`totalRejected() / totalProposals()` on `0x6841…63b6`), not this README.
 
 ---
 
@@ -396,8 +397,8 @@ turingvault/
 ## Roadmap
 
 - [x] Multi-agent consensus (GLM-5 + Claude Sonnet 4.6 + Gemini 3.5 arbiter)
-- [x] On-chain decision logging (127 decisions, growing)
-- [x] Adversarial validation (51% rejection rate live)
+- [x] On-chain decision logging (147+ decisions, growing every `:17`/`:47` UTC)
+- [x] Adversarial validation (~44% on-chain rejection rate; live count via ValidationRegistry)
 - [x] Self-evolving AI prompts (v3.0.0 pinned to IPFS, default-off behind env flag while smoke tests confirm parse stability)
 - [x] Grid bot with regime detection (RANGING/TREND_UP/TREND_DOWN/CRISIS)
 - [x] Live dashboard + proof explorer
