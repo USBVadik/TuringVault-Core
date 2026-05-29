@@ -392,16 +392,26 @@ function detectRegime({ fearGreed, ethChange24h, fundingSignal, flowSignal }) {
     };
   }
 
-  // RANGING: confirmed only if price movement is small AND no clear directional pressure
-  // Not a catch-all — requires absence of trend evidence
-  const weakTrend =
-    Math.abs(change) < 1.5 && fg > 30 && fg < 65 && Math.abs(funding) < 8;
-  if (weakTrend) {
+  // RANGING: low realized volatility regardless of sentiment.
+  // Sentiment (Fear&Greed) lags price by hours; if price IS NOT moving,
+  // a sub-1.5% range is a tradeable mean-reversion regime even when
+  // F&G shows Extreme Fear or Greed. We just lower confidence when
+  // sentiment disagrees with the chart so downstream gates can size
+  // smaller. The previous "fg between 30 and 65" gate caused the bot
+  // to spend overnight bear-tape windows in HOLD when ETH was actually
+  // moving 0.2% — a textbook ranging regime mislabelled UNKNOWN.
+  if (Math.abs(change) < 1.5 && Math.abs(funding) < 12) {
+    const sentimentAligned = fg > 30 && fg < 65;
+    const sentimentExtreme = fg <= 30 || fg >= 65;
     return {
       regime: "RANGING",
-      confidence: 0.55,
-      implication:
-        "Low volatility, no directional pressure. Mean-reversion grid strategy active.",
+      // Aligned sentiment → 0.60 (clears 0.55 threshold cleanly).
+      // Extreme sentiment → 0.55 (still tradeable, but downstream
+      // gates and validator scrutiny will be tighter).
+      confidence: sentimentAligned ? 0.6 : sentimentExtreme ? 0.55 : 0.5,
+      implication: sentimentExtreme
+        ? `Low volatility but sentiment extreme (F&G=${fg}). Mean-reversion grid OK; size conservatively. Contrarian bias possible.`
+        : "Low volatility, no directional pressure. Mean-reversion grid strategy active.",
     };
   }
 
