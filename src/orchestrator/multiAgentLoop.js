@@ -172,8 +172,11 @@ async function runMultiAgentCycle(opts = {}) {
   // T9: Decision tier classification — single source of truth for *why*
   // a cycle ended in HOLD vs SWAP. Tier is woven into the IPFS payload,
   // on-chain reasoning text (as `[TIER]` prefix), and outcomes.json.
+  // Step 4.8 (Heartbeat Mode) may re-stamp this tier to HEARTBEAT_SWAP
+  // by setting decision._heartbeatTier; we re-classify after Step 4.8
+  // for the outcomes ledger.
   const { classifyDecisionTier } = require("./decisionTier");
-  const decisionTier = classifyDecisionTier(decision, market);
+  let decisionTier = classifyDecisionTier(decision, market);
   console.log(`   TIER: ${decisionTier}`);
 
   // T9.5: disagreement signal — analyst confident but validator vetoed.
@@ -1025,6 +1028,10 @@ async function runMultiAgentCycle(opts = {}) {
           // Tag the decision so outcomeTracker + decisionTier classifier
           // pick up HEARTBEAT_SWAP rather than EXECUTED_SWAP.
           decision._heartbeatTier = HEARTBEAT_TIER;
+          // Re-classify so outcomes ledger and step 6 logging see
+          // HEARTBEAT_SWAP instead of the original BLOCKED_BY_REGIME /
+          // BLOCKED_BY_LOW_CONFIDENCE the regular pipeline assigned.
+          decisionTier = classifyDecisionTier(decision, market);
         }
       } else if (!decision_.fire) {
         // Visible diagnostic so the operator can see what's gating it.
