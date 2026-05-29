@@ -82,20 +82,37 @@ async function fetchPriceCandles(optsOrHours = 48) {
   const hours = opts.hours ?? 48;
   const asset = opts.asset || "mantle";
   return cached(`${asset}_candles_${hours}`, async () => {
-    const days = Math.ceil(hours / 24);
-    const url = `https://api.coingecko.com/api/v3/coins/${asset}/market_chart?vs_currency=usd&days=${days}&interval=hourly`;
-    const data = await fetchJson(url, 10000);
-    if (!data?.prices) throw new Error("No price data");
-
-    // Convert to OHLC-like objects per hour
-    const candles = data.prices.map(([ts, price]) => ({
-      timestamp: ts,
-      price,
-      time: new Date(ts).toISOString(),
-    }));
-
-    // Keep only last N hours
-    return candles.slice(-hours);
+    // Multi-source fetch with disk-snapshot fallback. Replaces the
+    // single-source CoinGecko call that was responsible for 16
+    // consecutive BLOCKED_BY_REGIME cycles on 2026-05-29 — the
+    // GitHub Actions runner pool's IP got 429'd by CoinGecko free
+    // tier and we had no fallback. See src/strategies/candleSources.js.
+    //
+    // We deliberately accept partial responses (≥6 candles is enough
+    // to compute support/resistance for intraday mean-reversion).
+    const { fetchCandlesMultiSource } = require("./candleSources");
+    const result = await fetchCandlesMultiSource(asset, hours, 6);
+    if (!result.candles || result.candles.length === 0) {
+      const detail = result.errors?.join(" | ") || "all sources failed";
+      throw new Error(`No price data: ${detail}`);
+    }
+    // Tag the candle array with source provenance so callers (and
+    // outcomes ledger) can surface it honestly. The array remains
+    // iterable as-is for legacy code paths; just don't iterate
+    // beyond .length.
+    Object.defineProperty(result.candles, "_source", {
+      value: result.source,
+      enumerable: false,
+    });
+    Object.defineProperty(result.candles, "_fromDiskSnapshot", {
+      value: result.fromDiskSnapshot,
+      enumerable: false,
+    });
+    Object.defineProperty(result.candles, "_snapshotAgeSec", {
+      value: result.snapshotAgeSec ?? null,
+      enumerable: false,
+    });
+    return result.candles;
   });
 }
 
@@ -130,7 +147,12 @@ async function detectChannel(opts = {}, channelPctArg) {
   }
 
   const candles = await fetchPriceCandles({ hours, asset });
-  if (!candles || candles.length < 10) {
+  // Relaxed minimum: was 10. With multi-source fetch + occasional
+  // partial responses on slower CDN edges, 6 candles is a strict
+  // enough basis for support/resistance — we already check
+  // tooNarrow + isRanging downstream so a noisy channel still gets
+  // flagged. Audit ref: candleSources.js header comment.
+  if (!candles || candles.length < 6) {
     return { valid: false, reason: "Insufficient price history", asset };
   }
 
@@ -191,6 +213,13 @@ async function detectChannel(opts = {}, channelPctArg) {
     slope: Math.round(slope * 100) / 100,
     lookbackHours: hours,
     candleCount: candles.length,
+    // Provenance — set by candleSources.fetchCandlesMultiSource via
+    // hidden, non-enumerable properties on the candles array.
+    // Surfaces in outcomes.json + analyst prompt so a future
+    // BLOCKED_BY_REGIME cluster can be diagnosed in one read.
+    dataSource: candles._source || "unknown",
+    fromDiskSnapshot: candles._fromDiskSnapshot === true,
+    snapshotAgeSec: candles._snapshotAgeSec || null,
     // Grid levels for execution
     gridLevels: computeGridLevels(support, resistance, 5),
   };

@@ -33,6 +33,74 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — Multi-source candle fetch fixes 16-cycle blind agent (P0)
+
+**Commit**: pending push
+
+Operator pushback: «неделю агент ничего не делает». Diagnostic chain
+proved this was NOT a market issue — it was an **upstream-data outage
+masquerading as conservative regime**. Fix shipped.
+
+**The bug**: `fetchPriceCandles` in `rangingGrid.js` called
+CoinGecko's free-tier `market_chart` endpoint as the SOLE source. GH
+Actions runner-pool IPs share rate limits with thousands of other
+projects, so ~50% of cron requests came back HTTP 429. When candles
+returned <10 entries, `detectChannel` returned
+`{ valid: false, reason: "Insufficient price history" }`. The
+analyst's RANGING-regime prompt explicitly says "if both grids =
+HOLD → wait", so the analyst (correctly) returned `action: hold`.
+Classifier stamped `BLOCKED_BY_REGIME`. 16 consecutive cycles
+between #130 and #145 went out to /proof-explorer this way — no
+trading, but ALSO no error surfacing the real cause.
+
+**Diagnostic evidence**:
+- Replay manifest cycles 144-147 all carry the literal string
+  "Channel not established (Insufficient price history)" in the
+  analyst's userPrompt.
+- CoinGecko probe (10 sequential requests with 300ms gap):
+  5 success / 5 HTTP 429 from a single personal IP.
+- `detectChannel` run from operator's machine **right now** returns
+  `valid: true` for both ETH and MNT with ETH at 70% of channel
+  (SELL_mETH at R:R 2.5:1) — the strategy code is fine, the data
+  layer was starving it.
+
+**The fix** — new `src/strategies/candleSources.js` with chain:
+
+  ETH: CoinGecko → Binance Spot   → Hyperliquid → disk snapshot
+  MNT: CoinGecko → Bybit Spot     → Hyperliquid → disk snapshot
+
+Each source 5s timeout. Persistent on-disk snapshot
+(`src/data/candle_cache.json`, 6h max age) as bottom layer. Every
+returned candle set carries `_source` + `_fromDiskSnapshot` +
+`_snapshotAgeSec` so the data path is auditable for every cycle.
+Detect-channel minimum relaxed from 10 to 6 candles.
+
+8 unit tests pinning the chain behaviour incl. "primary success",
+"CoinGecko 429 → Binance fallback (ETH)", "CoinGecko 429 → Bybit
+fallback (MNT)", "all upstream down + valid disk snapshot →
+snapshot served", "all sources fail + no snapshot → empty +
+provenance".
+
+Full audit: `.kiro/audits/19-blind-grid-rate-limit.md`.
+
+Validation:
+- `npx jest --silent` → 238 / 238 passing (was 230; +8)
+- `npx eslint src/ --max-warnings 50` → 0 errors / 47 warnings
+- Hand-verified: simulated CoinGecko down → Binance picked up; all
+  upstream down + snapshot populated → disk snapshot served with
+  `fromDiskSnapshot: true` honesty flag.
+
+**Pitch line**:
+> *"The grid strategy never went blind on `BLOCKED_BY_REGIME`
+> because the regime was conservative — the upstream price feed
+> was rate-limited. Multi-source fallback (CoinGecko → Binance/Bybit
+> → Hyperliquid → on-disk snapshot) keeps the analyst's eyes open
+> even when the public free tier 429s. Provenance is recorded for
+> every cycle: a future judge can see exactly which feed produced
+> the grid signal."*
+
+---
+
 ### 🎯 FOR PITCH — SWR caching + snapshot fallback for upstream 502s (P2)
 
 **Commit**: `01a2575`
