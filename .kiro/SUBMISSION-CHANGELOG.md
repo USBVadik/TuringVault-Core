@@ -33,6 +33,57 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — Multi-source ticker fetch closes second layer of CoinGecko starvation (P0)
+
+**Commit**: pending push
+
+Audit 19 fixed candle (`market_chart`) starvation. This audit closes
+the same problem on `simple/price` — CoinGecko's other endpoint that
+hits the same shared rate limit. Probe found ~1 in 6 requests
+returning HTTP 429 even from a single personal IP; worse on the
+GH Actions runner pool. Without this fix, the analyst's prompt would
+silently render `ETH: $N/A (24h: 0%)` on flapping cycles.
+
+New module `src/strategies/priceSources.js` mirrors the candleSources
+shape:
+
+  1. CoinGecko simple/price       — primary (prices + 24h Δ)
+  2. Binance ETHUSDT + Bybit MNTUSDT — parallel, independent quotas
+  3. Hyperliquid allMids          — last resort (no 24h Δ; honest null)
+  4. src/data/price_cache.json    — disk snapshot, 1h max age
+
+`unifiedMarketData.js` now delegates to it and labels fallback /
+snapshot in the prompt context block so the analyst sees provenance:
+"Price source: binance+bybit (CoinGecko fallback — primary feed
+unavailable)". Top-level return adds `_priceSource`,
+`_priceFromSnapshot`, `_priceSnapshotAgeSec` so downstream
+(outcomes ledger, dashboards) can record provenance per cycle.
+
+Live verification: at test time CoinGecko was 429'ing for the
+operator's IP, fallback chain picked up `binance+bybit` cleanly with
+prices matching CG within 0.1% ($2032 ETH, $0.6442 MNT).
+
+7 unit tests pin: primary, CoinGecko 429 → Binance+Bybit, both
+intermediate down → Hyperliquid (with honest null Δ), all upstream
+down + snapshot → snapshot served, full failure → zeros + provenance,
+invalid (0) CoinGecko price → fallback, partial Binance+Bybit failure
+→ falls through.
+
+Full audit: `.kiro/audits/20-blind-prices-second-layer.md`.
+
+Validation:
+- jest: 245 / 245 passing (was 238; +7)
+- ESLint src/: 0 errors / 47 warnings
+
+**Pitch line**:
+> *"Both upstream price feeds — candle (market_chart) AND ticker
+> (simple/price) — now have independent four-source fallback chains.
+> A judge replaying any cycle's manifest can see exactly which feed
+> was upstream via the `_source` provenance tag. The single point of
+> failure (free-tier CoinGecko on a shared GitHub Actions IP) is gone."*
+
+---
+
 ### 🎯 FOR PITCH — Multi-source candle fetch fixes 16-cycle blind agent (P0)
 
 **Commit**: pending push

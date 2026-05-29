@@ -52,14 +52,32 @@ async function fetchWithTimeout(url, options = {}, timeout = 8000) {
 
 async function getEthPrice() {
   return cached("eth_price", CACHE_TTL, async () => {
-    const data = await fetchWithTimeout(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,mantle&vs_currencies=usd&include_24hr_change=true"
-    );
+    // Multi-source ticker fetch with disk-snapshot fallback. Replaces
+    // the single-source CoinGecko simple/price call that was the
+    // second layer of data starvation we discovered while
+    // investigating cycles 130-145 (audit 19). The chain is:
+    //   CoinGecko → Binance ETHUSDT + Bybit MNTUSDT → Hyperliquid
+    //   → on-disk snapshot (1h max age).
+    // Provenance is surfaced via _source / _fromDiskSnapshot so the
+    // outcomes ledger can record which feed produced each cycle's
+    // base prices.
+    const {
+      fetchPricesMultiSource,
+    } = require("../strategies/priceSources");
+    const r = await fetchPricesMultiSource();
+    if (!r || r.ethPrice <= 0) {
+      throw new Error(
+        `No price data: ${r?.errors?.join(" | ") || "unknown"}`
+      );
+    }
     return {
-      ethPrice: data.ethereum?.usd || 0,
-      ethChange24h: data.ethereum?.usd_24h_change || 0,
-      mntPrice: data.mantle?.usd || 0,
-      mntChange24h: data.mantle?.usd_24h_change || 0,
+      ethPrice: r.ethPrice,
+      ethChange24h: r.ethChange24h ?? 0,
+      mntPrice: r.mntPrice,
+      mntChange24h: r.mntChange24h ?? 0,
+      _source: r.source,
+      _fromDiskSnapshot: r.fromDiskSnapshot,
+      _snapshotAgeSec: r.snapshotAgeSec ?? null,
     };
   });
 }
@@ -162,7 +180,20 @@ async function getUnifiedMarketContext() {
   context += `MNT: $${eth.mntPrice?.toFixed(4) || "N/A"} (24h: ${
     eth.mntChange24h?.toFixed(2) || 0
   }%)\n`;
-  context += `Mantle TVL: $${(mantleTvl.tvl / 1e9)?.toFixed(2) || "N/A"}B\n\n`;
+  context += `Mantle TVL: $${(mantleTvl.tvl / 1e9)?.toFixed(2) || "N/A"}B\n`;
+  // Steering rule §1: when prices come from a fallback or stale
+  // snapshot, label them so the analyst (and any judge replaying
+  // the manifest) sees which feed was upstream.
+  if (eth._source && eth._source !== "coingecko") {
+    if (eth._fromDiskSnapshot) {
+      context += `Price source: ${eth._source} (cached ${
+        eth._snapshotAgeSec || 0
+      }s ago — upstream feeds unreachable; cycle reasoning should treat prices as stale)\n`;
+    } else {
+      context += `Price source: ${eth._source} (CoinGecko fallback — primary feed unavailable)\n`;
+    }
+  }
+  context += `\n`;
 
   context += `[SENTIMENT]\n`;
   context += `Fear & Greed: ${fearGreed.value || "N/A"} (${
@@ -263,6 +294,13 @@ async function getUnifiedMarketContext() {
     ethChange24h: eth.ethChange24h || 0,
     fearGreedValue: fearGreed.value || 50,
     fearGreedClass: fearGreed.classification || "Neutral",
+    // Provenance for downstream consumers (outcomes ledger, dashboards).
+    // null when getEthPrice failed entirely; otherwise the source
+    // string from priceSources.js (e.g. "coingecko", "binance+bybit",
+    // "hyperliquid", "<x>-snapshot").
+    _priceSource: eth._source || null,
+    _priceFromSnapshot: eth._fromDiskSnapshot === true,
+    _priceSnapshotAgeSec: eth._snapshotAgeSec ?? null,
   };
 }
 
