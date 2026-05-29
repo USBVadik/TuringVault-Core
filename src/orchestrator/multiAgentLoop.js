@@ -77,6 +77,64 @@ async function runMultiAgentCycle(opts = {}) {
   }
   const provider = new ethers.JsonRpcProvider("https://rpc.mantle.xyz");
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+
+  // ── Pre-flight gas check ─────────────────────────────────────────
+  // A full cycle costs ~0.04 MNT in gas (submitProposal, validate,
+  // logDecision, submitFeedback, 2-3 swap legs, agent-card refresh).
+  // If native MNT is below 0.5, the cron fails with
+  // "insufficient funds for intrinsic transaction cost" and the entire
+  // cycle is lost — see cycle 154 (2026-05-29 17:51) where this
+  // happened after cycle 153's wrap drained MNT below the threshold.
+  //
+  // Auto-rescue: if native MNT < 0.5 AND we have ≥2 WMNT to spare,
+  // unwrap 2 WMNT → MNT before doing anything else. This is a
+  // self-healing safety net so the agent can't brick itself by
+  // wrapping too much.
+  if (!dryRun && process.env.RWA_EXECUTE_ENABLED === "true") {
+    try {
+      const nativeMnt = parseFloat(
+        ethers.formatEther(await provider.getBalance(wallet.address))
+      );
+      const PREFLIGHT_GAS_FLOOR = 0.5;
+      if (nativeMnt < PREFLIGHT_GAS_FLOOR) {
+        const wmntContract = new ethers.Contract(
+          "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8",
+          [
+            "function balanceOf(address) view returns (uint256)",
+            "function withdraw(uint256 wad)",
+          ],
+          wallet
+        );
+        const wmntBal = parseFloat(
+          ethers.formatEther(await wmntContract.balanceOf(wallet.address))
+        );
+        const RESCUE_AMOUNT = 2;
+        if (wmntBal >= RESCUE_AMOUNT) {
+          console.log(
+            `⛽ [PRE-FLIGHT] Native MNT ${nativeMnt.toFixed(4)} < ${PREFLIGHT_GAS_FLOOR} floor — auto-unwrapping ${RESCUE_AMOUNT} WMNT for gas`
+          );
+          const tx = await wmntContract.withdraw(
+            ethers.parseEther(String(RESCUE_AMOUNT))
+          );
+          const rcpt = await tx.wait();
+          console.log(
+            `   ✅ Rescue unwrap: ${rcpt?.hash?.slice(0, 18) || tx.hash.slice(0, 18)}... (block ${rcpt?.blockNumber})`
+          );
+        } else {
+          console.log(
+            `⚠️  [PRE-FLIGHT] Native MNT ${nativeMnt.toFixed(4)} < floor and WMNT ${wmntBal.toFixed(4)} too low for rescue. Cycle may fail.`
+          );
+        }
+      }
+    } catch (preflightErr) {
+      // Non-fatal: log and continue. The actual on-chain TXs will
+      // fail honestly with their own error if gas is truly insufficient.
+      console.log(
+        `⚠️  [PRE-FLIGHT] gas-check threw: ${preflightErr.message?.slice(0, 80)}`
+      );
+    }
+  }
+
   const registry = new ethers.Contract(REGISTRY_ADDR, REGISTRY_ABI, wallet);
   const decisionLog = new ethers.Contract(
     DECISION_LOG_ADDR,
