@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Activity,
   MessageCircle,
+  History,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/challenge", label: "Challenge", icon: Swords },
   { href: "/backtest", label: "Performance", icon: TrendingUp },
   { href: "/proof-explorer", label: "Proofs", icon: Shield },
+  { href: "/replay", label: "Replay", icon: History },
   { href: "/discipline", label: "Discipline", icon: Activity },
   { href: "/social", label: "Social", icon: MessageCircle },
 ];
