@@ -1318,6 +1318,29 @@ async function runMultiAgentCycle(opts = {}) {
     console.log(`   ⚠️  Outcome record failed: ${e.message?.slice(0, 60)}`);
   }
 
+  // Step 6.4: Capture mETH redemption rate for the native-yield surface
+  // (spec: meth-yield-surface). Best-effort; never fails the cycle.
+  // Surfaces as "Passive Protocol Yield (mETH LST)" on the homepage,
+  // visually separated from active trading PnL per honesty rule §3.
+  try {
+    const methRate = require("./../onchain/methRate");
+    const result = await methRate.captureMethRate({
+      ethPriceUsd: market.ethPrice || null,
+    });
+    if (result.referenceSet) {
+      console.log(
+        `   📌 mETH yield: reference rate captured @ ${result.entry.source}`
+      );
+    } else {
+      const apy = result.entry.apyPct;
+      console.log(
+        `   📊 mETH yield: rate captured (apy=${apy != null ? apy.toFixed(2) + "%" : "n/a"}, src=${result.entry.source})`
+      );
+    }
+  } catch (e) {
+    console.log(`   ⚠️  mETH rate capture skipped: ${e.message?.slice(0, 80)}`);
+  }
+
   // Step 6.5: Update position state for RANGING grid memory
   try {
     const rangingSignal = market.structuredSignals?.signals?.ranging;

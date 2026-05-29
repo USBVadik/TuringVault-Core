@@ -1006,3 +1006,110 @@ What ships next session (estimated ~1h, not the previously-quoted
 3. Surface mETH balance + accrued yield on `/api/performance` and
    the homepage Performance card as a separate yield row (already
    tracked in NAV; just needs a yield-specific label).
+
+
+---
+
+## 2026-05-29 (yet later — audit 23 v2 → audit 24 ship)
+
+### 🎯 FOR PITCH — mETH Native Yield Surface (replaces the AVOID'd Aave V3 recommendation)
+
+**Commit**: pending push
+**Audit**: `.kiro/audits/24-meth-yield-surface.md`
+**Spec**:  `.kiro/specs/meth-yield-surface/{requirements,design,tasks}.md`
+
+External Antigravity-Gemini deep research v2 identified the
+"no actual yield" gap as the single biggest unaddressed AI x RWA
+Depth axis. The naive fix (Aave V3 USDT0 supply) is under hard
+taboo per the new `.kiro/steering/external-integration-due-diligence.md`
+rule because of Aave's April 2026 KelpDAO bridge cascade.
+
+This delivers the same narrative beat — "the agent earns
+RWA-shaped yield on assets it chose to hold" — without taking on
+any new counterparty contract risk. The agent already holds
+mETH; this surface makes the existing protocol-native yield
+**visible and honestly labelled**.
+
+What ships:
+
+- `src/onchain/methRate.js` — multi-source mETH redemption-rate
+  fetcher (DefiLlama → meth.mantle.xyz → L1 RPC → disk snapshot),
+  capacity-bounded at 720 captures (~30 days hourly), reference
+  rate captured exactly once and never overwritten.
+- `src/orchestrator/multiAgentLoop.js` — new step 6.4 captures
+  rate per cycle, best-effort, never fails the cycle.
+- `frontend/app/api/yield-meth/route.ts` — GET endpoint with SWR
+  caching, returns realised yield when rate path available, else
+  APY-projected daily with explicit `projected/day` label.
+- `frontend/app/page.tsx` — performance card grid expanded to 6
+  columns with a "Passive · LST" tile that surfaces yield USD,
+  APY %, source provenance pill, and drift warning when peg
+  moves against us.
+- `tests/unit/methRate.unit.test.js` — 10 unit tests covering
+  source chain + reference persistence + drift handling +
+  capacity bounds.
+
+Honesty contract honoured (workspace steering rule §1, §3):
+- Reference rate captured exactly once at first successful read.
+- Drift case (rateNow < rateRef) returns 0 + assetHealth:"drift",
+  never a negative number that could be confused with active loss.
+- "Projected" label rendered explicitly when realised accrual
+  cannot yet be computed (DefiLlama-only mode, redemption-rate
+  path pending L1 proxy address discovery).
+- Cached pill rendered when degraded; age in minutes shown.
+- Surface NEVER claims TuringVault generated the staking yield.
+  Pitch line: *"the agent picked the right RWA-shaped asset to
+  hold and proved that allocation on-chain; the asset itself
+  accrues native yield."*
+
+Risk panel for mETH (filled per
+`.kiro/steering/external-integration-due-diligence.md`):
+  Incident history (90d):    NO  (LayerZero + Mantle confirmed
+                                  rsETH incident isolated)
+  Active bad debt:           NO
+  Oracle integrity (90d):    OK
+  Cross-chain exposure:      NONE for our read path
+  Active governance crisis:  NO
+  Recovery status:           none-needed
+  Net verdict:               SAFE
+  Last checked:              2026-05-29
+
+Validation:
+- jest:           266 / 266 passing (was 256; +10)
+- ESLint src/:    0 errors / 48 warnings
+- frontend lint:  0 errors / 15 warnings
+- tsc --noEmit:   clean
+- next build:     clean, 25 routes (was 24)
+- Live probe:     DefiLlama APY 2.06%, TVL $454M
+
+**Pitch line**:
+> *"Dual-engine returns: TuringVault combines actively-traded
+> on-chain PnL (cryptographically proven via combinedAnchor) with
+> passive Mantle native staking yield on the mETH it chose to
+> hold. Both surfaces labelled separately on the homepage; never
+> visually combined. Honest about source: APY pulled from
+> DefiLlama (no API key), redemption-rate path falls back to L1
+> RPC, both with disk-snapshot bottom layer and `cached:`
+> provenance labels per workspace steering rule §1."*
+
+### Re-classification deferred from audit 23 v2
+
+- Aave V3 Mantle integration: **AVOID at submission scope** per
+  audit 22 CORRECTION + steering rule. mETH yield surface fills
+  the rubric gap without the counterparty risk.
+- Lendle / Init Capital / Aurelius: same posture — would all
+  trigger the steering rule due-diligence chain at T-17 days.
+- DAO Treasury CSV/JSON Export API (Gemini's P1): deferred to
+  next sprint — valuable for Real-World Validity but the
+  yield-surface ROI is higher (lifts AI x RWA Depth which carries
+  more weight in the rubric for this track).
+- UptimeRobot badge: trivial; deferred for batched ship with the
+  README claim grid row #11.
+
+### Notes for self
+
+- Add README claim grid row #11 pointing at /api/yield-meth in
+  the next batch.
+- Update agent-card descriptions with dual-engine framing.
+- After 24h+ of cron capturing rate, evaluate adding the second
+  curve on `/backtest`.

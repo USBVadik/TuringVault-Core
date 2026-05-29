@@ -327,6 +327,7 @@ export default function Home() {
   const [strategyData, setStrategyData] = useState<any>(null);
   const [disciplineData, setDisciplineData] = useState<any>(null);
   const [elfaData, setElfaData] = useState<any>(null);
+  const [yieldMethData, setYieldMethData] = useState<any>(null);
   useEffect(() => {
     fetch("/api/performance")
       .then((r) => (r.ok ? r.json() : null))
@@ -343,6 +344,10 @@ export default function Home() {
     fetch("/api/elfa-snapshot")
       .then((r) => (r.ok ? r.json() : null))
       .then(setElfaData)
+      .catch(() => {});
+    fetch("/api/yield-meth")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setYieldMethData)
       .catch(() => {});
   }, []);
 
@@ -548,9 +553,9 @@ export default function Home() {
             </span>
           </div>
           {!perfData && !reputationData ? (
-            <SkeletonStatsGrid count={5} />
+            <SkeletonStatsGrid count={6} />
           ) : (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div
               className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
               title="On-chain reputation NFT score (ReputationRegistry.getReputation)"
@@ -635,6 +640,76 @@ export default function Home() {
               </div>
               <div className="text-[9px] text-white/30 mt-1 uppercase">
                 W / L Ratio
+              </div>
+            </div>
+            {/* ═══ Passive Protocol Yield (mETH LST) ═══
+                Honesty: this is NOT agent-generated alpha. The agent
+                chose to hold mETH (Mantle's native LST); the protocol
+                accrues ETH staking rewards via the redemption rate.
+                Yield = current mETH balance × (current rate − reference rate).
+                Reference rate is captured exactly once at first cycle
+                after this surface ships — never backfilled.
+                Spec: .kiro/specs/meth-yield-surface.
+                Steering: §1 (provenance) + §3 (no phantom PnL). */}
+            <div
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-emerald-500/15 stat-card-interactive"
+              title={
+                yieldMethData?.referenceTs
+                  ? `Passive Protocol Yield · mETH LST. Yield since dashboard launch (${new Date(
+                      yieldMethData.referenceTs
+                    ).toUTCString()}). Source: ${yieldMethData.source ?? "—"}. NOT agent-generated — this is the native return on the asset the agent chose to hold.`
+                  : "Passive Protocol Yield · mETH LST. Initialising — first cycle after deploy will set the reference rate."
+              }
+            >
+              <div className="text-[8px] text-emerald-300/40 uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
+                Passive · LST
+                {yieldMethData?.assetHealth === "drift" && (
+                  <span
+                    className="text-[8px] text-red-400 font-bold"
+                    title="mETH redemption rate moved against us — peg drift"
+                  >
+                    ⚠ DRIFT
+                  </span>
+                )}
+                {yieldMethData?.degraded === true &&
+                  yieldMethData?.assetHealth !== "drift" && (
+                    <span
+                      className="text-[8px] text-yellow-400/70"
+                      title={`Served from cache · ${yieldMethData.lastSyncAgeMin ?? "?"} min old`}
+                    >
+                      ⏳
+                    </span>
+                  )}
+              </div>
+              <div className="text-xl font-bold text-emerald-400">
+                {yieldMethData?.passiveYieldUsd != null &&
+                Number.isFinite(yieldMethData.passiveYieldUsd) &&
+                yieldMethData.passiveYieldUsd > 0
+                  ? `$${yieldMethData.passiveYieldUsd.toFixed(4)}`
+                  : yieldMethData?.apyProjectedDailyUsd != null
+                    ? `~$${yieldMethData.apyProjectedDailyUsd.toFixed(4)}/d`
+                    : "—"}
+              </div>
+              <div className="text-[9px] text-white/30 mt-1 uppercase">
+                {yieldMethData?.passiveYieldUsd != null &&
+                yieldMethData.passiveYieldUsd > 0
+                  ? "mETH Yield · realised"
+                  : yieldMethData?.apyProjectedDailyUsd != null
+                    ? "mETH · projected/day"
+                    : "mETH Yield"}
+              </div>
+              <div className="text-[8px] text-white/25 mt-0.5">
+                {yieldMethData?.apyPct != null
+                  ? `apy ${yieldMethData.apyPct.toFixed(2)}%`
+                  : "apy —"}
+                {yieldMethData?.source && (
+                  <>
+                    {" · "}
+                    <span className="text-emerald-300/40">
+                      {yieldMethData.source.replace(/^cached:/, "cache:")}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
