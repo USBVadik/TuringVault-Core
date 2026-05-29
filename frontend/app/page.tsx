@@ -478,6 +478,28 @@ export default function Home() {
                   variant="compact"
                   initialHealth={health}
                 />
+                {/* Gas Runway: surfaces a low/critical pill when the
+                    agent EOA is on track to run out of native MNT
+                    inside the judging window. Defends the
+                    "Autonomous" claim — if the cron silently dies on
+                    `insufficient funds for intrinsic gas` mid-judge,
+                    the LIVE badge becomes a lie. Steering rule §2. */}
+                {health?.gasRunway?.status === "critical" && (
+                  <span
+                    className="badge-live border-red-500/40 text-red-300/90 bg-red-500/10"
+                    title={`Agent EOA holds ${health.gasRunway.nativeMnt} MNT — ~${health.gasRunway.daysRemaining} days runway at ${health.gasRunway.cyclesPerDayAssumed} cycles/day, ${health.gasRunway.costPerCycleMntAssumed} MNT/cycle. Top-up needed before submission.`}
+                  >
+                    GAS · CRITICAL · {health.gasRunway.daysRemaining}d
+                  </span>
+                )}
+                {health?.gasRunway?.status === "low" && (
+                  <span
+                    className="badge-live border-yellow-500/40 text-yellow-300/90 bg-yellow-500/10"
+                    title={`Agent EOA holds ${health.gasRunway.nativeMnt} MNT — ~${health.gasRunway.daysRemaining} days runway at ${health.gasRunway.cyclesPerDayAssumed} cycles/day. Plan a top-up.`}
+                  >
+                    GAS · LOW · {health.gasRunway.daysRemaining}d
+                  </span>
+                )}
               </div>
               <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-3">
                 <span className="bg-gradient-to-r from-purple-400 to-green-400 bg-clip-text text-transparent">

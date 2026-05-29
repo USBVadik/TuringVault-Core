@@ -1211,3 +1211,73 @@ Two items the reviewer correctly identified as not-yet-shipped:
    `nativeMnt`, `estimatedCyclesRemaining`, status pill so the
    Live badge degrades honestly to "low gas" before EOA bricks
    mid-judging.
+
+
+---
+
+## 2026-05-30 (after audit 26 — audit 27 invariants + runway + adversarial)
+
+### 🎯 FOR PITCH — Three defensive surfaces shipped (audit 27)
+
+**Audit**: `.kiro/audits/27-invariants-runway-adversarial-mechanics.md`
+**Trigger**: Three legitimate items the third Antigravity-Gemini
+review correctly identified as not-yet-shipped or under-claimed.
+
+What ships:
+
+1. **EXECUTED_SWAP integrity invariants (P0)** — 7 jest tests in
+   `tests/unit/outcomesIntegrity.unit.test.js` defending against
+   the cycles-113-122 class of bug (cron stamps EXECUTED_SWAP
+   without broadcast). Wired into `agent-cycle.yml` so a violating
+   row never lands on `main`. 273/273 jest passing (266 → 273; +7).
+
+2. **Gas Runway sanity check (P1)** — `/api/health` extended with
+   a `gasRunway` block (agentEoa, nativeMnt, estimatedCyclesRemaining,
+   daysRemaining, status, lastChecked). Homepage hero badge surfaces
+   a coloured pill (yellow for low, red for critical) with
+   tooltip carrying the math. Defends "Autonomous · LIVE" against
+   silent gas-out before the cron actually dies. Live probe at
+   ship time returned **0.42 days runway — operator action required**
+   (top-up to ≥ 70 MNT).
+
+3. **Adversarial mechanics framing** — README new sub-section
+   "What 'adversarial' actually means in production" with a
+   probed 50-cycle window (47/50 = 94% blocking; consensus=false
+   on 70%; validator-flagged-issues populated on 52%; arbiter
+   fired on 24%). Honest framing: layered scrutiny vs a single
+   model voting REJECT. Pipe-1 from the original audit closed with
+   nuanced read.
+
+**Pitch line**:
+> *"Three new defensive surfaces ship before submission: (1) every
+> EXECUTED_SWAP row is invariant-checked in CI before commit, so the
+> cycle-113-122 class of fake-trade bug cannot reach main. (2) The
+> agent EOA's gas runway is a leading indicator on the homepage
+> hero — when balance projects under 14 days at the verified
+> 0.077-MNT-per-cycle rate, a yellow `GAS · LOW · Nd` pill appears;
+> under 7 days, red `GAS · CRITICAL`. The pill is tied to a real
+> on-chain balance read every page load. (3) Adversarial consensus
+> is documented honestly: not a single model voting REJECT, but a
+> system of layered scrutiny — confidence + regime + validator-
+> flagged-issues + arbiter on disagreement — that blocks 94% of
+> cycles in the live window."*
+
+Validation:
+- jest:           273 / 273 passing (266 → 273; +7)
+- ESLint src/:    0 errors / 48 warnings
+- frontend lint:  0 errors / 15 warnings
+- tsc --noEmit:   clean
+- next build:     clean, 25 routes
+- 50-cycle pipe-1 re-probe: 47/50 blocking, validator-flagged on 52%
+
+### Operator action required
+
+Agent EOA `0xDC783CDBfA993f3FC299460627b204E83bf4fb5a` holds 1.56
+MNT at audit close. Worst-case projection: **0.42 days runway**.
+Top-up to ≥ 70 MNT covers full 17-day submission window with
+~10x buffer.
+
+### What did NOT ship from the third reviewer
+
+- DAO Treasury CSV/JSON Export API — deferred (lower ROI than the
+  three above; not P0 in any audit).

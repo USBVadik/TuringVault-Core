@@ -146,6 +146,20 @@ In practice, the majority of rejections (~75%) are caused by Gate 1: the Analyst
 
 The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate. Today's snapshot is **65 rejected / 158 total = 41%**, demonstrating the system's capital-preservation bias. The ratio drifts cycle-to-cycle as market conditions change; the **live ratio** is always the on-chain value (`totalRejected() / totalProposals()` on `0x6841…63b6`), not this README.
 
+### What "adversarial" actually means in production
+
+A common misread of our consensus design is "the Validator must explicitly say `REJECT` for a proposal to be blocked." That is not how the gate works. Instead, over a probed 50-cycle window (script: `scripts/audit/probe-validator-disagreement.js`):
+
+- The Validator **never** sets `disagreementSignal=true` on its own; it scrutinises and emits `validatorFlaggedIssues[]` (populated on **52% of cycles**).
+- Final consensus is computed by `decisionTier.js` as the AND of four gates: Validator approves AND analyst-confidence ≥ 60% AND validator-confidence ≥ 75% AND riskScore ≤ 60.
+- `consensus=true` reaches **30% of cycles**; `consensus=false` blocks **70%**.
+- Tier distribution over the same window: BLOCKED_BY_LOW_CONFIDENCE 42%, INTENT_SWAP_NO_EXEC 24%, BLOCKED_BY_REGIME 16%, BLOCKED_BY_VALIDATOR 12%, EXECUTED_SWAP 4%, HEARTBEAT_SWAP-or-other 2%.
+- The Arbiter (Gemini 3.5 Flash) ran on **24% of cycles** — exactly when the analyst-validator pair disagreed structurally.
+
+So "adversarial" here means a **system of layered scrutiny** rather than a single model voting REJECT. The Validator is a structural reviewer, the confidence gates are the rejection mechanism, and the Arbiter is the tiebreaker. Honest framing: the agent's adversarial-block narrative survives, but the load is distributed across confidence + regime + validator-flagged-issues, not concentrated in one model voting NO. This matches how real-world risk committees work — multiple veto sources, none of which is the single point of judgement.
+
+This pattern was probed and documented in [audit 27](.kiro/audits/27-invariants-runway-adversarial-mechanics.md).
+
 ---
 
 ## Smart Contracts (Mantle Mainnet, chain 5000)

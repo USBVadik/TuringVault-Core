@@ -87,6 +87,17 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ./gemini-service-account.json
         run: timeout 300 node scripts/run-cycle.js
 
+      # Honesty-rule invariant: outcomes.json MUST NOT advertise
+      # EXECUTED_SWAP without a real on-chain TX. This is the exact
+      # class of bug we caught manually in cycles 113-122 (audit
+      # .kiro/audits/2026-05-28-trading-unblock.md). If the cron
+      # cycle just produced a row that violates it, FAIL the build
+      # so the row never lands on main and never reaches the
+      # dashboard. Re-using the jest runner so we share regex +
+      # tier-resolution logic with local development.
+      - name: Verify outcomes integrity invariants
+        run: npx jest tests/unit/outcomesIntegrity.unit.test.js --silent
+
       - name: Commit state changes
         run: |
           # Remove the ephemeral key file BEFORE staging anything so it
