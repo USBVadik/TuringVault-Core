@@ -112,10 +112,12 @@ async function readAllBalances(provider, walletAddress) {
 
 /**
  * MNT must always have a small reserve to pay for gas. Mantle gas is
- * ~0.001 MNT per swap, so 0.05 MNT covers 50+ swaps. We never wrap
- * below this threshold.
+ * ~0.001 MNT per swap, so 0.5 MNT covers 500+ swaps comfortably.
+ * Originally tried 0.05 but cycle 153 wrapped 28.9 MNT and left 0.028
+ * native — uncomfortably close to running out for the next cycle's
+ * approve+swap+wrap chain. 0.5 gives comfortable runway.
  */
-const GAS_RESERVE_MNT = 0.05;
+const GAS_RESERVE_MNT = 0.5;
 
 /**
  * Pure function — picks the best source token + tells the caller
