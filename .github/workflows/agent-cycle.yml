@@ -35,6 +35,9 @@ jobs:
     env:
       AGENT_RUN_MODE: cron-github-actions
       RWA_EXECUTE_ENABLED: "true"
+      # Submission-window heartbeat liveness (Path C). Default OFF.
+      # See .kiro/audits/17-heartbeat-mode.md for safety gates.
+      HEARTBEAT_MODE_ENABLED: ${{ secrets.HEARTBEAT_MODE_ENABLED }}
       # Hackathon: reduce idle-parking wait from 24h to 4h
       RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
       MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
