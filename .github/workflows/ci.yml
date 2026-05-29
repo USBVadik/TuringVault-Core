@@ -35,7 +35,22 @@ jobs:
       - name: Setup Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          # Pinned to a concrete release tag instead of `stable`. The
+          # `stable` channel forces foundryup to query
+          # api.github.com/repos/foundry-rs/foundry/releases/latest,
+          # which under load gets the runner pool's anonymous IP
+          # blocked with HTTP 403 (60 req/h shared across all of
+          # ubuntu-latest). Pinning a specific tag bypasses the API
+          # call entirely — foundryup downloads the prebuilt binary
+          # directly from the GitHub releases CDN. Bump this tag
+          # when a new Foundry release lands.
+          version: v1.7.1
+        env:
+          # Belt-and-braces: also pass the auto-provisioned token
+          # so any auxiliary install steps that DO call the API
+          # (e.g. `forge install`) authenticate themselves and get
+          # the higher 1000 req/h quota.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install forge-std
         run: forge install foundry-rs/forge-std
