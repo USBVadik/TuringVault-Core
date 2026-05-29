@@ -1,0 +1,200 @@
+name: Replay Validator
+
+# Daily verification that Reproducible AI claims still hold for a
+# random recent cycle. Two halves:
+#   1. on-chain anchor recompute  — no secrets, runs always.
+#   2. provider round-trip via    — gated by AWS_* + GCP secrets;
+#      scripts/replay-decision.js   skips if absent, never fails CI.
+#
+# Closes external Gemini Pro 3.1 audit Section 4 #2 ("CI replay-validator").
+# Audit ref: .kiro/audits/18-onchain-anchor-replay-manifest.md
+#
+# Failure modes:
+#   - on-chain anchor mismatch → exit 2 from verifier → JOB FAIL → red badge
+#   - RPC transient issue      → exit 3 from verifier → JOB SOFT-FAIL (warn)
+#   - provider round-trip drift → JOB CONTINUES — informational only
+
+on:
+  schedule:
+    # Once a day at 03:11 UTC. Random-ish minute to avoid the GH
+    # Actions :00 stampede + offset from the agent-cycle slots.
+    - cron: "11 3 * * *"
+  workflow_dispatch:
+    inputs:
+      cycle_id:
+        description: "Specific cycle id to validate (blank = random)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  issues: write # to file an issue when an anchor mismatch lands
+
+concurrency:
+  group: replay-validator
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Verify Reproducible AI for a random cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      GEMINI_PROJECT_ID: ${{ secrets.GEMINI_PROJECT_ID }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Pick a cycle to validate
+        id: pick
+        run: |
+          set -e
+          MANIFEST_DIR=".kiro/audits/raw/replay-manifests"
+          # If user supplied a specific id via workflow_dispatch, use it.
+          if [ -n "${{ inputs.cycle_id }}" ]; then
+            CYCLE="${{ inputs.cycle_id }}"
+            echo "Using operator-supplied cycle: ${CYCLE}"
+          else
+            # Pick a random manifest from the most recent 30. We bias
+            # toward recent cycles so a regression introduced this week
+            # gets caught fast.
+            FILES=$(ls "${MANIFEST_DIR}"/cycle-*.json 2>/dev/null | sort -r | head -30)
+            if [ -z "${FILES}" ]; then
+              echo "::error::No manifests found in ${MANIFEST_DIR}"
+              exit 1
+            fi
+            COUNT=$(echo "${FILES}" | wc -l | tr -d ' ')
+            # Random 0-based index in [0, COUNT)
+            IDX=$((RANDOM % COUNT))
+            FNAME=$(echo "${FILES}" | sed -n "$((IDX + 1))p")
+            CYCLE=$(basename "${FNAME}" .json | sed 's/^cycle-0*//')
+            # Edge case: cycle-0000.json → empty after strip → reset to 0
+            [ -z "${CYCLE}" ] && CYCLE=0
+            echo "Picked random cycle ${CYCLE} from ${COUNT} recent manifests"
+          fi
+          echo "cycle=${CYCLE}" >> "${GITHUB_OUTPUT}"
+
+      - name: Verify on-chain anchor (no secrets path)
+        id: anchor
+        run: |
+          set +e
+          node scripts/verify-onchain-anchor.js "${{ steps.pick.outputs.cycle }}"
+          STATUS=$?
+          echo "exit=${STATUS}" >> "${GITHUB_OUTPUT}"
+          if [ "${STATUS}" -eq 0 ]; then
+            echo "::notice::✅ Anchor binding verified for cycle ${{ steps.pick.outputs.cycle }}"
+            exit 0
+          elif [ "${STATUS}" -eq 3 ]; then
+            echo "::warning::Mantle RPC unreachable — anchor not verified, this is transient and will retry tomorrow."
+            exit 0
+          else
+            echo "::error::Anchor mismatch for cycle ${{ steps.pick.outputs.cycle }} (exit ${STATUS}). Manifest may have been edited after the cycle committed."
+            exit 1
+          fi
+
+      - name: Probe credentials for provider round-trip (informational)
+        id: creds
+        run: |
+          # We deliberately don't fail the workflow if credentials are
+          # missing — the on-chain anchor check above is the load-bearing
+          # half of Reproducible AI. Provider round-trip is a bonus.
+          MISSING=""
+          [ -z "${AWS_ACCESS_KEY_ID}" ] && MISSING="${MISSING} AWS_ACCESS_KEY_ID"
+          [ -z "${AWS_SECRET_ACCESS_KEY}" ] && MISSING="${MISSING} AWS_SECRET_ACCESS_KEY"
+          [ -z "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" ] && MISSING="${MISSING} GOOGLE_APPLICATION_CREDENTIALS_JSON"
+          if [ -n "${MISSING}" ]; then
+            echo "skip_replay=true" >> "${GITHUB_OUTPUT}"
+            echo "::notice::Skipping LLM round-trip — missing secrets:${MISSING}. On-chain anchor check above is sufficient."
+          else
+            echo "skip_replay=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Write Gemini service-account key
+        if: steps.creds.outputs.skip_replay == 'false'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+        run: |
+          printf '%s' "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > ./gemini-service-account.json
+          chmod 600 ./gemini-service-account.json
+
+      - name: Run LLM round-trip replay (best-effort)
+        if: steps.creds.outputs.skip_replay == 'false'
+        id: replay
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ./gemini-service-account.json
+        run: |
+          # Replay returns 0 on clean reproduction, 2 on divergence
+          # (which is informational — temperature>0 models naturally
+          # drift). We never fail the workflow on this — only the
+          # anchor check is load-bearing. Drift is logged as a warning.
+          set +e
+          timeout 120 node scripts/replay-decision.js "${{ steps.pick.outputs.cycle }}"
+          STATUS=$?
+          if [ "${STATUS}" -eq 0 ]; then
+            echo "::notice::✅ Provider round-trip clean for cycle ${{ steps.pick.outputs.cycle }}"
+          else
+            echo "::warning::Provider round-trip diverged for cycle ${{ steps.pick.outputs.cycle }} (exit ${STATUS}) — informational, not a failure. temperature>0 models drift naturally."
+          fi
+          # Always exit 0 here — divergence is not a CI failure for the
+          # replay validator. The anchor check above is the binding test.
+          exit 0
+
+      - name: Cleanup credentials
+        if: always() && steps.creds.outputs.skip_replay == 'false'
+        run: rm -f ./gemini-service-account.json
+
+      - name: File issue on anchor mismatch
+        if: failure() && steps.anchor.outputs.exit == '2'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const cycle = '${{ steps.pick.outputs.cycle }}';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const title = `Anchor mismatch detected for cycle ${cycle}`;
+            const body = [
+              `Daily replay-validator detected an on-chain anchor mismatch for **cycle ${cycle}**.`,
+              ``,
+              `**Run**: ${runUrl}`,
+              ``,
+              `**What this means**: the recomputed`,
+              `\`keccak256(utf8(ipfsCid) ‖ manifestHash)\` does not match`,
+              `the bytes32 stored in \`DecisionLog.txHash\` for that decision.`,
+              `Possible causes:`,
+              ``,
+              `1. The manifest on disk was edited after the cycle committed`,
+              `   on-chain — the binding it declares no longer matches the`,
+              `   permanent value on Mantle.`,
+              `2. The +1 offset between manifest \`decisionId\` and the`,
+              `   \`DecisionLog\` array index drifted further than the`,
+              `   verifier tolerates.`,
+              ``,
+              `**Honesty rule**: until this is resolved, the public`,
+              `\`/replay/${cycle}\` page will surface a "binding mismatch"`,
+              `verdict for this cycle. The narrative is intact for all`,
+              `other cycles — this issue is the proof that the validator`,
+              `is doing its job.`,
+              ``,
+              `Audit ref: \`.kiro/audits/18-onchain-anchor-replay-manifest.md\`.`,
+            ].join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['reproducible-ai', 'audit', 'p0'],
+            });
