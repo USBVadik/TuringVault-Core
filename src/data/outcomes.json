@@ -264,6 +264,61 @@
       },
       "executedOnChain": true,
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780045181676_141",
+      "decisionId": 141,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2003.64,
+      "ipfsCid": "QmTRoLZgAPTE6xQH48B74weXHg6ZtPmzRmGbYbXMM4tVnz",
+      "recordedAt": "2026-05-29T08:59:41.676Z",
+      "settleAfter": "2026-05-29T09:59:41.676Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780045181675
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is appropriate given RANGING regime (55% confidence) with no established grid channels on either ETH or MNT. Analyst correctly identifies grid unavailability as blocking mean-reversion entry. Funding at 0.546% is genuinely neutral. F&G=23 contrarian signal lacks smart money confirmation ($0.0M outflow). EMA_CROSS=SELL with RSI 46.9 falling supports caution. No directional trade propo",
+      "validatorFlaggedIssues": [
+        "Grid channels unestablished — mean-reversion strategy blocked",
+        "Signal consensus BEARISH conflicts with analyst's neutral framing",
+        "RSI falling toward oversold with bearish EMA cross warrants monitoring",
+        "Yield spread -1% vs mETH is bearish signal underweighted in reasoning"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Holding mETH is the correct stance as both agents agree that the ranging market regime lacks established grid channels or clear directional momentum to justify an entry.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
