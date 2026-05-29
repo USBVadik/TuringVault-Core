@@ -15,7 +15,7 @@ Every claim below points to an artefact you can open without our help.
 | #   | Claim                                                              | Open this                                                                                                                                                                                            |
 | --- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | **Live multi-agent decisions on Mantle Mainnet**                   | [DecisionLog contract](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) — scroll the events tab; every cycle writes a hashed reasoning anchor                         |
-| 2   | **ERC-8004 reference identity** with auto-updating tokenURI        | [Identity NFT](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) — `tokenURI(0)` returns the live IPFS CID; resolves to current agent card                             |
+| 2   | **ERC-8004 three-registry implementation** (Identity + Reputation + Validation) | [Identity NFT](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) · [ReputationRegistry](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) · [ValidationRegistry](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) — all three contracts deployed, Sourcify-verified, **and actively written every cycle** (`tokenURI` auto-refresh, `submitFeedback` per cycle, `submitProposal`+`submitValidation` per decision) |
 | 3   | **Adversarial validation gate working** (rejects unsafe proposals) | [ValidationRegistry](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) — totalRejected / totalApproved are public on-chain counters                                    |
 | 4   | **Real RWA execution** — first tokenized-Treasury swap             | [TX 0x0af2336…3e09de](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2                                                          |
 | 5   | **Autonomous cron is observable** (not a screenshot)               | [Agent Cycle workflow runs](https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml) — public GitHub Actions log, every scheduled run, every step                              |
@@ -142,16 +142,27 @@ The on-chain `totalRejected` counter on ValidationRegistry reflects proposals bl
 
 ## Smart Contracts (Mantle Mainnet, chain 5000)
 
-All contracts verified on Sourcify except the Router, which had a code change after first deployment (4 of 5 audited contracts verified; one ERC-8004 helper present alongside):
+Six contracts deployed on Mantle Mainnet, **all six Sourcify-verified**
+(checked 2026-05-29 via `sourcify.dev/server/check-by-addresses`,
+status `perfect` for every entry). Together they form a complete
+**ERC-8004 three-registry implementation** (Identity + Reputation +
+Validation) plus the application-specific DecisionLog and Router.
 
-| Contract                      | Address                                                                                                                        | Purpose                       |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
-| TuringVaultIdentity           | [`0x6f862802e0d5463DF18d267e422347BeCacc28bD`](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) | ERC-8004 AI agent identity    |
-| TuringVaultDecisionLog        | [`0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) | Immutable decision history    |
-| TuringVaultRouter             | [`0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) | Trade execution & routing     |
-| TuringVaultValidationRegistry | [`0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) | Multi-agent validation scores |
-| ReputationRegistry            | [`0xC78119F3274B05046Ac7c38a14298a6cbD946e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) | On-chain AI reputation        |
-| TuringVaultValidation         | [`0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705`](https://explorer.mantle.xyz/address/0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705) | ERC-8004 pre-action validation helper |
+| Role | Contract | Address |
+| --- | --- | --- |
+| **ERC-8004 Identity Registry** | TuringVaultIdentity | [`0x6f86…28bD`](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) |
+| **ERC-8004 Reputation Registry** | TuringVaultReputationRegistry | [`0xC781…6e1a`](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) |
+| **ERC-8004 Validation Registry** | TuringVaultValidationRegistry | [`0x6841…63b6`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) |
+| Pre-action Validation helper | TuringVaultValidation | [`0x0aeE…f705`](https://explorer.mantle.xyz/address/0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705) |
+| Immutable decision history | TuringVaultDecisionLog | [`0x7bCd…fbB5`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) |
+| Trade execution & routing | TuringVaultRouter | [`0x8187…7001`](https://explorer.mantle.xyz/address/0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001) |
+
+All three ERC-8004 registries are **actively written** every cycle —
+not vestigial:
+- Identity stores the agent NFT with auto-refreshed `tokenURI` pointing at the latest agent-card on IPFS
+- Reputation receives `submitFeedback` per cycle (proposal scoring) and `recordPnL` at settlement
+- Validation receives `submitProposal` + `submitValidation` for every multi-agent decision
+
 
 ---
 

@@ -194,10 +194,16 @@ async function uploadAgentCard() {
     ],
 
     contracts: {
-      identity: "0x582E6a649B99784829193E14bB7Af8c4A482E165",
+      // ERC-8004 three-registry implementation on Mantle Mainnet (chain 5000).
+      // All six contracts Sourcify-verified perfect (checked 2026-05-29).
+      // The first three are the canonical ERC-8004 registries; the rest
+      // are application-specific.
+      identity: "0x6f862802e0d5463DF18d267e422347BeCacc28bD",
+      reputationRegistry: "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a",
+      validationRegistry: "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6",
+      validationHelper: "0x0aeEd88959fCFC665284225dB93DED3e8A3Ff705",
       decisionLog: "0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5",
       router: "0x8187B23553B2a7DeD5C1C2854Ae66D24b5607001",
-      validationRegistry: "0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6",
     },
 
     riskParameters: {
