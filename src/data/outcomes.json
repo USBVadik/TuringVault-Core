@@ -483,6 +483,60 @@
       "directionalSwap": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780058266899_145",
+      "decisionId": 145,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1997.27,
+      "ipfsCid": "QmYMtxJTvhZbEftXSX5XL2rXM9LTnoDEmTjGJqQ6BDT9qC",
+      "recordedAt": "2026-05-29T12:37:46.899Z",
+      "settleAfter": "2026-05-29T13:37:46.899Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780058266898
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime is RANGING (55% confidence) with no established grid channels for ETH or MNT — no directional edge exists. Bearish signal consensus, flat smart money ($0.0M), negative yield spread (-1%), and conflicting technicals (EMA bearish vs MACD/Bollinger buy) all justify inaction. F&G=23 contrarian case is acknowledged but correctly deferred pending grid confirmation",
+      "validatorFlaggedIssues": [
+        "Grid channels unestablished — grid confidence only 30%",
+        "Signal consensus BEARISH conflicts with MNT BUY technical — unresolved tension noted but acceptable for HOLD",
+        "Extreme Fear sentiment creates contrarian temptation — correctly resisted without confirmation"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Both the analyst and validator agree that a 'hold' is the most prudent stance given the ranging market regime, lack of established grid channels, and conflicting technical signals.",
+      "directionalSwap": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
