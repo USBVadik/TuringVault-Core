@@ -841,6 +841,113 @@
       "decisionLogTxHash": "0x0f0989927d205bdc8389b5f083acccb125ef7b4cda6d8c8a590f6997bc0a4f10",
       "executedOnChain": true,
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780072361275_150",
+      "decisionId": 150,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2022.47,
+      "ipfsCid": "Qma5nwtUs5Ly5fiQY3evRvJswZMGtKRrSURba5mbxo6sHP",
+      "recordedAt": "2026-05-29T16:32:41.275Z",
+      "settleAfter": "2026-05-29T17:32:41.275Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 95971022"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780072361272
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Defensive swap to mUSD (risk-off) is justified. Both ETH and MNT grids signal EXIT_RANGING at 70% confidence with vol expanding. MNT at 100% channel position (resistance rejection) is the PRIMARY EDGE trigger. F&G=23 extreme fear + bearish consensus + negative yield spread (-1%) support de-risking. 30% allocation is conservative. EMA bullish cross on ETH is acknowledged as conflicting signal. Fund",
+      "validatorFlaggedIssues": [
+        "Analyst funding rate annualization math is incorrect — 0.475% periodic ≠ 173% annualized",
+        "EMA cross bullish on ETH conflicts with bearish thesis — acknowledged but not weighted",
+        "EXIT_RANGING confidence only 70% — breakdown could be false signal",
+        "Regime confidence only 55% — transition not confirmed",
+        "Low intraday vol (0.29%) may indicate consolidation not breakdown"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 0.525,
+        "amountOut": 0.337184,
+        "txHash": "0x23f70e9ac93ad99db5684e30cc34923226aa54b95c15f53169cc18fdd806d13b",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0x88ae464522be5425eeaa0800b8617dd97eb874395122fa0e7e863a8786d34b18",
+            "blockNumber": 95971016,
+            "amountIn": 0.525,
+            "amountOut": 0.3368
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0x23f70e9ac93ad99db5684e30cc34923226aa54b95c15f53169cc18fdd806d13b",
+            "blockNumber": 95971022,
+            "amountIn": 0.337286376,
+            "amountOut": 0.337184
+          }
+        ]
+      },
+      "manifestHash": "0xcae0a25a8e67342d5926d9dd09b6cf9e3eb01b10257440724d6cb6d663576d56",
+      "combinedAnchor": "0x173861407df0bb4969e9be1dd615e0b0335ced106f33f70f934a7b1835ff302e",
+      "decisionLogTxHash": "0xde133a5f2c953fcfc9f2f94706222df5bbda1db49dd1c26690791bd2f4307918",
+      "executedOnChain": true,
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
