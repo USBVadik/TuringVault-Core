@@ -33,6 +33,57 @@ and harvest. Nothing gets lost.
 
 ## 2026-05-29 (working session)
 
+### 🎯 FOR PITCH — `/replay/<id>` public verification page (P1)
+
+**Commits**: `909e1ed` (page + API), `818a98d` (offset-tolerant lookup)
+
+External Gemini Pro 3.1 audit weakness #2: "Reproducible AI imposes
+an unreasonable verification burden — judges must pull the repo,
+`npm install`, and provide their own AWS/GCP keys to run
+`scripts/replay-decision.js`. They won't do this." Audit verdict was
+DEFER + explain in README; we shipped a stronger answer in 4 hours.
+
+Shipped:
+
+- `/replay` — public index of the 30 most recent cycles with manifests.
+- `/replay/<cycle-id>` — server-rendered proof page with:
+  - Cryptographic binding panel: ipfsCid, manifestHash, recomputed
+    combinedAnchor, anchor stored in manifest, on-chain bytes32
+    pulled live from `DecisionLog.getDecision()`, plus the
+    DecisionLog tx hash linked to Mantlescan.
+  - Verdict banner: ✅ verified | ⚠ mismatch | legacy.
+  - One card per LLM call (analyst, validator, arbiter) with the
+    exact systemPrompt + userPrompt + raw model response.
+  - Footer with three independent verification paths (manifest URL
+    on GitHub, Mantlescan getDecision lookup, optional local replay).
+- `/api/replay` and `/api/replay/[id]` — JSON surfaces of the same
+  data with the binding self-check pre-computed server-side.
+
+The page deliberately does NOT re-invoke Bedrock / Vertex — the
+Reproducible AI claim is sealed by the on-chain anchor (audit 18),
+not by burning AWS quota on every page view. Judges who want the
+full provider round-trip can still use `npm run replay <id>` locally.
+
+While shipping this we found a +1 offset between
+`ValidationRegistry.totalProposals` (manifest's `decisionId`) and
+`DecisionLog.totalDecisions` (zero-indexed array). The page tolerates
+the drift via a candidate-window lookup that picks the row whose
+bytes32 matches the expected anchor, and surfaces the mapping note
+to the user honestly.
+
+Live now:
+- https://frontend-seven-beta-46.vercel.app/replay
+- https://frontend-seven-beta-46.vercel.app/replay/147 (verified ✅)
+
+**Pitch line**:
+> *"Click `/replay/<cycle-id>` and see the AI's exact prompt + raw
+> response side-by-side with the cryptographic anchor on Mantle
+> Mainnet — pre-verified server-side. No AWS keys required, no
+> hardware vendor in the trust chain. The Reproducible AI claim is
+> something judges can spot-check in seconds, not a footnote."*
+
+---
+
 ### 🎯 FOR PITCH — Reproducible AI: anchor sealed on-chain (audit 18)
 
 **Commits**: pending push (capture-manifest peek + canonical hash fix +
