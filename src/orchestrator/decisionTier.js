@@ -32,6 +32,11 @@ const TIERS = Object.freeze({
   BLOCKED_BY_LOW_CONFIDENCE: "BLOCKED_BY_LOW_CONFIDENCE",
   BLOCKED_BY_REGIME: "BLOCKED_BY_REGIME",
   BLOCKED_BY_PARSE_FAILURE: "BLOCKED_BY_PARSE_FAILURE",
+  // Submission-window heartbeat: deliberate, micro-sized, alternating
+  // swap injected by Path C heartbeat mode after a long passive run.
+  // Always honest — never aggregated into "real" alpha metrics.
+  // Spec: src/orchestrator/heartbeatMode.js
+  HEARTBEAT_SWAP: "HEARTBEAT_SWAP",
 });
 
 const DEFAULT_THRESHOLD = 0.6;
@@ -48,6 +53,15 @@ const DEFAULT_THRESHOLD = 0.6;
 function classifyDecisionTier(decision, market) {
   const safeDecision = decision || {};
   const safeMarket = market || {};
+
+  // 0. Heartbeat override — Step 4.8 stamped this when it fired a
+  //    submission-window heartbeat swap. Always honest, distinct
+  //    tier from EXECUTED_SWAP so dashboards never aggregate it
+  //    into "real" alpha metrics. Source of truth for the override
+  //    path: src/orchestrator/heartbeatMode.js.
+  if (safeDecision._heartbeatTier === TIERS.HEARTBEAT_SWAP) {
+    return TIERS.HEARTBEAT_SWAP;
+  }
 
   // 1. Parse failure — at least one agent's output couldn't be Zod-parsed.
   if (!safeDecision.analyst || !safeDecision.validator) {

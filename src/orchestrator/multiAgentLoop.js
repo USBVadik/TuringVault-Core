@@ -818,6 +818,225 @@ async function runMultiAgentCycle(opts = {}) {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────
+  // Step 4.8: Heartbeat Mode (Path C in RWA Allocator design)
+  //
+  // Submission-window safety net. If the regular pipeline didn't
+  // produce a real DEX TX this cycle (consensus didn't reach swap,
+  // or it reached swap but the gate blocked execution) AND the bot
+  // has been quiet for ≥6 cycles in a row, fire a deliberate
+  // micro-swap (~$1) to maintain on-chain liveness. Tagged with the
+  // distinct `HEARTBEAT_SWAP` tier so it never aggregates into
+  // "real" alpha metrics.
+  //
+  // Gated behind HEARTBEAT_MODE_ENABLED=true. Default OFF in CI.
+  // Spec: src/orchestrator/heartbeatMode.js (single source of truth).
+  // ─────────────────────────────────────────────────────────────
+  const realSwapHappened =
+    directionalSwapResult &&
+    directionalSwapResult.executed === true &&
+    Array.isArray(directionalSwapResult.legs) &&
+    directionalSwapResult.legs.some((l) => l && l.txHash);
+
+  if (!realSwapHappened) {
+    try {
+      const {
+        shouldFireHeartbeat,
+        summariseCycle,
+        HEARTBEAT_TIER,
+      } = require("./heartbeatMode");
+
+      // Build recentCycles from outcomes.json — pure read, no mutation.
+      const fs = require("fs");
+      const path = require("path");
+      const outcomesPath = path.resolve(
+        __dirname,
+        "../../src/data/outcomes.json"
+      );
+      let recentCycles = [];
+      let lastDirection = null;
+      try {
+        const db = JSON.parse(fs.readFileSync(outcomesPath, "utf8"));
+        const all = [...(db.pending || []), ...(db.settled || [])];
+        all.sort((a, b) => (a.decisionId || 0) - (b.decisionId || 0));
+        const recent = all.slice(-30);
+        recentCycles = recent.map(summariseCycle);
+        // Last heartbeat direction so we can alternate.
+        const lastHb = [...recent]
+          .reverse()
+          .find(
+            (r) => (r._displayTier || r.decisionTier) === HEARTBEAT_TIER
+          );
+        if (lastHb) {
+          lastDirection = lastHb.directionalSwap?.direction || null;
+        }
+      } catch (readErr) {
+        console.log(
+          `   [HEARTBEAT] Could not read outcomes.json: ${readErr.message?.slice(
+            0,
+            60
+          )}`
+        );
+      }
+
+      // Refresh wallet balances for the heartbeat decision.
+      const { MerchantMoeDEX } = require("../dex/merchantMoe");
+      const probeDex = new MerchantMoeDEX({
+        rpcUrl: "https://rpc.mantle.xyz",
+        dryRun: true,
+      });
+      const hbBalances = await probeDex.getBalances(wallet.address);
+      try {
+        const usdt0Tok = new ethers.Contract(
+          "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+          [
+            "function balanceOf(address) view returns (uint256)",
+            "function decimals() view returns (uint8)",
+          ],
+          provider
+        );
+        const [u0bal, u0dec] = await Promise.all([
+          usdt0Tok.balanceOf(wallet.address),
+          usdt0Tok.decimals(),
+        ]);
+        hbBalances.USDT0 = parseFloat(ethers.formatUnits(u0bal, u0dec));
+      } catch {
+        hbBalances.USDT0 = 0;
+      }
+
+      const decision_ = shouldFireHeartbeat({
+        regime: market.structuredSignals?.regime?.regime,
+        recentCycles,
+        balances: hbBalances,
+        prices: { mntPriceUsd: market.mntPrice || 0.65 },
+        directionLastUsed: lastDirection,
+      });
+
+      if (decision_.fire && process.env.RWA_EXECUTE_ENABLED === "true") {
+        console.log(
+          `💓 [STEP 4.8] HEARTBEAT firing: ${decision_.plan.from} → ${decision_.plan.to} ` +
+            `($${decision_.plan.amountUsd.toFixed(2)}, ${decision_.plan.direction})`
+        );
+        console.log(`   reason: ${decision_.reason}`);
+
+        const liveDex = new MerchantMoeDEX({
+          privateKey: process.env.PRIVATE_KEY,
+          dryRun: false,
+        });
+
+        // 2-leg path through USDT for either direction.
+        // Heartbeats deliberately do NOT touch mETH (volatile target);
+        // they round-trip through stables ↔ WMNT only.
+        const hbPath =
+          decision_.plan.direction === "risk-on"
+            ? ["USDT0", "USDT", "WMNT"]
+            : ["WMNT", "USDT", "USDT0"];
+
+        const fromTok = hbPath[0];
+        const fromDec = fromTok === "USDT0" || fromTok === "USDT" ? 6 : 18;
+        const sourceUsdPrice =
+          fromTok === "WMNT" ? market.mntPrice || 0.65 : 1;
+        const sourceAmount = decision_.plan.amountUsd / sourceUsdPrice;
+        const amountInWei = ethers.parseUnits(
+          sourceAmount.toFixed(fromDec),
+          fromDec
+        );
+
+        // Execute the 2 legs using the same N-leg pattern as Step 4.7.
+        const hbLegs = [];
+        let hbLegFailed = false;
+        let hbNextAmountIn = sourceAmount;
+        for (let i = 0; i < hbPath.length - 1; i++) {
+          const ftk = hbPath[i];
+          const ttk = hbPath[i + 1];
+          const fdec = ftk === "USDT" || ftk === "USDT0" ? 6 : 18;
+          if (i > 0) {
+            const bal = await liveDex.getBalances(wallet.address);
+            const have = bal[ftk] || 0;
+            hbNextAmountIn = have * 0.999;
+            if (hbNextAmountIn < 0.0001) {
+              hbLegs.push({
+                leg: i + 1,
+                from: ftk,
+                to: ttk,
+                reason: "intermediate-too-low",
+              });
+              hbLegFailed = true;
+              break;
+            }
+          }
+          const wei =
+            i === 0
+              ? amountInWei
+              : ethers.parseUnits(hbNextAmountIn.toFixed(fdec), fdec);
+          const legResp = await liveDex.executeSwap(ftk, ttk, wei, {
+            maxPriceImpactBps: i === 0 ? 100 : 200,
+            slippageBps: 50,
+          });
+          if (!legResp?.executed) {
+            hbLegs.push({
+              leg: i + 1,
+              from: ftk,
+              to: ttk,
+              reason: legResp?.reason || "unknown",
+            });
+            hbLegFailed = true;
+            break;
+          }
+          console.log(
+            `   ✅ HB Leg ${i + 1}: ${legResp.txHash.slice(0, 18)}... ` +
+              `→ ${legResp.estimatedOut.toFixed(6)} ${ttk}`
+          );
+          hbLegs.push({
+            leg: i + 1,
+            from: ftk,
+            to: ttk,
+            txHash: legResp.txHash,
+            blockNumber: legResp.blockNumber,
+            amountIn: i === 0 ? sourceAmount : hbNextAmountIn,
+            amountOut: legResp.estimatedOut,
+          });
+          hbNextAmountIn = legResp.estimatedOut;
+        }
+
+        const heartbeatResult = {
+          executed: !hbLegFailed,
+          direction: decision_.plan.direction,
+          from: hbPath[0],
+          to: hbPath[hbPath.length - 1],
+          amountIn: sourceAmount,
+          amountUsd: decision_.plan.amountUsd,
+          tier: HEARTBEAT_TIER,
+          rationale: decision_.plan.rationale,
+          legs: hbLegs,
+          txHash:
+            hbLegs.length && hbLegs[hbLegs.length - 1]?.txHash
+              ? hbLegs[hbLegs.length - 1].txHash
+              : null,
+        };
+
+        // If heartbeat actually executed, override the directional
+        // swap result so outcomes/UI surface the heartbeat as the
+        // cycle's on-chain action — but tagged HEARTBEAT_SWAP, not
+        // EXECUTED_SWAP. honesty rule §1.
+        if (heartbeatResult.executed) {
+          directionalSwapResult = heartbeatResult;
+          decision.executionTxHash = heartbeatResult.txHash;
+          // Tag the decision so outcomeTracker + decisionTier classifier
+          // pick up HEARTBEAT_SWAP rather than EXECUTED_SWAP.
+          decision._heartbeatTier = HEARTBEAT_TIER;
+        }
+      } else if (!decision_.fire) {
+        // Visible diagnostic so the operator can see what's gating it.
+        console.log(`💓 [STEP 4.8] heartbeat skipped: ${decision_.reason}`);
+      }
+    } catch (hbErr) {
+      console.log(
+        `   ⚠️  Heartbeat path threw: ${hbErr.message?.slice(0, 120)}`
+      );
+    }
+  }
+
   // Step 6: Record outcome for future settlement (the real learning loop)
   console.log("🔮 [STEP 6] Recording outcome for settlement in 4h...");
 
