@@ -304,15 +304,23 @@ export default function Home() {
   // const { isLoading: isTxPending, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
   // ═══ MARKET DATA ═══
-  const FALLBACK_MARKET = {
-    ethPrice: 2847,
-    ethChange24h: -1.2,
-    sentiment: "cautious_neutral",
-    mETHYield: 3.41,
-    mantleTVL: 4200000000,
-    fearGreedValue: 42,
-    lastUpdated: "2026-05-20T18:30:00Z",
-  };
+  // Memoised so the useEffect deps below are stable; the values
+  // themselves are placeholder constants used only when /api/market
+  // returns non-OK (no honesty-rule risk: the page also surfaces
+  // freshness via LiveStatusBadge, so a stale fallback can't pose
+  // as live).
+  const FALLBACK_MARKET = useMemo(
+    () => ({
+      ethPrice: 2847,
+      ethChange24h: -1.2,
+      sentiment: "cautious_neutral",
+      mETHYield: 3.41,
+      mantleTVL: 4200000000,
+      fearGreedValue: 42,
+      lastUpdated: "2026-05-20T18:30:00Z",
+    }),
+    []
+  );
 
   // ═══ VAULT PERFORMANCE (live wallet balance) ═══
   const [perfData, setPerfData] = useState<any>(null);
@@ -351,7 +359,7 @@ export default function Home() {
     fetchMarket();
     const interval = setInterval(fetchMarket, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [FALLBACK_MARKET]);
 
   // ═══ REASONING ANIMATION ═══
   useEffect(() => {
@@ -476,8 +484,9 @@ export default function Home() {
                 </span>
               </h2>
               <p className="text-sm text-white/40 max-w-lg">
-                Multi-model adversarial consensus with on-chain proof of every
-                reasoning step.{" "}
+                For DAO treasuries and on-chain funds: an AI portfolio manager
+                whose every reallocation must survive adversarial multi-model
+                review before execution.{" "}
                 {totalRejected && totalProposals
                   ? `${totalRejected}/${totalProposals}`
                   : ""}{" "}

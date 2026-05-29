@@ -1,7 +1,7 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "TuringVault AI Agent",
-  "description": "Autonomous multi-agent RWA portfolio manager on Mantle. Three-model adversarial consensus (Z.ai GLM-5 Analyst + Anthropic Claude 4.6 Validator + Google Gemini 3.5 Arbiter) with on-chain attestation per cycle (proposal, validation, decisionLog, reputation), IPFS-pinned reasoning, ERC-8004 reputation accumulation, Discipline Layer post-execution proof verification. Acts as a Trust Firewall: every allocation must survive adversarial challenge BEFORE execution. Demo capital, custodial EOA, vault contract pattern in development.",
+  "description": "Autonomous multi-agent RWA portfolio manager on Mantle, designed for DAO treasuries and on-chain funds that need yield without delegating to a black-box agent. Three-model adversarial consensus (Z.ai GLM-5 Analyst + Anthropic Claude 4.6 Validator + Google Gemini 3.5 Arbiter) with on-chain attestation per cycle (proposal, validation, decisionLog, reputation), IPFS-pinned reasoning, ERC-8004 reputation accumulation, Discipline Layer post-execution proof verification. Acts as a Trust Firewall: every allocation must survive adversarial challenge BEFORE execution. Demo capital, custodial EOA, vault contract pattern in development.",
   "image": "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-avatar.png",
   "erc8004": {
     "role": "reference-implementation",
@@ -96,17 +96,22 @@
     "frontend": "Next.js 16 on Vercel"
   },
   "stats": {
-    "snapshotAt": "2026-05-26T15:00:00.000Z",
-    "totalDecisions": 104,
-    "proposalsValidated": 104,
-    "safetyBlockedActions": 64,
-    "approvedExecutions": 40,
-    "blockRate": "61.5%",
+    "snapshotAt": "2026-05-29T19:42:00.000Z",
+    "totalDecisions": 158,
+    "proposalsValidated": 158,
+    "safetyBlockedActions": 65,
+    "approvedExecutions": 93,
+    "blockRate": "41.1%",
     "consensusRate": "100% of cycles reached a consensus outcome (approve or block)",
-    "rwaAllocationPctNav": 55,
+    "rwaAllocationPctNav": 88,
+    "settledOutcomes": 67,
+    "winRate": "46.3%",
+    "cumulativePnlBps": 1757,
+    "cyclesSucceeded24h": 30,
+    "cyclesFailed24h": 1,
     "firstRwaSwapTx": "0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de",
-    "parseSuccessRate24h": "100% (over measured 24h window, N=24 cycles)",
-    "gasEfficiency": "~0.0098 MNT per TX (~$0.007 at MNT=$0.72; 22-TX verified sample)",
-    "narrative": "Trust Firewall blocked 64/104 proposals via confidence threshold + adversarial validator. 3-model consensus ensures safety-first execution. ~55% NAV in tokenized Treasuries (USDT0). NOTE: snapshot is repository-static; live numbers auto-refreshed on IPFS via cron."
+    "parseSuccessRate24h": "100% (over measured 24h window, N=31 cycles)",
+    "gasEfficiency": "~0.0098 MNT per TX (~$0.007 at MNT=$0.65; 22-TX verified sample)",
+    "narrative": "Trust Firewall blocked 65/158 proposals via confidence threshold + adversarial validator. 3-model consensus ensures safety-first execution. Across 67 settled outcomes the agent realised +1757 bps cumulative on-chain PnL with 46.3% winRate. ~88% NAV in tokenized stablecoins (USDT0). NOTE: snapshot is repository-static; live numbers auto-refreshed on IPFS via cron."
   }
 }

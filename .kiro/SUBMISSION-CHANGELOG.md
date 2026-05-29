@@ -835,3 +835,83 @@ These are NOT shipped, decided to defer:
 - [ ] Verify all `https://...` URLs in README/pitch resolve.
 - [ ] `npm run test` clean (Hardhat + Jest + Foundry).
 - [ ] Snyk full re-scan reports 0 findings on submission day.
+
+
+---
+
+## 2026-05-29 (late session — post Antigravity-Gemini deep-research)
+
+### 🎯 FOR PITCH — Number drift refresh + DAO Treasury target-user framing
+
+**Commit**: pending push
+**Audit**: `.kiro/audits/22-deep-research-prompt.md` (Gemini's
+findings + my triage at the tail of the file)
+
+External Antigravity-Gemini deep-research (with repo + shell access
+this time, not just web) returned a mix of valid and stale findings.
+Three of her P0s were already-shipped audit-18/replay-validator/SWR
+work — ignored. One (force-grid-execution override) was dangerous
+and would violate honesty rule §3 — rejected on the spot. Two were
+real wins:
+
+1. **DAO Treasury target-user framing**. The AI x RWA Track scoring
+   weights 40% Real-World Validity, which itself weights "clearly
+   defined target users". TuringVault never explicitly said WHO the
+   portfolio is for. Shipped one-line answer everywhere user-facing:
+   - Homepage hero subtitle: "For DAO treasuries and on-chain
+     funds: an AI portfolio manager whose every reallocation must
+     survive adversarial multi-model review before execution."
+   - README new "Who this is for" section above the architecture
+     diagram.
+   - Both agent-cards (description fields).
+
+2. **Number drift refresh**. Live ground truth fetched from
+   `/api/health`, `/api/decisions`, `/api/performance` and
+   propagated everywhere:
+   - 147+ → **158+** scheduled-cron decisions
+   - 44% → **41%** validator block rate (65 rejected / 158 total)
+   - 82 approved → **93 approved**
+   - agent-card snapshot 2026-05-26 → **2026-05-29 19:42 UTC**
+   - agent-card totalDecisions 104 → **158**
+   - agent-card blockRate 61.5% → **41.1%**
+   - 4/5 Sourcify-verified → **6/6 Sourcify-verified `perfect`**
+     (in pitch deck × 3 places + README project-structure block)
+   - Added: realised PnL **+1757 bps (+17.57%)** across **67 settled
+     outcomes** with **46.3% winRate**, plus **30/31 cycles in 24h
+     (96.7% cron uptime)**, parseSuccessRate24h 100% (N=31).
+
+Files touched:
+  README.md (claim grid, body, roadmap, project-structure)
+  docs/pitch-deck/index.html (4 numeric stats + 3 Sourcify pills)
+  assets/agent-card.json (stats block full refresh + DAO description)
+  agent-card-v2.json (stats block full refresh + DAO description)
+  frontend/app/page.tsx (hero subtitle + FALLBACK_MARKET useMemo)
+
+Validation:
+  jest             → 256 / 256 passing
+  ESLint src/      → 0 errors / 47 warnings
+  frontend lint    → 0 errors / 15 warnings (was 17 — useMemo cleanup)
+  tsc --noEmit     → clean
+  next build       → clean (24 routes)
+  Both agent-cards → JSON valid
+
+**Pitch line**:
+> *"TuringVault is built for DAO treasuries and on-chain funds:
+> capital that needs yield without delegating to a black-box agent.
+> 158 on-chain decisions, 41% adversarial block rate, +17.57%
+> realised PnL across 67 settled outcomes — every reallocation
+> replayable from public artefacts (IPFS reasoning, on-chain
+> anchor, manifest hash) without trusting any hardware vendor or
+> single LLM provider."*
+
+### Deferred to next session
+
+- **Aave V3 Mantle integration** for idle USDT0 yield (audit-22
+  Gemini's strongest valid recommendation). Aave V3 launched on
+  Mantle Mainnet 2026-02-11, $1B+ TVL by Mar 2026, **4.17% supply
+  yield on USDT0** per Aave Risk Stewards 2026-04-15. This is the
+  largest single remaining lift on the AI x RWA Depth axis (7 → 9
+  on Gemini's rubric). Operator preference: stabilise the smart
+  router test window before introducing a second on-chain
+  integration. Spec-first when picking it back up:
+  `.kiro/specs/aave-v3-yield-park/{requirements,design,tasks}.md`.

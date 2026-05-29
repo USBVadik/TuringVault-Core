@@ -1,7 +1,7 @@
 {
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "TuringVault AI Agent",
-  "description": "Autonomous multi-agent RWA portfolio manager on Mantle. Triple-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator + Gemini 3.5 Flash Arbiter) with on-chain attestation per cycle, IPFS-pinned reasoning, ERC-8004 reputation, and Synrail-inspired Discipline Layer post-execution proof verification. Acts as a Trust Firewall: every allocation must survive adversarial challenge BEFORE execution. Demo capital, custodial EOA, vault contract pattern in development.",
+  "description": "Autonomous multi-agent RWA portfolio manager on Mantle, designed for DAO treasuries and on-chain funds that need yield without delegating to a black-box agent. Triple-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator + Gemini 3.5 Flash Arbiter) with on-chain attestation per cycle, IPFS-pinned reasoning, ERC-8004 reputation, and Synrail-inspired Discipline Layer post-execution proof verification. Acts as a Trust Firewall: every allocation must survive adversarial challenge BEFORE execution. Demo capital, custodial EOA, vault contract pattern in development.",
   "image": "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-avatar.png",
   "erc8004": {
     "role": "reference-implementation",
@@ -101,14 +101,22 @@
     "signing": "ethers.Wallet on the cron runner; vault contract pattern + hardware-KMS signing are roadmap items, not current production"
   },
   "stats": {
-    "totalDecisions": 147,
-    "proposalsValidated": 147,
+    "totalDecisions": 158,
+    "proposalsValidated": 158,
+    "snapshotAt": "2026-05-29T19:42:00.000Z",
     "safetyBlockedActions": 65,
-    "approvedExecutions": 82,
-    "blockRate": "44.2%",
-    "consensusRate": "100%",
+    "approvedExecutions": 93,
+    "blockRate": "41.1%",
+    "consensusRate": "100% of cycles reached a consensus outcome (approve or block)",
+    "rwaAllocationPctNav": 88,
+    "settledOutcomes": 67,
+    "winRate": "46.3%",
+    "cumulativePnlBps": 1757,
+    "cyclesSucceeded24h": 30,
+    "cyclesFailed24h": 1,
+    "parseSuccessRate24h": "100% (over measured 24h window, N=31 cycles)",
     "avgVaR": "~100 bps (illustrative — no formal VaR model)",
     "gasEfficiency": "~0.0098 MNT per TX (~$0.007 at MNT=$0.65; verified gas sample at .kiro/audits/raw/gas-samples/cycle-123.json)",
-    "narrative": "Trust Firewall blocked 65/147 unsafe proposals — 3-model consensus ensures safety-first execution. NOTE: this file is a snapshot (2026-05-29T13:30Z); live numbers are auto-refreshed on IPFS and on-chain tokenURI every cron cycle. Source of truth: ValidationRegistry contract at 0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6."
+    "narrative": "Trust Firewall blocked 65/158 unsafe proposals — 3-model consensus ensures safety-first execution. Across 67 settled outcomes the agent realised +1757 bps cumulative on-chain PnL. NOTE: this file is a snapshot (2026-05-29T19:42Z); live numbers are auto-refreshed on IPFS and on-chain tokenURI every cron cycle. Source of truth: ValidationRegistry contract at 0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6, realised PnL at /api/performance."
   }
 }
