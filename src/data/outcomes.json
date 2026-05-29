@@ -622,6 +622,63 @@
       },
       "executedOnChain": true,
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1780063555118_147",
+      "decisionId": 147,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1997.79,
+      "ipfsCid": "QmX21LRYUSso3cFG8DvgFxusgo69gEZR2YSGh6bYkf9gvQ",
+      "recordedAt": "2026-05-29T14:05:55.118Z",
+      "settleAfter": "2026-05-29T15:05:55.118Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780063555116
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in RANGING regime with unestablished grid channels is appropriate. Analyst correctly identifies no actionable edge: ETH technicals SELL (-0.25), grid channels absent for both assets, F&G=23 Extreme Fear with flat smart money flows ($0.0M). Yield spread -1% bearish on mETH. No directional trade proposed, no R:R threshold applies. Conflicting ETH/MNT technicals acknowledged. Waiting fo",
+      "validatorFlaggedIssues": [
+        "Grid channels unestablished — mean-reversion strategy has no defined channel",
+        "Signal consensus BEARISH conflicts with contrarian framing but analyst acknowledges this",
+        "Regime confidence only 55% — borderline ranging classification"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Holding mETH is the correct stance as conflicted technicals, a ranging market regime, and unestablished grid channels offer no actionable trading edge, justifying capital preservation.",
+      "directionalSwap": null,
+      "manifestHash": "0xfdd7de484902ee2837a61efea8078b7067e8d97bb02042291cbd4d713cdc7553",
+      "combinedAnchor": "0xe90d9e2a7103a2d42a7d290d3ad6989b4c341909437742a423eff9c57f6d0427",
+      "decisionLogTxHash": "0x45b299c249b9cbe977b42521678300e7f4a6d473d028846bc3c3524934e1720a",
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
