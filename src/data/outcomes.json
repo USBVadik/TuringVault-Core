@@ -1012,6 +1012,71 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": false,
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1780073685693_152",
+      "decisionId": 152,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 2036.08,
+      "ipfsCid": "Qme7VwKcxsGEpTdV9gp5tGh9xnNxpgXXzGcdGLk9GcDtrr",
+      "recordedAt": "2026-05-29T16:54:45.693Z",
+      "settleAfter": "2026-05-29T17:54:45.693Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780073685692
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Defensive swap to mUSD (risk-off) is justified. Both ETH and MNT grids signal EXIT_RANGING at 70% confidence with price at 100% channel position and vol expanding. Signal consensus is BEARISH, yield spread -1%, F&G=23 extreme fear. Funding 0.627% confirms crowded longs. EMA bullish but RSI/Bollinger sell signals create contradiction — analyst acknowledged mixed technicals. 35% allocation is conser",
+      "validatorFlaggedIssues": [
+        "RSI at 63.8 and EMA bullish contradict bearish thesis — partial signal conflict",
+        "Funding rate annualization (0.627% per 8h ~230% annualized) is aggressive framing but directionally valid",
+        "Vol expanding but intraday vol only 0.29% — breakout magnitude uncertain",
+        "Smart money flow neutral ($0.0M) provides no directional confirmation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "reason": "insufficient-balance: 0.092551 WMNT"
+      },
+      "manifestHash": "0x75620d36d8a1090fe8d4ea4c0aab40431d20a34d20eb09cb1074ba34f71cb6da",
+      "combinedAnchor": "0xf2bd8a7baa524043546081943884486208229964374a7c7cccfb764c4f87ebf4",
+      "decisionLogTxHash": "0x5f81a3fb9878817b24b97cc29c4b56bfd2b33d2693bdc7f416401f74a1cca9e0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
