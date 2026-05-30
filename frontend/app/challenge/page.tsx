@@ -16,7 +16,7 @@
  */
 
 import { useState } from "react";
-import { Zap, Rocket, Eye, Bot, Shield, Skull, Swords } from "lucide-react";
+import { Zap, Rocket, Eye, Bot, Shield, Skull, Swords, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 
 const CHALLENGE_TYPES = [
   { id: "flash_crash", label: "Flash Crash", icon: Zap, tone: "red" },
@@ -135,6 +135,10 @@ export default function ChallengePage() {
     "analyst" | "validator" | "arbiter" | null
   >(null);
   const [selectedType, setSelectedType] = useState("");
+  // Collapsed by default. Same pattern as /discipline — power users
+  // see the attack buttons immediately, judges arriving cold open
+  // the explainer for context.
+  const [explainerOpen, setExplainerOpen] = useState(false);
 
   async function runChallenge(type: string) {
     setSelectedType(type);
@@ -174,6 +178,184 @@ export default function ChallengePage() {
               verbatim. Preview mode: deterministic-rules simulation.
             </span>
           </p>
+        </div>
+
+        {/* Plain-language explainer. Mirrors /discipline pattern.
+            Collapsed by default so the data-first view doesn't change. */}
+        <div className="mb-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+          <button
+            type="button"
+            onClick={() => setExplainerOpen((v) => !v)}
+            aria-expanded={explainerOpen}
+            className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-white/[0.02] rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-white/30 uppercase tracking-widest">
+                What is this · plain English
+              </span>
+              <span className="text-xs text-white/60">
+                What the four attacks do, and why this page exists
+              </span>
+            </div>
+            {explainerOpen ? (
+              <ChevronUp className="w-4 h-4 text-white/40 shrink-0" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-white/40 shrink-0" />
+            )}
+          </button>
+
+          {explainerOpen && (
+            <div className="px-4 pb-5 anim-fade-up">
+              <p className="text-sm text-white/60 leading-relaxed mb-5 max-w-3xl">
+                Most AI trading agents only show you their wins. This page
+                does the opposite: you can pick a known attack vector,
+                inject the fake signal yourself, and watch our agent decide.
+                A button click sends a hostile market state into the live
+                pipeline — same models, same code, same on-chain settlement
+                as the cron-running agent. If our agent flinches and acts
+                on the lie, that&apos;s public. If it sees through it and
+                blocks, that&apos;s public too.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                <ExplainerAttack
+                  icon={Zap}
+                  title="Flash Crash"
+                  oneLiner="Pretend ETH just dropped 25% in one tick"
+                  body={
+                    <>
+                      We feed the agent a price snapshot showing a violent
+                      drop that didn&apos;t actually happen. A naive bot
+                      would panic-sell. The agent should recognise the move
+                      is too large to be real and refuse to trade.
+                    </>
+                  }
+                />
+                <ExplainerAttack
+                  icon={Rocket}
+                  title="Pump & Dump"
+                  oneLiner="Pretend a low-cap is going parabolic right now"
+                  body={
+                    <>
+                      Inject extreme bullish signals (volume spike + social
+                      hype + breakout) on a thin asset. A FOMO bot would
+                      chase. The agent should see the signature of a
+                      coordinated pump and stay flat.
+                    </>
+                  }
+                />
+                <ExplainerAttack
+                  icon={Eye}
+                  title="Oracle Manipulation"
+                  oneLiner="Pretend two price oracles disagree by 10%+"
+                  body={
+                    <>
+                      Real DeFi exploits often start by pushing one oracle
+                      out of sync with the others. We simulate that. The
+                      agent should refuse to act when its inputs disagree
+                      beyond a tolerance — exactly the failure mode that
+                      cost Aave $26M in March 2026.
+                    </>
+                  }
+                />
+                <ExplainerAttack
+                  icon={Bot}
+                  title="Sybil Consensus"
+                  oneLiner="Pretend three different bots all picked the same trade"
+                  body={
+                    <>
+                      Crowd consensus looks like a strong signal — until
+                      you realise all the &quot;different&quot; bots came
+                      from the same wallet cluster. The agent should treat
+                      sybil consensus as adversarial, not confirmatory.
+                    </>
+                  }
+                />
+              </div>
+
+              <div className="rounded-md border border-white/[0.04] bg-white/[0.015] p-4 mb-3">
+                <p className="text-[11px] text-white/50 leading-relaxed mb-3">
+                  Each attack runs through the same three-agent pipeline:{" "}
+                  <span className="text-purple-300/80 font-mono">
+                    Analyst (GLM-5)
+                  </span>{" "}
+                  proposes,{" "}
+                  <span className="text-cyan-300/80 font-mono">
+                    Validator (Claude 4.6)
+                  </span>{" "}
+                  scrutinises, and if they disagree the{" "}
+                  <span className="text-amber-300/80 font-mono">
+                    Arbiter (Gemini 3.5)
+                  </span>{" "}
+                  breaks the tie. Their full reasoning is rendered verbatim
+                  below — no post-hoc edit, no &quot;cleaned up&quot;
+                  summary.
+                </p>
+                <p className="text-[11px] text-white/50 leading-relaxed">
+                  When budget allows, every challenge gets{" "}
+                  <span className="text-emerald-400/80">
+                    anchored on Mantle
+                  </span>{" "}
+                  with a Mantlescan link and an IPFS pin of the raw
+                  reasoning. That&apos;s how a judge can replay the
+                  challenge a week later and verify the agent reasoned
+                  exactly as shown.
+                </p>
+              </div>
+
+              <div className="rounded-md border border-emerald-500/20 bg-emerald-500/[0.02] p-3 mb-3">
+                <p className="text-[11px] text-emerald-300/70 leading-relaxed">
+                  <span className="font-mono uppercase tracking-wider">
+                    Live · multi-agent pipeline
+                  </span>{" "}
+                  — green badge means real LLM round-trip just happened,
+                  takes ~10s, costs API credits, anchors on chain. This is
+                  the truthful mode.
+                </p>
+              </div>
+              <div className="rounded-md border border-yellow-500/20 bg-yellow-500/[0.02] p-3">
+                <p className="text-[11px] text-yellow-300/70 leading-relaxed">
+                  <span className="font-mono uppercase tracking-wider">
+                    Preview · deterministic rules
+                  </span>{" "}
+                  — yellow badge means the daily live-budget is exhausted
+                  and the response is a rule-based simulation of how the
+                  pipeline would react. The page labels itself; we never
+                  pass off a deterministic preview as a live LLM call.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4">
+                <a
+                  href="https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/multiAgent.js"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] text-purple-400/80 hover:text-purple-300 transition-colors"
+                >
+                  Read the multi-agent source
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+                <a
+                  href="https://github.com/USBVadik/TuringVault-Core/blob/main/frontend/app/api/challenge/route.ts"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] text-white/50 hover:text-white/70 transition-colors"
+                >
+                  Read the challenge endpoint
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+                <a
+                  href="https://mantlescan.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[11px] text-white/50 hover:text-white/70 transition-colors"
+                >
+                  ValidationRegistry on Mantlescan
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Attack buttons */}
@@ -670,6 +852,31 @@ function ProgressTimeline({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function ExplainerAttack({
+  icon: Icon,
+  title,
+  oneLiner,
+  body,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  oneLiner: string;
+  body: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-md border border-white/[0.04] bg-white/[0.015] p-4 flex flex-col">
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="w-4 h-4 text-red-300/80 shrink-0" />
+        <span className="text-sm font-bold text-white/80">{title}</span>
+      </div>
+      <p className="text-[11px] text-white/40 italic mb-3">
+        &ldquo;{oneLiner}&rdquo;
+      </p>
+      <p className="text-xs text-white/60 leading-relaxed">{body}</p>
     </div>
   );
 }
