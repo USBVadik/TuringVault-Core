@@ -4375,6 +4375,98 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780181019975_182",
+      "decisionId": 182,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.62,
+      "priceAtDecision": 2019.06,
+      "ipfsCid": "QmNZmVA2ShJoVxBQokdAR64SMSubQBTEMNtrUHX7VHRjd4",
+      "recordedAt": "2026-05-30T22:43:39.975Z",
+      "settleAfter": "2026-05-30T23:43:39.975Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "ERROR",
+            "detail": "request timeout (code=TIMEOUT, version=6.16.0)"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780181019972
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Defensive swap to mUSD (risk-off) at 25% allocation. Both ETH and MNT grids signal EXIT_RANGING at 70% confidence with expanding volatility. MNT channel position at 100% (above resistance) with trend forming confirms breakdown. F&G=23 extreme fear, yield spread -1% favors stablecoins. RSI 50.6 neutral and MACD weakening — no strong bull counter-signal. 25% allocation is conservative. R:R favorable",
+      "validatorFlaggedIssues": [
+        "Funding rate 0.601% mildly bullish — minor contradiction with bearish thesis",
+        "RSI 50.6 neutral, not confirming directional breakdown",
+        "Smart money flow neutral ($0.0M) — no institutional confirmation",
+        "Trend direction post-breakdown unconfirmed — could reverse upward"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 0.525,
+        "amountOut": 0.353942,
+        "txHash": "0x30ee47f32914b07ac88f295f0372a5fa9290a85be32aa79f6123cb8ea35138d9",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0x8a471cdb2215661f345415d418b7a629bef62f54cdb71e7be3ffd7d95cfba48f",
+            "blockNumber": 96025343,
+            "amountIn": 0.525,
+            "amountOut": 0.354045
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0x30ee47f32914b07ac88f295f0372a5fa9290a85be32aa79f6123cb8ea35138d9",
+            "blockNumber": 96025350,
+            "amountIn": 0.354048597,
+            "amountOut": 0.353942
+          }
+        ]
+      },
+      "manifestHash": "0x783860a3091757852ac4f143e94f89230c45b8fb61a22b5713c1d40a893591de",
+      "combinedAnchor": "0x7e78a74f91ae1476135d5881e535a5ba00710afdf8abb6d45fa7925e1fbcde29",
+      "decisionLogTxHash": "0x5f9baeca41aff470552e57d387f1627e7941f65c5102adc67c704f89c07af86c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
