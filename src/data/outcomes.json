@@ -4467,6 +4467,68 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780182964352_183",
+      "decisionId": 183,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 2019.32,
+      "ipfsCid": "Qmb29CgQjNgu561z96sacJdUKXxEGzMnBZVzChWmjp2aFu",
+      "recordedAt": "2026-05-30T23:16:04.352Z",
+      "settleAfter": "2026-05-31T00:16:04.352Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780182964349
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is low-risk and well-supported. Both ETH and MNT grids signal EXIT_RANGING at 70% confidence with vol expanding, invalidating mean-reversion. Regime is RANGING (55% confidence) — no directional swap is appropriate. Signal consensus is BEARISH, F&G=23 (Extreme Fear), smart money flow flat. Analyst correctly identifies absence of directional edge. No capital deployment = no R:R gate re",
+      "validatorFlaggedIssues": [
+        "MNT at 100% channel position with trend forming — worth monitoring for breakout confirmation next cycle",
+        "ETH EMA_CROSS=BUY contradicts MACD=SELL; Analyst acknowledged mixed signals implicitly but did not explicitly flag contradiction"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Holding mUSD is the correct decision as both agents agree that the breaking grid channels, expanding volatility, and lack of directional edge justify preserving capital.",
+      "directionalSwap": null,
+      "manifestHash": "0x01a3b514149b91ba92b856b4d1531ad008147c7f536f43d6ed9398327843c93e",
+      "combinedAnchor": "0xe320b0f497c41894742923f50b1565e129453fe480f2309dd134f2a2bf522be6",
+      "decisionLogTxHash": "0xfdd94a624011fb49b148536c68e3869e54cd0b50277ea32f7daf7fbcb8ea58ea",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
