@@ -274,7 +274,7 @@ export default function DisciplinePage() {
                             role="button"
                             tabIndex={0}
                             aria-expanded={isOpen}
-                            className="border-b border-white/[0.03] hover:bg-white/[0.02] cursor-pointer"
+                            className="border-b border-white/[0.04] hover:bg-white/[0.02] cursor-pointer"
                           >
                             <td className="py-2 pr-3 text-white/60">
                               {e.decisionId ?? "?"}

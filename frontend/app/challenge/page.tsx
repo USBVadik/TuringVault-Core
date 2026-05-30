@@ -188,7 +188,7 @@ export default function ChallengePage() {
                 className={`p-4 rounded-lg border transition-all text-left
                 ${
                   selectedType === c.id
-                    ? "border-white/30 bg-white/[0.06]"
+                    ? "border-white/30 bg-white/[0.04]"
                     : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
                 }
                 ${loading ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
@@ -558,7 +558,7 @@ function AgentCard({
 
   return (
     <div
-      className={`p-6 rounded-lg border ${colors.ring} bg-white/[0.015] ${
+      className={`p-6 rounded-lg border ${colors.ring} bg-white/[0.02] ${
         disagreed ? "ring-1 ring-yellow-500/20" : ""
       }`}
     >

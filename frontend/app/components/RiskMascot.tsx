@@ -95,7 +95,8 @@ export function RiskMascot() {
     <div
       role="status"
       aria-label={`Agent status: ${display.label}`}
-      className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 px-3 py-2 rounded-full border backdrop-blur-md ${display.tone}`}
+      className={`fixed bottom-6 right-6 flex items-center gap-2 px-3 py-2 rounded-full border backdrop-blur-md ${display.tone}`}
+      style={{ zIndex: "var(--z-toast)" }}
     >
       <span className="text-lg" aria-hidden="true">
         {display.emoji}

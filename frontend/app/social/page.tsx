@@ -377,7 +377,7 @@ export default function SocialPage() {
       </div>
 
       {/* Footer note */}
-      <div className="mt-10 pt-6 border-t border-white/[0.05] text-[11px] text-white/40 leading-relaxed max-w-3xl">
+      <div className="mt-10 pt-6 border-t border-white/5 text-[11px] text-white/40 leading-relaxed max-w-3xl">
         <p>
           The agent reads the same payload every cycle (rolled into the
           analyst&apos;s structured-signals prompt alongside funding rate, on-chain

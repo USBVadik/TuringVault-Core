@@ -137,17 +137,29 @@ const ROUTER_ABI = [
 // have a verifiable code path. Removed: Tencent Cloud (KMS = simulate stub),
 // Elfa (replaced when Elfa client lives in src/data/elfa.js), Surf, OpenCheck,
 // Orbit AI, Minds, Mirana — all had zero code paths.
+// Top-tier partners surfaced on the hero bar. Cut from 10 → 5
+// (D-6 / audit 30): five logos read as "real ecosystem alliance",
+// ten reads as "we listed everything we touched". The remainder
+// (Z.ai, Nansen, Elfa, Merchant Moe, Ondo Finance) live in the
+// README claim grid + agent-card and surface contextually deeper
+// in the page (Live Market widget, Powered-by footer, etc.).
 const PARTNERS = [
   { name: "Mantle Network", url: "https://mantle.xyz" },
-  { name: "Z.ai", url: "https://z.ai" },
   { name: "Anthropic", url: "https://anthropic.com" },
   { name: "Google", url: "https://cloud.google.com/vertex-ai" },
+  { name: "Bybit", url: "https://bybit.com" },
+  { name: "Pinata", url: "https://pinata.cloud" },
+];
+
+// Secondary-tier ecosystem partners — surfaced via "+5 more" link
+// below the hero bar so the full attribution remains discoverable
+// without crowding the first viewport.
+const SECONDARY_PARTNERS = [
+  { name: "Z.ai", url: "https://z.ai" },
   { name: "Nansen", url: "https://nansen.ai" },
   { name: "Elfa", url: "https://elfa.ai" },
   { name: "Merchant Moe", url: "https://merchantmoe.com" },
   { name: "Ondo Finance", url: "https://ondo.finance" },
-  { name: "Bybit", url: "https://bybit.com" },
-  { name: "Pinata", url: "https://pinata.cloud" },
 ];
 
 // ═══ EVOLUTION TIMELINE removed in T14 (ui-honesty-pass) ═══
@@ -378,7 +390,7 @@ export default function Home() {
     <>
       {/* ═══ LIVE NOTIFICATION TOAST ═══ */}
       {liveNotification && (
-        <div className="fixed top-20 right-6 z-[9999] animate-in slide-in-from-right duration-300">
+        <div className="fixed top-20 right-6 animate-in slide-in-from-right duration-300" style={{ zIndex: "var(--z-toast)" }}>
           <div className="glass-card border border-green-500/30 bg-green-500/5 px-5 py-3 rounded-xl shadow-[0_0_30px_rgba(34,197,94,0.15)] flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <div>
@@ -425,7 +437,11 @@ export default function Home() {
           aggregate (agentId=0)
         </div>
 
-        {/* ═══ PARTNER BAR ═══ */}
+        {/* ═══ PARTNER BAR ═══
+            5 top-tier logos. Secondary partners surfaced via the
+            "+5 more" tooltip-style link so the full ecosystem
+            attribution remains discoverable without crowding the
+            first viewport. (D-6 / audit 30) */}
         <div className="partner-bar mb-10 anim-fade-up anim-delay-1">
           <span className="text-[10px] text-white/20 uppercase tracking-widest mr-4">
             Powered by
@@ -441,11 +457,20 @@ export default function Home() {
               {p.name}
             </a>
           ))}
+          <span
+            className="partner-item text-white/30 cursor-help"
+            title={
+              "Secondary ecosystem partners: " +
+              SECONDARY_PARTNERS.map((p) => p.name).join(" · ")
+            }
+          >
+            +{SECONDARY_PARTNERS.length} more
+          </span>
         </div>
 
         {/* ═══ HERO ═══ */}
         <section className="glass-hero p-10 mb-8 anim-fade-up anim-delay-2 relative">
-          {/* QW-2: Radial gradient mesh behind hero */}
+          {/* Radial gradient mesh behind hero */}
           <div className="hero-mesh-bg" />
           <div className="flex flex-col lg:flex-row items-center gap-10">
             {/* AI Brain Visual */}
@@ -1078,7 +1103,7 @@ export default function Home() {
                 </div>
                 {/* CTA — honest custody disclosure */}
                 <div className="text-center">
-                  <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/8 w-full justify-center">
+                  <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/[0.03] border border-white/10 w-full justify-center">
                     <Shield className="w-3.5 h-3.5 text-yellow-400/50" />
                     <span className="text-[10px] font-mono text-white/40">
                       Demo capital
@@ -1192,7 +1217,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ═══ EVOLUTION TIMELINE — disabled in production (T14) ═══ */}
+        {/* ═══ EVOLUTION TIMELINE ═══ */}
         <section className="glass-card p-8 mb-8 anim-fade-up anim-delay-6">
           <div className="flex items-center gap-3 mb-2">
             <GitBranch className="w-4 h-4 text-purple-400" />
@@ -1206,7 +1231,7 @@ export default function Home() {
               Module exists · currently disabled in production
             </span>
           </div>
-          <p className="text-xs text-white/35 mb-3 max-w-2xl leading-relaxed">
+          <p className="text-xs text-white/30 mb-3 max-w-2xl leading-relaxed">
             The agent&apos;s prompt-evolution module can mutate the analyst
             system prompt based on settlement outcomes and pin each version to
             IPFS. It is currently disabled at runtime to keep JSON output stable
@@ -1337,7 +1362,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══ CONTRACTS + FOOTER (T15) ═══ */}
+        {/* ═══ CONTRACTS + FOOTER ═══ */}
         <footer className="mt-16 pt-8 pb-12 border-t border-white/5 relative">
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-purple-900/[0.03] to-transparent rounded-b-3xl" />
           <div className="flex flex-col items-center gap-4">
@@ -1783,17 +1808,16 @@ function DisciplineStripRow({ data }: { data: any }) {
 }
 
 /* ═══ REASONING LINES (simulated live feed) ═══ */
+/* ═══ REASONING LINES (simulated live feed) ═══
+   Collapsed from 12 → 4 lines (D-7 / audit 30): the example block
+   was visually heavy on the hero and judges who want the full
+   reasoning chain follow the link to /proof-explorer where every
+   real cycle is on-chain anchored. This animated preview just
+   needs to *feel like* the live pipeline rendering, not document
+   it exhaustively. */
 const REASONING_LINES = [
-  "→ Detecting market regime (RANGING/TREND/HOLD)...",
-  "→ Fetching 48h MNT price channel from CoinGecko...",
-  "→ Computing support/resistance (10th/90th percentile)...",
-  "→ Channel: $0.631 – $0.654 | Width: 3.6% (> 0.7% min ✓)",
-  "→ Live price via CoinGecko: $0.636 (pos: 22% — BUY zone)",
-  "→ Grid signal: BUY_WMNT | R:R = 2.3:1 | Adaptive SL",
-  "→ Checking position state: FLAT → entry allowed",
-  "→ Nansen: smart money net inflow +$1.8M (4h)",
-  "→ Funding rate: +0.003% (neutral, no squeeze)",
-  "→ Validator: R:R confirmed, trailing stop armed at +0.6%",
-  "⚡ Decision: SWAP USDT→WMNT — confidence 78%",
-  "✓ Entry $0.636 | TP $0.649 (75% ch) | SL $0.628 | Trail +0.8%",
+  "→ Regime: RANGING · ETH grid 22% pos, BUY zone",
+  "→ Validator: R:R 2.3:1 confirmed, risk 28",
+  "⚡ Decision: SWAP USDT→WMNT · confidence 78%",
+  "✓ Anchor: keccak256(ipfsCid ‖ manifestHash) on-chain",
 ];
