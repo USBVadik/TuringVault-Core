@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Shield, Check, X, AlertTriangle, Circle, MinusCircle } from "lucide-react";
+import { Shield, Check, X, AlertTriangle, Circle, MinusCircle, ChevronDown, ChevronUp, Receipt, Clock, Activity, ExternalLink } from "lucide-react";
 import { Skeleton } from "../components/Skeleton";
 
 function DisciplineSkeleton() {
@@ -130,6 +130,9 @@ export default function DisciplinePage() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  // Collapsed by default so the technical summary stays the first
+  // thing a judge sees. Open it for the human-readable explainer.
+  const [explainerOpen, setExplainerOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/discipline", { cache: "no-store" })
@@ -165,6 +168,152 @@ export default function DisciplinePage() {
               declared regime.
             </span>
           </p>
+        </div>
+
+        {/* Plain-language explainer. Collapsed by default so the
+            data-first view doesn't change for power users; open by
+            judges + first-time visitors who want the "why this
+            exists". */}
+        <div className="mb-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+          <button
+            type="button"
+            onClick={() => setExplainerOpen((v) => !v)}
+            aria-expanded={explainerOpen}
+            className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-white/[0.02] rounded-lg transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-white/30 uppercase tracking-widest">
+                What is this · plain English
+              </span>
+              <span className="text-xs text-white/60">
+                Why every AI trade goes through three independent checks
+              </span>
+            </div>
+            {explainerOpen ? (
+              <ChevronUp className="w-4 h-4 text-white/40 shrink-0" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-white/40 shrink-0" />
+            )}
+          </button>
+
+          {explainerOpen && (
+            <div className="px-4 pb-5 anim-fade-up">
+              <p className="text-sm text-white/60 leading-relaxed mb-5 max-w-3xl">
+                Think of the AI agent as a fast, never-sleeping junior trader.
+                It can be smart, but it can also drift, hallucinate a trade
+                that never landed on chain, or make decisions on stale data.
+                The Discipline Layer is its compliance officer. After every
+                cycle, three independent gates check the AI&apos;s work against
+                blockchain reality. If any gate fails, the trade is not
+                accepted into the public record — and the reason is published
+                instead.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                <ExplainerGate
+                  icon={Receipt}
+                  title="TX Proof"
+                  oneLiner="Show me the receipt"
+                  body={
+                    <>
+                      The agent claims a swap landed. We don&apos;t take its
+                      word for it — we read the transaction directly from
+                      Mantle. Was the hash real? Did our wallet send it? Did
+                      it confirm? Did it revert? If any of those is no, the
+                      swap is officially{" "}
+                      <span className="text-red-400/80">BLOCKED</span>, even
+                      if the agent logged success.
+                    </>
+                  }
+                  whyItMatters="Catches the &apos;agent advertised a swap that never happened&apos; failure mode that hit us on cycles 113–122."
+                />
+                <ExplainerGate
+                  icon={Clock}
+                  title="Price Freshness"
+                  oneLiner="Was your data from 5 seconds ago, or 5 minutes?"
+                  body={
+                    <>
+                      The agent decided based on a price snapshot. We check
+                      how old that snapshot was. If older than{" "}
+                      <span className="text-white/70">60 seconds</span>, the
+                      decision used stale data — markets move enough in a
+                      minute to change the right answer. Block.
+                    </>
+                  }
+                  whyItMatters="Stops the agent from acting on a price feed that lagged behind reality."
+                />
+                <ExplainerGate
+                  icon={Activity}
+                  title="Drift Detection"
+                  oneLiner="Are we still doing the right thing this regime?"
+                  body={
+                    <>
+                      We watch how many times in a row the action mismatches
+                      the declared market regime. After{" "}
+                      <span className="text-white/70">3 consecutive</span>{" "}
+                      mismatches, we force a stop and ask the operator to
+                      re-confirm the regime before more capital moves.
+                    </>
+                  }
+                  whyItMatters="Prevents the AI from digging itself into a hole when conditions change but the prompt hasn't caught up yet."
+                />
+              </div>
+
+              <div className="rounded-md border border-white/[0.04] bg-white/[0.015] p-4">
+                <p className="text-[11px] text-white/50 leading-relaxed mb-2">
+                  Verdict on every cycle is one of two things:{" "}
+                  <span className="text-emerald-400/80 font-mono">
+                    ACCEPTED
+                  </span>{" "}
+                  or{" "}
+                  <span className="text-red-400/80 font-mono">BLOCKED</span>.
+                  Blocks come with a{" "}
+                  <span className="text-white/70 font-mono">blockReason</span>{" "}
+                  (what failed) and a{" "}
+                  <span className="text-white/70 font-mono">repairStep</span>{" "}
+                  (how to fix it). Both are stored alongside the decision so
+                  judges and operators see the same truth.
+                </p>
+                <p className="text-[11px] text-white/50 leading-relaxed">
+                  This is the &quot;Proof of Reasoning&quot; backbone: an AI
+                  agent that{" "}
+                  <span className="text-white/70">
+                    has to prove every action
+                  </span>{" "}
+                  — not just claim it.
+                </p>
+                <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4 pt-3 border-t border-white/[0.04]">
+                  <a
+                    href="https://github.com/USBVadik/synrail"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] text-purple-400/80 hover:text-purple-300 transition-colors"
+                  >
+                    Inspired by Synrail
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <a
+                    href="https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/disciplineLayer.js"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] text-white/50 hover:text-white/70 transition-colors"
+                  >
+                    Read the source
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <a
+                    href="https://github.com/USBVadik/TuringVault-Core/blob/main/docs/discipline-layer.md"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[11px] text-white/50 hover:text-white/70 transition-colors"
+                  >
+                    Architecture doc
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {data && (
@@ -427,6 +576,39 @@ function Tile({
         {label}
       </div>
       <div className="text-lg font-mono">{value}</div>
+    </div>
+  );
+}
+
+function ExplainerGate({
+  icon: Icon,
+  title,
+  oneLiner,
+  body,
+  whyItMatters,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  oneLiner: string;
+  body: React.ReactNode;
+  whyItMatters: string;
+}) {
+  return (
+    <div className="rounded-md border border-white/[0.04] bg-white/[0.015] p-4 flex flex-col">
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className="w-4 h-4 text-purple-300/80 shrink-0" />
+        <span className="text-sm font-bold text-white/80">{title}</span>
+      </div>
+      <p className="text-[11px] text-white/40 italic mb-3">
+        &ldquo;{oneLiner}&rdquo;
+      </p>
+      <p className="text-xs text-white/60 leading-relaxed mb-3">{body}</p>
+      <p className="text-[10px] text-white/35 leading-relaxed mt-auto pt-2 border-t border-white/[0.03]">
+        <span className="text-white/50 font-mono uppercase tracking-wider">
+          Why it matters ·
+        </span>{" "}
+        {whyItMatters}
+      </p>
     </div>
   );
 }
