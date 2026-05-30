@@ -71,6 +71,10 @@ type GasRunway = {
   // Used as worst-case so the runway estimate skews conservative.
   costPerCycleMntAssumed: number;
   cyclesPerDayAssumed: number;
+  // Hard floor enforced by walletRouter.GAS_RESERVE_MNT (audit 28).
+  // The runway projection only counts MNT *above* this floor as
+  // spendable.
+  gasReserveMntFloor?: number;
   // Tier maps to a UI badge:
   //   ok      — > 14 days
   //   low     — 7-14 days
@@ -239,9 +243,17 @@ async function getMantleBlock(): Promise<number | null> {
 // Source of truth: deployments.json `deployer` field. We never
 // hardcode the address in the route; the deployer is the operator
 // EOA the cron uses to sign every swap.
+//
+// Audit 28 raised GAS_RESERVE_MNT from 1.0 → 5.0 in the wallet
+// router. The runway projection now subtracts that floor — only the
+// MNT *above* the reserve is actually spendable on cycles, because
+// walletRouter.pickSource refuses to wrap below the floor. So:
+//   spendableMnt = max(0, nativeMnt - GAS_RESERVE_MNT)
+//   cyclesRemaining = floor(spendableMnt / 0.077)
 const AGENT_EOA = "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a";
 const COST_PER_CYCLE_MNT = 0.077;       // worst-case 8-TX cycle
 const CYCLES_PER_DAY = 48;              // best-effort hourly × 2
+const GAS_RESERVE_MNT_FLOOR = 5.0;      // matches walletRouter.GAS_RESERVE_MNT
 
 async function getGasRunway(): Promise<GasRunway> {
   const lastChecked = new Date().toISOString();
@@ -254,9 +266,14 @@ async function getGasRunway(): Promise<GasRunway> {
       address: AGENT_EOA as `0x${string}`,
     });
     const nativeMnt = Number(balanceWei) / 1e18;
-    const cycles = Math.floor(nativeMnt / COST_PER_CYCLE_MNT);
+    const spendableMnt = Math.max(0, nativeMnt - GAS_RESERVE_MNT_FLOOR);
+    const cycles = Math.floor(spendableMnt / COST_PER_CYCLE_MNT);
     const days = +(cycles / CYCLES_PER_DAY).toFixed(2);
     let status: GasRunway["status"];
+    // The reserve floor itself is the "always-keep" buffer that
+    // walletRouter never touches. Once nativeMnt drops below
+    // (reserve + 7-day cycles), we surface critical so the operator
+    // tops up before the floor is hit.
     if (days > 14) status = "ok";
     else if (days >= 7) status = "low";
     else status = "critical";
@@ -267,6 +284,7 @@ async function getGasRunway(): Promise<GasRunway> {
       daysRemaining: days,
       costPerCycleMntAssumed: COST_PER_CYCLE_MNT,
       cyclesPerDayAssumed: CYCLES_PER_DAY,
+      gasReserveMntFloor: GAS_RESERVE_MNT_FLOOR,
       status,
       lastChecked,
     };
@@ -278,6 +296,7 @@ async function getGasRunway(): Promise<GasRunway> {
       daysRemaining: null,
       costPerCycleMntAssumed: COST_PER_CYCLE_MNT,
       cyclesPerDayAssumed: CYCLES_PER_DAY,
+      gasReserveMntFloor: GAS_RESERVE_MNT_FLOOR,
       status: "unknown",
       lastChecked,
     };

@@ -111,7 +111,7 @@ async function readAllBalances(provider, walletAddress) {
 }
 
 /**
- * MNT must always have a small reserve to pay for gas. Mantle gas is
+ * MNT must always have a hard reserve to pay for gas. Mantle gas is
  * ~0.001 MNT per swap, BUT a full cycle does:
  *   - submitProposal       ~0.005 MNT
  *   - validateProposal     ~0.005 MNT
@@ -121,14 +121,44 @@ async function readAllBalances(provider, walletAddress) {
  *   - setAgentURI          ~0.005 MNT
  *   - tokenURI update      ~0.005 MNT
  *   - heartbeat (occasional) ~0.006 MNT for 2 swaps
- * Total: ~0.04 MNT per cycle. With a 24-cycle horizon between wraps
- * we want ≥1 MNT runway, so reserve = 1.0 MNT.
+ * Total: ~0.04 MNT per cycle (sustained), ~0.077 MNT per cycle worst-case
+ * (gas-cost sample at .kiro/audits/raw/gas-samples/cycle-123.json).
  *
- * Originally tried 0.05 — cycle 153 wrapped 28.95 MNT and left 0.075,
- * then cycle 154 ran out with "insufficient funds for intrinsic
- * transaction cost". 0.5 was a partial fix; 1.0 is the proper margin.
+ * History of this constant:
+ *   - 0.05 — cycle 153 wrapped 28.95 MNT and left 0.075 native;
+ *            cycle 154 then ran out with "insufficient funds for
+ *            intrinsic transaction cost".
+ *   - 0.5  — partial fix; cycle 156 still bricked under heartbeat.
+ *   - 1.0  — proper margin for ~24-cycle horizon between wraps,
+ *            but: 11 consecutive risk-off cycles (149-159) drained
+ *            the wallet anyway because the wrap-everything-wrappable
+ *            branch didn't enforce a meaningful upper bound and
+ *            wrapped ~28 MNT every time WMNT fell below floor.
+ *   - 5.0  — current. Target a *7-day* operator-react window if the
+ *            agent goes into a sustained risk-off streak. At
+ *            0.077 MNT/cycle worst-case × 48 cycles/day × 7 days =
+ *            ~26 MNT, but we floor at 5.0 so the operator's
+ *            UI gas-runway pill turns CRITICAL early enough to act.
+ *
+ * Audit ref: .kiro/audits/27-invariants-runway-adversarial-mechanics.md
+ *            (gas runway surface) +
+ *            .kiro/audits/28-wrap-everything-bug-fix.md (this constant +
+ *            wrap sizing fix).
  */
-const GAS_RESERVE_MNT = 1.0;
+const GAS_RESERVE_MNT = 5.0;
+
+/**
+ * Cap on how much we will wrap in a single cycle. Was previously
+ * "all wrappable MNT minus gas reserve" which destroyed gas runway
+ * across consecutive risk-off cycles. New rule: wrap at most enough
+ * to comfortably cover the next ~5 swap-cycles worth of WMNT input,
+ * AND never wrap more than this hard cap regardless of balance.
+ *
+ * 2.0 MNT ≈ $1.30 of WMNT at $0.65/MNT, which is more than enough
+ * for the typical $0.50-1.00 risk-off swap size and leaves the
+ * remainder of native MNT untouched as gas runway.
+ */
+const MAX_WRAP_PER_CYCLE_MNT = 2.0;
 
 /**
  * Pure function — picks the best source token + tells the caller
@@ -174,12 +204,35 @@ function pickSource({
       };
     }
     const wrappableMnt = Math.max(0, balances.MNT - gasReserveMnt);
-    // Need (floor - currentWMNT) extra to bring WMNT above floor; but in
-    // practice we wrap a meaningful chunk so the swap isn't dust. Wrap
-    // up to wrappableMnt; the down-stream sizing logic will then size
-    // the swap from the new total WMNT.
-    if (wrappableMnt >= floors.WMNT) {
-      const wrapAmount = wrappableMnt; // wrap everything wrappable
+    // Cap the wrap size so we don't drain native MNT into WMNT on
+    // a sustained risk-off streak (cycles 149-159 case study). Wrap
+    // enough to clear floor with comfortable headroom (4× floor, or
+    // 0.4 WMNT at floor=0.1) but never more than MAX_WRAP_PER_CYCLE.
+    // Anything WMNT-input-heavy beyond 2 MNT will simply have to
+    // happen on a subsequent cycle once the previous wrap is consumed.
+    const targetWrap = Math.max(floors.WMNT * 4, 0.4);
+    const wrapAmount = Math.min(
+      wrappableMnt,
+      Math.max(targetWrap, 0),
+      MAX_WRAP_PER_CYCLE_MNT
+    );
+    if (wrappableMnt >= floors.WMNT && wrapAmount >= floors.WMNT) {
+      // Sanity gate: refuse to leave native MNT below the gas
+      // reserve floor under any circumstance. This is the second
+      // layer of defence; gasReserveMnt subtraction above is the
+      // first layer.
+      const remainingMnt = balances.MNT - wrapAmount;
+      if (remainingMnt < gasReserveMnt) {
+        return {
+          feasible: false,
+          source: null,
+          wrapMntFirst: false,
+          wrapAmountMnt: 0,
+          path: [],
+          sourceBalance: 0,
+          reason: `risk-off would leave native MNT ${remainingMnt.toFixed(4)} below gas reserve ${gasReserveMnt} — refusing to wrap (operator should top-up MNT or wait for risk-on cycle)`,
+        };
+      }
       return {
         feasible: true,
         source: "WMNT",
@@ -187,7 +240,7 @@ function pickSource({
         wrapAmountMnt: wrapAmount,
         path: ["WMNT", "USDT", "USDT0"],
         sourceBalance: balances.WMNT + wrapAmount,
-        reason: `WMNT ${balances.WMNT.toFixed(4)} < floor — wrap ${wrapAmount.toFixed(4)} MNT (gas reserve ${gasReserveMnt})`,
+        reason: `WMNT ${balances.WMNT.toFixed(4)} < floor — wrap ${wrapAmount.toFixed(4)} MNT (capped at ${MAX_WRAP_PER_CYCLE_MNT} MNT/cycle, gas reserve ${gasReserveMnt})`,
       };
     }
     // Last-resort: liquidate mETH for stables. mETH→WMNT pool exists.
@@ -302,4 +355,5 @@ module.exports = {
   wrapMnt,
   ADDRESSES,
   GAS_RESERVE_MNT,
+  MAX_WRAP_PER_CYCLE_MNT,
 };
