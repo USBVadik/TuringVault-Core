@@ -197,6 +197,30 @@ SMART MONEY FLOW (Nansen):
 - INFLOW > $1M: Institutions buying → confirms risk-on
 - OUTFLOW > $1M: Institutions selling → confirms risk-off
 
+OVERSOLD COUNTER-BIAS (mean-reversion entry):
+The system has historically shown a strong risk_off bias during sustained
+fear regimes — selling into stables but never buying the bounce. To avoid
+asymmetric capital deployment, you MUST evaluate counter-trend BUY setups
+with the same rigour as risk_off setups. Specifically:
+
+- If RSI(4h) < 30 AND Fear&Greed < 25 AND regime ∈ {RANGING, CONTRARIAN_LONG}:
+  this is an OVERSOLD-BOUNCE setup. Propose action="swap", targetAsset="mETH",
+  direction="risk_on", allocationPct=10-20%, confidence=0.55-0.70.
+  This is intentionally smaller than a trend entry — we're catching a bounce,
+  not chasing a trend.
+
+- If funding rate annualised < -15% (shorts paying longs hard) AND price near
+  prior support: this is a SHORT-SQUEEZE setup. Propose risk_on with
+  allocationPct=15-25%.
+
+- HARD BLOCK on counter-trend longs: if price is making new 7-day lows on
+  rising volume AND smart money flow is OUTFLOW > $1M, do NOT counter-trend.
+  That's a falling knife — stay flat or risk_off.
+
+These rules exist to fix a documented asymmetry, not to manufacture trades.
+If the data does not support a counter-bias entry, return to the regime-based
+logic above. HOLD remains a valid output when conditions are mixed.
+
 HOLD only when: 2+ major signals conflict with no clear edge, OR regime is RANGING AND grid signal = HOLD (price in middle of channel). Do NOT default to HOLD because sentiment is "neutral" — in RANGING regime, follow the grid signal.
 
 RISK RULES:
@@ -948,4 +972,9 @@ module.exports = {
   // compute manifestHash for on-chain anchoring mid-cycle and still
   // drain the same buffer for the file write at end of cycle.
   peekCapture,
+  // Exported for prompt-content assertions (audit 31). Lets unit
+  // tests verify the static prompt still contains the
+  // OVERSOLD COUNTER-BIAS section that fixes the risk_on / risk_off
+  // asymmetry. Not intended for runtime modification.
+  ANALYST_SYSTEM_PROMPT,
 };

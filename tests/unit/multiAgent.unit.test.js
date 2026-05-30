@@ -540,3 +540,61 @@ describe("getDynamicConfidenceThreshold", () => {
     expect(threshold).toBeGreaterThanOrEqual(BASE_CONFIDENCE_THRESHOLD);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────
+// Audit 31: prompt-content invariants for the risk_on/risk_off
+// asymmetry fix. Earlier the analyst prompt encouraged risk_off swaps
+// during fear regimes but had no symmetric trigger for oversold-
+// bounce buys, producing 28/28 swaps to mUSD over a 7-day window
+// with zero risk_on entries. The OVERSOLD COUNTER-BIAS section now
+// gives the LLM an explicit counter-trend rule for RSI<30 +
+// Fear&Greed<25 setups. These tests guard against silent removal of
+// that section in future prompt edits.
+// ─────────────────────────────────────────────────────────────────
+describe("ANALYST_SYSTEM_PROMPT — counter-bias invariants (audit 31)", () => {
+  const {
+    ANALYST_SYSTEM_PROMPT,
+  } = require("../../src/orchestrator/multiAgent");
+
+  it("should be a non-empty string", () => {
+    expect(typeof ANALYST_SYSTEM_PROMPT).toBe("string");
+    expect(ANALYST_SYSTEM_PROMPT.length).toBeGreaterThan(500);
+  });
+
+  it("should contain the OVERSOLD COUNTER-BIAS section", () => {
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/OVERSOLD COUNTER-BIAS/i);
+  });
+
+  it("should describe the RSI<30 + Fear&Greed<25 setup", () => {
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/RSI\(4h\)\s*<\s*30/);
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/Fear&Greed\s*<\s*25/);
+  });
+
+  it("should explicitly reference risk_on as a valid output for oversold setups", () => {
+    // The section must produce a path where the analyst proposes
+    // direction="risk_on" for a counter-trend bounce. We assert the
+    // string is present in the OVERSOLD section, not just elsewhere.
+    const idx = ANALYST_SYSTEM_PROMPT.search(/OVERSOLD COUNTER-BIAS/);
+    expect(idx).toBeGreaterThan(0);
+    const section = ANALYST_SYSTEM_PROMPT.slice(idx, idx + 1500);
+    expect(section).toMatch(/risk_on/);
+    expect(section).toMatch(/mETH/);
+  });
+
+  it("should include a HARD BLOCK against pure falling-knife setups", () => {
+    // The counter-bias must NOT be unconditional — it has to refuse
+    // counter-trend longs when smart money is bleeding out on new
+    // lows. Guards against the LLM hallucinating "buy the dip" on
+    // every red candle.
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/HARD BLOCK/);
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/falling knife/i);
+  });
+
+  it("should keep the risk_off / mUSD path intact (no asymmetric removal)", () => {
+    // The fix adds counter-bias; it must NOT remove the original
+    // risk_off rules. Guards against an over-zealous future prompt
+    // edit that swings the bias the other way.
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/risk_off/);
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/mUSD/);
+  });
+});

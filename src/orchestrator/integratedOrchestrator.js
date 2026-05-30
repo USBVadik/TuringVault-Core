@@ -521,14 +521,23 @@ async function runIntegratedCycle(options = {}) {
           )} MNT). Skipping.`
         );
       } else {
-        const tokenIn = targetAsset === "mETH" ? "WMNT" : "WMNT";
-        const tokenOut = targetAsset === "mETH" ? "mETH" : "USDT";
+        // Direction-aware token selection. Was hardcoded
+        // `tokenIn = WMNT` regardless of targetAsset, which made
+        // risk_on entries impossible: the bot tried to spend WMNT
+        // it didn't have when the analyst proposed mETH. The real
+        // cron path lives in src/orchestrator/multiAgentLoop.js
+        // (Step 4.7 + walletRouter.pickSource), but this legacy
+        // path is still wired into older entry points and should
+        // not behave asymmetrically. See audit 31.
+        const isRiskOn = ["mETH", "MNT", "WMNT"].includes(targetAsset);
+        const tokenIn = isRiskOn ? "USDT0" : "WMNT";
+        const tokenOut = isRiskOn ? targetAsset : "USDT0";
         const amountWei = ethers.parseEther(swapAmountMNT.toFixed(6));
 
         console.log(
           `   Swapping ${swapAmountMNT.toFixed(
             2
-          )} MNT → ${tokenOut} (${allocationPct}% allocation)`
+          )} ${tokenIn} → ${tokenOut} (${allocationPct}% allocation)`
         );
         executionResult = await dex.executeSwap(tokenIn, tokenOut, amountWei);
 
