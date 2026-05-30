@@ -3233,6 +3233,117 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780150839763_172",
+      "decisionId": 172,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.72,
+      "priceAtDecision": 2021.05,
+      "ipfsCid": "QmdDjikDJ31p2e4rqGMm8JnA4NFQSg2YirPXpnup13vpGd",
+      "recordedAt": "2026-05-30T14:20:39.763Z",
+      "settleAfter": "2026-05-30T15:20:39.763Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 96010261"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780150839760
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Proposal is a defensive swap to mUSD (risk-off), not a directional speculative trade. Both ETH and MNT grids confirm SELL_mETH at 80% confidence with price at 100% of channel resistance. R:R cited as 2.5:1 exceeds the 1.5:1 minimum. F&G=23 (Extreme Fear) supports de-risking. Funding neutral at 0.425% annualized — no short squeeze risk. 25% allocation is conservative and within regime sizing guidan",
+      "validatorFlaggedIssues": [
+        "RSI rising and MACD improving could signal breakout invalidating range",
+        "Bollinger SELL signal conflicts with EMA BUY — mixed technicals acknowledged but not fully weighted",
+        "Low vol (0.27%) may reduce downside follow-through, limiting profit capture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 0.525,
+        "amountOut": 0.340077,
+        "txHash": "0xa1e48acd5d0445672d562c9bf5b26684685017b675353e6f43481b24d30239d9",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0xb77f596b1b13e4b1929c2f29aa85971ecb73f764906d6f8d4eb46ef116b235ae",
+            "blockNumber": 96010255,
+            "amountIn": 0.525,
+            "amountOut": 0.340181
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0xa1e48acd5d0445672d562c9bf5b26684685017b675353e6f43481b24d30239d9",
+            "blockNumber": 96010261,
+            "amountIn": 0.340181478,
+            "amountOut": 0.340077
+          }
+        ]
+      },
+      "manifestHash": "0xaa8fe01c13d808be874e4412a7a8d6fa8b4794f2f8fd764da92a3a33993a17cc",
+      "combinedAnchor": "0x7cb1a690078636442feb123fdf07553d8a7dd68b7b346c29e728d7f86aafdb6b",
+      "decisionLogTxHash": "0x61fce0f86b2bd2b6c774dda263141809387474598bc288a839044037193fcae0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
