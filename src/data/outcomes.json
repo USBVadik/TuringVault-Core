@@ -3456,6 +3456,127 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780156485347_174",
+      "decisionId": 174,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.72,
+      "priceAtDecision": 2022.67,
+      "ipfsCid": "QmVqju8RzPJXRP29R5mHJWDG4K8o6mNvBgqeF1Qkp6Dkmx",
+      "recordedAt": "2026-05-30T15:54:45.347Z",
+      "settleAfter": "2026-05-30T16:54:45.347Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 96013084"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780156485344
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst reasoning aligns with raw signals. ETH at 100% of grid channel ($2026.6 vs $2026.3 resistance) with SELL_mETH grid signal at 80% confidence. R:R=2.5:1 exceeds 1.5:1 threshold. RANGING regime explicitly supports grid-based mean-reversion sells. Swap target is mUSD (defensive/risk-off), not a directional speculative swap. Dual grid alignment (ETH+MNT both bearish at channel tops), F&G=23, an",
+      "validatorFlaggedIssues": [
+        "MACD=BUY and EMA_CROSS=BUY create mild counter-signal — monitor for false sell",
+        "Bollinger at 102% band position with only 0.8% width — breakout risk if volume enters",
+        "Funding rate neutral reduces conviction on directional follow-through"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 0.5565265778842343,
+        "amountOut": 0.36138,
+        "txHash": "0x883e9e7ba4b555cc27aea77e0aee8ac898a672c40427b4ebf5b28d5e6f0c8c24",
+        "legs": [
+          {
+            "leg": 0,
+            "from": "MNT",
+            "to": "WMNT",
+            "txHash": "0x8dec030d6fd27b4ec1f6e9e42211124613fe36769af9bef185db3f6364c0aa53",
+            "blockNumber": 96013074,
+            "amountIn": 2,
+            "amountOut": 2,
+            "op": "wrap"
+          },
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0x93581b3dfde69e7017a0ac5806a5ecb2840f70db59a659f4739cad7aec2a5df9",
+            "blockNumber": 96013078,
+            "amountIn": 0.5565265778842343,
+            "amountOut": 0.361511
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0x883e9e7ba4b555cc27aea77e0aee8ac898a672c40427b4ebf5b28d5e6f0c8c24",
+            "blockNumber": 96013084,
+            "amountIn": 0.361490148,
+            "amountOut": 0.36138
+          }
+        ]
+      },
+      "manifestHash": "0x9162f71ead9605a53cdde8e034071250bd711c8e174e181f48d5e8a4035f1cdb",
+      "combinedAnchor": "0xac3e11573cb29bd8907469b8e0e4603b1e88220f6cf6616e04e4bb6cb2bf2473",
+      "decisionLogTxHash": "0xe79e145a3fe373aa64cc49f90961be96f5f0e7bdf173f8fc4ef0d193d25febc1",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
