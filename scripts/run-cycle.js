@@ -97,6 +97,48 @@ async function main() {
   const cycleStartedAt = new Date().toISOString();
   const startMs = Date.now();
 
+  // Gas runway pre-flight log: cron-visible early warning so the
+  // operator sees the real-time runway in GH Actions output without
+  // opening the dashboard. Best-effort — never fails the cycle.
+  // Audit ref: .kiro/audits/27 (gas runway surface) +
+  //            .kiro/audits/28 (wrap-everything bug fix).
+  try {
+    const { ethers } = require("ethers");
+    const provider = new ethers.JsonRpcProvider(
+      process.env.MANTLE_RPC_URL || "https://rpc.mantle.xyz"
+    );
+    const eoa = new ethers.Wallet(process.env.PRIVATE_KEY).address;
+    const balanceWei = await provider.getBalance(eoa);
+    const nativeMnt = parseFloat(ethers.formatEther(balanceWei));
+    const reserve = 5.0;          // matches walletRouter.GAS_RESERVE_MNT
+    const costPerCycle = 0.077;   // worst-case from gas-cost sample
+    const cyclesPerDay = 48;
+    const spendable = Math.max(0, nativeMnt - reserve);
+    const cyclesRemaining = Math.floor(spendable / costPerCycle);
+    const daysRemaining = +(cyclesRemaining / cyclesPerDay).toFixed(2);
+    const status =
+      daysRemaining > 14 ? "OK" : daysRemaining >= 7 ? "LOW" : "CRITICAL";
+    console.log(
+      `⛽ Gas runway: ${nativeMnt.toFixed(4)} MNT (${spendable.toFixed(4)} spendable above ${reserve} reserve) → ` +
+        `${cyclesRemaining} cycles, ${daysRemaining} days [${status}]`
+    );
+    if (status === "CRITICAL") {
+      console.warn(
+        `⚠️  CRITICAL gas runway. Top up agent EOA ${eoa} BEFORE the agent bricks. ` +
+          `(walletRouter will refuse risk-off wraps once native MNT < ${reserve}.)`
+      );
+    } else if (status === "LOW") {
+      console.warn(
+        `⚠️  LOW gas runway. Plan an MNT top-up within ${daysRemaining} days.`
+      );
+    }
+  } catch (err) {
+    // Never fail the cycle on a runway-log error.
+    console.log(
+      `⛽ Gas runway: probe failed (${(err?.message || String(err)).slice(0, 80)})`
+    );
+  }
+
   /** @type {{
    *   cycleStartedAt: string,
    *   cycleEndedAt: string | null,
