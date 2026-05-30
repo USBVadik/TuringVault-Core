@@ -4529,6 +4529,69 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": null,
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780184740793_184",
+      "decisionId": 184,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.52,
+      "priceAtDecision": 2017.92,
+      "ipfsCid": "QmcHLs4MPxv3Qkrg4qnCg6Nsc9u6AXYj6ej2CuWZrtMjm8",
+      "recordedAt": "2026-05-30T23:45:40.793Z",
+      "settleAfter": "2026-05-31T00:45:40.793Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780184740789
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 69% channel position (mid-range, $2002-$2028) correctly yields no actionable edge. RANGING regime (55% confidence) prohibits directional swaps absent grid confirmation — none present. F&G=23 extreme fear, MACD bearish, RSI neutral at 49.1, smart money flow $0.0M neutral. Analyst correctly deprioritizes MNT EXIT_RANGING since PRIMARY EDGE is ETH. No hall",
+      "validatorFlaggedIssues": [
+        "Grid confidence only 50% — borderline signal quality",
+        "MNT channel breakout at 100% position warrants monitoring for contagion",
+        "MACD histogram negative (-0.2332) adds mild bearish tilt not fully weighted"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "The hold decision is highly justified given the ranging market regime, mid-range ETH grid position with no edge, and neutral smart money flows, which together present no actionable directional bias.",
+      "directionalSwap": null,
+      "manifestHash": "0x8380891dcdcabfa1c023e3453f5fe877759d0ed23105eeb9641fcfcd2d87273f",
+      "combinedAnchor": "0x75aa2d4260ee7a079395b409b3061a76be072fc591c7fd75af408d7305819415",
+      "decisionLogTxHash": "0xbe4cce2da96eb3da2f9166550de28a0977dc7c95db04e8e1348d1f3063387d7f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
