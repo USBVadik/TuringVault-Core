@@ -130,7 +130,7 @@ describe("methRate", () => {
     global.fetch = jest.fn(async (url, opts) => {
       if (url.includes("yields.llama.fi")) return jsonResp(null, false, 502);
       if (url.includes("meth.mantle.xyz")) return jsonResp(null, false, 503);
-      if (url.includes("cloudflare") || url.includes("llamarpc") || url.includes("ankr.com")) {
+      if (url.includes("1rpc.io") || url.includes("blastapi") || url.includes("publicnode")) {
         // Verify it's a POST eth_call
         expect(opts.method).toBe("POST");
         return jsonResp({ jsonrpc: "2.0", id: 1, result: hex });

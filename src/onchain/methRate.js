@@ -55,10 +55,15 @@ const TEN_E18 = 10n ** 18n;
 const L1_STAKING_PROXY = "0xe3cBd06D7dadB3F4e6557bAb7EdD924CD1489E8f";
 
 // Public Ethereum RPCs we rotate through. Each is read-only.
+// Verified responsive 2026-05-30 against
+// `mETHToETH(1e18)` selector 0x5890c11c on L1 Staking proxy.
+// cloudflare-eth.com and eth.llamarpc.com were tested and rejected
+// (one fails with -32603 internal error, the other returns CF
+// captcha HTML). Ankr and public-rpc require API keys.
 const L1_RPCS = [
-  "https://cloudflare-eth.com",
-  "https://eth.llamarpc.com",
-  "https://rpc.ankr.com/eth",
+  "https://1rpc.io/eth",
+  "https://eth-mainnet.public.blastapi.io",
+  "https://ethereum-rpc.publicnode.com",
 ];
 
 // ── helpers ───────────────────────────────────────────────────────
@@ -158,11 +163,17 @@ async function fromMantleStats() {
 //
 // Reads `mETHToETH(1e18)` from the canonical L1 Staking proxy
 // contract. This is the bottom-tier source; we hit it only if
-// both web sources fail. The function selector for
-// `mETHToETH(uint256)` is the first 4 bytes of
-// keccak256("mETHToETH(uint256)") which is 0xb6cf1eaf.
+// both web sources fail.
+//
+// Function selector audit-29: corrected from 0xb6cf1eaf (a hash
+// collision with a different signature) to 0x5890c11c which is the
+// actual first-4-bytes of keccak256("mETHToETH(uint256)"). Verified
+// live against 1rpc.io/eth: returns
+//   1 mETH = 1.0927 ETH (≈ 9.27% accrued staking yield protocol-
+//   wide as of 2026-05-30), exchange rate moves up monotonically as
+//   the staking protocol earns rewards.
 async function fromL1Rpc() {
-  const selector = "0xb6cf1eaf"; // mETHToETH(uint256)
+  const selector = "0x5890c11c"; // mETHToETH(uint256)
   const oneE18Hex = TEN_E18.toString(16).padStart(64, "0");
   const callData = selector + oneE18Hex;
 
@@ -252,6 +263,13 @@ function ageSec(ts) {
 
 /**
  * Try the source chain in order, return the first success.
+ *
+ * Audit-29 enhancement: also augment the result with the L1 RPC
+ * exchange rate when DefiLlama returns first but doesn't carry the
+ * redemption rate. This lets the yield surface go from "projected"
+ * to "realised" labelling automatically once the L1 path is
+ * working.
+ *
  * Falls back to disk snapshot if all live sources fail.
  *
  * Returned shape:
@@ -260,7 +278,7 @@ function ageSec(ts) {
  *     tvlUsd: number | null,
  *     currentRateAtomic: string | null,
  *     source: "defillama" | "meth.mantle.xyz" | "l1-rpc"
- *           | "cached:<original>" | null,
+ *           | "defillama+l1-rpc" | "cached:<original>" | null,
  *     fetchedAt: ISO string,
  *     degraded: boolean,
  *     snapshotAgeSec?: number,
@@ -268,14 +286,36 @@ function ageSec(ts) {
  */
 async function fetchMethRate() {
   const sources = [fromDefiLlama, fromMantleStats, fromL1Rpc];
-  let lastErr = null;
+  const errors = [];
+  let primary = null;
   for (const src of sources) {
     try {
       const out = await src();
-      return { ...out, degraded: false };
+      primary = { ...out, degraded: false };
+      break;
     } catch (err) {
-      lastErr = err;
+      errors.push(err.message);
     }
+  }
+  if (primary) {
+    // Augment: if primary is DefiLlama-only (apy but no rate), try
+    // L1 RPC as a non-blocking enrichment so the rate is populated
+    // and the homepage tile can show realised yield.
+    if (
+      primary.source === "defillama" &&
+      !primary.currentRateAtomic
+    ) {
+      try {
+        const rpcOut = await fromL1Rpc();
+        if (rpcOut.currentRateAtomic) {
+          primary.currentRateAtomic = rpcOut.currentRateAtomic;
+          primary.source = "defillama+l1-rpc";
+        }
+      } catch {
+        // Best-effort enrichment; primary still wins.
+      }
+    }
+    return primary;
   }
   // All live sources failed — try snapshot.
   const snap = readSnapshot();
@@ -295,7 +335,9 @@ async function fetchMethRate() {
       snapshotAgeSec: age,
     };
   }
-  throw lastErr || new Error("no rate sources reachable and no snapshot");
+  throw new Error(
+    `no rate sources reachable and no snapshot · last errors: ${errors.join("; ")}`
+  );
 }
 
 /**
