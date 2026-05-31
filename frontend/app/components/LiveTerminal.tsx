@@ -111,6 +111,7 @@ function tierTone(tier: string | null): string {
   // Render as orange warning so the dashboard never claims "executed"
   // when the on-chain footprint is empty.
   if (tier === "INTENT_SWAP_NO_EXEC") return "text-orange-400/80";
+  if (tier === "EXECUTION_PROOF_PENDING") return "text-yellow-400/80";
   if (tier === "BLOCKED_BY_VALIDATOR") return "text-red-400/70";
   if (tier === "BLOCKED_BY_LOW_CONFIDENCE") return "text-yellow-400/70";
   if (tier === "BLOCKED_BY_REGIME") return "text-blue-400/70";

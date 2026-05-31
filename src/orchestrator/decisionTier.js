@@ -26,8 +26,11 @@
  *       (R1; design C1)
  */
 
+const { BASE_CONFIDENCE_THRESHOLD } = require("../config/constants");
+
 const TIERS = Object.freeze({
   EXECUTED_SWAP: "EXECUTED_SWAP",
+  EXECUTION_PROOF_PENDING: "EXECUTION_PROOF_PENDING",
   BLOCKED_BY_VALIDATOR: "BLOCKED_BY_VALIDATOR",
   BLOCKED_BY_LOW_CONFIDENCE: "BLOCKED_BY_LOW_CONFIDENCE",
   BLOCKED_BY_REGIME: "BLOCKED_BY_REGIME",
@@ -40,7 +43,7 @@ const TIERS = Object.freeze({
   HEARTBEAT_SWAP: "HEARTBEAT_SWAP",
 });
 
-const DEFAULT_THRESHOLD = 0.6;
+const DEFAULT_THRESHOLD = BASE_CONFIDENCE_THRESHOLD;
 
 /**
  * @param {object} decision  - return value of getMultiAgentDecision()

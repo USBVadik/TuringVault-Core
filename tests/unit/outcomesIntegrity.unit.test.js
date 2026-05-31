@@ -8,7 +8,7 @@
  * said `EXECUTED_SWAP` while no DEX TX had been broadcast. UI then
  * advertised a fake green "swap executed" badge.
  *
- * The invariant: any row in `src/data/outcomes.json[settled]`
+ * The invariant: any row in `src/data/outcomes.json` pending or settled
  * displayed to the user as `EXECUTED_SWAP` MUST be backed by a
  * real on-chain TX (executedOnChain=true AND a 32-byte tx hash on
  * the first directional swap leg). A drift here is a P0 honesty-
@@ -45,7 +45,10 @@ function loadOutcomes() {
   const p = path.resolve(__dirname, "../../src/data/outcomes.json");
   const raw = fs.readFileSync(p, "utf-8");
   const parsed = JSON.parse(raw);
-  return Array.isArray(parsed.settled) ? parsed.settled : [];
+  return [
+    ...(Array.isArray(parsed.settled) ? parsed.settled : []),
+    ...(Array.isArray(parsed.pending) ? parsed.pending : []),
+  ];
 }
 
 function effectiveTier(row) {
@@ -62,10 +65,21 @@ function firstLegTxHash(row) {
   return row?.directionalSwap?.legs?.[0]?.txHash || null;
 }
 
+function hasFailedExecutionProof(row) {
+  const checks = row?.disciplineDetail?.checks;
+  if (!Array.isArray(checks)) return false;
+  return checks.some(
+    (c) =>
+      ["tx_proof", "tx_exists", "tx_sender", "tx_confirmed", "tx_success"].includes(
+        c?.name
+      ) && ["FAIL", "ERROR"].includes(c?.status)
+  );
+}
+
 describe("outcomes integrity invariants", () => {
   const settled = loadOutcomes();
 
-  test("settled[] is a non-empty array", () => {
+  test("outcome rows are a non-empty array", () => {
     expect(Array.isArray(settled)).toBe(true);
     expect(settled.length).toBeGreaterThan(0);
   });
@@ -119,6 +133,25 @@ describe("outcomes integrity invariants", () => {
         offenders.slice(0, 5).map((r) => ({
           decisionId: r.decisionId,
           directionalSwapExecuted: r?.directionalSwap?.executed,
+        }))
+      );
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test("every EXECUTED_SWAP-displayed row has no failed execution proof", () => {
+    const offenders = settled.filter(
+      (r) => effectiveTier(r) === "EXECUTED_SWAP" && hasFailedExecutionProof(r)
+    );
+    if (offenders.length > 0) {
+      console.error(
+        `[outcomesIntegrity] EXECUTED_SWAP with failed tx proof — ${offenders.length} row(s):`,
+        offenders.slice(0, 5).map((r) => ({
+          decisionId: r.decisionId,
+          disciplineStatus: r.disciplineStatus,
+          proofChecks: (r?.disciplineDetail?.checks || [])
+            .filter((c) => String(c?.name || "").startsWith("tx_"))
+            .map((c) => `${c.name}:${c.status}`),
         }))
       );
     }

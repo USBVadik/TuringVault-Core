@@ -34,7 +34,7 @@ const HEARTBEAT_TIER = "HEARTBEAT_SWAP";
 const COOLDOWN_HOURS_DEFAULT = 6;
 const QUIET_CYCLES_THRESHOLD_DEFAULT = 6; // fire after this many non-trading cycles
 const MAX_HEARTBEATS_PER_DAY_DEFAULT = 4;
-const MAX_USD_DEFAULT = 1.0; // floor for one heartbeat — $1 is enough on Mantle
+const MAX_USD_DEFAULT = 1.0; // cap for one heartbeat; keeps it proof-only
 const WALLET_DRIFT_GUARD_PCT_DEFAULT = 0.1; // refuse if wallet >10% lopsided
 
 /**

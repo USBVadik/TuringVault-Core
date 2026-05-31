@@ -78,6 +78,7 @@ async function loadOutcomesIndex(): Promise<Map<
     executedOnChain: boolean;
     displayTier: string | null;
     decisionTier: string | null;
+    executionProofStatus: string | null;
     // Audit 19/20 provenance — surfaced on /api/decisions so the
     // dashboard can render a "fed by Binance fallback" pill.
     priceSource: string | null;
@@ -95,6 +96,7 @@ async function loadOutcomesIndex(): Promise<Map<
       executedOnChain: boolean;
       displayTier: string | null;
       decisionTier: string | null;
+      executionProofStatus: string | null;
       priceSource: string | null;
       priceFromSnapshot: boolean;
       priceSnapshotAgeSec: number | null;
@@ -120,6 +122,7 @@ async function loadOutcomesIndex(): Promise<Map<
         candleSource?: string | null;
         candleFromSnapshot?: boolean;
         candleSnapshotAgeSec?: number | null;
+        executionProofStatus?: string | null;
       }>;
       settled?: Array<{
         decisionId?: number;
@@ -135,6 +138,7 @@ async function loadOutcomesIndex(): Promise<Map<
         candleSource?: string | null;
         candleFromSnapshot?: boolean;
         candleSnapshotAgeSec?: number | null;
+        executionProofStatus?: string | null;
       }>;
     } | null = null;
     if (fs.existsSync(p)) {
@@ -161,12 +165,17 @@ async function loadOutcomesIndex(): Promise<Map<
         e._displayTier ??
         (tier === "EXECUTED_SWAP" && !executedOnChain
           ? "INTENT_SWAP_NO_EXEC"
+          : tier === "EXECUTED_SWAP" &&
+              e.executionProofStatus &&
+              e.executionProofStatus !== "ACCEPTED"
+            ? "EXECUTION_PROOF_PENDING"
           : tier);
       out.set(e.decisionId, {
         rwaIntent: e.rwaIntent ?? null,
         executedOnChain,
         displayTier,
         decisionTier: tier,
+        executionProofStatus: e.executionProofStatus ?? null,
         priceSource: e.priceSource ?? null,
         priceFromSnapshot: e.priceFromSnapshot === true,
         priceSnapshotAgeSec: e.priceSnapshotAgeSec ?? null,

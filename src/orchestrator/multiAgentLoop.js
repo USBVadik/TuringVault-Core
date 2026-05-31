@@ -77,16 +77,36 @@ const VALIDATION_ABI = [
 
 function buildPortfolioPrices(market = {}) {
   const mntPrice = Number(market.mntPrice) || 0.65;
-  const ethPrice = Number(market.ethPrice) || 0;
+  const methPrice =
+    Number(market.methPrice ?? market.mETHPrice ?? market.ethPrice) || 2000;
   return {
     MNT: mntPrice,
     WMNT: mntPrice,
-    mETH: ethPrice,
-    ETH: ethPrice,
+    mETH: methPrice,
+    WETH: Number(market.wethPrice) || methPrice,
+    ETH: methPrice, // legacy alias only; Mantle execution uses mETH/WETH.
     USDT0: 1,
     USDT: 1,
     mUSD: 1,
   };
+}
+
+function getSettlementSnapshot(
+  market = {},
+  targetAsset = "mETH",
+  sourceAsset = null
+) {
+  const settlementAsset = outcomeTracker.inferSettlementAsset(
+    targetAsset,
+    "mETH",
+    sourceAsset
+  );
+  const priceAtDecision =
+    settlementAsset === "MNT"
+      ? Number(market.mntPrice) || null
+      : Number(market.methPrice ?? market.mETHPrice ?? market.ethPrice) ||
+        null;
+  return { settlementAsset, priceAtDecision };
 }
 
 function compactPortfolioGuardResult(result) {
@@ -1380,13 +1400,22 @@ async function runMultiAgentCycle(opts = {}) {
       market.structuredSignals?.signals?.ranging?.channel?.snapshotAgeSec ??
       null;
 
+    const outcomeTargetAsset = decision.analyst?.targetAsset || "mUSD";
+    const settlementSnapshot = getSettlementSnapshot(
+      market,
+      outcomeTargetAsset,
+      directionalSwapResult?.from
+    );
+
     outcomeTracker.record({
       decisionId: Number(proposalId),
       action: decision.analyst?.action || "hold",
-      targetAsset: decision.analyst?.targetAsset || "mUSD",
+      targetAsset: outcomeTargetAsset,
       consensus: decision.consensus || false,
       confidence: decision.analyst?.confidence || 0.5,
-      priceAtDecision: market.ethPrice,
+      priceAtDecision: settlementSnapshot.priceAtDecision || market.ethPrice,
+      settlementAsset: settlementSnapshot.settlementAsset,
+      priceAssetAtDecision: settlementSnapshot.settlementAsset,
       ipfsCid: ipfsResult.cid,
       disciplineStatus,
       disciplineDetail,
@@ -1431,7 +1460,7 @@ async function runMultiAgentCycle(opts = {}) {
       candleSnapshotAgeSec: _candleSnapAge,
     });
     console.log(
-      `   ✅ Will settle vs ETH price in 4h (now: $${market.ethPrice})`
+      `   ✅ Will settle vs ${settlementSnapshot.settlementAsset} in 4h (now: $${settlementSnapshot.priceAtDecision || market.ethPrice})`
     );
   } catch (e) {
     console.log(`   ⚠️  Outcome record failed: ${e.message?.slice(0, 60)}`);

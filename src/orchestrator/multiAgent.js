@@ -119,6 +119,70 @@ function getDynamicConfidenceThreshold() {
   }
 }
 
+function evaluateConsensus({
+  analystDecision,
+  validator,
+  confidenceThreshold = BASE_CONFIDENCE_THRESHOLD,
+  arbiterVote = null,
+} = {}) {
+  const analystConfidence = Number(analystDecision?.confidence ?? 0);
+  const validatorConfidence = Number(validator?.validatorConfidence ?? 0);
+  const riskScore = Number(validator?.riskScore ?? 100);
+
+  const analystWantsAction =
+    analystConfidence >= confidenceThreshold &&
+    analystDecision?.action !== "hold";
+  const validatorHardVeto =
+    validator?.approved === false || riskScore > MAX_RISK_SCORE;
+  const validatorApproves =
+    validator?.approved === true &&
+    validatorConfidence >= confidenceThreshold - VALIDATOR_TOLERANCE &&
+    !validatorHardVeto;
+
+  if (validatorHardVeto) {
+    return {
+      consensus: false,
+      analystWantsAction,
+      validatorApproves: false,
+      validatorHardVeto: true,
+      needsArbiter: false,
+      blockReason:
+        riskScore > MAX_RISK_SCORE
+          ? "Validator hard veto: risk too high"
+          : "Validator hard veto: rejected",
+    };
+  }
+
+  if (arbiterVote) {
+    const arbiterApproved = arbiterVote.vote === "approve";
+    return {
+      consensus: Boolean(arbiterApproved && analystWantsAction),
+      analystWantsAction,
+      validatorApproves,
+      validatorHardVeto: false,
+      needsArbiter: false,
+      blockReason: arbiterApproved
+        ? "Confidence threshold not met"
+        : "Arbiter rejected",
+    };
+  }
+
+  return {
+    consensus: analystWantsAction && validatorApproves,
+    analystWantsAction,
+    validatorApproves,
+    validatorHardVeto: false,
+    needsArbiter: analystWantsAction && !validatorApproves,
+    blockReason: !analystWantsAction
+      ? analystDecision?.action === "hold"
+        ? "Analyst chose hold"
+        : "Confidence threshold not met"
+      : !validatorApproves
+      ? "Validator confidence below threshold"
+      : null,
+  };
+}
+
 // Extended schema for Analyst (has extra fields vs base schema)
 const AnalystSchema = z.object({
   // RWA-aware action vocabulary (rwa-allocation-active spec, T7).
@@ -895,20 +959,17 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
     `  [THRESHOLD] Active confidence threshold: ${confidenceThreshold}`
   );
 
-  const analystWantsAction =
-    analystDecision.confidence >= confidenceThreshold &&
-    analystDecision.action !== "hold";
-  const validatorApproves =
-    validator.approved &&
-    validator.validatorConfidence >=
-      confidenceThreshold - VALIDATOR_TOLERANCE &&
-    validator.riskScore <= MAX_RISK_SCORE;
-
-  let consensus = analystWantsAction && validatorApproves;
+  let consensusEval = evaluateConsensus({
+    analystDecision,
+    validator,
+    confidenceThreshold,
+  });
+  let consensus = consensusEval.consensus;
   let arbiterVote = null;
 
-  // STEP 3b: ARBITER (3rd agent) — called when analyst and validator DISAGREE
-  if (analystWantsAction !== validatorApproves) {
+  // STEP 3b: ARBITER (3rd agent) — called only for soft disagreements.
+  // A Claude hard veto (approved=false or risk score over ceiling) is final.
+  if (consensusEval.needsArbiter) {
     console.log(
       `  [ARBITER] Disagreement detected — calling arbiter (model: ${MODELS.arbiter})...`
     );
@@ -946,17 +1007,23 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
         ).toFixed(0)}% conf)`
       );
 
-      // 2/3 voting: analyst + arbiter approve = execute, or validator + arbiter reject = block
-      if (arbiterRaw.vote === "approve" && analystWantsAction) {
-        consensus = true; // analyst + arbiter = 2/3
-      } else {
-        consensus = false; // validator + arbiter = 2/3 reject
-      }
+      consensusEval = evaluateConsensus({
+        analystDecision,
+        validator,
+        confidenceThreshold,
+        arbiterVote: arbiterRaw,
+      });
+      consensus = consensusEval.consensus;
     } catch (e) {
       console.log(
         `  [ARBITER] Error: ${e.message} — defaulting to conservative (block)`
       );
       consensus = false;
+      consensusEval = {
+        ...consensusEval,
+        consensus: false,
+        blockReason: "Arbiter error",
+      };
     }
   }
 
@@ -964,13 +1031,9 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
     consensus,
     reason: consensus
       ? "Multi-agent consensus (2/3 or 3/3) — executing"
-      : `Blocked: ${
-          !validatorApproves
-            ? "Validator rejected"
-            : validator.riskScore > 60
-            ? "Risk too high"
-            : "Confidence threshold not met"
-        }${arbiterVote ? ` | Arbiter: ${arbiterVote.vote}` : ""}`,
+      : `Blocked: ${consensusEval.blockReason || "No consensus"}${
+          arbiterVote ? ` | Arbiter: ${arbiterVote.vote}` : ""
+        }`,
     analyst: analystDecision,
     validator: validator,
     arbiter: arbiterVote,
@@ -998,6 +1061,7 @@ module.exports = {
   normalizeAnalystResponse,
   normalizeValidatorResponse,
   getDynamicConfidenceThreshold,
+  evaluateConsensus,
   // Reproducible AI capture surface — drain after a cycle to retrieve
   // the per-call replay set. multiAgentLoop wires this into manifest
   // writes and on-chain anchoring.

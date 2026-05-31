@@ -71,7 +71,7 @@ describe("classifyDecisionTier", () => {
   });
 
   test("elevated _activeThreshold raises bar", () => {
-    // 0.7 confidence, base threshold 0.6 → would pass.
+    // 0.7 confidence clears the configured base threshold.
     // With elevated 0.85, fails → LOW_CONFIDENCE.
     expect(
       classifyDecisionTier(

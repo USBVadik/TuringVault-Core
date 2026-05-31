@@ -9,6 +9,7 @@ const {
   normalizeAnalystResponse,
   normalizeValidatorResponse,
   getDynamicConfidenceThreshold,
+  evaluateConsensus,
   ANALYST_SYSTEM_PROMPT,
 } = require("../../src/orchestrator/multiAgent");
 const { DEFAULT_CONFIDENCE_FALLBACK } = require("../../src/config/constants");
@@ -537,6 +538,98 @@ describe("normalizeValidatorResponse", () => {
         "Funding rate confirms direction, R:R is 2.1:1"
       );
     });
+  });
+});
+
+describe("evaluateConsensus", () => {
+  const analystDecision = {
+    action: "swap",
+    targetAsset: "mETH",
+    confidence: 0.7,
+  };
+
+  it("treats validator.approved=false as a hard veto even if arbiter approves", () => {
+    const result = evaluateConsensus({
+      analystDecision,
+      confidenceThreshold: 0.55,
+      validator: {
+        approved: false,
+        validatorConfidence: 0.9,
+        riskScore: 20,
+      },
+      arbiterVote: { vote: "approve", confidence: 0.95 },
+    });
+
+    expect(result.consensus).toBe(false);
+    expect(result.validatorHardVeto).toBe(true);
+    expect(result.needsArbiter).toBe(false);
+    expect(result.blockReason).toMatch(/hard veto/i);
+  });
+
+  it("treats riskScore over the ceiling as a hard veto", () => {
+    const result = evaluateConsensus({
+      analystDecision,
+      confidenceThreshold: 0.55,
+      validator: {
+        approved: true,
+        validatorConfidence: 0.9,
+        riskScore: 90,
+      },
+      arbiterVote: { vote: "approve", confidence: 0.95 },
+    });
+
+    expect(result.consensus).toBe(false);
+    expect(result.validatorHardVeto).toBe(true);
+    expect(result.blockReason).toMatch(/risk too high/i);
+  });
+
+  it("allows arbiter only for soft validator-confidence disagreement", () => {
+    const preArbiter = evaluateConsensus({
+      analystDecision,
+      confidenceThreshold: 0.55,
+      validator: {
+        approved: true,
+        validatorConfidence: 0.42,
+        riskScore: 20,
+      },
+    });
+
+    expect(preArbiter.consensus).toBe(false);
+    expect(preArbiter.validatorHardVeto).toBe(false);
+    expect(preArbiter.needsArbiter).toBe(true);
+
+    const postArbiter = evaluateConsensus({
+      analystDecision,
+      confidenceThreshold: 0.55,
+      validator: {
+        approved: true,
+        validatorConfidence: 0.42,
+        riskScore: 20,
+      },
+      arbiterVote: { vote: "approve", confidence: 0.8 },
+    });
+
+    expect(postArbiter.consensus).toBe(true);
+    expect(postArbiter.validatorHardVeto).toBe(false);
+  });
+
+  it("does not call arbiter when the analyst itself does not want an action", () => {
+    const result = evaluateConsensus({
+      analystDecision: {
+        action: "hold",
+        targetAsset: "mUSD",
+        confidence: 0.9,
+      },
+      confidenceThreshold: 0.55,
+      validator: {
+        approved: true,
+        validatorConfidence: 0.9,
+        riskScore: 20,
+      },
+    });
+
+    expect(result.consensus).toBe(false);
+    expect(result.needsArbiter).toBe(false);
   });
 });
 

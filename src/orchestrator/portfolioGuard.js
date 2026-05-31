@@ -11,7 +11,9 @@ function num(v, fallback = 0) {
 }
 
 function priceOf(prices = {}, symbol) {
-  if (symbol === "mETH") return num(prices.mETH ?? prices.ETH, 0);
+  if (symbol === "mETH" || symbol === "WETH") {
+    return num(prices[symbol] ?? prices.mETH ?? prices.WETH ?? prices.ETH, 0);
+  }
   if (symbol === "WMNT" || symbol === "MNT") {
     return num(prices.WMNT ?? prices.MNT ?? prices.mntPrice, 0.65);
   }

@@ -139,6 +139,21 @@ async function verify(params) {
               detail: "TX successful",
             });
           }
+        } else {
+          checks.push({
+            name: "tx_confirmed",
+            status: "FAIL",
+            detail: "TX receipt not available",
+          });
+          checks.push({
+            name: "tx_success",
+            status: "FAIL",
+            detail: "Cannot prove success without a receipt",
+          });
+          blocked = true;
+          blockReason = "Transaction receipt unavailable";
+          repairStep =
+            "Retry tx proof after confirmation; do not mark execution as proved until receipt is available";
         }
       }
     } catch (err) {
@@ -147,7 +162,10 @@ async function verify(params) {
         status: "ERROR",
         detail: err.message?.slice(0, 100),
       });
-      // Don't block on RPC errors — degrade gracefully
+      blocked = true;
+      blockReason = "Transaction proof unavailable";
+      repairStep =
+        "Retry tx proof with a healthy Mantle RPC before accepting the execution";
     }
   } else if (params.action === "hold") {
     checks.push({
@@ -251,7 +269,8 @@ async function verify(params) {
   const hasTxProofRollup = checks.some((c) => c.name === "tx_proof");
   if (txSubChecks.length > 0 && !hasTxProofRollup) {
     let rollupStatus = "PASS";
-    if (txSubChecks.some((c) => c.status === "FAIL")) rollupStatus = "FAIL";
+    if (txSubChecks.some((c) => ["FAIL", "ERROR"].includes(c.status)))
+      rollupStatus = "FAIL";
     else if (txSubChecks.some((c) => c.status === "WARN"))
       rollupStatus = "WARN";
     checks.push({

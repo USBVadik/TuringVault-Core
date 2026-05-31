@@ -2,7 +2,7 @@
  * TuringVault — Outcome Tracker
  *
  * The REAL learning loop. After each decision, we wait N hours,
- * fetch the actual price, compute whether the agent was right or wrong,
+ * fetch the actual benchmark price, compute whether the agent was right or wrong,
  * and record that on-chain as PnL. Only then does promptEvolution
  * have real data to reason about.
  *
@@ -10,7 +10,7 @@
  *   1. Decision recorded → save {decisionId, action, targetAsset,
  *      priceAtDecision, timestamp, consensus} to local DB (outcomes.json)
  *   2. [4 hours later] outcomeTracker.settle() is called
- *   3. Fetch current price
+ *   3. Fetch current mETH/WETH or MNT benchmark price
  *   4. Compute outcome:
  *      - HOLD + price dropped  → CORRECT BLOCK   → +score
  *      - HOLD + price rose     → MISSED ALPHA    → -score
@@ -42,7 +42,7 @@ const SCORE = {
   MISSED_ALPHA: -20, // HOLD, price rose — too conservative
   GOOD_CALL: +60, // SWAP approved, price moved in our favour
   BAD_CALL: -80, // SWAP approved, price moved against us — serious
-  NEUTRAL: 0, // <0.3% move — no signal
+  NEUTRAL: 0, // sub-threshold move — no signal
 };
 
 // ─── DB helpers ────────────────────────────────────────────────────
@@ -78,23 +78,150 @@ function saveDB(db) {
   fs.renameSync(tmp, OUTCOMES_PATH);
 }
 
-// ─── Price fetch ───────────────────────────────────────────────────
+// ─── Price fetch / settlement assets ───────────────────────────────
 
-async function fetchEthPrice() {
+const RISK_ON_TARGETS = new Set(["mETH", "WETH", "MNT", "WMNT"]);
+const ETH_BENCHMARK_TARGETS = new Set(["mETH", "WETH"]);
+const MNT_BENCHMARK_TARGETS = new Set(["MNT", "WMNT"]);
+
+function normalizeAssetSymbol(asset) {
+  const raw = String(asset || "").trim();
+  const upper = raw.toUpperCase();
+  if (upper === "ETH" || upper === "METH") return "mETH";
+  if (upper === "WETH") return "WETH";
+  if (upper === "MNT" || upper === "WMNT") return upper;
+  if (upper === "MUSD") return "mUSD";
+  if (upper === "USDT" || upper === "USDT0") return upper;
+  return raw || null;
+}
+
+function isRiskOnTarget(targetAsset) {
+  return RISK_ON_TARGETS.has(normalizeAssetSymbol(targetAsset));
+}
+
+function inferSettlementAsset(targetAsset, fallback = "mETH", sourceAsset = null) {
+  const symbol = normalizeAssetSymbol(targetAsset);
+  if (ETH_BENCHMARK_TARGETS.has(symbol)) return "mETH";
+  if (MNT_BENCHMARK_TARGETS.has(symbol)) return "MNT";
+  const sourceSymbol = normalizeAssetSymbol(sourceAsset);
+  if (ETH_BENCHMARK_TARGETS.has(sourceSymbol)) return "mETH";
+  if (MNT_BENCHMARK_TARGETS.has(sourceSymbol)) return "MNT";
+  return normalizeAssetSymbol(fallback) || "mETH";
+}
+
+function priceFromMap(priceMap = {}, settlementAsset = "mETH") {
+  const asset = inferSettlementAsset(settlementAsset);
+  if (asset === "MNT") return priceMap.MNT ?? priceMap.WMNT ?? null;
+  return priceMap.mETH ?? priceMap.WETH ?? null;
+}
+
+async function fetchAssetPrices() {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
     const res = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
+      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum,mantle,mantle-staked-ether&vs_currencies=usd",
       { signal: controller.signal }
     );
     const data = await res.json();
-    return data?.ethereum?.usd || null;
+    const ethUsd = data?.ethereum?.usd || null;
+    const methUsd = data?.["mantle-staked-ether"]?.usd || ethUsd;
+    const mntUsd = data?.mantle?.usd || null;
+    return {
+      mETH: methUsd,
+      WETH: ethUsd,
+      MNT: mntUsd,
+      WMNT: mntUsd,
+    };
   } catch {
     return null;
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function fetchEthPrice() {
+  const prices = await fetchAssetPrices();
+  return prices?.mETH || prices?.WETH || null;
+}
+
+function computePriceMoveOutcome({
+  consensus,
+  targetAsset,
+  confidence,
+  priceAtDecision,
+  currentPrice,
+}) {
+  const pricePct = ((currentPrice - priceAtDecision) / priceAtDecision) * 100;
+  const absPct = Math.abs(pricePct);
+  const priceRose = pricePct > MIN_PRICE_MOVE_PCT;
+  const priceFell = pricePct < -MIN_PRICE_MOVE_PCT;
+
+  if (absPct < MIN_PRICE_MOVE_PCT) {
+    return {
+      pricePct,
+      outcome: "NEUTRAL",
+      scoreDelta: SCORE.NEUTRAL,
+      pnlBps: 0,
+    };
+  }
+
+  if (!consensus) {
+    if (priceFell) {
+      return {
+        pricePct,
+        outcome: "CORRECT_BLOCK",
+        scoreDelta: SCORE.CORRECT_BLOCK,
+        pnlBps: Math.round(absPct * 100 * 0.3),
+      };
+    }
+    if (priceRose) {
+      return {
+        pricePct,
+        outcome: "MISSED_ALPHA",
+        scoreDelta: SCORE.MISSED_ALPHA,
+        pnlBps: -Math.round(absPct * 100 * 0.3),
+      };
+    }
+    return {
+      pricePct,
+      outcome: "NEUTRAL",
+      scoreDelta: SCORE.NEUTRAL,
+      pnlBps: 0,
+    };
+  }
+
+  const targetedRise = isRiskOnTarget(targetAsset);
+  const calledRight =
+    (targetedRise && priceRose) || (!targetedRise && priceFell);
+
+  return {
+    pricePct,
+    outcome: calledRight ? "GOOD_CALL" : "BAD_CALL",
+    scoreDelta: calledRight ? SCORE.GOOD_CALL : SCORE.BAD_CALL,
+    pnlBps:
+      Math.round(absPct * 100 * (confidence || 0.5)) *
+      (calledRight ? 1 : -1),
+  };
+}
+
+function deriveExecutionProofStatus(disciplineDetail) {
+  const checks = disciplineDetail?.checks;
+  if (!Array.isArray(checks) || checks.length === 0) return "UNKNOWN";
+
+  const executionChecks = checks.filter((c) =>
+    ["tx_proof", "tx_exists", "tx_sender", "tx_confirmed", "tx_success"].includes(
+      c?.name
+    )
+  );
+  if (executionChecks.length === 0) return "UNKNOWN";
+  if (executionChecks.some((c) => ["FAIL", "ERROR"].includes(c?.status))) {
+    return "ERROR";
+  }
+  if (executionChecks.some((c) => c?.status === "WARN")) return "WARN";
+  if (executionChecks.some((c) => c?.status === "PASS")) return "ACCEPTED";
+  if (executionChecks.every((c) => c?.status === "SKIP")) return "SKIPPED";
+  return "UNKNOWN";
 }
 
 // ─── Public API ────────────────────────────────────────────────────
@@ -106,13 +233,19 @@ async function fetchEthPrice() {
  * @param {object} params
  *   decisionId     - on-chain proposal ID
  *   action         - "swap" | "hold"
- *   targetAsset    - "mETH" | "mUSD"
+ *   targetAsset    - "mETH" | "WETH" | "MNT" | "WMNT" | stable target
  *   consensus      - bool (was it approved?)
  *   confidence     - analyst confidence 0-1
- *   priceAtDecision - ETH price at time of decision
+ *   priceAtDecision - benchmark price at time of decision
+ *   settlementAsset - "mETH" or "MNT" benchmark for later settlement
  *   ipfsCid        - reasoning proof CID
  */
 function record(params) {
+  const settlementAsset = inferSettlementAsset(
+    params.settlementAsset || params.targetAsset,
+    params.priceAssetAtDecision || "mETH",
+    params.sourceAsset || params.directionalSwap?.from
+  );
   const db = loadDB();
   const entry = {
     id: `${Date.now()}_${params.decisionId}`,
@@ -122,6 +255,8 @@ function record(params) {
     consensus: params.consensus,
     confidence: params.confidence,
     priceAtDecision: params.priceAtDecision,
+    settlementAsset,
+    priceAssetAtDecision: params.priceAssetAtDecision || settlementAsset,
     ipfsCid: params.ipfsCid || null,
     recordedAt: new Date().toISOString(),
     settleAfter: new Date(Date.now() + SETTLE_DELAY_MS).toISOString(),
@@ -200,9 +335,15 @@ function record(params) {
       Array.isArray(entry.directionalSwap.legs) &&
       entry.directionalSwap.legs.some((l) => l && l.txHash));
   entry.executedOnChain = executedOnChain;
+  entry.executionProofStatus = deriveExecutionProofStatus(
+    entry.disciplineDetail
+  );
   entry._displayTier =
     entry.decisionTier === "EXECUTED_SWAP" && !executedOnChain
       ? "INTENT_SWAP_NO_EXEC"
+      : entry.decisionTier === "EXECUTED_SWAP" &&
+        entry.executionProofStatus !== "ACCEPTED"
+      ? "EXECUTION_PROOF_PENDING"
       : entry.decisionTier ?? null;
 
   db.pending.push(entry);
@@ -236,9 +377,9 @@ async function settle(opts = {}) {
 
   console.log(`  [OUTCOME] Settling ${due.length} decision(s)...`);
 
-  const currentPrice = await fetchEthPrice();
-  if (!currentPrice) {
-    console.log("  [OUTCOME] Could not fetch price — skipping settlement");
+  const currentPrices = await fetchAssetPrices();
+  if (!currentPrices) {
+    console.log("  [OUTCOME] Could not fetch prices — skipping settlement");
     return [];
   }
 
@@ -256,57 +397,32 @@ async function settle(opts = {}) {
       continue;
     }
 
-    const pricePct = ((currentPrice - priceAtDecision) / priceAtDecision) * 100;
-    const absPct = Math.abs(pricePct);
-    const priceRose = pricePct > MIN_PRICE_MOVE_PCT;
-    const priceFell = pricePct < -MIN_PRICE_MOVE_PCT;
-
-    let outcome, scoreDelta, pnlBps;
-
-    if (absPct < MIN_PRICE_MOVE_PCT) {
-      outcome = "NEUTRAL";
-      scoreDelta = SCORE.NEUTRAL;
-      pnlBps = 0;
-    } else if (!entry.consensus) {
-      // Decision was BLOCKED
-      if (priceFell) {
-        outcome = "CORRECT_BLOCK";
-        scoreDelta = SCORE.CORRECT_BLOCK;
-        // Saved capital: roughly |pricePct| * position (assume 30% of portfolio)
-        pnlBps = Math.round(absPct * 100 * 0.3); // positive: avoided loss
-      } else if (priceRose) {
-        outcome = "MISSED_ALPHA";
-        scoreDelta = SCORE.MISSED_ALPHA;
-        pnlBps = -Math.round(absPct * 100 * 0.3); // negative: opportunity cost
-      } else {
-        outcome = "NEUTRAL";
-        scoreDelta = SCORE.NEUTRAL;
-        pnlBps = 0;
-      }
-    } else {
-      // Decision was APPROVED (swap executed)
-      // For mETH: we want price to rise (risk-on)
-      // For mUSD: we want price to fall (risk-off, defensive)
-      const targetedRise = entry.targetAsset === "mETH";
-      const calledRight =
-        (targetedRise && priceRose) || (!targetedRise && priceFell);
-
-      if (calledRight) {
-        outcome = "GOOD_CALL";
-        scoreDelta = SCORE.GOOD_CALL;
-        pnlBps = Math.round(absPct * 100 * (entry.confidence || 0.5));
-      } else {
-        outcome = "BAD_CALL";
-        scoreDelta = SCORE.BAD_CALL;
-        pnlBps = -Math.round(absPct * 100 * (entry.confidence || 0.5));
-      }
+    const settlementAsset = inferSettlementAsset(
+      entry.settlementAsset || entry.targetAsset,
+      entry.priceAssetAtDecision || "mETH"
+    );
+    const currentPrice = priceFromMap(currentPrices, settlementAsset);
+    if (!currentPrice) {
+      console.log(
+        `  [OUTCOME] Skipping ${entry.id} — no ${settlementAsset} price`
+      );
+      continue;
     }
+
+    const { pricePct, outcome, scoreDelta, pnlBps } = computePriceMoveOutcome({
+      consensus: entry.consensus,
+      targetAsset: entry.targetAsset,
+      confidence: entry.confidence,
+      priceAtDecision,
+      currentPrice,
+    });
 
     const settled = {
       ...entry,
       settled: true,
       settledAt: new Date().toISOString(),
       priceAtSettlement: currentPrice,
+      settlementAsset,
       pricePct: +pricePct.toFixed(3),
       outcome,
       scoreDelta,
@@ -317,7 +433,7 @@ async function settle(opts = {}) {
       `  [OUTCOME] ${entry.id.slice(-12)} | ${entry.action}→${
         entry.targetAsset
       }` +
-        ` | consensus=${entry.consensus} | ETH ${
+        ` | consensus=${entry.consensus} | ${settlementAsset} ${
           pricePct >= 0 ? "+" : ""
         }${pricePct.toFixed(2)}%` +
         ` | ${outcome} | score${scoreDelta >= 0 ? "+" : ""}${scoreDelta}`
@@ -439,4 +555,11 @@ module.exports = {
   getOutcomeHistory,
   getPendingCount,
   getLastRwaSwapAt,
+  fetchAssetPrices,
+  fetchEthPrice,
+  normalizeAssetSymbol,
+  isRiskOnTarget,
+  inferSettlementAsset,
+  computePriceMoveOutcome,
+  deriveExecutionProofStatus,
 };
