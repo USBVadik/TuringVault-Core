@@ -10,6 +10,7 @@ const {
   normalizeValidatorResponse,
   shouldPromoteGridTradeCandidate,
   compactOriginalAnalystProposal,
+  formatStructuredSignalsForValidator,
   getDynamicConfidenceThreshold,
   evaluateConsensus,
   ANALYST_SYSTEM_PROMPT,
@@ -452,6 +453,54 @@ describe("grid candidate promotion", () => {
 
   test("audit snapshot handles null analyst output", () => {
     expect(compactOriginalAnalystProposal(null)).toBeNull();
+  });
+});
+
+describe("validator structured signal summary", () => {
+  test("includes ETH and MNT grid lines instead of collapsing to primary HOLD", () => {
+    const summary = formatStructuredSignalsForValidator({
+      regime: { regime: "RANGING", confidence: 55, rationale: "Grid OK" },
+      consensus: "BEARISH",
+      signals: {
+        onChainFlow: { direction: "OUTFLOW", netUsd: 0, label: "NEUTRAL" },
+        yieldSpread: { spread: -1, label: "BEARISH" },
+        ranging: {
+          action: "HOLD",
+          confidence: 0.5,
+          channel: {
+            support: 0.65,
+            resistance: 0.69,
+            channelPosition: 0.48,
+          },
+          multiAsset: {
+            ethereum: {
+              action: "EXIT_RANGING",
+              confidence: 0.65,
+              breakoutDirection: "UNKNOWN",
+              regimeHint: "HOLD",
+              channel: {
+                support: 2006.7,
+                resistance: 2029.5,
+                channelPosition: 0.06,
+              },
+            },
+            mantle: {
+              action: "HOLD",
+              confidence: 0.5,
+              channel: {
+                support: 0.65,
+                resistance: 0.69,
+                channelPosition: 0.48,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(summary).toMatch(/ETH GRID: action=EXIT_RANGING/);
+    expect(summary).toMatch(/MNT GRID: action=HOLD/);
+    expect(summary).toMatch(/Smart money flow: OUTFLOW \$0\.0M/);
   });
 });
 

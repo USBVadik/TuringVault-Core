@@ -80,6 +80,11 @@ describe("gridTradeCandidate", () => {
     expect(candidate.allocationPct).toBeGreaterThanOrEqual(10);
     expect(candidate.confidence).toBeGreaterThanOrEqual(0.55);
     expect(candidate.reasoning).toMatch(/lower-band/i);
+    expect(candidate.riskReward.ratio).toBeGreaterThanOrEqual(1.5);
+    expect(candidate.riskReward.stopLoss).toBeLessThan(candidate.riskReward.entry);
+    expect(candidate.riskReward.takeProfit).toBeGreaterThan(
+      candidate.riskReward.entry
+    );
   });
 
   test("does not emit risk-on when EXIT_RANGING is a confirmed downward break", () => {
@@ -109,12 +114,20 @@ describe("gridTradeCandidate", () => {
       allocationPct: 12,
       confidence: 0.58,
       routeHint: ["USDT0", "USDT", "WMNT", "mETH"],
+      riskReward: {
+        entry: 2008.1,
+        stopLoss: 2004.42,
+        takeProfit: 2029.5,
+        ratio: 5.82,
+      },
       reasoning: "Stable-heavy lower-band re-entry.",
       riskFactors: ["Confirmed down-break would invalidate entry"],
     });
 
     expect(text).toMatch(/DETERMINISTIC GRID TRADE CANDIDATE/);
     expect(text).toMatch(/USDT0 -> USDT -> WMNT -> mETH/);
+    expect(text).toMatch(/Risk\/reward: 5\.82:1/);
+    expect(text).toMatch(/Stop loss: 2004\.42/);
     expect(text).toMatch(/Claude must validate/i);
   });
 });

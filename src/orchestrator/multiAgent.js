@@ -585,6 +585,81 @@ function compactOriginalAnalystProposal(analystDecision) {
   };
 }
 
+function formatPct(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "n/a";
+  return n <= 1 ? (n * 100).toFixed(0) : n.toFixed(0);
+}
+
+function formatNumber(v, digits = 2) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "n/a";
+  return n.toFixed(digits);
+}
+
+function formatGridLine(label, signal = {}) {
+  const channel = signal.channel || {};
+  const parts = [
+    `- ${label} GRID: action=${signal.action || "n/a"}`,
+    `channel=$${channel.support ?? "n/a"}-$${channel.resistance ?? "n/a"}`,
+    `position=${formatPct(channel.channelPosition)}%`,
+    `confidence=${formatPct(signal.confidence)}%`,
+  ];
+  if (signal.breakoutDirection) {
+    parts.push(`breakoutDirection=${signal.breakoutDirection}`);
+  }
+  if (signal.regimeHint) parts.push(`regimeHint=${signal.regimeHint}`);
+  return parts.join(" | ");
+}
+
+function formatRangingSignalsForValidator(ranging = {}) {
+  const multi = ranging.multiAsset || {};
+  const lines = [];
+  if (multi.ethereum) lines.push(formatGridLine("ETH", multi.ethereum));
+  if (multi.mantle) lines.push(formatGridLine("MNT", multi.mantle));
+  if (lines.length === 0 && ranging.action) {
+    lines.push(formatGridLine("RANGING", ranging));
+  }
+  return lines.join("\n");
+}
+
+function formatStructuredSignalsForValidator(structuredSignals) {
+  if (!structuredSignals) return "";
+  const signals = structuredSignals.signals || {};
+  const onChainFlow = signals.onChainFlow || signals.onchainFlow || {};
+  const funding = signals.funding || {};
+  const yieldSpread = signals.yieldSpread || {};
+  const liquidation = signals.liquidation || {};
+  const rangingSummary = formatRangingSignalsForValidator(signals.ranging);
+
+  return `\nRAW STRUCTURED SIGNALS (verify Analyst's reasoning against these):
+- Regime: ${structuredSignals.regime?.regime || "n/a"} (${formatPct(
+    structuredSignals.regime?.confidence
+  )}% confidence) — ${structuredSignals.regime?.rationale || "n/a"}
+- Signal consensus: ${structuredSignals.consensus || "n/a"}
+- Funding rate: ${formatNumber(funding.value)}% annualised → ${
+    funding.label || funding.signal || "n/a"
+  } (strength ${funding.strength || "n/a"})
+- Smart money flow: ${onChainFlow.direction || "n/a"} $${formatNumber(
+    (Number(onChainFlow.netUsd) || 0) / 1e6,
+    1
+  )}M → ${onChainFlow.label || onChainFlow.signal || "n/a"}
+- Yield spread: ${formatNumber(yieldSpread.spread)}% → ${
+    yieldSpread.label || yieldSpread.signal || "n/a"
+  }
+- Liq risk: ${liquidation.riskType || "n/a"}
+${rangingSummary}`;
+}
+
+function formatRiskRewardForValidator(analystDecision = {}, candidate = {}) {
+  const riskReward = analystDecision.riskReward || candidate?.riskReward;
+  if (!riskReward) return "";
+  return (
+    `entry=${riskReward.entry}, stopLoss=${riskReward.stopLoss}, ` +
+    `takeProfit=${riskReward.takeProfit}, R:R=${riskReward.ratio}:1`
+  );
+}
+
 function normalizeValidatorResponse(raw) {
   if (!raw || typeof raw !== "object") return raw;
   const r = { ...raw };
@@ -959,55 +1034,13 @@ async function getMultiAgentDecision(marketData) {
 
   // STEP 2: Validator independently assesses
   // Give Validator the RAW structured signals separately — so it can cross-check GLM-5's reasoning
-  const rawSignalsSummary = marketData.structuredSignals
-    ? `\nRAW STRUCTURED SIGNALS (verify Analyst's reasoning against these):
-- Regime: ${marketData.structuredSignals.regime?.regime} (${
-        marketData.structuredSignals.regime?.confidence
-      }% confidence) — ${marketData.structuredSignals.regime?.rationale}
-- Signal consensus: ${marketData.structuredSignals.consensus}
-- Funding rate: ${
-        marketData.structuredSignals.signals?.funding?.value?.toFixed(2) ||
-        "n/a"
-      }% annualised → ${
-        marketData.structuredSignals.signals?.funding?.label
-      } (strength ${
-        marketData.structuredSignals.signals?.funding?.strength || "n/a"
-      })
-- Smart money flow: ${
-        marketData.structuredSignals.signals?.onchainFlow?.direction || "n/a"
-      } $${(
-        (marketData.structuredSignals.signals?.onchainFlow?.netUsd || 0) / 1e6
-      ).toFixed(1)}M → ${
-        marketData.structuredSignals.signals?.onchainFlow?.label
-      }
-- Yield spread: ${
-        marketData.structuredSignals.signals?.yieldSpread?.spread?.toFixed(2) ||
-        "n/a"
-      }% → ${marketData.structuredSignals.signals?.yieldSpread?.label}
-- Liq risk: ${
-        marketData.structuredSignals.signals?.liquidation?.riskType || "n/a"
-      }
-${
-  marketData.structuredSignals.signals?.ranging
-    ? `- RANGING GRID: action=${
-        marketData.structuredSignals.signals.ranging.action
-      } | channel=$${
-        marketData.structuredSignals.signals.ranging.channel?.support
-      }-$${
-        marketData.structuredSignals.signals.ranging.channel?.resistance
-      } | position=${(
-        marketData.structuredSignals.signals.ranging.channel?.channelPosition *
-        100
-      ).toFixed(0)}% | confidence=${(
-        marketData.structuredSignals.signals.ranging.confidence * 100
-      ).toFixed(0)}%${
-        marketData.structuredSignals.signals.ranging.breakoutDirection
-          ? ` | breakoutDirection=${marketData.structuredSignals.signals.ranging.breakoutDirection} | regimeHint=${marketData.structuredSignals.signals.ranging.regimeHint}`
-          : ""
-      }`
-    : ""
-}`
-    : "";
+  const rawSignalsSummary = formatStructuredSignalsForValidator(
+    marketData.structuredSignals
+  );
+  const riskRewardSummary = formatRiskRewardForValidator(
+    analystDecision,
+    marketData.gridTradeCandidate
+  );
 
   const validatorPrompt = `${marketPrompt}${rawSignalsSummary}
 
@@ -1017,6 +1050,7 @@ ANALYST'S PROPOSAL TO VERIFY:
 - Source: ${analystDecision.sourceAsset ?? "n/a"}
 - Allocation: ${analystDecision.allocationPct}%
 - Confidence: ${(analystDecision.confidence * 100).toFixed(0)}%
+- Risk/Reward: ${riskRewardSummary || "not provided"}
 - Reasoning: "${analystDecision.reasoning}"
 - Risk Factors: ${JSON.stringify(analystDecision.riskFactors || [])}
 
@@ -1159,6 +1193,7 @@ module.exports = {
   normalizeValidatorResponse,
   shouldPromoteGridTradeCandidate,
   compactOriginalAnalystProposal,
+  formatStructuredSignalsForValidator,
   getDynamicConfidenceThreshold,
   evaluateConsensus,
   // Reproducible AI capture surface — drain after a cycle to retrieve

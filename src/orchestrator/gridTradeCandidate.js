@@ -75,6 +75,77 @@ function routeForTarget(targetAsset) {
     : ["USDT0", "USDT", "WMNT"];
 }
 
+function roundPrice(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return null;
+  return Number(n.toFixed(n >= 10 ? 2 : 6));
+}
+
+function buildLongRiskReward(signal = {}) {
+  const support = Number(signal.channel?.support);
+  const resistance = Number(signal.channel?.resistance);
+  const entry = Number(signal.channel?.currentPrice);
+  if (
+    !Number.isFinite(support) ||
+    !Number.isFinite(resistance) ||
+    !Number.isFinite(entry) ||
+    resistance <= support
+  ) {
+    return null;
+  }
+
+  const width = resistance - support;
+  const stopLoss = support - width * 0.1;
+  const takeProfit = resistance;
+  const risk = entry - stopLoss;
+  const reward = takeProfit - entry;
+  if (risk <= 0 || reward <= 0) return null;
+
+  return {
+    entry: roundPrice(entry),
+    stopLoss: roundPrice(stopLoss),
+    takeProfit: roundPrice(takeProfit),
+    ratio: Number((reward / risk).toFixed(2)),
+    riskPct: Number(((risk / entry) * 100).toFixed(2)),
+    rewardPct: Number(((reward / entry) * 100).toFixed(2)),
+  };
+}
+
+function buildShortRiskReward(signal = {}) {
+  const support = Number(signal.channel?.support);
+  const resistance = Number(signal.channel?.resistance);
+  const entry = Number(signal.channel?.currentPrice);
+  if (
+    !Number.isFinite(support) ||
+    !Number.isFinite(resistance) ||
+    !Number.isFinite(entry) ||
+    resistance <= support
+  ) {
+    return null;
+  }
+
+  const width = resistance - support;
+  const stopLoss = resistance + width * 0.1;
+  const takeProfit = support;
+  const risk = stopLoss - entry;
+  const reward = entry - takeProfit;
+  if (risk <= 0 || reward <= 0) return null;
+
+  return {
+    entry: roundPrice(entry),
+    stopLoss: roundPrice(stopLoss),
+    takeProfit: roundPrice(takeProfit),
+    ratio: Number((reward / risk).toFixed(2)),
+    riskPct: Number(((risk / entry) * 100).toFixed(2)),
+    rewardPct: Number(((reward / entry) * 100).toFixed(2)),
+  };
+}
+
+function riskRewardSentence(riskReward) {
+  if (!riskReward) return "";
+  return ` Risk plan: entry ${riskReward.entry}, stop ${riskReward.stopLoss}, take-profit ${riskReward.takeProfit}, R:R ${riskReward.ratio}:1.`;
+}
+
 function compactSignal(signal = {}) {
   return {
     action: signal.action || null,
@@ -98,6 +169,7 @@ function activeCandidate({
   reasoning,
   riskFactors = [],
   signal,
+  riskReward,
 }) {
   return {
     active: true,
@@ -113,6 +185,7 @@ function activeCandidate({
     riskFactors,
     routeHint: targetAsset === "mUSD" ? null : routeForTarget(targetAsset),
     gridSignal: compactSignal(signal),
+    riskReward: riskReward || null,
   };
 }
 
@@ -162,6 +235,7 @@ function buildGridTradeCandidate({
 
   if (directBuy) {
     const targetAsset = riskTargetForAsset(directBuy.asset);
+    const riskReward = buildLongRiskReward(directBuy.signal);
     return activeCandidate({
       kind: "grid-buy",
       asset: directBuy.asset,
@@ -170,7 +244,10 @@ function buildGridTradeCandidate({
       allocationPct: GRID_BUY_ALLOCATION_PCT,
       confidence: directBuy.confidence,
       signal: directBuy.signal,
-      reasoning: `${directBuy.asset.toUpperCase()} grid emitted BUY_mETH with ${(directBuy.confidence * 100).toFixed(0)}% confidence; stable-heavy FLAT wallet has deployable stables.`,
+      riskReward,
+      reasoning:
+        `${directBuy.asset.toUpperCase()} grid emitted BUY_mETH with ${(directBuy.confidence * 100).toFixed(0)}% confidence; stable-heavy FLAT wallet has deployable stables.` +
+        riskRewardSentence(riskReward),
       riskFactors: [
         "False lower-band break could continue lower",
         "Validator must reject if funding/flow contradict the grid edge",
@@ -191,6 +268,7 @@ function buildGridTradeCandidate({
 
   if (lowerBand) {
     const targetAsset = riskTargetForAsset(lowerBand.asset);
+    const riskReward = buildLongRiskReward(lowerBand.signal);
     return activeCandidate({
       kind: "stable-heavy-lower-band-reentry",
       asset: lowerBand.asset,
@@ -199,7 +277,10 @@ function buildGridTradeCandidate({
       allocationPct: STABLE_REENTRY_ALLOCATION_PCT,
       confidence: Math.min(0.64, Math.max(0.56, lowerBand.confidence)),
       signal: lowerBand.signal,
-      reasoning: `${lowerBand.asset.toUpperCase()} lower-band re-entry: price is at ${(lowerBand.pos * 100).toFixed(0)}% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe.`,
+      riskReward,
+      reasoning:
+        `${lowerBand.asset.toUpperCase()} lower-band re-entry: price is at ${(lowerBand.pos * 100).toFixed(0)}% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe.` +
+        riskRewardSentence(riskReward),
       riskFactors: [
         "Confirmed downward breakout invalidates mean reversion",
         "Keep size small because consensus may still be bearish",
@@ -234,6 +315,7 @@ function buildGridTradeCandidate({
     .sort((a, b) => b.confidence - a.confidence)[0];
 
   if (directSell) {
+    const riskReward = buildShortRiskReward(directSell.signal);
     return activeCandidate({
       kind: "grid-sell",
       asset: directSell.asset,
@@ -242,7 +324,10 @@ function buildGridTradeCandidate({
       allocationPct: GRID_SELL_ALLOCATION_PCT,
       confidence: directSell.confidence,
       signal: directSell.signal,
-      reasoning: `${directSell.asset.toUpperCase()} grid indicates upper-band/risk-off exit; validate sell-high only if real risk inventory exists.`,
+      riskReward,
+      reasoning:
+        `${directSell.asset.toUpperCase()} grid indicates upper-band/risk-off exit; validate sell-high only if real risk inventory exists.` +
+        riskRewardSentence(riskReward),
       riskFactors: ["Portfolio guard must block redundant stable-heavy risk-off"],
     });
   }
@@ -269,6 +354,18 @@ function formatGridTradeCandidateForPrompt(candidate) {
     `Allocation: ${candidate.allocationPct}%`,
     `Confidence: ${(candidate.confidence * 100).toFixed(0)}%`,
     candidate.routeHint ? `Route hint: ${candidate.routeHint.join(" -> ")}` : "",
+    candidate.riskReward
+      ? `Entry: ${candidate.riskReward.entry}`
+      : "",
+    candidate.riskReward
+      ? `Stop loss: ${candidate.riskReward.stopLoss}`
+      : "",
+    candidate.riskReward
+      ? `Take profit: ${candidate.riskReward.takeProfit}`
+      : "",
+    candidate.riskReward
+      ? `Risk/reward: ${candidate.riskReward.ratio}:1`
+      : "",
     `Reasoning: ${candidate.reasoning}`,
     `Risk factors: ${(candidate.riskFactors || []).join("; ") || "none"}`,
     "Claude must validate this candidate against raw signals before execution; reject it if the lower-band edge is contradicted by confirmed breakdown, strong outflow, or route infeasibility.",
@@ -289,7 +386,10 @@ function toAnalystProposal(candidate) {
     confidence: candidate.confidence,
     reasoning: candidate.reasoning,
     riskFactors: candidate.riskFactors || [],
-    expectedYield: undefined,
+    riskReward: candidate.riskReward || undefined,
+    expectedYield: candidate.riskReward
+      ? `Take-profit ${candidate.riskReward.rewardPct}% vs stop ${candidate.riskReward.riskPct}% (R:R ${candidate.riskReward.ratio}:1)`
+      : undefined,
     _gridTradeCandidateApplied: true,
   };
 }
