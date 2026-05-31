@@ -5871,6 +5871,81 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1780256610996_201",
+      "decisionId": 201,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1994.25,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmTFowpKF2Yqz9MDMH3D4bnwRQJJ7i1bYadCHC5EtczVsc",
+      "recordedAt": "2026-05-31T19:43:30.996Z",
+      "settleAfter": "2026-05-31T20:43:30.996Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780256610993
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid EXIT_RANGING with 70% confidence, downward breakdown below $2007.4 support, regime hint TREND_DOWN — this is explicit grid confirmation for directional action. RSI 29.6 is oversold but EMA cross and MACD both SELL, providing 2+ confirming bearish signals. Converting $11.93 mETH (12.4% of NAV) to mUSD is a small defensive move, not a repeated risk_off on a stable-heavy flat portfolio — TRE",
+      "validatorFlaggedIssues": [
+        "RSI 29.6 oversold — bounce risk acknowledged but overridden by grid breakdown",
+        "Low vol 0.14% may slow downside follow-through",
+        "Funding neutral — no crowding amplifier present"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "stable-heavy wallet (87.6% stables, $106.37 stable vs $15.11 tradable risk); refusing repeated risk-off while FLAT",
+        "summary": {
+          "stableUsd": 106.373384,
+          "tradableRiskUsd": 15.11218437029176,
+          "nativeMnt": 19.383622453598655,
+          "stableShare": 0.8756051062441479,
+          "riskShare": 0.12439489375585219,
+          "stableHeavy": true
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd5eeb08c066fdbcfa6082dabe5384b87fddd666cfce7656c64fbadf2b320df4b",
+      "combinedAnchor": "0xb7cd028422a0578e25a5d6f17a79019ef6bde6e2f52ddf35694a8ef505b89e60",
+      "decisionLogTxHash": "0xe95899b1a26d9acb8ebfe2e38fbe67110b3324e634459a6237f1ba36773f4fff",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
