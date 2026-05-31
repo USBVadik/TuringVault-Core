@@ -5381,6 +5381,73 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780230081785_193",
+      "decisionId": 193,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 2021.17,
+      "settlementAsset": "mETH",
+      "priceAssetAtDecision": "mETH",
+      "ipfsCid": "QmPtcBUpqwMu31RUMBZPT4pp1CKxgSEnDs8BCvSJeTqEnS",
+      "recordedAt": "2026-05-31T12:21:21.785Z",
+      "settleAfter": "2026-05-31T13:21:21.785Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780230081781
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction and HOLD regime hints — no directional edge exists. Portfolio is 90% stable/FLAT, satisfying the inventory rule that risk_off requires CRISIS/TREND_DOWN confirmation (absent here). Funding 0.521% is neutral, smart money flow flat, F&G=28 fear but no crisis signal. Technical BEARISH consensus",
+      "validatorFlaggedIssues": [
+        "MNT at 85% channel position near resistance — monitor for breakout",
+        "ETH vol expanding without direction confirmation — catalyst risk",
+        "Technical EMA/MACD SELL signals present but not regime-confirmed"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "directionalSwap": null,
+      "manifestHash": "0xdaa05d692e57b07eb34b9fe0d2fe65d74be7dd668dc82c97c00397985279ee47",
+      "combinedAnchor": "0x17bb3c1ab657c37a94814e7d66332743f9731f31358fd6a0abbe0a95f99abd77",
+      "decisionLogTxHash": "0xbef250e9a5fa687ce51ef10feb0d5ce73a0559197a6f468e9015aaaf334bf9ca",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
