@@ -8,6 +8,8 @@
 const {
   normalizeAnalystResponse,
   normalizeValidatorResponse,
+  shouldPromoteGridTradeCandidate,
+  compactOriginalAnalystProposal,
   getDynamicConfidenceThreshold,
   evaluateConsensus,
   ANALYST_SYSTEM_PROMPT,
@@ -296,6 +298,24 @@ describe("normalizeAnalystResponse", () => {
     });
   });
 
+  describe("expectedYield normalization", () => {
+    it("drops null expectedYield so valid hold JSON does not fail schema validation", () => {
+      const result = normalizeAnalystResponse({
+        action: "hold",
+        direction: "neutral",
+        targetAsset: null,
+        sourceAsset: null,
+        allocationPct: 0,
+        confidence: 0.6,
+        reasoning: "Waiting for breakout confirmation.",
+        riskFactors: [],
+        expectedYield: null,
+      });
+
+      expect(result.expectedYield).toBeUndefined();
+    });
+  });
+
   describe("reasoning normalization", () => {
     it("should pass through reasoning string", () => {
       const result = normalizeAnalystResponse({
@@ -416,6 +436,22 @@ describe("multi-agent prompt guardrails", () => {
   test("analyst prompt requires explicit risk-off source asset", () => {
     expect(ANALYST_SYSTEM_PROMPT).toMatch(/sourceAsset="mETH"/);
     expect(ANALYST_SYSTEM_PROMPT).toMatch(/sourceAsset="WMNT"/);
+  });
+});
+
+describe("grid candidate promotion", () => {
+  test("treats null analyst output as abstention instead of throwing", () => {
+    const candidate = {
+      active: true,
+      direction: "risk_on",
+      targetAsset: "mETH",
+    };
+
+    expect(shouldPromoteGridTradeCandidate(candidate, null)).toBe(true);
+  });
+
+  test("audit snapshot handles null analyst output", () => {
+    expect(compactOriginalAnalystProposal(null)).toBeNull();
   });
 });
 

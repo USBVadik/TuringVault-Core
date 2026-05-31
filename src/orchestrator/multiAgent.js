@@ -27,6 +27,7 @@ const {
 const { validateDecision } = require("./validator");
 const { z } = require("zod");
 const { sanitizeExternalText, sanitizeForPrompt } = require("../utils/sanitize");
+const { toAnalystProposal } = require("./gridTradeCandidate");
 const {
   BASE_CONFIDENCE_THRESHOLD,
   ELEVATED_CONFIDENCE_THRESHOLD,
@@ -201,7 +202,7 @@ const AnalystSchema = z.object({
   confidence: z.number().min(0).max(1),
   reasoning: z.string().max(1000),
   riskFactors: z.array(z.string()).optional(),
-  expectedYield: z.string().optional(),
+  expectedYield: z.string().nullable().optional(),
 });
 
 const client = new BedrockRuntimeClient({
@@ -552,7 +553,36 @@ function normalizeAnalystResponse(raw) {
   if (typeof r.riskFactors === "string") r.riskFactors = [r.riskFactors];
   if (!Array.isArray(r.riskFactors)) r.riskFactors = [];
 
+  // expectedYield is optional. Models often return null for HOLD; keep
+  // that from tripping the Zod contract and creating fake parse failures.
+  if (r.expectedYield === null) delete r.expectedYield;
+
   return r;
+}
+
+function isRiskOnTarget(targetAsset) {
+  return ["mETH", "WETH", "MNT", "WMNT"].includes(targetAsset);
+}
+
+function shouldPromoteGridTradeCandidate(candidate, analystDecision = {}) {
+  if (!candidate?.active || candidate.direction !== "risk_on") return false;
+  const decision =
+    analystDecision && typeof analystDecision === "object"
+      ? analystDecision
+      : {};
+  if (decision.action !== "swap") return true;
+  return !isRiskOnTarget(decision.targetAsset);
+}
+
+function compactOriginalAnalystProposal(analystDecision) {
+  if (!analystDecision || typeof analystDecision !== "object") return null;
+  return {
+    action: analystDecision.action,
+    direction: analystDecision.direction,
+    targetAsset: analystDecision.targetAsset,
+    confidence: analystDecision.confidence,
+    reasoning: analystDecision.reasoning,
+  };
 }
 
 function normalizeValidatorResponse(raw) {
@@ -842,9 +872,13 @@ async function getMultiAgentDecision(marketData) {
     marketData.portfolioContext,
     1200
   );
-  const marketPrompt = portfolioPrompt
-    ? `${baseMarketPrompt}\n\n${portfolioPrompt}`
-    : baseMarketPrompt;
+  const gridCandidatePrompt = sanitizeExternalText(
+    marketData.gridTradeCandidateContext,
+    1200
+  );
+  const marketPrompt = [baseMarketPrompt, portfolioPrompt, gridCandidatePrompt]
+    .filter(Boolean)
+    .join("\n\n");
 
   // STEP 1: Analyst proposes (T7: evolved prompt gate)
   // The evolved-prompt path was previously bypassed unconditionally because
@@ -882,18 +916,45 @@ async function getMultiAgentDecision(marketData) {
   const _analystMs = Date.now() - _analystStart;
 
   // Normalize GLM-5 field names to match AnalystSchema
-  const analystDecision = normalizeAnalystResponse(analystRaw);
+  let analystDecision = normalizeAnalystResponse(analystRaw);
+  if (
+    shouldPromoteGridTradeCandidate(
+      marketData.gridTradeCandidate,
+      analystDecision
+    )
+  ) {
+    const promoted = normalizeAnalystResponse(
+      toAnalystProposal(marketData.gridTradeCandidate)
+    );
+    promoted._originalAnalystProposal =
+      compactOriginalAnalystProposal(analystDecision);
+    analystDecision = promoted;
+    console.log(
+      `  [GRID-CANDIDATE] Promoted deterministic ${analystDecision.targetAsset} candidate for validator review`
+    );
+  }
   const analystValidated = AnalystSchema.safeParse(analystDecision);
 
   if (!analystValidated.success) {
-    return {
-      consensus: false,
-      reason:
-        "Analyst produced invalid output: " + analystValidated.error.message,
-      analyst: null,
-      validator: null,
-      action: "hold",
-    };
+    const promoted = normalizeAnalystResponse(
+      toAnalystProposal(marketData.gridTradeCandidate)
+    );
+    const promotedValidated = AnalystSchema.safeParse(promoted);
+    if (promotedValidated.success) {
+      analystDecision = promoted;
+      console.log(
+        `  [GRID-CANDIDATE] Recovered invalid analyst output with deterministic ${analystDecision.targetAsset} candidate`
+      );
+    } else {
+      return {
+        consensus: false,
+        reason:
+          "Analyst produced invalid output: " + analystValidated.error.message,
+        analyst: null,
+        validator: null,
+        action: "hold",
+      };
+    }
   }
 
   // STEP 2: Validator independently assesses
@@ -1078,6 +1139,7 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
       analystDecision.confidence,
       validator.validatorConfidence
     ),
+    _gridTradeCandidate: marketData.gridTradeCandidate || null,
     _promptSource: promptSource,
     _activeThreshold: confidenceThreshold,
     _timing: {
@@ -1095,6 +1157,8 @@ module.exports = {
   callAgent,
   normalizeAnalystResponse,
   normalizeValidatorResponse,
+  shouldPromoteGridTradeCandidate,
+  compactOriginalAnalystProposal,
   getDynamicConfidenceThreshold,
   evaluateConsensus,
   // Reproducible AI capture surface — drain after a cycle to retrieve

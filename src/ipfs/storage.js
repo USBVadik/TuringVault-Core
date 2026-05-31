@@ -112,7 +112,14 @@ async function uploadReasoningProof(decision, marketData) {
       confidence: decision.analyst?.confidence,
       reasoning: decision.analyst?.reasoning,
       riskFactors: decision.analyst?.riskFactors || [],
+      gridCandidateApplied:
+        decision.analyst?._gridTradeCandidateApplied === true,
+      originalProposal: decision.analyst?._originalAnalystProposal || null,
     },
+
+    // Deterministic buy-low/sell-high candidate considered before the
+    // final analyst proposal. This keeps promotion/rejection auditable.
+    gridTradeCandidate: decision._gridTradeCandidate || null,
 
     // Validator output
     validator: {

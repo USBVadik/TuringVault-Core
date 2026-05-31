@@ -41,6 +41,10 @@ const {
   inferTradeDirection,
   summarizePortfolio,
 } = require("./portfolioGuard");
+const {
+  buildGridTradeCandidate,
+  formatGridTradeCandidateForPrompt,
+} = require("./gridTradeCandidate");
 
 // Contract ABIs (minimal)
 const REGISTRY_ABI = [
@@ -344,6 +348,7 @@ async function runMultiAgentCycle(opts = {}) {
   // idea, and the deterministic guard below reuses the same snapshot.
   let portfolioBalances = null;
   let portfolioGuardResult = null;
+  let gridTradeCandidate = null;
   const portfolioPrices = buildPortfolioPrices(market);
   try {
     portfolioBalances = await readAllBalances(provider, wallet.address);
@@ -354,12 +359,29 @@ async function runMultiAgentCycle(opts = {}) {
     market.portfolioContext = formatPortfolioForPrompt(portfolioSummary);
     market.portfolioSummary = portfolioSummary;
     market.walletBalances = portfolioBalances;
+    gridTradeCandidate = buildGridTradeCandidate({
+      structuredSignals: market.structuredSignals,
+      portfolioSummary,
+      positionState: positionState.getState(),
+    });
+    market.gridTradeCandidate = gridTradeCandidate;
+    market.gridTradeCandidateContext =
+      formatGridTradeCandidateForPrompt(gridTradeCandidate);
     console.log(
       `   Portfolio: stable $${portfolioSummary.stableUsd.toFixed(2)} ` +
         `(${(portfolioSummary.stableShare * 100).toFixed(1)}%) | ` +
         `tradable risk $${portfolioSummary.tradableRiskUsd.toFixed(2)} | ` +
         `native ${portfolioSummary.nativeMnt.toFixed(4)} MNT`
     );
+    if (gridTradeCandidate?.active) {
+      console.log(
+        `   Grid candidate: ${gridTradeCandidate.direction} ${gridTradeCandidate.targetAsset} (${gridTradeCandidate.kind}, ${(gridTradeCandidate.confidence * 100).toFixed(0)}%)`
+      );
+    } else {
+      console.log(
+        `   Grid candidate: none (${gridTradeCandidate?.reason || "not evaluated"})`
+      );
+    }
   } catch (portfolioErr) {
     console.log(
       `   ⚠️  Portfolio context unavailable: ${portfolioErr.message?.slice(0, 80)}`
@@ -456,6 +478,8 @@ async function runMultiAgentCycle(opts = {}) {
       proposalId: null,
       market,
       portfolioGuard: compactPortfolioGuardResult(portfolioGuardResult),
+      gridTradeCandidate:
+        decision._gridTradeCandidate || gridTradeCandidate || null,
       _dryRun: true,
     };
   }
@@ -1517,6 +1541,9 @@ async function runMultiAgentCycle(opts = {}) {
       portfolioGuard: compactPortfolioGuardResult(portfolioGuardResult),
       // Directional swap execution result
       directionalSwap: directionalSwapResult || null,
+      // Deterministic grid candidate considered before the LLM proposal.
+      gridTradeCandidate:
+        decision._gridTradeCandidate || gridTradeCandidate || null,
       // Reproducible AI on-chain anchor (audit 18). manifestHash is the
       // SHA-256 over the captured prompts + raw responses. combinedAnchor
       // is keccak256(utf8(ipfsCid) ‖ manifestHash) and is the bytes32
@@ -1851,6 +1878,8 @@ async function runMultiAgentCycle(opts = {}) {
     rwaResult: rwaResult || null,
     portfolioGuard: compactPortfolioGuardResult(portfolioGuardResult),
     directionalSwap: directionalSwapResult || null,
+    gridTradeCandidate:
+      decision._gridTradeCandidate || gridTradeCandidate || null,
   };
 }
 

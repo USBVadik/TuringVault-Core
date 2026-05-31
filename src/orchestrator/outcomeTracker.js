@@ -419,6 +419,9 @@ function record(params) {
     // Deterministic inventory/portfolio veto or allow decision from
     // multiAgentLoop Step 1.7/Step 2. Null when no swap reached it.
     "portfolioGuard",
+    // Deterministic grid candidate considered before the LLM proposal.
+    // Lets audits distinguish "no edge" from "edge promoted/rejected".
+    "gridTradeCandidate",
     // directionalSwap is the {executed, txHash, from, to, amountIn,
     // amountOut, reason?} object emitted by multiAgentLoop Step 4.7.
     // Without this entry the field was silently dropped on persist

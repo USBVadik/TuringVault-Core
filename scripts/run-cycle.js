@@ -218,6 +218,25 @@ async function main() {
       }
     }
 
+    // Deterministic buy-low/sell-high candidate considered before LLM
+    // validation. This is diagnostic telemetry only; execution truth still
+    // comes from directionalSwap/rwa tx hashes below.
+    if (result?.gridTradeCandidate) {
+      const gc = result.gridTradeCandidate;
+      summary.gridTradeCandidate = {
+        active: gc.active === true,
+        kind: gc.kind ?? null,
+        action: gc.action ?? null,
+        direction: gc.direction ?? null,
+        targetAsset: gc.targetAsset ?? null,
+        sourceAsset: gc.sourceAsset ?? null,
+        allocationPct: gc.allocationPct ?? null,
+        confidence: gc.confidence ?? null,
+        reason: gc.reason ?? null,
+        routeHint: gc.routeHint ?? null,
+      };
+    }
+
     // Directional swap surface (multiAgentLoop Step 4.7). Persist into
     // the summary so the cron commit and downstream readers can tell a
     // real swap from a logged-but-unexecuted intent.
