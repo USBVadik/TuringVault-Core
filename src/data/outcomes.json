@@ -5795,6 +5795,82 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1780253764375_200",
+      "decisionId": 200,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1997.19,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmczpGbW6Zq7uXiTRMA28s2XP47wi8Yoh3VvfWygwAbHBK",
+      "recordedAt": "2026-05-31T18:56:04.375Z",
+      "settleAfter": "2026-05-31T19:56:04.375Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780253764372
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid EXIT_RANGING fired at 70% confidence with confirmed downward breakdown below $2006.67 support, regime hint TREND_DOWN. RSI 31.5 falling, EMA bearish (9<21), MACD histogram negative. Signal consensus BEARISH. Yield spread -1% bearish. De-risking $11.95 mETH to stables is proportionate. Portfolio is stable-heavy so this is a small residual risk position exit, not a panic move. TREND_DOWN ex",
+      "validatorFlaggedIssues": [
+        "Funding neutral (0.423%) does not confirm directional breakdown — acknowledged by analyst",
+        "False breakdown risk if price reclaims $2006.67 quickly",
+        "Low intraday vol (0.14%) may reduce urgency of exit",
+        "Smart money flow NEUTRAL — no institutional confirmation of breakdown"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "stable-heavy wallet (87.6% stables, $106.37 stable vs $15.12 tradable risk); refusing repeated risk-off while FLAT",
+        "summary": {
+          "stableUsd": 106.373384,
+          "tradableRiskUsd": 15.123576851471416,
+          "nativeMnt": 19.4510260249074,
+          "stableShare": 0.875523002834945,
+          "riskShare": 0.12447699716505509,
+          "stableHeavy": true
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x618453db4f64c2ed925319df9c1994e998cde605fd11d9228b2e1fb87d93a12b",
+      "combinedAnchor": "0x5dd830d53030f4fd480baa03fb4b9e5657ac1e5ff71f07479b429d4809f66c5a",
+      "decisionLogTxHash": "0xa9eebb02054cefd68181075ef2b11cbf7b53f9cf43b6e291d617e6734c3030b2",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
