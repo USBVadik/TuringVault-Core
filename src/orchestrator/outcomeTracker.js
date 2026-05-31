@@ -167,7 +167,13 @@ function computePriceMoveOutcome({
   }
 
   if (!consensus) {
-    if (priceFell) {
+    const blockedRiskOn = isRiskOnTarget(targetAsset);
+    const blockWasRight =
+      (blockedRiskOn && priceFell) || (!blockedRiskOn && priceRose);
+    const blockMissedMove =
+      (blockedRiskOn && priceRose) || (!blockedRiskOn && priceFell);
+
+    if (blockWasRight) {
       return {
         pricePct,
         outcome: "CORRECT_BLOCK",
@@ -175,7 +181,7 @@ function computePriceMoveOutcome({
         pnlBps: Math.round(absPct * 100 * 0.3),
       };
     }
-    if (priceRose) {
+    if (blockMissedMove) {
       return {
         pricePct,
         outcome: "MISSED_ALPHA",

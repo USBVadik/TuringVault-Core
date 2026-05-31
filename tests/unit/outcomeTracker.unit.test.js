@@ -63,6 +63,34 @@ describe("computePriceMoveOutcome", () => {
     expect(result.scoreDelta).toBeGreaterThan(0);
     expect(result.pnlBps).toBeGreaterThan(0);
   });
+
+  test("does not reward blocking a risk-off proposal before a selloff", () => {
+    const result = computePriceMoveOutcome({
+      consensus: false,
+      targetAsset: "mUSD",
+      confidence: 0.6,
+      priceAtDecision: 0.7,
+      currentPrice: 0.65,
+    });
+
+    expect(result.outcome).toBe("MISSED_ALPHA");
+    expect(result.scoreDelta).toBeLessThan(0);
+    expect(result.pnlBps).toBeLessThan(0);
+  });
+
+  test("rewards blocking a risk-off proposal before upside", () => {
+    const result = computePriceMoveOutcome({
+      consensus: false,
+      targetAsset: "mUSD",
+      confidence: 0.6,
+      priceAtDecision: 0.7,
+      currentPrice: 0.75,
+    });
+
+    expect(result.outcome).toBe("CORRECT_BLOCK");
+    expect(result.scoreDelta).toBeGreaterThan(0);
+    expect(result.pnlBps).toBeGreaterThan(0);
+  });
 });
 
 describe("deriveExecutionProofStatus", () => {
