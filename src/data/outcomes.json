@@ -5448,6 +5448,73 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780232641102_194",
+      "decisionId": 194,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 2019.13,
+      "settlementAsset": "mETH",
+      "priceAssetAtDecision": "mETH",
+      "ipfsCid": "QmZGW6qPXL3M8hziM3WsJC9XntwQp5scMVniAjVpxEbZLo",
+      "recordedAt": "2026-05-31T13:04:01.102Z",
+      "settleAfter": "2026-05-31T14:04:01.102Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780232641099
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate given stable-heavy posture (90.1% stable, only $12.08 mETH exposure). MNT grid signals SELL_mETH at 86% channel position with R:R 2.5:1, but the existing mETH position is negligible ($12.08) — executing a swap for this size offers no material benefit and incurs gas cost. ETH grid shows EXIT_RANGING with UNKNOWN breakout direction, correctly precluding directional action. Fundin",
+      "validatorFlaggedIssues": [
+        "Analyst quotes 5.1% annualized funding — raw signal shows 0.428% periodic rate; minor misrepresentation",
+        "MNT SELL_mETH signal at 69% confidence with 2.5:1 R:R technically qualifies for action but position size too small to justify execution",
+        "ETH breakout direction unconfirmed — volatility expanding increases binary risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "directionalSwap": null,
+      "manifestHash": "0xc01aba4a11d0e05488c03ad762b13bbb549595eb041d0dcfc319619b9e959d58",
+      "combinedAnchor": "0x276918c13437215caf17ef762fa3a5da74f4e6c8c17687ebe4da30c33f019f15",
+      "decisionLogTxHash": "0xd8939c795e6af0024163dcafae05df184ba369a0d3050be05e141f192bd6068d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
