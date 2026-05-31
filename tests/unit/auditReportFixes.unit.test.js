@@ -6,7 +6,7 @@ const { spawnSync } = require("child_process");
 const repoRoot = path.resolve(__dirname, "../..");
 
 describe("post-audit report regression fixes", () => {
-  test("Vercel cron bridge is configured for the trigger endpoint", () => {
+  test("Vercel cron bridge stays within Hobby deployment limits", () => {
     const vercelConfig = JSON.parse(
       fs.readFileSync(path.join(repoRoot, "frontend/vercel.json"), "utf8")
     );
@@ -16,7 +16,7 @@ describe("post-audit report regression fixes", () => {
     );
 
     expect(job).toBeTruthy();
-    expect(job.schedule).toBe("*/30 * * * *");
+    expect(job.schedule).toBe("17 0 * * *");
   });
 
   test("cron bridge dispatch policy only fires when health is stale or unknown", () => {

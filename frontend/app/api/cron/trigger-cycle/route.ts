@@ -1,9 +1,9 @@
 /**
  * Vercel Cron → GitHub Actions workflow_dispatch bridge.
  *
- * Vercel cron probes every 30 minutes and dispatches the agent-cycle workflow
- * through GitHub only when /api/health says the last cycle is stale. This
- * avoids duplicate nonce pressure when GitHub Actions fired normally.
+ * Vercel cron is a once-daily fallback on Hobby deployments. GitHub Actions is
+ * the primary twice-hourly scheduler; this bridge only dispatches the
+ * agent-cycle workflow when /api/health says the last cycle is stale.
  *
  * Protected by CRON_SECRET (Vercel cron auth) to prevent abuse.
  *
