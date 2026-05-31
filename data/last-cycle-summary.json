@@ -1,23 +1,60 @@
 {
-  "cycleStartedAt": "2026-05-31T13:03:15.341Z",
-  "cycleEndedAt": "2026-05-31T13:04:11.338Z",
-  "durationSeconds": 56,
+  "cycleStartedAt": "2026-05-31T14:55:57.373Z",
+  "cycleEndedAt": "2026-05-31T14:57:25.656Z",
+  "durationSeconds": 88.28,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 5364,
-    "validatorMs": 7875,
+    "analystMs": 5319,
+    "validatorMs": 6827,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 194,
-  "decisionTier": "BLOCKED_BY_REGIME",
+  "decisionId": 195,
+  "decisionTier": "HEARTBEAT_SWAP",
   "consensus": false,
-  "txHashes": [],
+  "txHashes": [
+    "0xb7c79c2b4475a7ce777ad3f66f625a920c0d93d6d36a92adb0116222ca0b2f7b",
+    "0x5ca2978796ad5df020be31a62f2984d2ef05decf8600eef198217fea14656f64"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26713368551",
-  "errors": [],
-  "executionStatus": "BLOCKED_BY_REGIME"
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26715921871",
+  "errors": [
+    "outcome-not-persisted: cycle 195 missing from src/data/outcomes.json after Step 6"
+  ],
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 0.8,
+    "amountOut": null,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "USDT",
+        "txHash": "0xb7c79c2b4475a7ce777ad3f66f625a920c0d93d6d36a92adb0116222ca0b2f7b",
+        "blockNumber": 96054554,
+        "amountIn": 0.8,
+        "amountOut": 0.800079,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "WMNT",
+        "txHash": "0x5ca2978796ad5df020be31a62f2984d2ef05decf8600eef198217fea14656f64",
+        "blockNumber": 96054560,
+        "amountIn": 0.799633566,
+        "amountOut": 1.1827672258450552,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
