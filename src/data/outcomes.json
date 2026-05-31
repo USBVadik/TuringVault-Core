@@ -6332,6 +6332,112 @@
       "executedOnChain": false,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1780267468274_206",
+      "decisionId": 206,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.64,
+      "priceAtDecision": 2008.56,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmebsBUKmtiwcvnZ4md4uRNom8L6PgPhxupx5BJLRgJoXf",
+      "recordedAt": "2026-05-31T22:44:28.274Z",
+      "settleAfter": "2026-05-31T23:44:28.274Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780267468270
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Grid signal is EXIT_RANGING with UNKNOWN breakout direction and regimeHint=HOLD — not a buy signal. ETH at 18% of channel with vol expanding means downside breakout risk is elevated. Signal consensus is BEARISH, yield spread -1% BEARISH, technical score SELL (-0.25), EMA bearish. Analyst claims 'no confirmed down-break' but EXIT_RANGING with expanding vol and HOLD hint explicitly contradicts a mea",
+      "validatorFlaggedIssues": [
+        "Grid signal is EXIT_RANGING/HOLD — not a buy confirmation",
+        "Signal consensus BEARISH contradicts risk_on entry",
+        "Yield spread -1% adds bearish pressure ignored in reasoning",
+        "Vol expanding with UNKNOWN breakout direction elevates downside risk",
+        "Only 1 confirming signal (stable-heavy posture) — minimum 2 required"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "stable-heavy-lower-band-reentry",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "mETH",
+        "sourceAsset": "USDT0",
+        "allocationPct": 12,
+        "confidence": 0.64,
+        "reasoning": "ETHEREUM lower-band re-entry: price is at 18% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe. Risk plan: entry 2010.7, stop 2004.42, take-profit 2029.5, R:R 2.99:1.",
+        "riskFactors": [
+          "Confirmed downward breakout invalidates mean reversion",
+          "Keep size small because consensus may still be bearish"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT",
+          "WETH",
+          "mETH"
+        ],
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.65,
+          "breakoutDirection": "UNKNOWN",
+          "regimeHint": "HOLD",
+          "channelPosition": 0.18,
+          "support": 2006.7,
+          "resistance": 2029.5,
+          "currentPrice": 2010.7
+        },
+        "riskReward": {
+          "entry": 2010.7,
+          "stopLoss": 2004.42,
+          "takeProfit": 2029.5,
+          "ratio": 2.99,
+          "riskPct": 0.31,
+          "rewardPct": 0.93
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xdb20e8a369fbd4d528288150bc39e491902b38c48d04d17e1c85a0a31509a9d9",
+      "combinedAnchor": "0x28e4de4583d26ebd3a526a9d866dd525f2d138a724a1cc3a432a71b0c0e5780a",
+      "decisionLogTxHash": "0x066dd672dca12927dd2ad4775e202cb158545845b05d88a2d58ea7d43fd0e438",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
