@@ -348,7 +348,7 @@ P3  ██  2
 | 6 | P0-1 | README + pitch-deck + agent-card | Consistent rejection rate | "57%" / "61.5%" / "65%" — three different numbers | Stale documents; no SoT | Harmonize from agent-card | fixed |
 | 7 | P0-2 | README + pitch-deck + agent-card | Consistent RWA NAV | "55%+" / 55 / "74% NAV" — 19pp gap | Pitch deck not updated | Pick SoT and sync | fixed |
 | 8 | P0-3 | README + pitch-deck | Consistent decision count | "104+" / "102+" | Pitch deck stale | Update pitch deck | fixed |
-| 9 | P0-4 | pitch-deck slide 5 | Honest Sourcify status | "All contracts verified" drops Router caveat | Copy oversight | Change to "4/5 Sourcify-verified" | fixed (later 6/6 in audit 22) |
+| 9 | P0-4 | pitch-deck slide 5 | Honest Sourcify status | "All contracts verified" drops Router caveat | Copy oversight | Change to "4/5 Sourcify-verified" | fixed; superseded by audit 26 — current truth is 5/6 Sourcify-verified, Router source drifted post-deploy |
 | 10 | P0-5 | README + agent-card | Consistent confidence gate | README "< 65%"; code 0.6 (60%) | Doc drift | Sync wording to 60% | fixed |
 | 11 | P0-6 | README + agent-card | Consistent R:R ratio | README "≥ 2:1"; validator prompt "≥ 1.5:1" | Doc drift | Document actual enforced ratio | fixed |
 | 12 | design-P0-1 | /backtest, /discipline, /social | Entry animations present | Zero motion — jarring vs animated home | Pages built without anim framework | Add `anim-fade-up` + stagger | fixed |
@@ -443,7 +443,7 @@ deployment for every `fixed` row.
 | C | "100%" parse success (×3 docs) | README, pitch-deck, agent-card | "100% over measured 24h window (N=X cycles)" |
 | D | "Autonomous" / "every allocation" | README, pitch-deck | "Hourly autonomous cycle" / "every proposed allocation" |
 | E | "consensusRate: 100%" | agent-card | "100% of cycles reached a consensus outcome (including REJECT)" |
-| F | "all contracts verified" | pitch-deck | "4/5 contracts Sourcify-verified" (later 6/6 after audit 14) |
+| F | "all contracts verified" | pitch-deck | "4/5 contracts Sourcify-verified"; superseded by audit 26 correction to 5/6 verified, Router not matched |
 
 ---
 
@@ -718,9 +718,11 @@ E. **Replay-anchor cryptography probe.** Pick one cycle ID from
    and paste the output.
 
 F. **Sourcify reality probe.** Hit the Sourcify URL above and
-   parse the response. Confirm all six contract addresses return
-   `status: perfect`. The README and pitch deck both claim 6/6
-   `perfect` — fail this probe and that claim is at risk.
+   parse the response. Audit 26 supersedes this bundle's older
+   6/6 premise: the expected truth is 5 of 6 current contracts
+   verified `perfect`, with `TuringVaultRouter` deployed but not
+   Sourcify-matched after source drift. If any public surface still
+   claims 6/6 perfect, that surface is stale.
 
 G. **Cron-honesty probe.** Hit
    `https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml`

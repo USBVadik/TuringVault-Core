@@ -3,6 +3,15 @@
 import { useState, useEffect, useRef, ReactNode } from "react";
 import "./animations.css";
 import { LiveStatusBadge } from "../components/LiveStatusBadge";
+import contractsData from "../data/contracts.json";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const contractProofSummary = require("../lib/contractProofSummary.shared.js") as {
+  summarizeSourcifyContracts: (contracts: unknown) => { detail: string };
+};
+
+const mantleProofDetail =
+  contractProofSummary.summarizeSourcifyContracts(contractsData).detail;
 
 interface Decision {
   timestamp: number;
@@ -670,7 +679,7 @@ export function ProofExplorerClient({
                 {
                   name: "Mantle",
                   role: "Immutable proof layer",
-                  detail: "5 contracts · 4 Sourcify-verified",
+                  detail: mantleProofDetail,
                   proof:
                     "https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5",
                   proofLabel: "DecisionLog contract",

@@ -1,9 +1,9 @@
 /**
  * Vercel Cron → GitHub Actions workflow_dispatch bridge.
  *
- * Vercel cron fires reliably every hour (unlike GH Actions which skips ~63%
- * of scheduled slots). This endpoint dispatches the agent-cycle workflow
- * via GitHub API, providing near-100% hourly coverage.
+ * Vercel cron probes every 30 minutes and dispatches the agent-cycle workflow
+ * through GitHub only when /api/health says the last cycle is stale. This
+ * avoids duplicate nonce pressure when GitHub Actions fired normally.
  *
  * Protected by CRON_SECRET (Vercel cron auth) to prevent abuse.
  *
@@ -12,12 +12,34 @@
 
 import { NextResponse } from "next/server";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const cronPolicy = require("./cronTriggerPolicy.js") as {
+  shouldDispatchAgentCycle: (health?: unknown) => {
+    dispatch: boolean;
+    reason: string;
+    lastCycleAge?: number;
+    staleAfterSec: number;
+  };
+};
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const GITHUB_TOKEN = process.env.GH_DISPATCH_TOKEN; // Fine-grained PAT with actions:write
 const REPO = "USBVadik/TuringVault-Core";
 const WORKFLOW_ID = "agent-cycle.yml";
+const { shouldDispatchAgentCycle } = cronPolicy;
+
+async function fetchHealthSnapshot(request: Request) {
+  const origin = new URL(request.url).origin;
+  try {
+    const res = await fetch(`${origin}/api/health`, { cache: "no-store" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(request: Request) {
   // Vercel cron sends Authorization header with CRON_SECRET
@@ -33,6 +55,17 @@ export async function GET(request: Request) {
 
   if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const health = await fetchHealthSnapshot(request);
+  const policy = shouldDispatchAgentCycle(health);
+  if (!policy.dispatch) {
+    return NextResponse.json({
+      triggered: false,
+      skipped: true,
+      source: "vercel-cron",
+      ...policy,
+    });
   }
 
   if (!GITHUB_TOKEN) {
@@ -61,6 +94,7 @@ export async function GET(request: Request) {
         triggered: true,
         at: new Date().toISOString(),
         source: "vercel-cron",
+        ...policy,
       });
     }
 
