@@ -200,6 +200,32 @@ describe("outcomes integrity invariants", () => {
     expect(offenders).toEqual([]);
   });
 
+  test("partial directional legs are not displayed as completed execution", () => {
+    const offenders = settled.filter((r) => {
+      const ds = r?.directionalSwap;
+      const hasPartialTx =
+        ds &&
+        ds.executed === false &&
+        Array.isArray(ds.legs) &&
+        ds.legs.some((l) => l?.txHash);
+      if (!hasPartialTx) return false;
+      return r.executedOnChain === true || effectiveTier(r) !== "INTENT_SWAP_NO_EXEC";
+    });
+    if (offenders.length > 0) {
+      console.error(
+        `[outcomesIntegrity] partial directional legs shown as executed — ${offenders.length} row(s):`,
+        offenders.slice(0, 5).map((r) => ({
+          decisionId: r.decisionId,
+          decisionTier: r.decisionTier,
+          displayTier: effectiveTier(r),
+          executedOnChain: r.executedOnChain,
+          reason: r?.directionalSwap?.reason,
+        }))
+      );
+    }
+    expect(offenders).toEqual([]);
+  });
+
   test("legacy schema rows without decisionTier are tolerated", () => {
     // These exist for the very first cycles before decisionTier
     // was introduced. They must NOT carry an EXECUTED_SWAP flag in

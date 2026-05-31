@@ -113,7 +113,7 @@ describe("gridTradeCandidate", () => {
       sourceAsset: "USDT0",
       allocationPct: 12,
       confidence: 0.58,
-      routeHint: ["USDT0", "USDT", "WMNT", "mETH"],
+      routeHint: ["USDT0", "USDT", "WMNT", "WETH", "mETH"],
       riskReward: {
         entry: 2008.1,
         stopLoss: 2004.42,
@@ -125,7 +125,7 @@ describe("gridTradeCandidate", () => {
     });
 
     expect(text).toMatch(/DETERMINISTIC GRID TRADE CANDIDATE/);
-    expect(text).toMatch(/USDT0 -> USDT -> WMNT -> mETH/);
+    expect(text).toMatch(/USDT0 -> USDT -> WMNT -> WETH -> mETH/);
     expect(text).toMatch(/Risk\/reward: 5\.82:1/);
     expect(text).toMatch(/Stop loss: 2004\.42/);
     expect(text).toMatch(/Claude must validate/i);

@@ -12,6 +12,7 @@
  *   - USDT0            (LayerZero Tether, our stable hub)
  *   - USDT             (legacy bridged Tether — small float)
  *   - mETH             (yield-bearing ETH derivative)
+ *   - WETH             (Mantle bridged WETH, deep bridge into mETH)
  *
  * Smart routing for risk-off (analyst wants stable exposure):
  *   1. WMNT ≥ floor                → use WMNT directly
@@ -43,6 +44,7 @@ const ADDRESSES = {
   USDT: "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE",
   USDT0: "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
   mETH: "0xcDA86A272531e8640cD7F1a92c01839911B90bb0",
+  WETH: "0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111",
 };
 
 const WMNT_ABI = [
@@ -62,6 +64,7 @@ const DECIMALS = {
   USDT: 6,
   USDT0: 6,
   mETH: 18,
+  WETH: 18,
 };
 
 /**
@@ -83,6 +86,7 @@ async function readAllBalances(provider, walletAddress) {
     USDT0: 0,
     USDT: 0,
     mETH: 0,
+    WETH: 0,
   };
   // Native MNT.
   try {
@@ -98,6 +102,7 @@ async function readAllBalances(provider, walletAddress) {
       ["USDT0", ADDRESSES.USDT0],
       ["USDT", ADDRESSES.USDT],
       ["mETH", ADDRESSES.mETH],
+      ["WETH", ADDRESSES.WETH],
     ].map(async ([sym, addr]) => {
       try {
         const c = new ethers.Contract(addr, ERC20_ABI, provider);
@@ -192,7 +197,7 @@ function pickSource({
   if (direction === "risk-off") {
     // Goal: end at USDT0. Try in order:
     //   1. WMNT directly
-    //   2. unwind mETH → WMNT → USDT → USDT0
+    //   2. unwind mETH → WETH → WMNT → USDT → USDT0
     //   3. if already stable-heavy, do not wrap native MNT
     //   4. wrap MNT → WMNT (only to establish stable reserves)
     if (balances.WMNT >= floors.WMNT) {
@@ -215,7 +220,7 @@ function pickSource({
         source: "mETH",
         wrapMntFirst: false,
         wrapAmountMnt: 0,
-        path: ["mETH", "WMNT", "USDT", "USDT0"],
+        path: ["mETH", "WETH", "WMNT", "USDT", "USDT0"],
         sourceBalance: balances.mETH,
         reason: `WMNT below floor; using mETH ${balances.mETH.toFixed(6)} as actual risk inventory`,
       };
@@ -288,13 +293,13 @@ function pickSource({
 
   if (direction === "risk-on") {
     // Goal: acquire WMNT (or mETH if target=mETH). Try in order:
-    //   1. USDT0 directly (3-leg via USDT→WMNT, then optional WMNT→mETH)
+    //   1. USDT0 directly (via USDT→WMNT, then optional WETH→mETH)
     //   2. USDT directly (skip first leg)
     //   3. wrap MNT → WMNT to give us source-of-funds for a smaller risk-on
     //      that still moves the needle
     if (balances.USDT0 >= floors.USDT0) {
       const path = targetIsMeth
-        ? ["USDT0", "USDT", "WMNT", "mETH"]
+        ? ["USDT0", "USDT", "WMNT", "WETH", "mETH"]
         : ["USDT0", "USDT", "WMNT"];
       return {
         feasible: true,
@@ -308,7 +313,7 @@ function pickSource({
     }
     if (balances.USDT >= floors.USDT) {
       const path = targetIsMeth
-        ? ["USDT", "WMNT", "mETH"]
+        ? ["USDT", "WMNT", "WETH", "mETH"]
         : ["USDT", "WMNT"];
       return {
         feasible: true,

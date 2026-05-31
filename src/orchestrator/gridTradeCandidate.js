@@ -71,7 +71,7 @@ function riskSourceForTarget(targetAsset) {
 
 function routeForTarget(targetAsset) {
   return targetAsset === "mETH"
-    ? ["USDT0", "USDT", "WMNT", "mETH"]
+    ? ["USDT0", "USDT", "WMNT", "WETH", "mETH"]
     : ["USDT0", "USDT", "WMNT"];
 }
 

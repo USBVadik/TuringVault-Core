@@ -459,8 +459,10 @@ function record(params) {
   // baking them in keeps the surface consistent.
   //
   // executedOnChain is the ground truth for "did a DEX TX actually
-  // happen". _displayTier is what the UI should render: identical to
-  // decisionTier in the happy path, but rewritten to
+  // complete the intended action". Partial directional legs may have
+  // tx hashes but still leave the wallet in an intermediate asset; do
+  // not surface those as an executed swap. _displayTier is what the UI
+  // should render: identical to decisionTier in the happy path, but rewritten to
   // INTENT_SWAP_NO_EXEC when the classifier said EXECUTED_SWAP
   // without a tx hash to back it.
   //
@@ -468,10 +470,7 @@ function record(params) {
   const executedOnChain =
     Boolean(entry.txHash) ||
     (entry.rwaIntent && entry.rwaIntent.executed === true) ||
-    (entry.directionalSwap && entry.directionalSwap.executed === true) ||
-    (entry.directionalSwap &&
-      Array.isArray(entry.directionalSwap.legs) &&
-      entry.directionalSwap.legs.some((l) => l && l.txHash));
+    (entry.directionalSwap && entry.directionalSwap.executed === true);
   entry.executedOnChain = executedOnChain;
   entry.executionProofStatus = deriveExecutionProofStatus(
     entry.disciplineDetail

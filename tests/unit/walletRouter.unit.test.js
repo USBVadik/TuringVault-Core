@@ -99,7 +99,7 @@ describe("walletRouter.pickSource — risk-off", () => {
     });
     expect(r.feasible).toBe(true);
     expect(r.source).toBe("mETH");
-    expect(r.path).toEqual(["mETH", "WMNT", "USDT", "USDT0"]);
+    expect(r.path).toEqual(["mETH", "WETH", "WMNT", "USDT", "USDT0"]);
   });
 
   test("nothing usable → infeasible with diagnostic reason", () => {
@@ -161,13 +161,13 @@ describe("walletRouter.pickSource — risk-on", () => {
     expect(r.path).toEqual(["USDT0", "USDT", "WMNT"]);
   });
 
-  test("USDT0 above floor + targetIsMeth → 4-leg path", () => {
+  test("USDT0 above floor + targetIsMeth → deep WETH bridge path", () => {
     const r = pickSource({
       direction: "risk-on",
       balances: { WMNT: 0, MNT: 0, USDT0: 100, USDT: 0, mETH: 0 },
       targetIsMeth: true,
     });
-    expect(r.path).toEqual(["USDT0", "USDT", "WMNT", "mETH"]);
+    expect(r.path).toEqual(["USDT0", "USDT", "WMNT", "WETH", "mETH"]);
   });
 
   test("USDT0 below floor + USDT available → fallback to USDT", () => {

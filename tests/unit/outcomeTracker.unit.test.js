@@ -36,6 +36,71 @@ describe("outcomeTracker settlement asset helpers", () => {
   });
 });
 
+describe("record execution honesty", () => {
+  const originalOutcomesPath = process.env.OUTCOMES_PATH;
+  let tmpDir;
+
+  beforeEach(() => {
+    jest.resetModules();
+    const fs = require("fs");
+    const os = require("os");
+    const path = require("path");
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "turing-record-"));
+    process.env.OUTCOMES_PATH = path.join(tmpDir, "outcomes.json");
+  });
+
+  afterEach(() => {
+    const fs = require("fs");
+    if (originalOutcomesPath === undefined) {
+      delete process.env.OUTCOMES_PATH;
+    } else {
+      process.env.OUTCOMES_PATH = originalOutcomesPath;
+    }
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    jest.resetModules();
+  });
+
+  test("partial directional legs do not mark the intended swap executed", () => {
+    const { record } = require("../../src/orchestrator/outcomeTracker");
+    const entry = record({
+      decisionId: 9999,
+      action: "swap",
+      targetAsset: "mETH",
+      consensus: true,
+      confidence: 0.64,
+      priceAtDecision: 2007,
+      decisionTier: "EXECUTED_SWAP",
+      directionalSwap: {
+        executed: false,
+        direction: "risk-on",
+        from: "USDT0",
+        to: "mETH",
+        reason: "leg3-failed: not-viable",
+        legs: [
+          {
+            leg: 1,
+            from: "USDT0",
+            to: "USDT",
+            txHash:
+              "0x1111111111111111111111111111111111111111111111111111111111111111",
+          },
+          {
+            leg: 2,
+            from: "USDT",
+            to: "WMNT",
+            txHash:
+              "0x2222222222222222222222222222222222222222222222222222222222222222",
+          },
+          { leg: 3, from: "WMNT", to: "mETH", reason: "not-viable" },
+        ],
+      },
+    });
+
+    expect(entry.executedOnChain).toBe(false);
+    expect(entry._displayTier).toBe("INTENT_SWAP_NO_EXEC");
+  });
+});
+
 describe("computePriceMoveOutcome", () => {
   test("scores MNT upside as GOOD_CALL for an approved risk-on swap", () => {
     const result = computePriceMoveOutcome({

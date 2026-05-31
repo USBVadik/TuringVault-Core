@@ -880,6 +880,10 @@ async function runMultiAgentCycle(opts = {}) {
           pickSource,
           wrapMnt,
         } = require("../dex/walletRouter");
+        const {
+          getDirectionalSwapOptions,
+          preflightSwapPath,
+        } = require("../dex/routePreflight");
         const liveDex = new MerchantMoeDEX({
           privateKey: process.env.PRIVATE_KEY,
           dryRun: false,
@@ -1040,6 +1044,26 @@ async function runMultiAgentCycle(opts = {}) {
             reason: `insufficient-balance: ${sourceBalance.toFixed(6)} ${path[0]}`,
           };
         } else {
+          const preflight = await preflightSwapPath({
+            dex: liveDex,
+            path,
+            initialAmount: finalSourceAmount,
+          });
+
+          if (!preflight.ok) {
+            console.log(
+              `   ⚠️  Route preflight blocked before broadcast: ${preflight.reason}`
+            );
+            directionalSwapResult = {
+              executed: false,
+              direction: swapDirection,
+              from: path[0],
+              to: path[path.length - 1],
+              amountIn: finalSourceAmount,
+              reason: `preflight-failed: ${preflight.reason}`,
+              preflight: preflight.legs,
+            };
+          } else {
           // N-leg swap loop. path = [from, mid1, mid2?..., to].
           // Each step uses our patched MerchantMoeDEX (deep-pool
           // selection + on-chain getSwapOut quote). Between legs we
@@ -1095,16 +1119,8 @@ async function runMultiAgentCycle(opts = {}) {
               fromDec
             );
 
-            // Per-leg gating: stable-stable is tight; final leg into
-            // a volatile asset (mETH) gets more room.
-            const isFinalLeg = i === path.length - 2;
-            const isVolatileTarget =
-              isFinalLeg && (toTok === "mETH" || toTok === "WETH");
-            const swapOpts = isVolatileTarget
-              ? { maxPriceImpactBps: 250, slippageBps: 75 }
-              : i === 0
-              ? { maxPriceImpactBps: 100, slippageBps: 50 }
-              : { maxPriceImpactBps: 200, slippageBps: 50 };
+            // Per-leg gating: same policy as preflight.
+            const swapOpts = getDirectionalSwapOptions(path, i);
 
             console.log(
               `   Leg ${i + 1}/${path.length - 1}: ${nextAmountIn.toFixed(
@@ -1182,6 +1198,7 @@ async function runMultiAgentCycle(opts = {}) {
             // Discipline layer reads decision.executionTxHash for
             // a single proof; we surface the final leg.
             decision.executionTxHash = finalLegTxHash;
+          }
           }
         }
         } // close: else of (!route.feasible) — smart router happy path

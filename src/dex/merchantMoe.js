@@ -20,6 +20,7 @@ const ADDRESSES = {
   LB_ROUTER: "0x013e138EF6008ae5FDFDE29700e3f2Bc61d21E3a",
   LB_FACTORY: "0xa6630671775c4EA2743840F9A5016dCf2A104054",
   WMNT: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8",
+  WETH: "0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111",
   mETH: "0xcDA86A272531e8640cD7F1a92c01839911B90bb0",
   USDY: "0x5bE26527e817998A7206475496fDE1E68957c5A6",
   mUSD: "0xab575258d37EaA5C8956EfABe71F4eE8F6397cF3",
@@ -414,7 +415,7 @@ class MerchantMoeDEX {
     // upstream caller passes an arbitrary address (e.g., LLM hallucinated a
     // contract), we refuse rather than approve and route through it.
     const ALLOWED = new Set([
-      "WMNT", "mETH", "USDY", "mUSD", "USDT", "USDT0",
+      "WMNT", "WETH", "mETH", "USDY", "mUSD", "USDT", "USDT0",
     ]);
     if (!ALLOWED.has(tokenIn) || !ALLOWED.has(tokenOut)) {
       throw new Error(
@@ -518,7 +519,7 @@ class MerchantMoeDEX {
     const addr = address || this.wallet?.address;
     if (!addr) throw new Error("No address");
 
-    const tokens = ["WMNT", "mETH", "USDY", "mUSD", "USDT", "USDT0"];
+    const tokens = ["WMNT", "WETH", "mETH", "USDY", "mUSD", "USDT", "USDT0"];
     const balances = {};
 
     // Native MNT
