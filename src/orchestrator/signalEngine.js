@@ -393,10 +393,11 @@ function detectRegime({ fearGreed, ethChange24h, fundingSignal, flowSignal }) {
     };
   }
 
-  // Soft TREND_DOWN: mild bearish but not crisis. Catches -1% to -3%
-  // moves before RANGING, so a clear bearish slide doesn't get
-  // mislabelled as ranging.
-  if (change < -1 || (fg < 40 && funding > 5)) {
+  // Soft TREND_DOWN: require either a sharper drawdown or confirming
+  // crowded-long funding. Mild red candles in extreme fear are often
+  // mean-reversion territory; letting them fall through to RANGING
+  // gives the ETH/MNT grid a fair chance to emit BUY edges.
+  if (change < -3 || (fg < 40 && funding > 5)) {
     return {
       regime: "TREND_DOWN",
       confidence: 0.6,
@@ -412,8 +413,8 @@ function detectRegime({ fearGreed, ethChange24h, fundingSignal, flowSignal }) {
   // upside moves with lagging fear sentiment.
   //
   // Now: |change|<3% is RANGING territory unless a trend regime
-  // already fired above. Soft TREND_DOWN catches the negative side
-  // (change<-1), so this branch effectively covers -1<change<3.
+  // already fired above. This includes mild fear dips where no flow
+  // or funding signal confirms a downtrend.
   // Confidence scales with two factors:
   //   - tighter range → higher confidence
   //   - sentiment aligned with chart → higher confidence

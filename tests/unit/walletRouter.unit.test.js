@@ -34,10 +34,20 @@ describe("walletRouter.pickSource — risk-off", () => {
     expect(r.sourceBalance).toBe(5);
   });
 
-  test("WMNT below floor + native MNT available → wrap capped at MAX_WRAP_PER_CYCLE_MNT", () => {
+  test("stable-heavy wallet does not wrap native MNT for repeated risk-off", () => {
     const r = pickSource({
       direction: "risk-off",
       balances: { WMNT: 0.05, MNT: 29, USDT0: 100, USDT: 0, mETH: 0 },
+    });
+    expect(r.feasible).toBe(false);
+    expect(r.wrapMntFirst).toBe(false);
+    expect(r.reason).toMatch(/stable-heavy/);
+  });
+
+  test("WMNT below floor + native MNT available + no stable reserve → wrap capped at MAX_WRAP_PER_CYCLE_MNT", () => {
+    const r = pickSource({
+      direction: "risk-off",
+      balances: { WMNT: 0.05, MNT: 29, USDT0: 0, USDT: 0, mETH: 0 },
     });
     expect(r.feasible).toBe(true);
     expect(r.source).toBe("WMNT");
@@ -95,7 +105,7 @@ describe("walletRouter.pickSource — risk-off", () => {
   test("nothing usable → infeasible with diagnostic reason", () => {
     const r = pickSource({
       direction: "risk-off",
-      balances: { WMNT: 0.01, MNT: 0.01, USDT0: 100, USDT: 0, mETH: 0 },
+      balances: { WMNT: 0.01, MNT: 0.01, USDT0: 0, USDT: 0, mETH: 0 },
     });
     expect(r.feasible).toBe(false);
     expect(r.source).toBeNull();
@@ -195,7 +205,7 @@ describe("walletRouter.pickSource — guards", () => {
     // the new floor AFTER respecting GAS_RESERVE_MNT.
     const r = pickSource({
       direction: "risk-off",
-      balances: { WMNT: 0.5, MNT: 30, USDT0: 100, USDT: 0, mETH: 0 },
+      balances: { WMNT: 0.5, MNT: 30, USDT0: 0, USDT: 0, mETH: 0 },
       floors: { WMNT: 1.0, USDT0: 0.5, mETH: 0.001, USDT: 0.5 },
     });
     // wrappable = 30 − 5 = 25. target = max(1.0 × 4, 0.4) = 4.0,

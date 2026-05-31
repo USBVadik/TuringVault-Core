@@ -15,10 +15,11 @@
  *
  * Smart routing for risk-off (analyst wants stable exposure):
  *   1. WMNT ≥ floor                → use WMNT directly
- *   2. MNT  ≥ (floor + gas reserve) → wrap MNT→WMNT via WMNT.deposit()
+ *   2. mETH ≥ small floor          → use mETH directly (mETH→WMNT→USDT→USDT0)
+ *   3. If already stable-heavy     → do not wrap native gas/reserve MNT
+ *   4. MNT  ≥ (floor + gas reserve) → wrap MNT→WMNT via WMNT.deposit()
  *                                     then start the WMNT→USDT→USDT0 path
- *   3. mETH ≥ small floor          → use mETH directly (mETH→WMNT→USDT→USDT0)
- *   4. nothing → infeasible
+ *   5. nothing → infeasible
  *
  * Smart routing for risk-on (analyst wants risk exposure):
  *   1. USDT0 ≥ floor    → start USDT0→USDT→WMNT
@@ -146,6 +147,7 @@ async function readAllBalances(provider, walletAddress) {
  *            wrap sizing fix).
  */
 const GAS_RESERVE_MNT = 5.0;
+const STABLE_HEAVY_USD_FLOOR = 5.0;
 
 /**
  * Cap on how much we will wrap in a single cycle. Was previously
@@ -190,8 +192,9 @@ function pickSource({
   if (direction === "risk-off") {
     // Goal: end at USDT0. Try in order:
     //   1. WMNT directly
-    //   2. wrap MNT → WMNT (the headline missing capability)
-    //   3. unwind mETH → WMNT → USDT → USDT0
+    //   2. unwind mETH → WMNT → USDT → USDT0
+    //   3. if already stable-heavy, do not wrap native MNT
+    //   4. wrap MNT → WMNT (only to establish stable reserves)
     if (balances.WMNT >= floors.WMNT) {
       return {
         feasible: true,
@@ -203,6 +206,35 @@ function pickSource({
         reason: `WMNT ${balances.WMNT.toFixed(4)} ≥ floor ${floors.WMNT}`,
       };
     }
+    // Sell actual mETH exposure before touching native MNT. Native MNT
+    // doubles as gas/runway, so it should not be the first "risk-off"
+    // source once the wallet already has stable reserves.
+    if (balances.mETH >= floors.mETH) {
+      return {
+        feasible: true,
+        source: "mETH",
+        wrapMntFirst: false,
+        wrapAmountMnt: 0,
+        path: ["mETH", "WMNT", "USDT", "USDT0"],
+        sourceBalance: balances.mETH,
+        reason: `WMNT below floor; using mETH ${balances.mETH.toFixed(6)} as actual risk inventory`,
+      };
+    }
+
+    const stableReserveUsd =
+      Number(balances.USDT0 || 0) + Number(balances.USDT || 0);
+    if (stableReserveUsd >= STABLE_HEAVY_USD_FLOOR) {
+      return {
+        feasible: false,
+        source: null,
+        wrapMntFirst: false,
+        wrapAmountMnt: 0,
+        path: [],
+        sourceBalance: 0,
+        reason: `risk-off skipped: stable-heavy reserve $${stableReserveUsd.toFixed(2)} ≥ $${STABLE_HEAVY_USD_FLOOR.toFixed(2)}; refusing to wrap native MNT`,
+      };
+    }
+
     const wrappableMnt = Math.max(0, balances.MNT - gasReserveMnt);
     // Cap the wrap size so we don't drain native MNT into WMNT on
     // a sustained risk-off streak (cycles 149-159 case study). Wrap
@@ -241,18 +273,6 @@ function pickSource({
         path: ["WMNT", "USDT", "USDT0"],
         sourceBalance: balances.WMNT + wrapAmount,
         reason: `WMNT ${balances.WMNT.toFixed(4)} < floor — wrap ${wrapAmount.toFixed(4)} MNT (capped at ${MAX_WRAP_PER_CYCLE_MNT} MNT/cycle, gas reserve ${gasReserveMnt})`,
-      };
-    }
-    // Last-resort: liquidate mETH for stables. mETH→WMNT pool exists.
-    if (balances.mETH >= floors.mETH) {
-      return {
-        feasible: true,
-        source: "mETH",
-        wrapMntFirst: false,
-        wrapAmountMnt: 0,
-        path: ["mETH", "WMNT", "USDT", "USDT0"],
-        sourceBalance: balances.mETH,
-        reason: `WMNT+MNT both depleted; falling back to mETH ${balances.mETH.toFixed(6)}`,
       };
     }
     return {
@@ -356,4 +376,5 @@ module.exports = {
   ADDRESSES,
   GAS_RESERVE_MNT,
   MAX_WRAP_PER_CYCLE_MNT,
+  STABLE_HEAVY_USD_FLOOR,
 };
