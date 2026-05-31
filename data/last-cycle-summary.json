@@ -1,23 +1,58 @@
 {
-  "cycleStartedAt": "2026-05-30T23:44:48.774Z",
-  "cycleEndedAt": "2026-05-30T23:45:52.187Z",
-  "durationSeconds": 63.41,
+  "cycleStartedAt": "2026-05-31T00:14:46.980Z",
+  "cycleEndedAt": "2026-05-31T00:16:16.706Z",
+  "durationSeconds": 89.73,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 2198,
-    "validatorMs": 6685,
-    "arbiterMs": 2379,
+    "analystMs": 9679,
+    "validatorMs": 6582,
+    "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 184,
-  "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
-  "consensus": false,
-  "txHashes": [],
+  "decisionId": 185,
+  "decisionTier": "EXECUTED_SWAP",
+  "consensus": true,
+  "txHashes": [
+    "0x211d31ce1845ea9113bf33d9c71392f9754c15ddd21e43c3b936a8bc910baab7",
+    "0x61090b06b5058d4fb9493a7b365eee951390b126422cb694ddd071e13f795d3b"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26698085669",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26698658501",
   "errors": [],
-  "executionStatus": "BLOCKED_BY_LOW_CONFIDENCE"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-off",
+    "from": "WMNT",
+    "to": "USDT0",
+    "amountIn": 0.525,
+    "amountOut": 0.354824,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "WMNT",
+        "to": "USDT",
+        "txHash": "0x211d31ce1845ea9113bf33d9c71392f9754c15ddd21e43c3b936a8bc910baab7",
+        "blockNumber": 96028119,
+        "amountIn": 0.525,
+        "amountOut": 0.354932,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "USDT0",
+        "txHash": "0x61090b06b5058d4fb9493a7b365eee951390b126422cb694ddd071e13f795d3b",
+        "blockNumber": 96028124,
+        "amountIn": 0.354930714,
+        "amountOut": 0.354824,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
