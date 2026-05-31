@@ -6086,6 +6086,103 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PARSE_FAILURE"
+    },
+    {
+      "id": "1780263840964_204",
+      "decisionId": 204,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.64,
+      "priceAtDecision": 2005.69,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmZUUCGK86zvuAfH5SiuyXrMnQHUAPc4A6AhX2srEAbnSe",
+      "recordedAt": "2026-05-31T21:44:00.964Z",
+      "settleAfter": "2026-05-31T22:44:00.964Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780263840960
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "ETH grid signal is EXIT_RANGING (not a buy signal) with UNKNOWN breakout direction. Technical consensus is BEARISH (score -0.25), EMA bearish, MACD negative. Yield spread -1% bearish. Funding mild long but insufficient to override bearish consensus. No R:R defined — no explicit stop-loss or target provided, making R:R unverifiable and thus failing the >=1.5:1 mandatory gate. Directional swap in RA",
+      "validatorFlaggedIssues": [
+        "ETH grid signal is EXIT_RANGING with UNKNOWN breakout direction — not a buy confirmation",
+        "No defined stop-loss or profit target; R:R cannot be verified as >=1.5:1",
+        "Signal consensus explicitly BEARISH contradicts buy-low rationale",
+        "Yield spread -1% adds bearish pressure unacknowledged in reasoning",
+        "Directional swap in RANGING regime without confirmed grid breakout direction"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "stable-heavy-lower-band-reentry",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "mETH",
+        "sourceAsset": "USDT0",
+        "allocationPct": 12,
+        "confidence": 0.64,
+        "reasoning": "ETHEREUM lower-band re-entry: price is at 6% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe.",
+        "riskFactors": [
+          "Confirmed downward breakout invalidates mean reversion",
+          "Keep size small because consensus may still be bearish"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT",
+          "mETH"
+        ],
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.65,
+          "breakoutDirection": "UNKNOWN",
+          "regimeHint": "HOLD",
+          "channelPosition": 0.06,
+          "support": 2006.7,
+          "resistance": 2029.5,
+          "currentPrice": 2008.1
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0b795f77ac4f95a6e74800f3a64025aa65e0b78c5f43d8f66e1a2847cc219469",
+      "combinedAnchor": "0xe0415a662cd661544d53ff50af61a8765c0c8349c12f9e483fcbc11dd6a283ab",
+      "decisionLogTxHash": "0x7c77edfb1ff578af7ef0007790c50021257f668aabe703d86dfeeb862948a5b4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
