@@ -5,7 +5,6 @@ import { useAccount } from "wagmi";
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Shield,
-  Brain,
   TrendingUp,
   Activity,
   Wallet,
@@ -170,38 +169,6 @@ const SECONDARY_PARTNERS = [
 // multiAgent.js where activeAnalystPrompt = ANALYST_SYSTEM_PROMPT.
 // Re-enabling is tracked in spec agent-reasoning-quality.
 
-// ═══ QW-1: CountUp animation hook (requestAnimationFrame, no lib) ═══
-function useCountUp(end: number | null | undefined, duration = 1200): string {
-  const [display, setDisplay] = useState("—");
-  const hasRun = useRef(false);
-
-  useEffect(() => {
-    if (end == null || hasRun.current) return;
-    hasRun.current = true;
-    // Capture non-null end and start values into locals so the nested
-    // tick() closure preserves narrowing across requestAnimationFrame.
-    const endValue: number = end;
-    const startValue = 0;
-    const startTime = performance.now();
-
-    function tick(now: number) {
-      // Defensive: if endValue somehow became invalid, bail out cleanly.
-      if (endValue == null || Number.isNaN(endValue)) return;
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = Math.round(startValue + (endValue - startValue) * eased);
-      setDisplay(String(current));
-      if (progress < 1) requestAnimationFrame(tick);
-    }
-
-    requestAnimationFrame(tick);
-  }, [end, duration]);
-
-  return end == null ? "—" : display;
-}
-
 export default function Home() {
   const { address, isConnected } = useAccount();
   const [marketData, setMarketData] = useState<any>(null);
@@ -293,11 +260,7 @@ export default function Home() {
   const STALE_THRESHOLD_S = 65 * 60;
   const isStale = health?.lastCycleAge != null && health.lastCycleAge > STALE_THRESHOLD_S;
 
-  // QW-1: CountUp on hero stats (first-load animation)
-  const countProofs = useCountUp(totalProposals || totalDecisions);
-  const countBlocked = useCountUp(totalRejected);
   const safetyPct = totalProposals ? Math.round(((totalRejected || 0) / totalProposals) * 100) : null;
-  const countSafety = useCountUp(safetyPct);
 
   // Compose hero badge text from card; fallback to generic when card unavailable
   const heroBadge = (() => {
@@ -412,7 +375,23 @@ export default function Home() {
   const stableShare =
     perfData?.nav && stableNav > 0
       ? `${Math.round((stableNav / perfData.nav) * 100)}%`
+      : stableNav > 0
+        ? `$${stableNav.toFixed(2)}`
       : "—";
+  const stableShareLabel =
+    perfData?.nav && stableNav > 0 ? "Stable/RWA share" : "Stable/RWA value";
+  const portfolioValue =
+    perfData?.nav != null
+      ? `$${perfData.nav.toFixed(2)}`
+      : stableNav > 0
+        ? `$${stableNav.toFixed(2)}+`
+        : "—";
+  const portfolioValueLabel =
+    perfData?.nav != null
+      ? "NAV · live wallet read"
+      : stableNav > 0
+        ? "known priced balance"
+        : "NAV · syncing prices";
 
   // ═══ REASONING ANIMATION ═══
   useEffect(() => {
@@ -454,9 +433,9 @@ export default function Home() {
       <div className="noise-overlay" />
       <div className="grid-bg" />
 
-      <main className="relative min-h-screen px-6 py-8 max-w-[1200px] mx-auto">
+      <main className="relative min-h-screen px-4 sm:px-6 py-6 max-w-[1200px] mx-auto">
         {/* ═══ HEADER ═══ */}
-        <header className="flex items-center justify-end pb-8 anim-fade-up">
+        <header className="flex items-center justify-end pb-5 anim-fade-up">
           <div className="flex items-center gap-4">
             <div className="badge-live"><span className="pulse-dot" />MAINNET</div>
             <ConnectButton />
@@ -525,11 +504,11 @@ export default function Home() {
                 <span>Portfolio</span>
               </div>
               <div className="ops-metric-main">
-                {perfData?.nav != null ? `$${perfData.nav.toFixed(2)}` : "—"}
+                {portfolioValue}
               </div>
-              <div className="ops-metric-label">NAV · live wallet read</div>
+              <div className="ops-metric-label">{portfolioValueLabel}</div>
               <div className="ops-split-row">
-                <span>Stable/RWA share</span>
+                <span>{stableShareLabel}</span>
                 <strong>{stableShare}</strong>
               </div>
               <div className="ops-split-row">
@@ -584,153 +563,79 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ═══ PARTNER BAR ═══
-            5 top-tier logos. Secondary partners surfaced via the
-            "+5 more" tooltip-style link so the full ecosystem
-            attribution remains discoverable without crowding the
-            first viewport. (D-6 / audit 30) */}
-        <div className="partner-bar mb-10 anim-fade-up anim-delay-1">
-          <span className="text-[10px] text-white/20 uppercase tracking-widest mr-4">
-            Powered by
-          </span>
-          {PARTNERS.map((p) => (
-            <a
-              key={p.name}
-              href={p.url}
-              target="_blank"
-              rel="noopener"
-              className="partner-item"
-            >
-              {p.name}
-            </a>
-          ))}
-          <span
-            className="partner-item text-white/30 cursor-help"
-            title={
-              "Secondary ecosystem partners: " +
-              SECONDARY_PARTNERS.map((p) => p.name).join(" · ")
-            }
-          >
-            +{SECONDARY_PARTNERS.length} more
-          </span>
-        </div>
-
-        {/* ═══ HERO ═══ */}
-        <section className="glass-hero p-10 mb-8 anim-fade-up anim-delay-2 relative">
-          {/* Radial gradient mesh behind hero */}
-          <div className="hero-mesh-bg" />
-          <div className="flex flex-col lg:flex-row items-center gap-10">
-            {/* AI Brain Visual */}
-            <div className="ai-brain-container shrink-0">
-              <div className="ai-brain-ring" />
-              <div className="ai-brain-ring" />
-              <div className="ai-brain-ring" />
-              <div className="ai-brain-core">
-                <Brain className="w-8 h-8 text-purple-400" />
-              </div>
-            </div>
-
-            {/* Hero Content */}
-            <div className="flex-1 text-center lg:text-left">
-              <div className="flex items-center gap-2 justify-center lg:justify-start mb-3 flex-wrap">
-                <Shield className="w-4 h-4 text-purple-400" />
+        {/* ═══ TRUST SUMMARY ═══ */}
+        <section className="trust-summary mb-8 anim-fade-up anim-delay-2">
+          <div className="trust-copy">
+            <div className="trust-badges">
+              <span
+                className="trust-model-line"
+                title="Models read live from agent identity tokenURI on Mantle Mainnet, fetched fresh from IPFS each load"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                {heroBadge}
+              </span>
+              <CardSourceBadge card={agentCard} />
+              <LiveStatusBadge variant="compact" initialHealth={health} />
+              {health?.gasRunway?.status === "critical" && (
                 <span
-                  className="text-xs font-mono text-purple-300/60"
-                  title="Models read live from agent identity tokenURI on Mantle Mainnet, fetched fresh from IPFS each load"
+                  className="badge-live border-red-500/40 text-red-300/90 bg-red-500/10"
+                  title={`Agent EOA holds ${health.gasRunway.nativeMnt} MNT — ~${health.gasRunway.daysRemaining} days runway at ${health.gasRunway.cyclesPerDayAssumed} cycles/day, ${health.gasRunway.costPerCycleMntAssumed} MNT/cycle. Top-up needed before submission.`}
                 >
-                  {heroBadge}
+                  GAS · CRITICAL · {health.gasRunway.daysRemaining}d
                 </span>
-                <CardSourceBadge card={agentCard} />
-                {/* Steering rule §2 §3: every "live"/"autonomous" claim
-                    must be gated by a freshness check against /api/health.
-                    Reads cron mode + lastCycleAge and renders LIVE / IDLE
-                    / STALE / OFFLINE so we never assert "running" on a
-                    screen where the cron actually skipped a slot. */}
-                <LiveStatusBadge
-                  variant="compact"
-                  initialHealth={health}
-                />
-                {/* Gas Runway: surfaces a low/critical pill when the
-                    agent EOA is on track to run out of native MNT
-                    inside the judging window. Defends the
-                    "Autonomous" claim — if the cron silently dies on
-                    `insufficient funds for intrinsic gas` mid-judge,
-                    the LIVE badge becomes a lie. Steering rule §2. */}
-                {health?.gasRunway?.status === "critical" && (
-                  <span
-                    className="badge-live border-red-500/40 text-red-300/90 bg-red-500/10"
-                    title={`Agent EOA holds ${health.gasRunway.nativeMnt} MNT — ~${health.gasRunway.daysRemaining} days runway at ${health.gasRunway.cyclesPerDayAssumed} cycles/day, ${health.gasRunway.costPerCycleMntAssumed} MNT/cycle. Top-up needed before submission.`}
-                  >
-                    GAS · CRITICAL · {health.gasRunway.daysRemaining}d
-                  </span>
-                )}
-                {health?.gasRunway?.status === "low" && (
-                  <span
-                    className="badge-live border-yellow-500/40 text-yellow-300/90 bg-yellow-500/10"
-                    title={`Agent EOA holds ${health.gasRunway.nativeMnt} MNT — ~${health.gasRunway.daysRemaining} days runway at ${health.gasRunway.cyclesPerDayAssumed} cycles/day. Plan a top-up.`}
-                  >
-                    GAS · LOW · {health.gasRunway.daysRemaining}d
-                  </span>
-                )}
-              </div>
-              <h2 className="text-2xl lg:text-3xl font-bold tracking-tight mb-3">
-                <span className="text-cyan-100/90">
-                  Proof-of-Reasoning
+              )}
+              {health?.gasRunway?.status === "low" && (
+                <span
+                  className="badge-live border-yellow-500/40 text-yellow-300/90 bg-yellow-500/10"
+                  title={`Agent EOA holds ${health.gasRunway.nativeMnt} MNT — ~${health.gasRunway.daysRemaining} days runway at ${health.gasRunway.cyclesPerDayAssumed} cycles/day. Plan a top-up.`}
+                >
+                  GAS · LOW · {health.gasRunway.daysRemaining}d
                 </span>
-                <br />
-                <span className="text-white/85 text-xl lg:text-2xl">
-                  The AI that proves why it didn&apos;t trade
-                </span>
-              </h2>
-              <p className="text-sm text-white/40 max-w-lg">
-                For DAO treasuries and on-chain funds: an AI portfolio manager
-                whose every alpha-seeking reallocation must survive adversarial
-                multi-model review before execution.{" "}
-                {totalRejected && totalProposals
-                  ? `${totalRejected}/${totalProposals}`
-                  : ""}{" "}
-                proposals blocked by validator before execution. Liveness-only
-                heartbeat micro-swaps tag separately as {" "}
-                <code className="text-purple-300/60">HEARTBEAT_SWAP</code> and
-                never aggregate into trading metrics.
-              </p>
+              )}
             </div>
+            <h2 className="trust-title">Proof-of-Reasoning trust firewall</h2>
+            <p className="trust-body">
+              Every alpha-seeking reallocation must survive adversarial
+              multi-model review before execution.{" "}
+              {totalRejected && totalProposals
+                ? `${totalRejected}/${totalProposals}`
+                : "Validator"}{" "}
+              proposals were blocked before execution. Liveness-only heartbeat
+              swaps stay tagged as <code>HEARTBEAT_SWAP</code>.
+            </p>
+            <div className="trust-partners" aria-label="Powered by">
+              {PARTNERS.map((p) => (
+                <a key={p.name} href={p.url} target="_blank" rel="noopener">
+                  {p.name}
+                </a>
+              ))}
+              <span
+                title={
+                  "Secondary ecosystem partners: " +
+                  SECONDARY_PARTNERS.map((p) => p.name).join(" · ")
+                }
+              >
+                +{SECONDARY_PARTNERS.length}
+              </span>
+            </div>
+          </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 shrink-0">
-              <div
-                className="text-center"
-                title="Proposals submitted by Analyst, recorded on Mantle Mainnet (ValidationRegistry.totalProposals)"
-              >
-                <div className="stat-number">
-                  {countProofs}
-                </div>
-                <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">
-                  On-Chain Proofs
-                </div>
-              </div>
-              <div
-                className="text-center"
-                title="Proposals rejected by Validator before any swap executed (ValidationRegistry.totalRejected)"
-              >
-                <div className="stat-number text-red-400">
-                  {countBlocked}
-                </div>
-                <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">
-                  Trades Blocked
-                </div>
-              </div>
-              <div
-                className="text-center"
-                title="Percentage of proposals blocked by adversarial validation (totalRejected / totalProposals)"
-              >
-                <div className="stat-number stat-number-green">
-                  {safetyPct != null ? `${countSafety}%` : "—"}
-                </div>
-                <div className="text-[10px] text-white/30 mt-2 uppercase tracking-wide">
-                  Safety Rate
-                </div>
-              </div>
+          <div className="trust-metrics">
+            <div title="Proposals submitted by Analyst, recorded on Mantle Mainnet (ValidationRegistry.totalProposals)">
+              <strong>{totalProposals || totalDecisions || "—"}</strong>
+              <span>On-chain proofs</span>
+            </div>
+            <div title="Proposals rejected by Validator before any swap executed (ValidationRegistry.totalRejected)">
+              <strong className="text-red-300/90">
+                {totalRejected ?? "—"}
+              </strong>
+              <span>Trades blocked</span>
+            </div>
+            <div title="Percentage of proposals blocked by adversarial validation (totalRejected / totalProposals)">
+              <strong className="text-emerald-300/90">
+                {safetyPct != null ? `${safetyPct}%` : "—"}
+              </strong>
+              <span>Safety rate</span>
             </div>
           </div>
         </section>
