@@ -378,6 +378,42 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [FALLBACK_MARKET]);
 
+  const latestDecision = recentDecisions?.[0] ?? null;
+  const agentStatusLabel = isStale
+    ? "STALE"
+    : health?.lastCycleTimestamp
+      ? "IDLE"
+      : "OFFLINE";
+  const agentStatusTone = isStale
+    ? "warn"
+    : health?.lastCycleTimestamp
+      ? "ok"
+      : "danger";
+  const latestReasoning = latestDecision?.reasoningHash
+    ? parseReasoning(latestDecision.reasoningHash)
+    : "No decision payload loaded yet.";
+  const latestDecisionTier =
+    latestDecision?.decisionTier ??
+    latestDecision?.displayTier ??
+    latestDecision?.tier ??
+    latestDecision?.executionTier ??
+    extractDecisionTier(latestReasoning) ??
+    "—";
+  const latestConfidence =
+    latestDecision?.confidence != null
+      ? `${(latestDecision.confidence / 100).toFixed(1)}%`
+      : "—";
+  const stableNav =
+    (perfData?.holdings?.USDT0 ?? 0) * (perfData?.prices?.USDT0 ?? 1) +
+    (perfData?.holdings?.USDT_legacy ?? 0) *
+      (perfData?.prices?.USDT_legacy ?? 1) +
+    (perfData?.holdings?.mUSD ?? 0) * (perfData?.prices?.mUSD ?? 1) +
+    (perfData?.holdings?.USDY ?? 0) * (perfData?.prices?.USDY ?? 1);
+  const stableShare =
+    perfData?.nav && stableNav > 0
+      ? `${Math.round((stableNav / perfData.nav) * 100)}%`
+      : "—";
+
   // ═══ REASONING ANIMATION ═══
   useEffect(() => {
     const timer = setInterval(() => {
@@ -436,6 +472,117 @@ export default function Home() {
           Demo Mode · No public deposits · Stats below are agent-lifetime
           aggregate (agentId=0)
         </div>
+
+        {/* ═══ OPERATOR OVERVIEW — first viewport, data before narrative ═══ */}
+        <section className="ops-shell mb-8 anim-fade-up anim-delay-1">
+          <div className="ops-topline">
+            <div>
+              <p className="ops-kicker">Live Agent Console</p>
+              <h1 className="ops-title">TuringVault autonomous portfolio agent</h1>
+            </div>
+            <div className="ops-topline-actions">
+              <LiveStatusBadge variant="compact" initialHealth={health} />
+              <span className={`ops-status-pill ${agentStatusTone}`}>
+                {agentStatusLabel}
+              </span>
+            </div>
+          </div>
+
+          <div className="ops-grid">
+            <div className="ops-panel ops-panel-primary">
+              <div className="ops-panel-header">
+                <Activity className="w-4 h-4 text-cyan-300/80" />
+                <span>Last Decision</span>
+              </div>
+              <div className="ops-decision-line">
+                <span className="ops-action">
+                  {latestDecision?.action
+                    ? latestDecision.action.toUpperCase()
+                    : "WAITING"}
+                </span>
+                <span className="ops-asset">
+                  {latestDecision?.targetAsset ?? "—"}
+                </span>
+                <span className="ops-confidence">{latestConfidence}</span>
+              </div>
+              <p className="ops-reasoning">{latestReasoning}</p>
+              <div className="ops-meta-row">
+                <span>{latestDecisionTier}</span>
+                <span>
+                  last cycle{" "}
+                  {health?.lastCycleTimestamp ? (
+                    <RelativeTime ts={health.lastCycleTimestamp} />
+                  ) : (
+                    "—"
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <div className="ops-panel">
+              <div className="ops-panel-header">
+                <Wallet className="w-4 h-4 text-cyan-300/80" />
+                <span>Portfolio</span>
+              </div>
+              <div className="ops-metric-main">
+                {perfData?.nav != null ? `$${perfData.nav.toFixed(2)}` : "—"}
+              </div>
+              <div className="ops-metric-label">NAV · live wallet read</div>
+              <div className="ops-split-row">
+                <span>Stable/RWA share</span>
+                <strong>{stableShare}</strong>
+              </div>
+              <div className="ops-split-row">
+                <span>Custody</span>
+                <strong>EOA demo</strong>
+              </div>
+            </div>
+
+            <div className="ops-panel">
+              <div className="ops-panel-header">
+                <Shield className="w-4 h-4 text-cyan-300/80" />
+                <span>Risk Controls</span>
+              </div>
+              <div className="ops-split-row">
+                <span>Validator gate</span>
+                <strong>R:R ≥ 1.5</strong>
+              </div>
+              <div className="ops-split-row">
+                <span>Risk limit</span>
+                <strong>≤ 75</strong>
+              </div>
+              <div className="ops-split-row">
+                <span>Circuit breaker</span>
+                <strong>3 errors</strong>
+              </div>
+              <div className="ops-split-row">
+                <span>Gas runway</span>
+                <strong>{health?.gasRunway?.daysRemaining ?? "—"}d</strong>
+              </div>
+            </div>
+
+            <div className="ops-panel">
+              <div className="ops-panel-header">
+                <BarChart3 className="w-4 h-4 text-cyan-300/80" />
+                <span>Market Regime</span>
+              </div>
+              <div className="ops-metric-main">
+                {strategyData?.regime ?? "—"}
+              </div>
+              <div className="ops-metric-label">Grid strategy context</div>
+              <div className="ops-split-row">
+                <span>Position</span>
+                <strong>{strategyData?.position || "—"}</strong>
+              </div>
+              <div className="ops-split-row">
+                <span>ETH</span>
+                <strong>
+                  {marketData ? `$${marketData.ethPrice.toLocaleString()}` : "—"}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ═══ PARTNER BAR ═══
             5 top-tier logos. Secondary partners surfaced via the
@@ -526,12 +673,12 @@ export default function Home() {
                   </span>
                 )}
               </div>
-              <h2 className="text-3xl lg:text-4xl font-bold tracking-tight mb-3">
-                <span className="bg-gradient-to-r from-purple-400 to-green-400 bg-clip-text text-transparent">
+              <h2 className="text-2xl lg:text-3xl font-bold tracking-tight mb-3">
+                <span className="text-cyan-100/90">
                   Proof-of-Reasoning
                 </span>
                 <br />
-                <span className="text-white/90 text-2xl lg:text-3xl">
+                <span className="text-white/85 text-xl lg:text-2xl">
                   The AI that proves why it didn&apos;t trade
                 </span>
               </h2>
@@ -828,11 +975,11 @@ export default function Home() {
 
         {/* ═══ LIVE TERMINAL + 3-COL GRID (combined) ═══ */}
         <div
-          className="grid grid-cols-3 gap-4 mb-8 anim-fade-up"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8 anim-fade-up"
           style={{ animationDelay: "0.45s" }}
         >
           {/* Live Agent Pipeline — cols 1-2, row 1 */}
-          <div className="col-span-2">
+          <div className="lg:col-span-2 min-w-0">
             <div className="flex items-center gap-2 mb-3 pl-1">
               <Terminal className="w-4 h-4 text-green-400" />
               <span className="text-[10px] font-semibold text-white/40 uppercase tracking-widest">
@@ -871,7 +1018,7 @@ export default function Home() {
           </div>
 
           {/* Right column — col 3, rows 1+2: Funding above Verify */}
-          <div className="row-span-2 flex flex-col gap-4">
+          <div className="lg:row-span-2 flex flex-col gap-4 min-w-0">
             {/* Agent Wallet · Operator Account (T11) */}
             <div>
               <div className="flex items-center gap-2 mb-3 pl-1">
@@ -1487,6 +1634,11 @@ function parseReasoning(hash: string): string {
   } catch {
     return hash.substring(0, 60);
   }
+}
+
+function extractDecisionTier(reasoning: string): string | null {
+  const match = reasoning.match(/^\[([A-Z0-9_]+)\]/);
+  return match?.[1] ?? null;
 }
 
 /* ═══ RISK STATE MASCOT — moved to ./components/RiskMascot.tsx (T7) ═══ */

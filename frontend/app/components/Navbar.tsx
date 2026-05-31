@@ -27,23 +27,22 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 backdrop-blur-xl bg-[#030308]/80 border-b border-white/[0.06]" style={{ zIndex: "var(--z-nav)" }}>
-      <div className="max-w-[1200px] mx-auto px-6 h-14 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 overflow-x-hidden backdrop-blur-xl bg-[#07080b]/88 border-b border-white/[0.06]" style={{ zIndex: "var(--z-nav)" }}>
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group shrink-0">
           <div className="relative w-8 h-8">
-            <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-purple-500 to-green-500 opacity-40 blur-md group-hover:opacity-60 transition-opacity" />
-            <div className="relative w-8 h-8 rounded-lg bg-[#0a0a14] border border-purple-500/20 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-purple-400" />
+            <div className="relative w-8 h-8 rounded-lg bg-[#0d1117] border border-cyan-400/20 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-cyan-300/80" />
             </div>
           </div>
           <span className="text-sm font-bold tracking-tight">
-            TuringVault<span className="text-purple-400/50">.ai</span>
+            TuringVault<span className="text-cyan-300/55">.ai</span>
           </span>
         </Link>
 
         {/* Nav Links */}
-        <div className="flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1 min-w-0">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
             const isActive = pathname === href;
             return (
@@ -52,7 +51,7 @@ export default function Navbar() {
                 href={href}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                    ? "bg-cyan-400/10 text-cyan-100 border border-cyan-400/20"
                     : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
                 }`}
               >
@@ -64,7 +63,7 @@ export default function Navbar() {
         </div>
 
         {/* Network Badge */}
-        <div className="flex items-center gap-2">
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-green-500/20 bg-green-500/5">
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             <span className="text-[10px] font-mono text-green-400/80">
