@@ -27,10 +27,8 @@ import { createPublicClient, http } from "viem";
 import { mantle } from "viem/chains";
 
 export const dynamic = "force-dynamic";
-// Audit Section 3 weakness #3 fix: was 0 (every request hits Vercel
-// runtime) — now 30s ISR. Combined with s-maxage=30 below this gives
-// the edge a successful payload to serve when Mantle RPC 502s.
-export const revalidate = 30;
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 type OutcomeEntry = {
   recordedAt?: string;
@@ -118,27 +116,22 @@ type CycleFailureRaw = {
   error?: string;
 };
 
-const NO_STORE: HeadersInit = { "Cache-Control": "no-store, max-age=0" };
+const NO_STORE: HeadersInit = {
+  "Cache-Control": "no-store, max-age=0, must-revalidate",
+  "X-Cache-Mode": "no-store",
+};
 
 /**
- * SWR-style cache headers for the health endpoint. The pure no-store
- * variant means a Mantle RPC 502 surfaces immediately as nulls in
- * every request a judge makes. With s-maxage + stale-while-revalidate
- * Vercel's edge keeps the last successful payload for 30s and serves
- * it stale for up to 5min while it re-fetches behind the scenes —
- * which is exactly the failure-mode that the Gemini Pro 3.1 audit
- * flagged (Section 3 weakness #3).
+ * Health is the dashboard's live liveness source. Vercel edge caching
+ * can make the UI show an old cycle as "current", so this endpoint is
+ * deliberately no-store. Resilience still comes from the module-scoped
+ * in-memory snapshot below when the warm function catches a transient
+ * upstream failure.
  *
- * Steering rule §1 still holds: lastCycleAge is computed at request
- * time, so even a cached body shows correct age relative to the
- * client. We also annotate via X-Cache-Mode so callers can verify
- * which mode they got.
+ * Steering rule §1: lastCycleAge is computed at request time and never
+ * served from a shared cache.
  */
-const SWR_CACHE: HeadersInit = {
-  "Cache-Control":
-    "public, s-maxage=30, stale-while-revalidate=300",
-  "X-Cache-Mode": "swr",
-};
+const HEALTH_CACHE: HeadersInit = NO_STORE;
 
 /**
  * Module-scoped snapshot of the last fully-successful response.
@@ -306,8 +299,8 @@ async function getGasRunway(): Promise<GasRunway> {
 // Fetch JSON from GitHub raw (works on Vercel where local files aren't available)
 async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
   try {
-    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
-    const res = await fetch(url, { next: { revalidate: 30 } }); // Cache for 30 seconds
+    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}?t=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     return await res.json() as T;
   } catch {
@@ -483,26 +476,24 @@ export async function GET(): Promise<NextResponse> {
       gasRunway,
     };
 
-    // Audit Section 3 weakness #3 fix: cache the successful payload
-    // in module scope so a later 502 from Mantle RPC / GitHub raw can
-    // be served from the snapshot rather than as nulls. We strip the
-    // age field since it must be re-derived from Date.now() each
-    // request to stay honest (steering rule §1).
+    // Cache the successful payload in module scope so a later transient
+    // Mantle RPC / GitHub raw failure can be served from the warm
+    // function snapshot rather than as nulls. We strip the age field
+    // since it must be re-derived from Date.now() each request.
     const { lastCycleAge: _ignoredAge, ...snapshotForReuse } = body;
     void _ignoredAge;
     lastOkSnapshot = snapshotForReuse as HealthResponse;
 
-    return NextResponse.json(body, { headers: SWR_CACHE });
+    return NextResponse.json(body, { headers: HEALTH_CACHE });
   } catch (err: unknown) {
     // Last-resort degradation. Anything reaching here is a bug,
     // but we still want HTTP 200 so the frontend mascot can render Offline.
     const errorMessage =
       err instanceof Error ? err.message.slice(0, 120) : "unknown error";
 
-    // SWR fallback: if we have a recent successful snapshot, serve it
-    // with the staleness flag set so the frontend can show "stale"
-    // copy honestly. Steering rule §1 — re-derive lastCycleAge from
-    // the snapshot's lastCycleTimestamp so it doesn't lie about freshness.
+    // If we have a recent successful snapshot, serve it with a degraded
+    // flag set so the frontend can show stale copy honestly. Steering
+    // rule §1: re-derive lastCycleAge from the snapshot timestamp.
     if (lastOkSnapshot && lastOkSnapshot.lastCycleTimestamp) {
       const recomputedAge = Math.max(
         0,
@@ -521,8 +512,8 @@ export async function GET(): Promise<NextResponse> {
       };
       return NextResponse.json(fallbackBody, {
         headers: {
-          ...SWR_CACHE,
-          "X-Cache-Mode": "swr-stale-snapshot",
+          ...HEALTH_CACHE,
+          "X-Cache-Mode": "no-store-snapshot",
         },
       });
     }

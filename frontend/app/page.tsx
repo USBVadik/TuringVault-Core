@@ -287,9 +287,9 @@ export default function Home() {
       clearInterval(id);
     };
   }, []);
-  // Cron runs every hour ('0 * * * *'). Allow 5 min buffer for the cycle
-  // duration (~1 min) plus GH Actions queueing variance. Anything older
-  // than 65 min is genuinely missed, not just "between cycles".
+  // GitHub Actions cron has two slots per hour (:17 and :47 UTC). Keep a
+  // conservative 65 min threshold so one delayed/skipped slot doesn't
+  // produce a false alarm, but two missed slots do.
   const STALE_THRESHOLD_S = 65 * 60;
   const isStale = health?.lastCycleAge != null && health.lastCycleAge > STALE_THRESHOLD_S;
 
