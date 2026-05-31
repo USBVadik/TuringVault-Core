@@ -183,7 +183,14 @@ REGIME-BASED LOGIC:
     * If MNT grid signal = BUY_mETH → propose swap to MNT (target=MNT)
     * If ETH grid signal = SELL_mETH → propose swap to mUSD (take profit)
     * If MNT grid signal = SELL_mETH → propose swap to mUSD (take profit)
-    * If grid signal = EXIT_RANGING → do NOT use grid logic, switch to trend regime
+    * If grid signal = EXIT_RANGING → do NOT use grid logic; read the
+      Breakout direction / Regime hint line:
+        - If price broke above resistance or Regime hint = TREND_UP, this is
+          an upward breakout. Consider small risk_on or HOLD; do NOT call it
+          bearish breakdown unless funding/flow strongly confirms risk_off.
+        - If price broke below support or Regime hint = TREND_DOWN, risk_off
+          may be justified.
+        - If direction is UNKNOWN, HOLD until breakout direction confirms.
     * If both grids = HOLD → wait, neither price near edge
     * RANGING is NOT a reason to do nothing — pick the asset with the edge
 - CRISIS: Defensive → mUSD unless funding is extreme negative (short squeeze setup)
@@ -235,6 +242,15 @@ automatically route USDT0 → USDT → WMNT → mETH (3 legs on MerchantMoe).
 Do NOT skip risk_on opportunities because the wallet "isn't holding ETH" —
 USDT0 is the source-of-funds for any mETH purchase. Equally, when
 proposing risk_off, the orchestrator routes WMNT → USDT → USDT0.
+
+PORTFOLIO INVENTORY RULE:
+You will receive a LIVE PORTFOLIO block in the user prompt. If it says
+    the wallet is stable-heavy and position state is FLAT, do not propose repeated risk_off
+    just to sell native MNT, gas reserve, or tiny residual
+risk. In that case risk_off should become HOLD unless CRISIS/TREND_DOWN
+is explicitly confirmed. Stable-heavy is not a reason to stay permanently
+flat: if grid/funding/flow provide a buy edge, risk_on is allowed and the
+USDT0 reserve is the source of funds.
 
 CRITICAL CONSISTENCY RULE:
 Your "action" and "targetAsset" MUST be logically consistent with your "reasoning" and "direction".
@@ -309,6 +325,11 @@ VALIDATION CHECKLIST (ALL must pass for APPROVE):
 REJECTION TRIGGERS (any ONE of these = automatic REJECT):
 - R:R ratio below 1.5:1
 - Directional SWAP proposed in RANGING regime without grid signal confirmation
+- Analyst treats an upward EXIT_RANGING breakout (broke above resistance /
+  Regime hint TREND_UP) as a bearish breakdown without strong bearish
+  funding/flow confirmation
+- Repeated risk_off while the LIVE PORTFOLIO block says stable-heavy and
+  FLAT, unless CRISIS/TREND_DOWN is explicitly confirmed
 - Analyst confidence not backed by at least 2 confirming signals
 - Position size > 40% in unclear regime
 - Contradictory signals without explicit acknowledgment
@@ -702,8 +723,10 @@ async function getMultiAgentDecision(marketData) {
     }))
     .slice(0, 10);
 
-  // Use rich promptContext from unifiedMarketData if available, else build basic prompt
-  const marketPrompt =
+  // Use rich promptContext from unifiedMarketData if available, else build basic prompt.
+  // Portfolio context is appended after the truncation boundary so the
+  // live wallet posture never gets cut off by long Nansen/TA text.
+  const baseMarketPrompt =
     sanitizeExternalText(marketData.promptContext, 4000) ||
     `Current market data (${new Date().toISOString()}):
 - ETH Price: $${md.ethPrice} (24h change: ${md.ethChange24h.toFixed(2)}%)
@@ -719,6 +742,13 @@ async function getMultiAgentDecision(marketData) {
     }
 - Mantle TVL: $${((md.mantleTVL || 0) / 1e6).toFixed(0)}M
 - Pool Liquidity (mETH/mUSD): sufficient for <$50k swaps`;
+  const portfolioPrompt = sanitizeExternalText(
+    marketData.portfolioContext,
+    1200
+  );
+  const marketPrompt = portfolioPrompt
+    ? `${baseMarketPrompt}\n\n${portfolioPrompt}`
+    : baseMarketPrompt;
 
   // STEP 1: Analyst proposes (T7: evolved prompt gate)
   // The evolved-prompt path was previously bypassed unconditionally because
@@ -813,7 +843,11 @@ ${
         100
       ).toFixed(0)}% | confidence=${(
         marketData.structuredSignals.signals.ranging.confidence * 100
-      ).toFixed(0)}%`
+      ).toFixed(0)}%${
+        marketData.structuredSignals.signals.ranging.breakoutDirection
+          ? ` | breakoutDirection=${marketData.structuredSignals.signals.ranging.breakoutDirection} | regimeHint=${marketData.structuredSignals.signals.ranging.regimeHint}`
+          : ""
+      }`
     : ""
 }`
     : "";

@@ -146,6 +146,9 @@ function record(params) {
     "validatorFlaggedIssues",
     "arbiterVote",
     "arbiterReasoning",
+    // Deterministic inventory/portfolio veto or allow decision from
+    // multiAgentLoop Step 1.7/Step 2. Null when no swap reached it.
+    "portfolioGuard",
     // directionalSwap is the {executed, txHash, from, to, amountIn,
     // amountOut, reason?} object emitted by multiAgentLoop Step 4.7.
     // Without this entry the field was silently dropped on persist

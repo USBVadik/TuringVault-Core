@@ -308,33 +308,15 @@ async function _getGridSignalImpl(currentPrice, asset) {
     Math.min(1, (price - channel.support) / (channelWidth || 1))
   );
 
-  // Channel breakdown detection
-  if (channel.volatilityExpanding || channel.hasTrend) {
+  const exit = classifyChannelExit(price, channel);
+  if (exit.shouldExit) {
     return {
       action: "EXIT_RANGING",
-      reason: `Channel breaking down. Volatility expanding: ${channel.volatilityExpanding}, trend forming: ${channel.hasTrend}`,
+      reason: exit.reason,
       channel,
-      confidence: 0.7,
-    };
-  }
-
-  // Price above resistance = breakout
-  if (price > channel.resistance * 1.01) {
-    return {
-      action: "EXIT_RANGING",
-      reason: `Price ${price} broke above resistance ${channel.resistance} — switch to TREND_UP`,
-      channel,
-      confidence: 0.8,
-    };
-  }
-
-  // Price below support = breakdown
-  if (price < channel.support * 0.99) {
-    return {
-      action: "EXIT_RANGING",
-      reason: `Price ${price} broke below support ${channel.support} — switch to TREND_DOWN or CRISIS`,
-      channel,
-      confidence: 0.8,
+      confidence: exit.confidence,
+      breakoutDirection: exit.breakoutDirection,
+      regimeHint: exit.regimeHint,
     };
   }
 
@@ -419,6 +401,57 @@ async function _getGridSignalImpl(currentPrice, asset) {
     channel,
     confidence: 0.5,
   };
+}
+
+function classifyChannelExit(price, channel) {
+  if (
+    !channel ||
+    !price ||
+    price <= 0 ||
+    !channel.support ||
+    !channel.resistance
+  ) {
+    return { shouldExit: false };
+  }
+
+  const volatilityBreak =
+    channel.volatilityExpanding === true || channel.hasTrend === true;
+  const aboveResistance = price > channel.resistance;
+  const belowSupport = price < channel.support;
+  const hardAbove = price > channel.resistance * 1.01;
+  const hardBelow = price < channel.support * 0.99;
+
+  if (hardAbove || (aboveResistance && volatilityBreak)) {
+    return {
+      shouldExit: true,
+      breakoutDirection: "UP",
+      regimeHint: "TREND_UP",
+      confidence: hardAbove ? 0.8 : 0.7,
+      reason: `Price ${price} broke above resistance ${channel.resistance} — upward breakout, switch to TREND_UP or HOLD until confirmed`,
+    };
+  }
+
+  if (hardBelow || (belowSupport && volatilityBreak)) {
+    return {
+      shouldExit: true,
+      breakoutDirection: "DOWN",
+      regimeHint: "TREND_DOWN",
+      confidence: hardBelow ? 0.8 : 0.7,
+      reason: `Price ${price} broke below support ${channel.support} — downward breakdown, switch to TREND_DOWN or CRISIS`,
+    };
+  }
+
+  if (volatilityBreak) {
+    return {
+      shouldExit: true,
+      breakoutDirection: "UNKNOWN",
+      regimeHint: "HOLD",
+      confidence: 0.65,
+      reason: `Volatility expanding/trend forming inside channel. Exit grid logic and HOLD until breakout direction is confirmed. Volatility expanding: ${channel.volatilityExpanding}, trend forming: ${channel.hasTrend}`,
+    };
+  }
+
+  return { shouldExit: false };
 }
 
 /**
@@ -591,6 +624,9 @@ async function buildRangingContext() {
         `  Grid signal: ${sig.action} | Confidence: ${(
           sig.confidence * 100
         ).toFixed(0)}%`,
+        sig.breakoutDirection
+          ? `  Breakout direction: ${sig.breakoutDirection} | Regime hint: ${sig.regimeHint}`
+          : "",
         `  Reasoning: ${sig.reason}`,
         sig.targetExit ? `  Take profit target: $${sig.targetExit}` : "",
         sig.stopLoss ? `  Stop loss: $${sig.stopLoss}` : "",
@@ -622,6 +658,7 @@ module.exports = {
   fetchEthCandles,
   fetchPriceCandles,
   computeGridLevels,
+  classifyChannelExit,
 };
 
 // Self-test

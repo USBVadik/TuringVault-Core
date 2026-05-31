@@ -7,8 +7,9 @@
  *   MNT, WMNT, mETH, USDT (legacy bridged), USDT0 (LayerZero OFT — sponsor
  *   asset for the AI x RWA narrative), mUSD, USDY.
  *
- * Outcome buckets, win rate, cumulative PnL come from src/data/outcomes.json
- * (already migrated to schemaVersion 2 with decisionTier).
+ * Outcome buckets, win rate, and cumulative score come from
+ * src/data/outcomes.json (already migrated to schemaVersion 2 with
+ * decisionTier). These are model outcome scores, not realized wallet PnL.
  *
  * What this endpoint NEVER returns:
  *   - Hardcoded Sharpe, maxDrawdown, recoveryHours, hoursTracked.
@@ -93,7 +94,9 @@ type PerformanceResponse = {
   mntPrice: number | null;
   ethPrice: number | null;
 
-  // Derived from outcomes.json (lifetime aggregate)
+  // Derived from outcomes.json (lifetime aggregate). `cumulativePnlBps`
+  // is kept as a legacy alias, but its methodology is outcome scoring,
+  // not realized wallet PnL.
   settledCount: number | null;
   winRate: number | null;
   goodCallCount: number;
@@ -101,6 +104,9 @@ type PerformanceResponse = {
   badCallCount: number;
   missedAlphaCount: number;
   cumulativePnlBps: number;
+  outcomeScoreBps: number;
+  realizedTradingPnlBps: null;
+  pnlMethodology: "outcome-score-not-realized-wallet-pnl";
   lastSettlementAt: string | null;
 
   dataScope: "agent-lifetime";
@@ -333,6 +339,9 @@ export async function GET(): Promise<NextResponse> {
     badCallCount,
     missedAlphaCount,
     cumulativePnlBps,
+    outcomeScoreBps: cumulativePnlBps,
+    realizedTradingPnlBps: null,
+    pnlMethodology: "outcome-score-not-realized-wallet-pnl",
     lastSettlementAt,
     dataScope: "agent-lifetime",
     source: {

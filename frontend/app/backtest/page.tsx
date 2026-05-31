@@ -87,10 +87,10 @@ export default function BacktestPage() {
       <div className="max-w-[1200px] mx-auto anim-fade-up">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
           <BarChart3 className="w-7 h-7 text-purple-400" />
-          Live Performance
+          Outcome Score
         </h1>
         <p className="text-white/40 text-sm mb-2">
-          {summary.period} · Real on-chain execution results
+          {summary.period} · decision-quality score, not realized wallet PnL
         </p>
         <p className="text-[10px] text-white/20 mb-8">
           Source: {summary.dataSource}
@@ -99,12 +99,12 @@ export default function BacktestPage() {
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           <StatCard
-            label="Cumulative PnL"
+            label="Outcome Score"
             value={`+${summary.cumulativeBps} bps`}
             color="green"
           />
           <StatCard
-            label="Total Return"
+            label="Score Return"
             value={`+${summary.totalReturn}%`}
             color="green"
           />
@@ -145,7 +145,7 @@ export default function BacktestPage() {
         {/* Equity Curve */}
         <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02] mb-6">
           <h3 className="text-xs font-bold text-white/60 uppercase mb-4">
-            Equity Curve (normalized $100 start · real execution)
+            Score Curve (normalized $100 start)
           </h3>
           <EquityCurveChart equityCurve={equityCurve} maxNav={maxNav} minNav={minNav} />
         </div>
@@ -161,7 +161,7 @@ export default function BacktestPage() {
               <span>ACTION</span>
               <span>ASSET</span>
               <span>PRICE</span>
-              <span>PNL (bps)</span>
+              <span>SCORE (bps)</span>
             </div>
             {trades.map((t: any, i: number) => (
               <div
@@ -190,12 +190,11 @@ export default function BacktestPage() {
         {/* Methodology */}
         <div className="mt-6 p-4 rounded-lg border border-white/[0.04] bg-white/[0.01]">
           <p className="text-[10px] text-white/20 leading-relaxed">
-            <strong className="text-white/30">Data Source:</strong> All results
-            from actual on-chain execution via ValidationRegistry contract. Each
-            decision goes through multi-agent consensus (GLM-5 analyst + Claude
-            Sonnet 4.6 validator), logged to Mantle L1 with IPFS reasoning
-            anchoring. PnL measured at next decision cycle vs entry price. No
-            simulation, no backtesting — pure live performance.
+            <strong className="text-white/30">Data Source:</strong> This page
+            charts outcomeTracker scoring from settled decisions in outcomes.json.
+            It is useful for model-quality review, but it is not realized wallet
+            PnL. DEX execution truth lives on each decision row via executedOnChain,
+            directionalSwap, and transaction hashes.
           </p>
         </div>
       </div>
@@ -334,10 +333,10 @@ function EquityCurveChart({
           }}
         >
           <div className="text-white/80">
-            NAV: <span className="text-green-400">${hoverPoint.nav?.toFixed(2)}</span>
+            Score NAV: <span className="text-green-400">${hoverPoint.nav?.toFixed(2)}</span>
           </div>
           <div className="text-white/50">
-            PnL: <span className={Number(pnlFromStart) >= 0 ? "text-green-400" : "text-red-400"}>
+            Score: <span className={Number(pnlFromStart) >= 0 ? "text-green-400" : "text-red-400"}>
               {Number(pnlFromStart) >= 0 ? "+" : ""}{pnlFromStart} bps
             </span>
           </div>

@@ -123,6 +123,18 @@ describe("classifyDecisionTier", () => {
     ).toBe(TIERS.BLOCKED_BY_VALIDATOR);
   });
 
+  test("portfolio guard veto → BLOCKED_BY_PORTFOLIO", () => {
+    expect(
+      classifyDecisionTier(
+        decision({
+          _portfolioGuardBlocked: true,
+          _portfolioGuardReason: "stable-heavy wallet",
+        }),
+        market("RANGING")
+      )
+    ).toBe(TIERS.BLOCKED_BY_PORTFOLIO);
+  });
+
   // ── Executed swap ────────────────────────────────────────────────
   test("all green + consensus + swap → EXECUTED_SWAP", () => {
     expect(classifyDecisionTier(decision(), market("TREND_UP"))).toBe(

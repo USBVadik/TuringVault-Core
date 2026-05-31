@@ -9,6 +9,7 @@ const {
   normalizeAnalystResponse,
   normalizeValidatorResponse,
   getDynamicConfidenceThreshold,
+  ANALYST_SYSTEM_PROMPT,
 } = require("../../src/orchestrator/multiAgent");
 const { DEFAULT_CONFIDENCE_FALLBACK } = require("../../src/config/constants");
 
@@ -375,6 +376,19 @@ describe("normalizeAnalystResponse", () => {
       expect(result.allocationPct).toBe(25);
       expect(result.reasoning).toBe("Funding rate extremely negative");
     });
+  });
+});
+
+describe("multi-agent prompt guardrails", () => {
+  test("analyst prompt distinguishes upward EXIT_RANGING from bearish breakdown", () => {
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/EXIT_RANGING/i);
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/broke above resistance/i);
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/TREND_UP/i);
+  });
+
+  test("analyst prompt requires portfolio-aware risk-off restraint", () => {
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/stable-heavy/i);
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/do not propose repeated risk_off/i);
   });
 });
 

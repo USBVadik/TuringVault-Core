@@ -16,7 +16,8 @@ async function fetchOutcomes(): Promise<any> {
   }
 }
 
-// Real performance data from on-chain settled outcomes
+// Outcome-score curve from settled outcomes. pnlBps is a reputation /
+// decision-quality score written by outcomeTracker, not realized wallet PnL.
 export async function GET() {
   const outcomes = await fetchOutcomes();
   
@@ -31,7 +32,7 @@ export async function GET() {
     (a.recordedAt || "").localeCompare(b.recordedAt || "")
   );
 
-  // Build real equity curve from settled PnL
+  // Build normalized score curve from settled outcome scores.
   const initialNav = 100; // $100 normalized starting capital
   const equityCurve: {
     idx: number;
@@ -101,8 +102,11 @@ export async function GET() {
         settled.length > 0 ? Math.round(cumulativeBps / settled.length) : 0,
       period: `${settled.length} settled decisions`,
       pendingCount,
-      dataSource: "on-chain (ValidationRegistry + IPFS outcomes)",
-      note: "Real execution results, not backtested simulation",
+      dataSource: "src/data/outcomes.json settled outcome scores",
+      note:
+        "Decision outcome score, not realized wallet PnL or a backtested trading equity curve",
+      scoreMethodology:
+        "cumulativeBps = sum(outcomes.settled[].pnlBps); includes GOOD_CALL/CORRECT_BLOCK/BAD_CALL/MISSED_ALPHA scoring even when no DEX swap executed",
     },
     equityCurve,
     trades: trades.slice(-20), // most recent 20

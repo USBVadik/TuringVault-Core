@@ -292,6 +292,9 @@ async function getUnifiedMarketContext() {
     promptContext: context,
     ethPrice: eth.ethPrice || 0,
     ethChange24h: eth.ethChange24h || 0,
+    mntPrice: eth.mntPrice || 0,
+    mntChange24h: eth.mntChange24h || 0,
+    mantleTVL: mantleTvl.tvl || 0,
     fearGreedValue: fearGreed.value || 50,
     fearGreedClass: fearGreed.classification || "Neutral",
     // Provenance for downstream consumers (outcomes ledger, dashboards).

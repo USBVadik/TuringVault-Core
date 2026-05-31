@@ -34,6 +34,13 @@ const { getUnifiedMarketContext } = require("./unifiedMarketData");
 const { getStructuredSignals } = require("./signalEngine");
 const outcomeTracker = require("./outcomeTracker");
 const positionState = require("../strategies/positionState");
+const { readAllBalances } = require("../dex/walletRouter");
+const {
+  assessTradeInventory,
+  formatPortfolioForPrompt,
+  inferTradeDirection,
+  summarizePortfolio,
+} = require("./portfolioGuard");
 
 // Contract ABIs (minimal)
 const REGISTRY_ABI = [
@@ -67,6 +74,38 @@ const VALIDATION_ABI = [
   "function isActionApproved(bytes32 requestHash) view returns (bool approved, uint8 score, bool expired)",
   "function authorizedValidators(address) view returns (bool)",
 ];
+
+function buildPortfolioPrices(market = {}) {
+  const mntPrice = Number(market.mntPrice) || 0.65;
+  const ethPrice = Number(market.ethPrice) || 0;
+  return {
+    MNT: mntPrice,
+    WMNT: mntPrice,
+    mETH: ethPrice,
+    ETH: ethPrice,
+    USDT0: 1,
+    USDT: 1,
+    mUSD: 1,
+  };
+}
+
+function compactPortfolioGuardResult(result) {
+  if (!result) return null;
+  const s = result.summary || {};
+  return {
+    allowed: result.allowed === true,
+    direction: result.direction || null,
+    reason: result.reason || null,
+    summary: {
+      stableUsd: s.stableUsd ?? null,
+      tradableRiskUsd: s.tradableRiskUsd ?? null,
+      nativeMnt: s.nativeMnt ?? null,
+      stableShare: s.stableShare ?? null,
+      riskShare: s.riskShare ?? null,
+      stableHeavy: s.stableHeavy === true,
+    },
+  };
+}
 
 async function runMultiAgentCycle(opts = {}) {
   const dryRun = opts.dryRun === true;
@@ -209,6 +248,33 @@ async function runMultiAgentCycle(opts = {}) {
     } signals | TVL: $${((market.mantleTVL || 0) / 1e6).toFixed(0)}M\n`
   );
 
+  // Step 1.7: Live portfolio context. The LLMs must know whether the
+  // wallet is already stable-heavy before they validate another risk-off
+  // idea, and the deterministic guard below reuses the same snapshot.
+  let portfolioBalances = null;
+  let portfolioGuardResult = null;
+  const portfolioPrices = buildPortfolioPrices(market);
+  try {
+    portfolioBalances = await readAllBalances(provider, wallet.address);
+    const portfolioSummary = summarizePortfolio({
+      balances: portfolioBalances,
+      prices: portfolioPrices,
+    });
+    market.portfolioContext = formatPortfolioForPrompt(portfolioSummary);
+    market.portfolioSummary = portfolioSummary;
+    market.walletBalances = portfolioBalances;
+    console.log(
+      `   Portfolio: stable $${portfolioSummary.stableUsd.toFixed(2)} ` +
+        `(${(portfolioSummary.stableShare * 100).toFixed(1)}%) | ` +
+        `tradable risk $${portfolioSummary.tradableRiskUsd.toFixed(2)} | ` +
+        `native ${portfolioSummary.nativeMnt.toFixed(4)} MNT`
+    );
+  } catch (portfolioErr) {
+    console.log(
+      `   ⚠️  Portfolio context unavailable: ${portfolioErr.message?.slice(0, 80)}`
+    );
+  }
+
   // Step 2: Multi-agent decision
   console.log("🧠 [STEP 2] Multi-agent consensus process...");
   const decision = await getMultiAgentDecision(market);
@@ -234,6 +300,41 @@ async function runMultiAgentCycle(opts = {}) {
   // by setting decision._heartbeatTier; we re-classify after Step 4.8
   // for the outcomes ledger.
   const { classifyDecisionTier } = require("./decisionTier");
+
+  if (
+    decision.consensus &&
+    decision.analyst?.action === "swap" &&
+    portfolioBalances
+  ) {
+    const direction = inferTradeDirection(decision.analyst?.targetAsset);
+    if (direction) {
+      portfolioGuardResult = assessTradeInventory({
+        direction,
+        targetAsset: decision.analyst?.targetAsset,
+        balances: portfolioBalances,
+        prices: portfolioPrices,
+        regime: market.structuredSignals?.regime?.regime,
+        positionState: positionState.getState(),
+      });
+      decision._portfolioGuard = compactPortfolioGuardResult(
+        portfolioGuardResult
+      );
+      decision._portfolioSummary = portfolioGuardResult.summary;
+      if (!portfolioGuardResult.allowed) {
+        decision._portfolioGuardBlocked = true;
+        decision._portfolioGuardReason = portfolioGuardResult.reason;
+        decision._originalConsensusBeforePortfolioGuard = decision.consensus;
+        decision._originalActionBeforePortfolioGuard = decision.action;
+        decision.consensus = false;
+        decision.action = "hold";
+        decision.reason = `Blocked by portfolio guard: ${portfolioGuardResult.reason}`;
+        console.log(`   [PORTFOLIO] VETO: ${portfolioGuardResult.reason}`);
+      } else {
+        console.log(`   [PORTFOLIO] OK: ${portfolioGuardResult.reason}`);
+      }
+    }
+  }
+
   let decisionTier = classifyDecisionTier(decision, market);
   console.log(`   TIER: ${decisionTier}`);
 
@@ -263,6 +364,7 @@ async function runMultiAgentCycle(opts = {}) {
       consensus: decision.consensus,
       proposalId: null,
       market,
+      portfolioGuard: compactPortfolioGuardResult(portfolioGuardResult),
       _dryRun: true,
     };
   }
@@ -284,8 +386,12 @@ async function runMultiAgentCycle(opts = {}) {
     asset: decision.analyst?.targetAsset,
     confidence: decision.analyst?.confidence,
     analystReasoning: decision.analyst?.reasoning?.substring(0, 200),
-    validatorApproved: decision.validator?.approved,
+    validatorApproved:
+      decision._portfolioGuardBlocked === true
+        ? false
+        : decision.validator?.approved,
     validatorConfidence: decision.validator?.validatorConfidence,
+    portfolioGuard: decision._portfolioGuard || null,
     ipfsCID: ipfsResult.cid,
     timestamp: Date.now(),
   });
@@ -352,13 +458,23 @@ async function runMultiAgentCycle(opts = {}) {
   const validatorConfBps = Math.round(
     (decision.validator?.validatorConfidence || 0) * 10000
   );
-  const riskScore = decision.validator?.riskScore || 100;
+  const portfolioGuardBlocked = decision._portfolioGuardBlocked === true;
+  const riskScore = portfolioGuardBlocked
+    ? 100
+    : decision.validator?.riskScore || 100;
+  const registryValidatorApproved =
+    (decision.validator?.approved || false) && !portfolioGuardBlocked;
+  const validatorReasoningText = portfolioGuardBlocked
+    ? `[PORTFOLIO_GUARD] ${decision._portfolioGuardReason || "blocked"} | ${
+        decision.validator?.reasoning || ""
+      }`
+    : decision.validator?.reasoning || "no reasoning";
   const tx2 = await registry.validateProposal(
     proposalId,
     validatorConfBps,
     riskScore * 100, // scale to bps
-    decision.validator?.reasoning?.substring(0, 200) || "no reasoning",
-    decision.validator?.approved || false,
+    validatorReasoningText.substring(0, 200),
+    registryValidatorApproved,
     { nonce: currentNonce + 1 }
   );
   const receipt2 = await tx2.wait();
@@ -371,7 +487,7 @@ async function runMultiAgentCycle(opts = {}) {
   const reasoningText = `${tierTag} Analyst: ${
     decision.analyst?.reasoning?.substring(0, 60) || ""
   } | Validator: ${
-    decision.validator?.approved ? "APPROVED" : "REJECTED"
+    registryValidatorApproved ? "APPROVED" : "REJECTED"
   } (risk=${riskScore})`.substring(0, 200);
 
   // Reproducible AI: bind the on-chain decision row to BOTH the IPFS
@@ -1289,6 +1405,9 @@ async function runMultiAgentCycle(opts = {}) {
       arbiterReasoning: decision.arbiter?.reasoning?.substring(0, 400) || null,
       // RWA: rwa-allocation-active T8/T9.
       rwaIntent: rwaIntent || null,
+      // Deterministic live-inventory guard. Null when no swap proposal
+      // reached this gate; populated for both allowed and blocked swaps.
+      portfolioGuard: compactPortfolioGuardResult(portfolioGuardResult),
       // Directional swap execution result
       directionalSwap: directionalSwapResult || null,
       // Reproducible AI on-chain anchor (audit 18). manifestHash is the
@@ -1344,7 +1463,12 @@ async function runMultiAgentCycle(opts = {}) {
   // Step 6.5: Update position state for RANGING grid memory
   try {
     const rangingSignal = market.structuredSignals?.signals?.ranging;
-    if (decision.consensus && decision.action === "swap") {
+    const alphaSwapExecuted =
+      directionalSwapResult?.executed === true &&
+      directionalSwapResult?.tier !== "HEARTBEAT_SWAP" &&
+      Array.isArray(directionalSwapResult?.legs) &&
+      directionalSwapResult.legs.some((l) => l && l.txHash);
+    if (decision.consensus && decision.action === "swap" && alphaSwapExecuted) {
       const targetAsset = decision.analyst?.targetAsset;
       const overrideReason = rangingSignal?.overrideReason;
 
@@ -1376,6 +1500,10 @@ async function runMultiAgentCycle(opts = {}) {
           console.log(`   💰 Route: ${parkSignal.route}`);
         }
       }
+    } else if (decision.consensus && decision.action === "swap") {
+      console.log(
+        `   📍 Position state unchanged: swap intent had no alpha DEX execution`
+      );
     } else if (!decision.consensus) {
       // No action — still tick the cycle if we're in a position
       const state = positionState.getState();
@@ -1613,6 +1741,7 @@ async function runMultiAgentCycle(opts = {}) {
       typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
     rwaIntent: rwaIntent || null,
     rwaResult: rwaResult || null,
+    portfolioGuard: compactPortfolioGuardResult(portfolioGuardResult),
     directionalSwap: directionalSwapResult || null,
   };
 }

@@ -596,7 +596,7 @@ export default function Home() {
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="w-4 h-4 text-purple-400" />
             <h2 className="text-xs font-bold text-white/60 uppercase tracking-[0.2em]">
-              Agent Performance · Lifetime aggregate (agentId=0)
+              Agent Performance · Lifetime outcome score (agentId=0)
             </h2>
             <span className="ml-auto text-[10px] font-mono text-green-300/40">
               on-chain + outcomes.json
@@ -652,7 +652,7 @@ export default function Home() {
             </div>
             <div
               className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
-              title="Sum of pnlBps across settled[] (basis points)"
+              title="Sum of outcomeTracker pnlBps across settled[]; model-quality score, not realized wallet PnL"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
@@ -671,7 +671,7 @@ export default function Home() {
                   : "—"}
               </div>
               <div className="text-[9px] text-white/30 mt-1 uppercase">
-                Cumulative PnL
+                Outcome Score
               </div>
             </div>
             <div

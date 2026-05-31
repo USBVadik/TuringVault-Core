@@ -32,6 +32,7 @@ const TIERS = Object.freeze({
   BLOCKED_BY_LOW_CONFIDENCE: "BLOCKED_BY_LOW_CONFIDENCE",
   BLOCKED_BY_REGIME: "BLOCKED_BY_REGIME",
   BLOCKED_BY_PARSE_FAILURE: "BLOCKED_BY_PARSE_FAILURE",
+  BLOCKED_BY_PORTFOLIO: "BLOCKED_BY_PORTFOLIO",
   // Submission-window heartbeat: deliberate, micro-sized, alternating
   // swap injected by Path C heartbeat mode after a long passive run.
   // Always honest — never aggregated into "real" alpha metrics.
@@ -85,6 +86,14 @@ function classifyDecisionTier(decision, market) {
   // 4. Validator veto — validator rejected the proposal.
   if (safeDecision.validator.approved !== true) {
     return TIERS.BLOCKED_BY_VALIDATOR;
+  }
+
+  // 4.5. Deterministic inventory/portfolio veto. Models approved the
+  // proposal, but live wallet state made execution unsafe or
+  // nonsensical, such as repeated risk-off while already stable-heavy
+  // and FLAT. This must beat EXECUTED_SWAP on user-facing surfaces.
+  if (safeDecision._portfolioGuardBlocked === true) {
+    return TIERS.BLOCKED_BY_PORTFOLIO;
   }
 
   // 5. Consensus reached and action is a swap → executed.

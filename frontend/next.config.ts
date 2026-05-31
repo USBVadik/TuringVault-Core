@@ -41,6 +41,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["*"],
+  turbopack: {
+    root: process.cwd(),
+  },
   async headers() {
     return [
       {
