@@ -5314,6 +5314,73 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780226596122_192",
+      "decisionId": 192,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 2018.46,
+      "settlementAsset": "mETH",
+      "priceAssetAtDecision": "mETH",
+      "ipfsCid": "QmT46gG1j64QvqBovAYSx6cENAme6w2vHhGXctKVZu6MXV",
+      "recordedAt": "2026-05-31T11:23:16.122Z",
+      "settleAfter": "2026-05-31T12:23:16.122Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780226596119
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction — no directional trade is warranted. Portfolio is 90% stable/FLAT, satisfying the inventory rule that favors HOLD over repeated risk_off absent CRISIS/TREND_DOWN confirmation. RSI 45.6 is not oversold, funding 0.606% is mild, smart money flow neutral. Bearish consensus noted but insufficient",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH but no single trigger crosses rejection threshold",
+        "Yield spread -1% mildly bearish but not actionable alone",
+        "Volatility expanding in ETH channel — whipsaw risk if premature entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "directionalSwap": null,
+      "manifestHash": "0x3c2e2f9159a9f71b98ae38253fcf858099f77ef01466141470afe46a765b5358",
+      "combinedAnchor": "0xb2fcf1a37723b71bb396f888951b0cc6fe811783f22741ff100d452b10b26eb2",
+      "decisionLogTxHash": "0x124ba37779350e4cd1e7433b51baad4101877ec7b41d855f00a7aa7dd8191778",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
