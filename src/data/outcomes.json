@@ -5946,6 +5946,82 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1780260263889_202",
+      "decisionId": 202,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 2000.66,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmNzngoewLaUwjH9qSRG11JDvYyaNzaybeBQGxWvm5j1ou",
+      "recordedAt": "2026-05-31T20:44:23.889Z",
+      "settleAfter": "2026-05-31T21:44:23.889Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780260263885
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid explicitly fired EXIT_RANGING with 70% confidence, downward breakdown below $2005.2 support, regime hint TREND_DOWN. This satisfies the CRISIS/TREND_DOWN exception to the stable-heavy HOLD rule. Defensive rotation from mETH ($11.97) to mUSD is proportionate. Signal consensus BEARISH, yield spread -1% BEARISH, and EMA bearish all confirm. RSI 36.4 rising is a minor contra-signal but insuff",
+      "validatorFlaggedIssues": [
+        "RSI 36.4 rising — oversold bounce risk if $2005 reclaims as support",
+        "Funding 0.575% mild long bias is a weak contra-signal to bearish thesis",
+        "RANGING regime confidence only 55% — TREND_DOWN not yet fully confirmed",
+        "Small $11.97 position limits strategic impact of this rotation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "stable-heavy wallet (87.5% stables, $106.37 stable vs $15.15 tradable risk); refusing repeated risk-off while FLAT",
+        "summary": {
+          "stableUsd": 106.373384,
+          "tradableRiskUsd": 15.152749606870728,
+          "nativeMnt": 19.316048358317268,
+          "stableShare": 0.8753128306057287,
+          "riskShare": 0.12468716939427123,
+          "stableHeavy": true
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf42155a64bf092ac6c5e7b79e6fbf5ce3c430ad9eae466670d4dfa60d5124b03",
+      "combinedAnchor": "0x32ba725469b4eceedac0e5429b6c7f4ad298ac19d3a39a09e041cc36625a7325",
+      "decisionLogTxHash": "0x5a0a209ad453cba9be8554fc6d8eaea960be7cc91d2060c71fdeb39aebd028b5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
