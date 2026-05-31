@@ -5160,6 +5160,70 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780220336034_190",
+      "decisionId": 190,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 2023.77,
+      "ipfsCid": "QmbSrZRGvZ2A99U9aTP7fg257Pb2rygPJKZEDrff5GTTgN",
+      "recordedAt": "2026-05-31T09:38:56.034Z",
+      "settleAfter": "2026-05-31T10:38:56.034Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780220336031
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies stable-heavy posture (90% stable, FLAT) and applies inventory rule: no repeated risk_off without CRISIS/TREND_DOWN confirmation. SELL_mETH grid signal is valid but mETH position is only $12.11 — negligible trim value. MNT EXIT_RANGING with UNKNOWN breakout direction correctly defers action. Funding 0.663% neutral, smart money NEUTRAL, RSI 51.2 not oversold. HOLD is app",
+      "validatorFlaggedIssues": [
+        "mETH $12.11 residual could technically be trimmed per SELL_mETH grid signal at 77% channel — analyst chose to defer, acceptable given size",
+        "Fear & Greed 28 not yet at contrarian trigger threshold (RSI 51.2 vs required <30)",
+        "MNT trend forming but breakout direction unconfirmed — correct to hold"
+      ],
+      "arbiterVote": "approve",
+      "arbiterReasoning": "Holding mETH is highly appropriate given the existing 90% stablecoin allocation, a negligible mETH position of $12.11, and the lack of a clear directional breakout signal in a neutral market regime.",
+      "portfolioGuard": null,
+      "directionalSwap": null,
+      "manifestHash": "0xf1297fccfb3360d240c1614b40dd8e9c72d0a63071ea58801d8d30aa80746e13",
+      "combinedAnchor": "0xd4d321d3db23c7f60b4af522c75a7dd29dba169e83ba5e2d3a741e1a67449b1d",
+      "decisionLogTxHash": "0xb430d308908a88dcac8ec32e0399d1f6e0251f0429bb62c275baa95342daab84",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
