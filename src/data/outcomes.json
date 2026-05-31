@@ -5605,6 +5605,100 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780246132342_198",
+      "decisionId": 198,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.5,
+      "priceAtDecision": 1997.63,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmXQ9pV6PEWsSAtxB8RdhczVdwDExjMneY346sMM2TbRgB",
+      "recordedAt": "2026-05-31T16:48:52.343Z",
+      "settleAfter": "2026-05-31T17:48:52.343Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780246132339
+      },
+      "decisionTier": "HEARTBEAT_SWAP",
+      "tierSource": "live",
+      "confidencePath": "unknown",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": null,
+      "validatorFlaggedIssues": [],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 0.8,
+        "amountUsd": 0.8,
+        "tier": "HEARTBEAT_SWAP",
+        "rationale": "Heartbeat micro-swap to maintain on-chain liveness during a passive window. NOT alpha-seeking. Quiet cycles: 7. Direction: risk-on. Cap: $0.80.",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0x76ea0d31abffa77d907b716340e7f58cc608c1c503d3b5773e3cc7e0e148cec8",
+            "blockNumber": 96057903,
+            "amountIn": 0.8,
+            "amountOut": 0.800079
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0xb7e9ff86bd007702c5846929d1dfbb8c17d8118b4621fde356a4a880c5cac32b",
+            "blockNumber": 96057909,
+            "amountIn": 2.2455002520000003,
+            "amountOut": 3.363126876654172
+          }
+        ],
+        "txHash": "0xb7e9ff86bd007702c5846929d1dfbb8c17d8118b4621fde356a4a880c5cac32b"
+      },
+      "manifestHash": "0x38684afd86aa1f156af9b00a59465cea1ad86554bd3c620538c32690cb0387c2",
+      "combinedAnchor": "0x734be8b80ab5fdc1313f3a4008a43332ec940d157b54c962b7af2db17f93c634",
+      "decisionLogTxHash": "0x2b0273207e554c3bebffd221525efe1b423fe072a21a9561e38bde21ee3649e4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HEARTBEAT_SWAP"
     }
   ],
   "settled": [
