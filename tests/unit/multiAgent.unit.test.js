@@ -229,6 +229,27 @@ describe("normalizeAnalystResponse", () => {
     });
   });
 
+  describe("sourceAsset normalization", () => {
+    it("should normalize snake_case source asset aliases", () => {
+      const result = normalizeAnalystResponse({
+        action: "swap",
+        confidence: 0.8,
+        targetAsset: "mUSD",
+        source_asset: "wrapped mnt",
+      });
+      expect(result.sourceAsset).toBe("WMNT");
+    });
+
+    it("should default sourceAsset to null when no source is provided", () => {
+      const result = normalizeAnalystResponse({
+        action: "swap",
+        confidence: 0.8,
+        targetAsset: "mETH",
+      });
+      expect(result.sourceAsset).toBeNull();
+    });
+  });
+
   describe("allocationPct normalization", () => {
     it("should pass through valid allocation", () => {
       const result = normalizeAnalystResponse({
@@ -390,6 +411,11 @@ describe("multi-agent prompt guardrails", () => {
   test("analyst prompt requires portfolio-aware risk-off restraint", () => {
     expect(ANALYST_SYSTEM_PROMPT).toMatch(/stable-heavy/i);
     expect(ANALYST_SYSTEM_PROMPT).toMatch(/do not propose repeated risk_off/i);
+  });
+
+  test("analyst prompt requires explicit risk-off source asset", () => {
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/sourceAsset="mETH"/);
+    expect(ANALYST_SYSTEM_PROMPT).toMatch(/sourceAsset="WMNT"/);
   });
 });
 

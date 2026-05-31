@@ -193,6 +193,10 @@ const AnalystSchema = z.object({
   action: z.enum(["swap", "hold", "rwa_allocate", "rwa_exit"]),
   direction: z.enum(["risk_on", "risk_off", "neutral"]),
   targetAsset: z.enum(["mUSD", "mETH", "USDT", "USDT0", "MNT", "WMNT"]),
+  sourceAsset: z
+    .enum(["mUSD", "mETH", "WETH", "USDT", "USDT0", "MNT", "WMNT"])
+    .nullable()
+    .optional(),
   allocationPct: z.number().min(0).max(100),
   confidence: z.number().min(0).max(1),
   reasoning: z.string().max(1000),
@@ -245,8 +249,8 @@ REGIME-BASED LOGIC:
   Act on whichever signal is actionable:
     * If ETH grid signal = BUY_mETH → propose swap to mETH (3-leg path)
     * If MNT grid signal = BUY_mETH → propose swap to MNT (target=MNT)
-    * If ETH grid signal = SELL_mETH → propose swap to mUSD (take profit)
-    * If MNT grid signal = SELL_mETH → propose swap to mUSD (take profit)
+    * If ETH grid signal = SELL_mETH → propose swap to mUSD (take profit) with sourceAsset="mETH"
+    * If MNT grid signal = SELL_mETH → propose swap to mUSD (take profit) with sourceAsset="WMNT"
     * If grid signal = EXIT_RANGING → do NOT use grid logic; read the
       Breakout direction / Regime hint line:
         - If price broke above resistance or Regime hint = TREND_UP, this is
@@ -320,6 +324,7 @@ CRITICAL CONSISTENCY RULE:
 Your "action" and "targetAsset" MUST be logically consistent with your "reasoning" and "direction".
 - If reasoning is BULLISH (buy the dip, breakout, accumulate) → action MUST be "swap", targetAsset MUST be "mETH", direction MUST be "risk_on"
 - If reasoning is BEARISH (de-risk, correction, overextension) → action MUST be "swap", targetAsset MUST be "mUSD", direction MUST be "risk_off"  
+- If targetAsset is "mUSD" because an ETH grid sell fired, set sourceAsset="mETH"; if it is because an MNT grid sell fired, set sourceAsset="WMNT". If no specific source asset exists, set sourceAsset=null.
 - If reasoning says "wait" or "conflicting signals" → action MUST be "hold", direction MUST be "neutral"
 VIOLATION OF THIS RULE = AUTOMATIC REJECTION BY VALIDATOR. Think step-by-step: first decide your thesis (bullish/bearish/neutral), then set action+target to match.
 
@@ -348,6 +353,7 @@ Output STRICT JSON:
   "action": "swap" | "hold",
   "direction": "risk_on" | "risk_off" | "neutral",
   "targetAsset": "mETH" | "mUSD" | "MNT" | "WMNT",
+  "sourceAsset": "mUSD" | "mETH" | "WETH" | "USDT" | "USDT0" | "MNT" | "WMNT" | null,
   "allocationPct": 0-100,
   "confidence": 0.0-1.0,
   "reasoning": "2-3 sentence explanation referencing specific signals (regime, funding, flows)",
@@ -480,6 +486,31 @@ function normalizeAnalystResponse(raw) {
     if (r.action === "rwa_allocate") r.targetAsset = "USDT0";
     else if (r.action === "rwa_exit") r.targetAsset = "USDT";
     else r.targetAsset = "mUSD";
+  }
+
+  if (r.sourceAsset === undefined && r.source_asset !== undefined)
+    r.sourceAsset = r.source_asset;
+  if (r.sourceAsset === undefined && r.fromAsset !== undefined)
+    r.sourceAsset = r.fromAsset;
+  if (r.sourceAsset === undefined && r.from_asset !== undefined)
+    r.sourceAsset = r.from_asset;
+  if (r.sourceAsset === undefined && r.source !== undefined)
+    r.sourceAsset = r.source;
+  if (r.sourceAsset === "" || r.sourceAsset === "none") r.sourceAsset = null;
+  if (r.sourceAsset) {
+    const s = String(r.sourceAsset)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+    if (s.includes("meth")) r.sourceAsset = "mETH";
+    else if (s === "weth" || s === "eth") r.sourceAsset = "WETH";
+    else if (s === "wmnt" || s.includes("wrappedmnt")) r.sourceAsset = "WMNT";
+    else if (s === "mnt") r.sourceAsset = "MNT";
+    else if (s === "usdt0" || s.includes("usdt0")) r.sourceAsset = "USDT0";
+    else if (s === "usdt") r.sourceAsset = "USDT";
+    else if (s.includes("musd")) r.sourceAsset = "mUSD";
+    else r.sourceAsset = null;
+  } else {
+    r.sourceAsset = null;
   }
 
   // allocationPct
@@ -733,7 +764,8 @@ const FORMAT_GUARD_SUFFIX = `
 You MUST respond with EXACTLY one minified JSON object. No markdown fences.
 No prose before or after. No "Here is my analysis…" preambles.
 Required keys (no extras): action ("swap" | "hold"), direction ("risk_on" | "risk_off" | "neutral"),
-targetAsset ("mUSD" | "mETH" | "MNT" | "WMNT"), allocationPct (number 0..100), confidence (number 0..1),
+targetAsset ("mUSD" | "mETH" | "MNT" | "WMNT"), sourceAsset ("mUSD" | "mETH" | "WETH" | "USDT" | "USDT0" | "MNT" | "WMNT" | null),
+allocationPct (number 0..100), confidence (number 0..1),
 reasoning (string ≤ 1000 chars), riskFactors (string[]).
 The schema is non-negotiable. Output failures are discarded by the parser
 and the agent loses an audit entry on Mantle.`;
@@ -921,6 +953,7 @@ ${
 ANALYST'S PROPOSAL TO VERIFY:
 - Action: ${analystDecision.action}
 - Target: ${analystDecision.targetAsset}
+- Source: ${analystDecision.sourceAsset ?? "n/a"}
 - Allocation: ${analystDecision.allocationPct}%
 - Confidence: ${(analystDecision.confidence * 100).toFixed(0)}%
 - Reasoning: "${analystDecision.reasoning}"
@@ -978,7 +1011,9 @@ Cross-check: does the Analyst's reasoning actually match the raw signals above? 
 
 The ANALYST proposed: ${analystDecision.action} ${
       analystDecision.targetAsset
-    } with ${(analystDecision.confidence * 100).toFixed(0)}% confidence.
+    } from ${analystDecision.sourceAsset ?? "n/a"} with ${(
+      analystDecision.confidence * 100
+    ).toFixed(0)}% confidence.
 Analyst reasoning: "${analystDecision.reasoning}"
 
 The VALIDATOR ${validator.approved ? "APPROVED" : "REJECTED"} with ${(
@@ -1030,7 +1065,7 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
   return {
     consensus,
     reason: consensus
-      ? "Multi-agent consensus (2/3 or 3/3) — executing"
+      ? "Multi-agent consensus with validator safety gates — executing"
       : `Blocked: ${consensusEval.blockReason || "No consensus"}${
           arbiterVote ? ` | Arbiter: ${arbiterVote.vote}` : ""
         }`,

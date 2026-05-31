@@ -91,22 +91,93 @@ function buildPortfolioPrices(market = {}) {
   };
 }
 
+function normalizeSettlementSourceAsset(asset) {
+  const symbol = outcomeTracker.normalizeAssetSymbol(asset);
+  if (["MNT", "WMNT"].includes(symbol)) return "WMNT";
+  if (["mETH", "WETH", "ETH"].includes(symbol)) return "mETH";
+  if (["mUSD", "USDT", "USDT0"].includes(symbol)) return symbol;
+  return null;
+}
+
+function isRiskOffGridSignal(signal = {}) {
+  if (signal?.action === "SELL_mETH") return true;
+  if (signal?.action !== "EXIT_RANGING") return false;
+  const direction = String(signal.breakoutDirection || "").toUpperCase();
+  const regimeHint = String(signal.regimeHint || "").toUpperCase();
+  return (
+    direction.includes("DOWN") ||
+    direction.includes("BELOW") ||
+    regimeHint === "TREND_DOWN"
+  );
+}
+
+function collectRiskOffSourceCandidates(market = {}) {
+  const ranging = market.structuredSignals?.signals?.ranging;
+  const multi = ranging?.multiAsset;
+  if (multi) {
+    const candidates = [];
+    if (isRiskOffGridSignal(multi.ethereum)) candidates.push("mETH");
+    if (isRiskOffGridSignal(multi.mantle)) candidates.push("WMNT");
+    return [...new Set(candidates)];
+  }
+
+  // Legacy single-grid context was ETH/mETH-only. Modern multi-asset
+  // cycles must prove the source explicitly or with a single grid signal.
+  if (isRiskOffGridSignal(ranging)) return ["mETH"];
+  return [];
+}
+
+function inferSettlementSourceAsset({
+  market = {},
+  targetAsset = "mETH",
+  explicitSource = null,
+} = {}) {
+  const normalizedExplicit = normalizeSettlementSourceAsset(explicitSource);
+  if (normalizedExplicit && outcomeTracker.isRiskOnTarget(normalizedExplicit)) {
+    return normalizedExplicit;
+  }
+  if (outcomeTracker.isRiskOnTarget(targetAsset)) return null;
+
+  const candidates = collectRiskOffSourceCandidates(market);
+  if (candidates.length === 1) return candidates[0];
+  if (candidates.length === 0) return "mETH";
+  return null;
+}
+
 function getSettlementSnapshot(
   market = {},
   targetAsset = "mETH",
   sourceAsset = null
 ) {
+  const inferredSource = inferSettlementSourceAsset({
+    market,
+    targetAsset,
+    explicitSource: sourceAsset,
+  });
+  if (!outcomeTracker.isRiskOnTarget(targetAsset) && !inferredSource) {
+    return {
+      settlementAsset: null,
+      priceAtDecision: null,
+      sourceAsset: null,
+      missingPriceReason: "ambiguous-risk-off-source",
+    };
+  }
   const settlementAsset = outcomeTracker.inferSettlementAsset(
     targetAsset,
-    "mETH",
-    sourceAsset
+    "WETH",
+    inferredSource
   );
   const priceAtDecision =
     settlementAsset === "MNT"
       ? Number(market.mntPrice) || null
-      : Number(market.methPrice ?? market.mETHPrice ?? market.ethPrice) ||
+      : Number(market.wethPrice ?? market.ethPrice ?? market.methPrice ?? market.mETHPrice) ||
         null;
-  return { settlementAsset, priceAtDecision };
+  return {
+    settlementAsset,
+    priceAtDecision,
+    sourceAsset: inferredSource,
+    missingPriceReason: priceAtDecision ? null : `missing-${settlementAsset}-price`,
+  };
 }
 
 function compactPortfolioGuardResult(result) {
@@ -1404,18 +1475,25 @@ async function runMultiAgentCycle(opts = {}) {
     const settlementSnapshot = getSettlementSnapshot(
       market,
       outcomeTargetAsset,
-      directionalSwapResult?.from
+      directionalSwapResult?.from || decision.analyst?.sourceAsset || null
     );
 
-    outcomeTracker.record({
+    if (!settlementSnapshot.priceAtDecision) {
+      console.log(
+        `   ⚠️  Outcome record skipped: ${settlementSnapshot.missingPriceReason || "missing benchmark price"}`
+      );
+    } else {
+      outcomeTracker.record({
       decisionId: Number(proposalId),
       action: decision.analyst?.action || "hold",
       targetAsset: outcomeTargetAsset,
       consensus: decision.consensus || false,
       confidence: decision.analyst?.confidence || 0.5,
-      priceAtDecision: settlementSnapshot.priceAtDecision || market.ethPrice,
+      priceAtDecision: settlementSnapshot.priceAtDecision,
       settlementAsset: settlementSnapshot.settlementAsset,
       priceAssetAtDecision: settlementSnapshot.settlementAsset,
+      sourceAsset: settlementSnapshot.sourceAsset,
+      settlementSourceAsset: settlementSnapshot.sourceAsset,
       ipfsCid: ipfsResult.cid,
       disciplineStatus,
       disciplineDetail,
@@ -1458,10 +1536,11 @@ async function runMultiAgentCycle(opts = {}) {
       candleSource: _candleProv,
       candleFromSnapshot: _candleFromSnap,
       candleSnapshotAgeSec: _candleSnapAge,
-    });
-    console.log(
-      `   ✅ Will settle vs ${settlementSnapshot.settlementAsset} in 4h (now: $${settlementSnapshot.priceAtDecision || market.ethPrice})`
-    );
+      });
+      console.log(
+        `   ✅ Will settle vs ${settlementSnapshot.settlementAsset} in 4h (now: $${settlementSnapshot.priceAtDecision})`
+      );
+    }
   } catch (e) {
     console.log(`   ⚠️  Outcome record failed: ${e.message?.slice(0, 60)}`);
   }
@@ -1780,4 +1859,11 @@ if (require.main === module) {
   runMultiAgentCycle().catch(console.error);
 }
 
-module.exports = { runMultiAgentCycle };
+module.exports = {
+  runMultiAgentCycle,
+  _private: {
+    buildPortfolioPrices,
+    inferSettlementSourceAsset,
+    getSettlementSnapshot,
+  },
+};

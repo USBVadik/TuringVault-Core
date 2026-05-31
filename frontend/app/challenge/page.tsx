@@ -287,9 +287,9 @@ export default function ChallengePage() {
                   <span className="text-amber-300/80 font-mono">
                     Arbiter (Gemini 3.5)
                   </span>{" "}
-                  breaks the tie. Their full reasoning is rendered verbatim
-                  below — no post-hoc edit, no &quot;cleaned up&quot;
-                  summary.
+                  resolves soft disputes. A hard Validator veto remains
+                  final. Their full reasoning is rendered verbatim below —
+                  no post-hoc edit, no &quot;cleaned up&quot; summary.
                 </p>
                 <p className="text-[11px] text-white/50 leading-relaxed">
                   When budget allows, every challenge gets{" "}

@@ -42,7 +42,7 @@ The brief lists **three defining features**: (1) on-chain benchmarking of AI, (2
 
 ### AI & RWA Track — Path A (Infrastructure) · PRIMARY
 
-- [x] AI component: three-model adversarial consensus (GLM-5 Analyst → Claude 4.6 Validator → Gemini 3.5 Arbiter) with default-REJECT validator and 2-of-3 consensus rule
+- [x] AI component: three-model adversarial consensus (GLM-5 Analyst → Claude 4.6 Validator → Gemini 3.5 Arbiter) with default-REJECT validator, final hard veto, and arbiter only for soft confidence disputes
 - [x] RWA component: mETH (native ETH staking yield) + USDT0 (LayerZero Treasury-collateralised) + USDY metadata (Ondo Finance)
 - [x] Asset tokenization flow completeness: live first RWA swap on Merchant Moe LB v2.2 — TX `0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de`; ~55-74% NAV currently in tokenized Treasuries
 - [x] Innovation: ERC-8004 reference implementation + Synrail-inspired Discipline Layer (3-gate post-execution proof) + dual-path RWA Allocator (LLM-driven Path A + deterministic idle-parking Path B)

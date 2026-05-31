@@ -7,13 +7,14 @@ const {
   isRiskOnTarget,
   computePriceMoveOutcome,
   deriveExecutionProofStatus,
+  refreshExecutionProof,
 } = require("../../src/orchestrator/outcomeTracker");
 
 describe("outcomeTracker settlement asset helpers", () => {
-  test("maps Mantle ETH exposure to mETH/WETH benchmark, never naked ETH", () => {
-    expect(inferSettlementAsset("mETH")).toBe("mETH");
-    expect(inferSettlementAsset("WETH")).toBe("mETH");
-    expect(inferSettlementAsset("ETH")).toBe("mETH");
+  test("maps Mantle ETH exposure to a WETH/ETH benchmark, never naked ETH", () => {
+    expect(inferSettlementAsset("mETH")).toBe("WETH");
+    expect(inferSettlementAsset("WETH")).toBe("WETH");
+    expect(inferSettlementAsset("ETH")).toBe("WETH");
   });
 
   test("maps MNT and WMNT to the MNT benchmark", () => {
@@ -23,7 +24,7 @@ describe("outcomeTracker settlement asset helpers", () => {
 
   test("settles stable risk-off against the source risk asset", () => {
     expect(inferSettlementAsset("mUSD", "mETH", "WMNT")).toBe("MNT");
-    expect(inferSettlementAsset("mUSD", "mETH", "mETH")).toBe("mETH");
+    expect(inferSettlementAsset("mUSD", "mETH", "mETH")).toBe("WETH");
   });
 
   test("treats mETH/WETH and MNT/WMNT as risk-on targets", () => {
@@ -125,5 +126,112 @@ describe("deriveExecutionProofStatus", () => {
         ],
       })
     ).toBe("ACCEPTED");
+  });
+
+  test("returns UNKNOWN for partial or mixed tx proof", () => {
+    expect(
+      deriveExecutionProofStatus({
+        checks: [
+          { name: "tx_exists", status: "PASS" },
+          { name: "tx_sender", status: "PASS" },
+          { name: "tx_success", status: "PASS" },
+          { name: "tx_proof", status: "PASS" },
+        ],
+      })
+    ).toBe("UNKNOWN");
+
+    expect(
+      deriveExecutionProofStatus({
+        checks: [
+          { name: "tx_exists", status: "PASS" },
+          { name: "tx_sender", status: "PASS" },
+          { name: "tx_confirmed", status: "PASS" },
+          { name: "tx_success", status: "SKIP" },
+          { name: "tx_proof", status: "PASS" },
+        ],
+      })
+    ).toBe("UNKNOWN");
+  });
+});
+
+describe("refreshExecutionProof", () => {
+  test("re-proofs transient confirmation warnings before settlement", async () => {
+    const entry = {
+      decisionTier: "EXECUTED_SWAP",
+      _displayTier: "EXECUTION_PROOF_PENDING",
+      executedOnChain: true,
+      executionProofStatus: "WARN",
+      directionalSwap: {
+        txHash:
+          "0x1111111111111111111111111111111111111111111111111111111111111111",
+      },
+      disciplineDetail: {
+        checks: [
+          { name: "price_freshness", status: "PASS" },
+          { name: "tx_exists", status: "PASS" },
+          { name: "tx_sender", status: "PASS" },
+          { name: "tx_confirmed", status: "WARN" },
+          { name: "tx_success", status: "PASS" },
+          { name: "tx_proof", status: "WARN" },
+        ],
+      },
+    };
+    const provider = {
+      getTransaction: jest.fn().mockResolvedValue({
+        blockNumber: 100,
+        from: "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a",
+      }),
+      getTransactionReceipt: jest.fn().mockResolvedValue({
+        blockNumber: 100,
+        status: 1,
+      }),
+      getBlockNumber: jest.fn().mockResolvedValue(105),
+    };
+
+    const refreshed = await refreshExecutionProof(entry, { provider });
+
+    expect(refreshed.executionProofStatus).toBe("ACCEPTED");
+    expect(refreshed._displayTier).toBe("EXECUTED_SWAP");
+    expect(refreshed.disciplineDetail.checks).toEqual(
+      expect.arrayContaining([
+        { name: "price_freshness", status: "PASS" },
+        expect.objectContaining({ name: "tx_confirmed", status: "PASS" }),
+        expect.objectContaining({ name: "tx_proof", status: "PASS" }),
+      ])
+    );
+  });
+
+  test("re-proofs executed RWA swaps from rwaIntent txHash", async () => {
+    const entry = {
+      decisionTier: "EXECUTED_SWAP",
+      _displayTier: "EXECUTION_PROOF_PENDING",
+      executedOnChain: true,
+      executionProofStatus: "UNKNOWN",
+      rwaIntent: {
+        executed: true,
+        txHash:
+          "0x2222222222222222222222222222222222222222222222222222222222222222",
+      },
+      disciplineDetail: { checks: [] },
+    };
+    const provider = {
+      getTransaction: jest.fn().mockResolvedValue({
+        blockNumber: 100,
+        from: "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a",
+      }),
+      getTransactionReceipt: jest.fn().mockResolvedValue({
+        blockNumber: 100,
+        status: 1,
+      }),
+      getBlockNumber: jest.fn().mockResolvedValue(105),
+    };
+
+    const refreshed = await refreshExecutionProof(entry, { provider });
+
+    expect(provider.getTransaction).toHaveBeenCalledWith(
+      "0x2222222222222222222222222222222222222222222222222222222222222222"
+    );
+    expect(refreshed.executionProofStatus).toBe("ACCEPTED");
+    expect(refreshed._displayTier).toBe("EXECUTED_SWAP");
   });
 });

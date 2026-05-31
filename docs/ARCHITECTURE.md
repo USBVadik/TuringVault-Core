@@ -5,7 +5,7 @@
 TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle autonomous system where every AI decision is:
 
 1. Informed by institutional-grade data (Nansen MCP + Hyperliquid + CoinGecko + DeFiLlama + Fear&Greed)
-2. Debated by three independent AI agents (Analyst → Validator → Arbiter on disagreement)
+2. Debated by three independent AI agents (Analyst → Validator → Arbiter on soft confidence disputes)
 3. Executed deterministically (Merchant Moe LB v2.2 + RWA allocator)
 4. Verified post-execution (Synrail-inspired Discipline Layer: tx_proof + price_freshness + drift_detection)
 5. Attested immutably (ERC-8004 on Mantle Mainnet, 4 TXs per cycle)
@@ -60,9 +60,9 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 │   │   └────────────────┘    └────────────────┘    └─────────────┘   │  │
 │   │                                                                  │  │
 │   │   Consensus Check (Zod-validated):                               │  │
-│   │   - 2-of-3 must agree to execute                                 │  │
-│   │   - Validator defaults to REJECT (burden of proof on Analyst)    │  │
-│   │   - Arbiter only fires when Analyst and Validator disagree       │  │
+│   │   - Analyst + Validator must clear confidence/risk gates          │  │
+│   │   - Validator hard veto is final (approved=false / risk too high) │  │
+│   │   - Arbiter only resolves soft confidence disagreements           │  │
 │   │   - R/R ≥ 1.5:1 mandatory, regime alignment required             │  │
 │   │                                                                  │  │
 │   │   Result: { consensus, action, analyst, validator, arbiter? }    │  │
@@ -173,9 +173,10 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 ├─────────────────────────────────────────────┤
 │                                             │
 │  Layer 1: AI-Level                          │
-│  - Triple-agent adversarial consensus       │
+│  - Triple-agent adversarial review path     │
 │  - Validator defaults to REJECT             │
-│  - Arbiter breaks ties on disagreement      │
+│  - Hard validator veto cannot be overruled  │
+│  - Arbiter breaks soft confidence disputes  │
 │  - System prompts with hard risk limits     │
 │  - Zod schema validation (no raw LLM out)   │
 │                                             │
@@ -212,7 +213,7 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 | Layer      | Technology                                                                        | Rationale                                   |
 | ---------- | --------------------------------------------------------------------------------- | ------------------------------------------- |
 | Contracts  | Solidity 0.8.28, Hardhat 2, OpenZeppelin v5.1                                     | Battle-tested, EVM cancun                   |
-| AI Core    | Z.ai GLM-5 (Analyst) + Claude Sonnet 4.6 (Validator) + Gemini 3.5 Flash (Arbiter) | Three-model adversarial consensus           |
+| AI Core    | Z.ai GLM-5 (Analyst) + Claude Sonnet 4.6 (Validator) + Gemini 3.5 Flash (Arbiter) | Validator-gated adversarial consensus       |
 | Inference  | AWS Bedrock + Google Vertex AI                                                    | Provider diversity, hackathon sponsor stack |
 | Validation | Zod schemas                                                                       | Type-safe LLM output parsing                |
 | Execution  | Merchant Moe LB v2.2 (concentrated liquidity)                                     | On-chain DEX, RWA allocator routes here     |

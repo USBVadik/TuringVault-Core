@@ -12,7 +12,7 @@
 The backend orchestrator is well-structured with multiple layers of defense:
 
 - Zod schema validation on all AI outputs
-- Multi-agent consensus (2/3 voting) prevents single-point hallucination
+- Validator-gated multi-agent consensus prevents single-point hallucination
 - Dynamic confidence thresholds that self-adjust after losses
 - Dry-run default on execution engine
 - EIP-2 signature canonicalization in KMS module

@@ -16,6 +16,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { ethers } from "ethers";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const proofStatus = require("./proofStatus.js") as {
+  deriveDisplayTier: (input?: {
+    decisionTier?: string | null;
+    displayTier?: string | null;
+    executedOnChain?: boolean;
+    executionProofStatus?: string | null;
+  }) => string | null;
+  deriveExecutionProofStatus: (row?: {
+    executionProofStatus?: string | null;
+    disciplineDetail?: { checks?: ExecutionProofCheck[] };
+  }) => string;
+};
+
+const { deriveDisplayTier, deriveExecutionProofStatus } = proofStatus;
+
 export const dynamic = "force-dynamic";
 // Audit Section 3 weakness #3 — was 0, every request hits Mantle RPC.
 // Now 60s ISR with s-maxage=60, stale-while-revalidate=600 below so
@@ -46,6 +62,11 @@ type AssetClass =
   | "stable"
   | "native"
   | "unknown";
+
+type ExecutionProofCheck = {
+  name?: string;
+  status?: string;
+};
 
 /**
  * Classify a decision row by asset class so the frontend can colour /
@@ -123,6 +144,7 @@ async function loadOutcomesIndex(): Promise<Map<
         candleFromSnapshot?: boolean;
         candleSnapshotAgeSec?: number | null;
         executionProofStatus?: string | null;
+        disciplineDetail?: { checks?: ExecutionProofCheck[] };
       }>;
       settled?: Array<{
         decisionId?: number;
@@ -139,6 +161,7 @@ async function loadOutcomesIndex(): Promise<Map<
         candleFromSnapshot?: boolean;
         candleSnapshotAgeSec?: number | null;
         executionProofStatus?: string | null;
+        disciplineDetail?: { checks?: ExecutionProofCheck[] };
       }>;
     } | null = null;
     if (fs.existsSync(p)) {
@@ -161,21 +184,19 @@ async function loadOutcomesIndex(): Promise<Map<
           ? e.executedOnChain
           : fallbackExecuted;
       const tier = e.decisionTier ?? null;
-      const displayTier =
-        e._displayTier ??
-        (tier === "EXECUTED_SWAP" && !executedOnChain
-          ? "INTENT_SWAP_NO_EXEC"
-          : tier === "EXECUTED_SWAP" &&
-              e.executionProofStatus &&
-              e.executionProofStatus !== "ACCEPTED"
-            ? "EXECUTION_PROOF_PENDING"
-          : tier);
+      const executionProofStatus = deriveExecutionProofStatus(e);
+      const displayTier = deriveDisplayTier({
+        decisionTier: tier,
+        displayTier: e._displayTier ?? null,
+        executedOnChain,
+        executionProofStatus,
+      });
       out.set(e.decisionId, {
         rwaIntent: e.rwaIntent ?? null,
         executedOnChain,
         displayTier,
         decisionTier: tier,
-        executionProofStatus: e.executionProofStatus ?? null,
+        executionProofStatus,
         priceSource: e.priceSource ?? null,
         priceFromSnapshot: e.priceFromSnapshot === true,
         priceSnapshotAgeSec: e.priceSnapshotAgeSec ?? null,

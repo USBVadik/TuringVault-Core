@@ -163,7 +163,7 @@ Holdings split           USDT0 74% · MNT 14% · mETH 10% · WMNT 2%
 │      │  Bedrock     │  │  Bedrock     │  │  Vertex AI     │        │
 │      │  seeks alpha │  │  default REJ │  │  tiebreaker    │        │
 │      └──────────────┘  └──────────────┘  └────────────────┘        │
-│                  2-of-3 consensus + 4-gate AND                     │
+│        validator hard-veto + soft-dispute arbiter + 4 gates        │
 │                                                                    │
 │   5. ON-CHAIN ATTESTATION (4 TXs/cycle, ~$0.05/cycle gas on Mantle)│
 │      submitProposal → submitValidation → logDecision               │
@@ -215,10 +215,10 @@ EXECUTED_SWAP                              2 (4%)
 HEARTBEAT_SWAP / unknown                   1 (2%)
 
 Validator-flagged issues populated      52% of cycles
-Arbiter fired (on disagreement)          24% of cycles
+Arbiter fired (soft disagreements)       24% of cycles
 ```
 
-**94% blocking rate via combined gates.** The validator is a structural reviewer, the confidence + regime gates are the rejection mechanism, and the arbiter is the tiebreaker. This matches how real-world risk committees work: multiple independent veto sources, none of which is a single point of judgement.
+**94% blocking rate via combined gates.** The validator is a structural reviewer with a final hard veto; confidence + regime gates are additional rejection mechanisms, and the arbiter only resolves soft confidence disputes. This matches how real-world risk committees work: multiple independent veto sources, none of which is a single point of judgement.
 
 ---
 
@@ -287,7 +287,7 @@ This is engineering culture as a feature, not a bug.
 
 ## 🥊 Adversarial Challenge Arena
 
-A live `/challenge` page lets anyone inject 4 canonical attack vectors (flash crash, pump signal, oracle manipulation, sybil consensus) into the **real** multi-agent pipeline and watch the agents reason. Each result includes verbatim reasoning from GLM-5, Claude Sonnet 4.6, and (on disagreement) Gemini 3.5 — the same code path that drives production.
+A live `/challenge` page lets anyone inject 4 canonical attack vectors (flash crash, pump signal, oracle manipulation, sybil consensus) into the **real** multi-agent pipeline and watch the agents reason. Each result includes verbatim reasoning from GLM-5, Claude Sonnet 4.6, and when a soft confidence dispute occurs, Gemini 3.5 — the same code path that drives production.
 
 When `CHALLENGE_ANCHOR_ENABLED=true`, each challenge submits one `ValidationRegistry.submitProposal` TX with a `[CHALLENGE-*]` action prefix. **A judge's session leaves an on-chain trail.**
 

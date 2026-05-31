@@ -56,7 +56,7 @@ The features above are _verification infrastructure_, not user-facing UX. Path A
 A single hourly cron drives the cycle:
 
 1. Aggregate 5 structured market signals — funding rate (Hyperliquid), smart-money flow (Nansen MCP, JSON-RPC 2.0), yield spread (mETH vs USDY), liquidation map, **Elfa social attention** (mindshare + smart-account repost ratio via REST v2).
-2. Run three-model adversarial consensus: **Z.ai GLM-5 Analyst** (proposes) → **Anthropic Claude Sonnet 4.6 Validator** (default REJECT, R/R ≥ 1.5:1 to approve) → **Google Gemini 3.5 Flash Arbiter** (tiebreaker). 2-of-3 consensus required to execute.
+2. Run validator-gated adversarial consensus: **Z.ai GLM-5 Analyst** (proposes) → **Anthropic Claude Sonnet 4.6 Validator** (default REJECT, R/R ≥ 1.5:1 to approve, hard veto final) → **Google Gemini 3.5 Flash Arbiter** (soft confidence-dispute tiebreaker).
 3. Pin full reasoning chain to IPFS via Pinata. Anchor hash on Mantle.
 4. Run RWA Allocator — Path A (LLM-driven `rwa_allocate` / `rwa_exit`) or Path B (deterministic 24h FLAT idle-parking).
 5. Execute via Merchant Moe Liquidity Book v2.2 (binStep=1) on the USDT/USDT0 pool.

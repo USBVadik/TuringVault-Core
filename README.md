@@ -106,10 +106,10 @@ Every decision creates an immutable record: what data the AI observed, what conc
 │  │   ANALYST 🧠   │ →  │  VALIDATOR 🛡   │ →  │   ARBITER ⚖️    │   │
 │  │   GLM-5        │    │  Claude 4.6    │    │  Gemini 3.5     │   │
 │  │   Seeks alpha  │    │  Default REJECT│    │  Tiebreaker     │   │
-│  │                │    │  R:R ≥ 1.5:1   │    │  on disagreement│   │
+│  │                │    │  R:R ≥ 1.5:1   │    │  soft disputes  │   │
 │  └───────┬────────┘    └───────┬────────┘    └───────┬─────────┘   │
 │          └────────────────┬────┴─────────────────────┘             │
-│                           ▼   2-of-3 consensus required            │
+│                           ▼   validator-gated consensus             │
 │  ON-CHAIN VERIFICATION (Mantle Mainnet, 4 TXs per cycle)           │
 │  ┌────────────────────────────────────────────────────────────┐    │
 │  │ submitProposal → validateProposal → logDecision            │    │
@@ -140,7 +140,7 @@ Every decision creates an immutable record: what data the AI observed, what conc
 Execution requires passing **two independent gates**:
 
 1. **Confidence threshold** — the Analyst must report ≥ 60% confidence in its own proposal (elevated to 85% after 3 consecutive losses, see `BASE_CONFIDENCE_THRESHOLD` / `ELEVATED_CONFIDENCE_THRESHOLD` in `src/config/constants.js`). Low-confidence proposals are blocked before the Validator even evaluates them.
-2. **Adversarial Validator** — an independent model with a default-REJECT posture, requiring explicit evidence of R:R ≥ 1.5:1 and regime alignment to approve. If it rejects, the Arbiter (Gemini 3.5 Flash) casts the tiebreaker vote (2-of-3 required).
+2. **Adversarial Validator** — an independent model with a default-REJECT posture, requiring explicit evidence of R:R ≥ 1.5:1 and regime alignment to approve. A hard Validator rejection or excessive risk score is final; the Arbiter (Gemini 3.5 Flash) only resolves soft confidence disagreements where the Validator approves but confidence is marginal.
 
 In practice, the majority of rejections (~75%) are caused by Gate 1: the Analyst proposes HOLD with moderate confidence during sideways markets, and the confidence threshold blocks execution. Gate 2 (Validator) flags risk issues in its reasoning even when it approves structurally safe HOLD proposals. This is by design: the validator's adversarial scrutiny matters most for high-risk directional trades, where it acts as the final safety floor.
 
@@ -154,7 +154,7 @@ A common misread of our consensus design is "the Validator must explicitly say `
 - Final consensus is computed by `decisionTier.js` as the AND of four gates: Validator approves AND analyst-confidence ≥ 60% AND validator-confidence ≥ 75% AND riskScore ≤ 60.
 - `consensus=true` reaches **30% of cycles**; `consensus=false` blocks **70%**.
 - Tier distribution over the same window: BLOCKED_BY_LOW_CONFIDENCE 42%, INTENT_SWAP_NO_EXEC 24%, BLOCKED_BY_REGIME 16%, BLOCKED_BY_VALIDATOR 12%, EXECUTED_SWAP 4%, HEARTBEAT_SWAP-or-other 2%.
-- The Arbiter (Gemini 3.5 Flash) ran on **24% of cycles** — exactly when the analyst-validator pair disagreed structurally.
+- The Arbiter (Gemini 3.5 Flash) ran on **24% of cycles** — only on soft analyst-validator disagreements, never to override a hard Validator veto.
 
 So "adversarial" here means a **system of layered scrutiny** rather than a single model voting REJECT. The Validator is a structural reviewer, the confidence gates are the rejection mechanism, and the Arbiter is the tiebreaker. Honest framing: the agent's adversarial-block narrative survives, but the load is distributed across confidence + regime + validator-flagged-issues, not concentrated in one model voting NO. This matches how real-world risk committees work — multiple veto sources, none of which is the single point of judgement.
 
@@ -245,8 +245,9 @@ See [`docs/discipline-layer.md`](./docs/discipline-layer.md) for full architectu
 A live `/challenge` page lets anyone inject 4 canonical attack vectors
 (flash crash, pump signal, oracle manipulation, sybil consensus) into the
 **real** multi-agent pipeline and watch the agents reason. Each result
-includes verbatim reasoning from GLM-5, Claude Sonnet 4.6, and (on
-disagreement) Gemini 3.5 — the same code path that drives production.
+includes verbatim reasoning from GLM-5, Claude Sonnet 4.6, and, when a
+soft confidence dispute occurs, Gemini 3.5 — the same code path that
+drives production.
 
 Live mode is gated by `CHALLENGE_LIVE_ENABLED=true` (Vercel env var). When
 off, the page returns a deterministic preview and the banner clearly
@@ -264,8 +265,8 @@ through two paths, both routed through Merchant Moe Liquidity Book:
 
 - **Path A — LLM-driven.** Analyst's action vocabulary includes
   `rwa_allocate` and `rwa_exit`. When consensus reaches with one of
-  these (validator + arbiter agree), the orchestrator builds a swap
-  intent and executes against the USDT/USDT0 pool (binStep=1).
+  these under validator-gated safety rules, the orchestrator builds a
+  swap intent and executes against the USDT/USDT0 pool (binStep=1).
 - **Path B — deterministic idle-parking.** When the agent has been
   FLAT for ≥ 24 h and regime is not `TREND_UP`, a small fraction (20%
   default) of idle stables auto-routes to USDT0. Cooldown 6 h between

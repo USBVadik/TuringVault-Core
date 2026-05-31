@@ -600,7 +600,7 @@ export function ProofExplorerClient({
                 },
                 {
                   label: "Gemini 3.5 Arbiter",
-                  sub: "Google Vertex AI · 2-of-3 consensus",
+                  sub: "Google Vertex AI · soft-dispute tiebreaker",
                   color: "from-pink-500/20 to-pink-500/5",
                 },
                 {
@@ -693,7 +693,7 @@ export function ProofExplorerClient({
                 },
                 {
                   name: "Google",
-                  role: "Arbiter — tiebreaker on disagreement",
+                  role: "Arbiter — soft-dispute tiebreaker",
                   detail: "Gemini 3.5 Flash via Vertex AI",
                   proof:
                     "https://github.com/USBVadik/TuringVault-Core/blob/main/src/orchestrator/geminiArbiter.js",

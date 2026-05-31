@@ -38,6 +38,10 @@
 
 const fs = require("fs");
 const path = require("path");
+const {
+  deriveDisplayTier,
+  deriveExecutionProofStatus,
+} = require("../../src/orchestrator/executionProofStatus");
 
 const TX_HASH_RE = /^0x[a-f0-9]{64}$/i;
 
@@ -53,27 +57,20 @@ function loadOutcomes() {
 
 function effectiveTier(row) {
   if (!row) return null;
-  // Frontend honest-display priority: _displayTier overrides
-  // decisionTier when the latter was set optimistically.
-  if (row._displayTier === undefined || row._displayTier === null) {
-    return row.decisionTier || null;
-  }
-  return row._displayTier;
+  return deriveDisplayTier({
+    decisionTier: row.decisionTier || null,
+    displayTier: row._displayTier ?? null,
+    executedOnChain: row.executedOnChain === true,
+    executionProofStatus: deriveExecutionProofStatus(row),
+  });
 }
 
 function firstLegTxHash(row) {
   return row?.directionalSwap?.legs?.[0]?.txHash || null;
 }
 
-function hasFailedExecutionProof(row) {
-  const checks = row?.disciplineDetail?.checks;
-  if (!Array.isArray(checks)) return false;
-  return checks.some(
-    (c) =>
-      ["tx_proof", "tx_exists", "tx_sender", "tx_confirmed", "tx_success"].includes(
-        c?.name
-      ) && ["FAIL", "ERROR"].includes(c?.status)
-  );
+function hasUnacceptedExecutionProof(row) {
+  return deriveExecutionProofStatus(row) !== "ACCEPTED";
 }
 
 describe("outcomes integrity invariants", () => {
@@ -139,13 +136,14 @@ describe("outcomes integrity invariants", () => {
     expect(offenders).toEqual([]);
   });
 
-  test("every EXECUTED_SWAP-displayed row has no failed execution proof", () => {
+  test("every EXECUTED_SWAP-displayed row has accepted execution proof", () => {
     const offenders = settled.filter(
-      (r) => effectiveTier(r) === "EXECUTED_SWAP" && hasFailedExecutionProof(r)
+      (r) =>
+        effectiveTier(r) === "EXECUTED_SWAP" && hasUnacceptedExecutionProof(r)
     );
     if (offenders.length > 0) {
       console.error(
-        `[outcomesIntegrity] EXECUTED_SWAP with failed tx proof — ${offenders.length} row(s):`,
+        `[outcomesIntegrity] EXECUTED_SWAP without accepted tx proof — ${offenders.length} row(s):`,
         offenders.slice(0, 5).map((r) => ({
           decisionId: r.decisionId,
           disciplineStatus: r.disciplineStatus,

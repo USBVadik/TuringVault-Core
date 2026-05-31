@@ -10,7 +10,7 @@
  *   1. Decision recorded → save {decisionId, action, targetAsset,
  *      priceAtDecision, timestamp, consensus} to local DB (outcomes.json)
  *   2. [4 hours later] outcomeTracker.settle() is called
- *   3. Fetch current mETH/WETH or MNT benchmark price
+ *   3. Fetch current WETH/ETH or MNT benchmark price
  *   4. Compute outcome:
  *      - HOLD + price dropped  → CORRECT BLOCK   → +score
  *      - HOLD + price rose     → MISSED ALPHA    → -score
@@ -25,10 +25,27 @@
 const path = require("path");
 const fs = require("fs");
 const { ethers } = require("ethers");
+const {
+  deriveDisplayTier,
+  deriveExecutionProofStatus,
+} = require("./executionProofStatus");
 
-const OUTCOMES_PATH = path.resolve(__dirname, "../data/outcomes.json");
+const OUTCOMES_PATH = process.env.OUTCOMES_PATH
+  ? path.resolve(process.env.OUTCOMES_PATH)
+  : path.resolve(__dirname, "../data/outcomes.json");
 const SETTLE_DELAY_MS = 1 * 60 * 60 * 1000; // 1 hour (ranging markets need faster feedback)
 const MIN_PRICE_MOVE_PCT = 0.1; // 0.1% threshold (was 0.3% — too strict for ranging/L2)
+const MANTLE_RPC = process.env.MANTLE_RPC || "https://rpc.mantle.xyz";
+const WALLET_ADDRESS =
+  process.env.WALLET_ADDRESS || "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a";
+const MIN_CONFIRMATIONS = 2;
+const TX_PROOF_NAMES = new Set([
+  "tx_exists",
+  "tx_sender",
+  "tx_confirmed",
+  "tx_success",
+  "tx_proof",
+]);
 
 const REPUTATION_ABI = [
   "function recordPnL(uint256 agentId, int128 pnlBps, bytes32 reasoningHash) external",
@@ -101,18 +118,21 @@ function isRiskOnTarget(targetAsset) {
 
 function inferSettlementAsset(targetAsset, fallback = "mETH", sourceAsset = null) {
   const symbol = normalizeAssetSymbol(targetAsset);
-  if (ETH_BENCHMARK_TARGETS.has(symbol)) return "mETH";
+  if (ETH_BENCHMARK_TARGETS.has(symbol)) return "WETH";
   if (MNT_BENCHMARK_TARGETS.has(symbol)) return "MNT";
   const sourceSymbol = normalizeAssetSymbol(sourceAsset);
-  if (ETH_BENCHMARK_TARGETS.has(sourceSymbol)) return "mETH";
+  if (ETH_BENCHMARK_TARGETS.has(sourceSymbol)) return "WETH";
   if (MNT_BENCHMARK_TARGETS.has(sourceSymbol)) return "MNT";
-  return normalizeAssetSymbol(fallback) || "mETH";
+  const fallbackSymbol = normalizeAssetSymbol(fallback);
+  if (ETH_BENCHMARK_TARGETS.has(fallbackSymbol)) return "WETH";
+  if (MNT_BENCHMARK_TARGETS.has(fallbackSymbol)) return "MNT";
+  return fallbackSymbol || "WETH";
 }
 
 function priceFromMap(priceMap = {}, settlementAsset = "mETH") {
   const asset = inferSettlementAsset(settlementAsset);
   if (asset === "MNT") return priceMap.MNT ?? priceMap.WMNT ?? null;
-  return priceMap.mETH ?? priceMap.WETH ?? null;
+  return priceMap.WETH ?? priceMap.mETH ?? null;
 }
 
 async function fetchAssetPrices() {
@@ -142,7 +162,7 @@ async function fetchAssetPrices() {
 
 async function fetchEthPrice() {
   const prices = await fetchAssetPrices();
-  return prices?.mETH || prices?.WETH || null;
+  return prices?.WETH || prices?.mETH || null;
 }
 
 function computePriceMoveOutcome({
@@ -211,23 +231,127 @@ function computePriceMoveOutcome({
   };
 }
 
-function deriveExecutionProofStatus(disciplineDetail) {
-  const checks = disciplineDetail?.checks;
-  if (!Array.isArray(checks) || checks.length === 0) return "UNKNOWN";
-
-  const executionChecks = checks.filter((c) =>
-    ["tx_proof", "tx_exists", "tx_sender", "tx_confirmed", "tx_success"].includes(
-      c?.name
-    )
-  );
-  if (executionChecks.length === 0) return "UNKNOWN";
-  if (executionChecks.some((c) => ["FAIL", "ERROR"].includes(c?.status))) {
-    return "ERROR";
+function firstExecutionTxHash(entry = {}) {
+  if (entry.txHash) return entry.txHash;
+  if (entry.directionalSwap?.txHash) return entry.directionalSwap.txHash;
+  if (entry.rwaIntent?.txHash) return entry.rwaIntent.txHash;
+  const legs = Array.isArray(entry.directionalSwap?.legs)
+    ? entry.directionalSwap.legs
+    : [];
+  for (let i = legs.length - 1; i >= 0; i--) {
+    if (legs[i]?.txHash) return legs[i].txHash;
   }
-  if (executionChecks.some((c) => c?.status === "WARN")) return "WARN";
-  if (executionChecks.some((c) => c?.status === "PASS")) return "ACCEPTED";
-  if (executionChecks.every((c) => c?.status === "SKIP")) return "SKIPPED";
-  return "UNKNOWN";
+  return null;
+}
+
+function replaceTxProofChecks(existingChecks = [], txChecks = []) {
+  const nonTxChecks = Array.isArray(existingChecks)
+    ? existingChecks.filter((c) => !TX_PROOF_NAMES.has(c?.name))
+    : [];
+  return [...nonTxChecks, ...txChecks];
+}
+
+async function refreshExecutionProof(entry, opts = {}) {
+  if (!entry || entry.executedOnChain !== true) return entry;
+  if (deriveExecutionProofStatus(entry) === "ACCEPTED") return entry;
+
+  const txHash = firstExecutionTxHash(entry);
+  if (!txHash) return entry;
+
+  try {
+    const provider =
+      opts.provider ||
+      opts.wallet?.provider ||
+      new ethers.JsonRpcProvider(MANTLE_RPC);
+    const expectedSender = (
+      opts.expectedSender ||
+      opts.wallet?.address ||
+      WALLET_ADDRESS
+    ).toLowerCase();
+    const tx = await provider.getTransaction(txHash);
+    const txChecks = [];
+
+    if (!tx) {
+      txChecks.push({
+        name: "tx_exists",
+        status: "FAIL",
+        detail: "TX not found on chain during settlement re-proof",
+      });
+    } else {
+      txChecks.push({
+        name: "tx_exists",
+        status: "PASS",
+        detail: `Re-proof: block ${tx.blockNumber ?? "pending"}`,
+      });
+      txChecks.push({
+        name: "tx_sender",
+        status:
+          typeof tx.from === "string" &&
+          tx.from.toLowerCase() === expectedSender
+            ? "PASS"
+            : "FAIL",
+        detail: `Re-proof: sender ${tx.from || "unknown"}`,
+      });
+
+      const receipt = await provider.getTransactionReceipt(txHash);
+      if (!receipt) {
+        txChecks.push({
+          name: "tx_confirmed",
+          status: "FAIL",
+          detail: "Re-proof: receipt unavailable",
+        });
+        txChecks.push({
+          name: "tx_success",
+          status: "FAIL",
+          detail: "Re-proof: cannot prove success without receipt",
+        });
+      } else {
+        const currentBlock = await provider.getBlockNumber();
+        const confirmations = currentBlock - receipt.blockNumber;
+        txChecks.push({
+          name: "tx_confirmed",
+          status: confirmations >= MIN_CONFIRMATIONS ? "PASS" : "WARN",
+          detail: `Re-proof: ${confirmations} confirmations`,
+        });
+        txChecks.push({
+          name: "tx_success",
+          status: receipt.status === 1 ? "PASS" : "FAIL",
+          detail:
+            receipt.status === 1
+              ? "Re-proof: TX successful"
+              : "Re-proof: TX reverted",
+        });
+      }
+    }
+
+    let rollupStatus = "PASS";
+    if (txChecks.some((c) => ["FAIL", "ERROR"].includes(c.status))) {
+      rollupStatus = "FAIL";
+    } else if (txChecks.some((c) => c.status === "WARN")) {
+      rollupStatus = "WARN";
+    }
+    txChecks.push({
+      name: "tx_proof",
+      status: rollupStatus,
+      detail: "Re-proofed during outcome settlement",
+    });
+
+    entry.disciplineDetail = {
+      ...(entry.disciplineDetail || {}),
+      checks: replaceTxProofChecks(entry.disciplineDetail?.checks, txChecks),
+      reproofedAt: new Date().toISOString(),
+    };
+    entry.executionProofStatus = deriveExecutionProofStatus(entry);
+    entry._displayTier = deriveDisplayTier({
+      decisionTier: entry.decisionTier ?? null,
+      executedOnChain: entry.executedOnChain === true,
+      executionProofStatus: entry.executionProofStatus,
+    });
+    return entry;
+  } catch (e) {
+    entry.executionProofRefreshError = e.message?.slice(0, 120) || "unknown";
+    return entry;
+  }
 }
 
 // ─── Public API ────────────────────────────────────────────────────
@@ -243,7 +367,7 @@ function deriveExecutionProofStatus(disciplineDetail) {
  *   consensus      - bool (was it approved?)
  *   confidence     - analyst confidence 0-1
  *   priceAtDecision - benchmark price at time of decision
- *   settlementAsset - "mETH" or "MNT" benchmark for later settlement
+ *   settlementAsset - "WETH" or "MNT" benchmark for later settlement
  *   ipfsCid        - reasoning proof CID
  */
 function record(params) {
@@ -263,6 +387,11 @@ function record(params) {
     priceAtDecision: params.priceAtDecision,
     settlementAsset,
     priceAssetAtDecision: params.priceAssetAtDecision || settlementAsset,
+    settlementSourceAsset:
+      params.settlementSourceAsset ||
+      params.sourceAsset ||
+      params.directionalSwap?.from ||
+      null,
     ipfsCid: params.ipfsCid || null,
     recordedAt: new Date().toISOString(),
     settleAfter: new Date(Date.now() + SETTLE_DELAY_MS).toISOString(),
@@ -344,13 +473,11 @@ function record(params) {
   entry.executionProofStatus = deriveExecutionProofStatus(
     entry.disciplineDetail
   );
-  entry._displayTier =
-    entry.decisionTier === "EXECUTED_SWAP" && !executedOnChain
-      ? "INTENT_SWAP_NO_EXEC"
-      : entry.decisionTier === "EXECUTED_SWAP" &&
-        entry.executionProofStatus !== "ACCEPTED"
-      ? "EXECUTION_PROOF_PENDING"
-      : entry.decisionTier ?? null;
+  entry._displayTier = deriveDisplayTier({
+    decisionTier: entry.decisionTier ?? null,
+    executedOnChain,
+    executionProofStatus: entry.executionProofStatus,
+  });
 
   db.pending.push(entry);
   saveDB(db);
@@ -396,7 +523,22 @@ async function settle(opts = {}) {
 
   const results = [];
 
-  for (const entry of due) {
+  for (const rawEntry of due) {
+    const entry = await refreshExecutionProof(rawEntry, opts);
+    if (
+      entry.executedOnChain === true &&
+      deriveExecutionProofStatus(entry) !== "ACCEPTED"
+    ) {
+      entry.proofBlockedAt = new Date().toISOString();
+      entry.proofBlockReason = `execution proof ${deriveExecutionProofStatus(entry)}`;
+      const idx = db.pending.findIndex((e) => e.id === entry.id);
+      if (idx !== -1) db.pending[idx] = entry;
+      console.log(
+        `  [OUTCOME] Skipping ${entry.id} — execution proof not accepted (${deriveExecutionProofStatus(entry)})`
+      );
+      continue;
+    }
+
     const priceAtDecision = entry.priceAtDecision;
     if (!priceAtDecision) {
       console.log(`  [OUTCOME] Skipping ${entry.id} — no priceAtDecision`);
@@ -568,4 +710,5 @@ module.exports = {
   inferSettlementAsset,
   computePriceMoveOutcome,
   deriveExecutionProofStatus,
+  refreshExecutionProof,
 };
