@@ -757,11 +757,15 @@
 }
 
 .proof-sidebar {
+  grid-column: 1 / -1;
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  align-items: stretch;
 }
 
 .proof-side-panel {
+  min-width: 0;
   padding: 18px;
 }
 
@@ -818,6 +822,7 @@
   .proof-case-grid,
   .proof-stack-grid,
   .proof-two-column,
+  .proof-sidebar,
   .proof-backtest-grid {
     grid-template-columns: 1fr;
   }

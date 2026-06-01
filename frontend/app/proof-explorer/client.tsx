@@ -792,7 +792,7 @@ export function ProofExplorerClient({
           </section>
         </FadeIn>
 
-        {/* ═══ TWO COLUMN: AUDIT LOG + SIDEBAR ═══ */}
+        {/* ═══ AUDIT LOG + PROOF OPERATIONS ═══ */}
         <div className="proof-two-column">
           {/* Decision Audit Log */}
           <FadeIn className="lg:col-span-2">
@@ -939,7 +939,7 @@ export function ProofExplorerClient({
             </div>
           </FadeIn>
 
-          {/* ═══ SIDEBAR ═══ */}
+          {/* ═══ PROOF OPERATIONS GRID ═══ */}
           <FadeIn delay={0.2} className="proof-sidebar">
             {/* Agent Identity */}
             <div className="proof-side-panel">
