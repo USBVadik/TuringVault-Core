@@ -2,7 +2,14 @@
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import { useState, useEffect, useMemo, useRef, type PointerEvent } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  type CSSProperties,
+  type PointerEvent,
+} from "react";
 import {
   Shield,
   TrendingUp,
@@ -378,6 +385,10 @@ export default function Home() {
     latestDecision?.confidence != null
       ? `${(latestDecision.confidence / 100).toFixed(1)}%`
       : "—";
+  const latestConfidencePct =
+    typeof latestDecision?.confidence === "number"
+      ? Math.max(0, Math.min(100, latestDecision.confidence / 100))
+      : 0;
   const stableNav =
     (perfData?.holdings?.USDT0 ?? 0) * (perfData?.prices?.USDT0 ?? 1) +
     (perfData?.holdings?.USDT_legacy ?? 0) *
@@ -477,6 +488,11 @@ export default function Home() {
   const channelSupport = signalDisplay.support;
   const channelResistance = signalDisplay.resistance;
   const signalMarkerLeft = signalDisplay.markerLeft;
+  const signalVisualStyle = {
+    "--signal-marker-left": `${signalMarkerLeft}%`,
+    "--signal-confidence": `${latestConfidencePct}%`,
+    "--signal-energy": `${Math.max(0.28, latestConfidencePct / 100)}`,
+  } as CSSProperties;
   const signalStatusLabel =
     signalMode === "risk-on"
       ? "buy band"
@@ -729,11 +745,23 @@ export default function Home() {
               role="group"
               aria-label={`Interactive ${signalDisplay.displayAsset} signal map`}
               tabIndex={0}
+              data-signal-asset={signalDisplay.baseAsset.toLowerCase()}
+              style={signalVisualStyle}
               onPointerMove={handleSignalPointerMove}
               onPointerLeave={() => setSignalHover(null)}
               onFocus={handleSignalFocus}
               onBlur={() => setSignalHover(null)}
             >
+              <div className="signal-depth-field" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className="signal-liquidity-ribbon" aria-hidden="true">
+                <span />
+              </div>
               <div className="signal-live-chip">
                 <span />
                 {signalFeedLabel}
@@ -745,6 +773,14 @@ export default function Home() {
               <div className="signal-channel-readout">
                 <span>{signalChannelLabel}</span>
                 <strong>{signalChannelPrice}</strong>
+              </div>
+              <div className="signal-market-tag signal-market-tag-asset">
+                <span>Asset</span>
+                <strong>{signalDisplay.displayAsset}</strong>
+              </div>
+              <div className="signal-market-tag signal-market-tag-confidence">
+                <span>Conf</span>
+                <strong>{latestConfidence}</strong>
               </div>
               <span className="signal-scanline" />
               <div
