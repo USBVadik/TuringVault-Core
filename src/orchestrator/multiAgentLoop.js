@@ -234,6 +234,92 @@ function chooseNextLegAmount({
   return Math.max(0, spendable * dustMultiplier);
 }
 
+function sourceUsdPriceForToken(sourceToken, market = {}) {
+  const token = String(sourceToken || "").toUpperCase();
+  if (token === "WMNT" || token === "MNT") {
+    return finitePositiveNumber(market.mntPrice) || 0.65;
+  }
+  if (token === "METH" || token === "WETH" || token === "ETH") {
+    for (const value of [
+      market.wethPrice,
+      market.ethPrice,
+      market.methPrice,
+      market.mETHPrice,
+    ]) {
+      const price = finitePositiveNumber(value);
+      if (price) return price;
+    }
+    return 2000;
+  }
+  return 1;
+}
+
+function positiveNumberOr(value, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+function calculateDirectionalSwapSizing({
+  sourceToken,
+  sourceBalance,
+  allocationPct = 30,
+  market = {},
+  cycleCapUsd = 5,
+  minTradeUsd = 0.3,
+} = {}) {
+  const normalizedBalance = Math.max(0, Number(sourceBalance) || 0);
+  const normalizedAllocation = positiveNumberOr(allocationPct, 30);
+  const sourceUsdPrice = sourceUsdPriceForToken(sourceToken, market);
+  const normalizedCapUsd = positiveNumberOr(cycleCapUsd, 5);
+  const normalizedMinTradeUsd = positiveNumberOr(minTradeUsd, 0.3);
+  const minSourceAmount =
+    sourceUsdPrice > 0 ? normalizedMinTradeUsd / sourceUsdPrice : 0;
+
+  let requestedFraction = Math.max(
+    0.05,
+    Math.min(1, normalizedAllocation / 100)
+  );
+  let requestedSourceAmount = normalizedBalance * requestedFraction;
+  let rescued = false;
+
+  if (requestedSourceAmount < minSourceAmount) {
+    const rescueFraction = Math.min(
+      1,
+      (minSourceAmount * 1.05) / Math.max(normalizedBalance, 1e-9)
+    );
+    if (
+      rescueFraction <= 1 &&
+      normalizedBalance * rescueFraction * sourceUsdPrice <= normalizedCapUsd
+    ) {
+      requestedFraction = rescueFraction;
+      requestedSourceAmount = normalizedBalance * rescueFraction;
+      rescued = true;
+    }
+  }
+
+  const requestedUsd = requestedSourceAmount * sourceUsdPrice;
+  const cappedUsd = Math.min(requestedUsd, normalizedCapUsd);
+  const finalSourceAmount =
+    sourceUsdPrice > 0 ? cappedUsd / sourceUsdPrice : 0;
+
+  return {
+    sourceToken,
+    sourceBalance: normalizedBalance,
+    sourceUsdPrice,
+    allocationPct: normalizedAllocation,
+    requestedFraction,
+    requestedSourceAmount,
+    requestedUsd,
+    cycleCapUsd: normalizedCapUsd,
+    minTradeUsd: normalizedMinTradeUsd,
+    minSourceAmount,
+    cappedUsd,
+    finalSourceAmount,
+    canExecute: finalSourceAmount >= minSourceAmount,
+    rescued,
+  };
+}
+
 async function runMultiAgentCycle(opts = {}) {
   const dryRun = opts.dryRun === true;
   if (dryRun) {
@@ -1018,55 +1104,40 @@ async function runMultiAgentCycle(opts = {}) {
         // be sub-floor, the swap is genuinely infeasible and we fall
         // through to insufficient-balance honestly.
         const allocPct = decision.analyst?.allocationPct ?? 30;
-        let requestedFraction = Math.max(0.05, Math.min(1, allocPct / 100));
-        let requestedSourceAmount = sourceBalance * requestedFraction;
+        const sizing = calculateDirectionalSwapSizing({
+          sourceToken: path[0],
+          sourceBalance,
+          allocationPct: allocPct,
+          market,
+          cycleCapUsd: process.env.RWA_MAX_PER_CYCLE_USD,
+          minTradeUsd: process.env.RWA_MIN_PER_CYCLE_USD,
+        });
+        const {
+          finalSourceAmount,
+          minSourceAmount,
+          sourceUsdPrice,
+          cycleCapUsd,
+        } = sizing;
 
-        // USD-equivalent cap. WMNT priced from market.mntPrice; USDT0
-        // priced 1:1.
-        const sourceUsdPrice =
-          path[0] === "WMNT" ? (market.mntPrice || 0.65) : 1;
-        const cycleCapUsd = Number(
-          process.env.RWA_MAX_PER_CYCLE_USD || 5
-        );
-        // Floor lowered from 1.5 → 0.5 source units after 2026-05-28
-        // calibration: Mantle gas is ~0.001 MNT per swap, so even a
-        // $0.30 swap nets positive after fees. The previous 1.5 floor
-        // was killing thin-wallet cycles for no real reason.
-        // Path-aware: WMNT priced ~$0.65 so 0.5 WMNT ≈ $0.33; USDT0
-        // is 1:1 so 0.5 USDT0 = $0.50. Both clear gas-vs-edge handily.
-        const minSourceAmount = path[0] === "WMNT" ? 0.5 : 0.5;
-
-        // Thin-wallet rescue: scale the fraction up if the analyst's
-        // ask would land below floor and the wallet has room.
-        if (requestedSourceAmount < minSourceAmount) {
-          const rescueFraction = Math.min(
-            1,
-            (minSourceAmount * 1.05) / Math.max(sourceBalance, 1e-9)
+        // USD-equivalent cap/floor. Source tokens have wildly different
+        // units: 0.5 USDT is fine, 0.5 WMNT is tiny, but 0.5 mETH is a
+        // four-figure position. The old token-unit floor blocked cycles
+        // 210-211 from selling a real 0.011938 mETH inventory. Keep the
+        // user-facing risk cap in USD and convert the floor back into
+        // source-token units per path.
+        if (sizing.rescued) {
+          console.log(
+            `   ↗ thin-wallet rescue: bumping allocation ${allocPct}% → ${(
+              sizing.requestedFraction * 100
+            ).toFixed(1)}% so swap clears the ~$${sizing.minTradeUsd.toFixed(2)} floor (${minSourceAmount.toFixed(8)} ${path[0]})`
           );
-          if (
-            rescueFraction <= 1 &&
-            sourceBalance * rescueFraction * sourceUsdPrice <= cycleCapUsd
-          ) {
-            requestedFraction = rescueFraction;
-            requestedSourceAmount = sourceBalance * rescueFraction;
-            console.log(
-              `   ↗ thin-wallet rescue: bumping allocation ${allocPct}% → ${(
-                rescueFraction * 100
-              ).toFixed(1)}% so swap clears the ${minSourceAmount} ${path[0]} floor`
-            );
-          }
         }
 
-        const requestedUsd = requestedSourceAmount * sourceUsdPrice;
-        const cappedUsd = Math.min(requestedUsd, cycleCapUsd);
-        const finalSourceAmount =
-          sourceUsdPrice > 0 ? cappedUsd / sourceUsdPrice : 0;
-
-        if (finalSourceAmount < minSourceAmount) {
+        if (!sizing.canExecute) {
           console.log(
             `   ⚠️  Insufficient ${path[0]}: have ${sourceBalance.toFixed(
               6
-            )}, would-trade ${finalSourceAmount.toFixed(6)} (< floor)`
+            )}, would-trade ${finalSourceAmount.toFixed(8)} (< floor ${minSourceAmount.toFixed(8)}; $${sizing.minTradeUsd.toFixed(2)} min)`
           );
           directionalSwapResult = {
             executed: false,
@@ -1074,6 +1145,13 @@ async function runMultiAgentCycle(opts = {}) {
             from: path[0],
             to: path[path.length - 1],
             reason: `insufficient-balance: ${sourceBalance.toFixed(6)} ${path[0]}`,
+            sizing: {
+              sourceUsdPrice,
+              cycleCapUsd,
+              minTradeUsd: sizing.minTradeUsd,
+              minSourceAmount,
+              finalSourceAmount,
+            },
           };
         } else {
           const preflight = await preflightSwapPath({
@@ -1975,8 +2053,10 @@ module.exports = {
   runMultiAgentCycle,
   _private: {
     buildPortfolioPrices,
+    calculateDirectionalSwapSizing,
     chooseNextLegAmount,
     inferSettlementSourceAsset,
     getSettlementSnapshot,
+    sourceUsdPriceForToken,
   },
 };

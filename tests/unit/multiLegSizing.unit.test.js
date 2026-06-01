@@ -1,5 +1,5 @@
 const {
-  _private: { chooseNextLegAmount },
+  _private: { calculateDirectionalSwapSizing, chooseNextLegAmount },
 } = require("../../src/orchestrator/multiAgentLoop");
 
 describe("multi-leg swap sizing", () => {
@@ -36,5 +36,21 @@ describe("multi-leg swap sizing", () => {
     });
 
     expect(amount).toBe(0);
+  });
+
+  test("sizes mETH exits in USD instead of requiring 0.5 mETH", () => {
+    const sizing = calculateDirectionalSwapSizing({
+      sourceToken: "mETH",
+      sourceBalance: 0.011938,
+      allocationPct: 72,
+      market: { ethPrice: 2000 },
+      cycleCapUsd: 5,
+      minTradeUsd: 0.3,
+    });
+
+    expect(sizing.sourceUsdPrice).toBe(2000);
+    expect(sizing.minSourceAmount).toBeCloseTo(0.00015, 8);
+    expect(sizing.finalSourceAmount).toBeCloseTo(0.0025, 8);
+    expect(sizing.canExecute).toBe(true);
   });
 });
