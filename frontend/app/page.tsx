@@ -430,11 +430,9 @@ export default function Home() {
         <div className="orb orb-3" />
         <div className="orb orb-4" />
       </div>
-      <div className="noise-overlay" />
       <div className="grid-bg" />
-      <div className="proof-texture" aria-hidden="true" />
 
-      <main className="relative min-h-screen px-4 sm:px-6 py-6 max-w-[1200px] mx-auto">
+      <main className="app-shell relative min-h-screen px-4 sm:px-6 py-6 max-w-[1200px] mx-auto">
         {/* ═══ HEADER ═══ */}
         <header className="flex items-center justify-end pb-5 anim-fade-up">
           <div className="flex items-center gap-4">
