@@ -1373,6 +1373,255 @@ textarea:focus-visible {
   gap: 8px;
 }
 
+.signal-showcase {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 16px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid rgba(154, 173, 194, 0.13);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(8, 11, 16, 0.72), rgba(5, 7, 10, 0.84)),
+    linear-gradient(110deg, rgba(169, 157, 242, 0.05), transparent 36%, rgba(131, 247, 234, 0.035));
+}
+
+.signal-showcase::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(169, 157, 242, 0.12), transparent 62%),
+    repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.035) 0 1px, transparent 1px 64px);
+  opacity: 0.34;
+}
+
+.signal-visual {
+  position: relative;
+  min-height: 238px;
+  overflow: hidden;
+  border: 1px solid rgba(169, 157, 242, 0.16);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 34% 28%, rgba(169, 157, 242, 0.14), transparent 28%),
+    linear-gradient(180deg, rgba(10, 13, 20, 0.92), rgba(4, 6, 10, 0.94));
+}
+
+.signal-brandmark {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(199, 190, 255, 0.92);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.signal-band {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  border-radius: 999px;
+  padding: 0 14px;
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.signal-band-sell {
+  top: 54px;
+  justify-content: flex-end;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.075));
+  color: rgba(248, 113, 113, 0.72);
+}
+
+.signal-band-buy {
+  bottom: 42px;
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.085), transparent);
+  color: rgba(110, 231, 183, 0.76);
+}
+
+.signal-sketch {
+  position: absolute;
+  inset: 12px 12px 0 12px;
+  z-index: 2;
+  width: calc(100% - 24px);
+  height: calc(100% - 12px);
+  overflow: visible;
+}
+
+.signal-grid-line,
+.signal-sketch-line,
+.signal-proof-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.signal-grid-line {
+  stroke: rgba(131, 247, 234, 0.22);
+  stroke-width: 8;
+  filter: blur(6px);
+}
+
+.signal-sketch-line {
+  stroke: rgba(169, 157, 242, 0.94);
+  stroke-width: 3.4;
+  stroke-dasharray: 580;
+  stroke-dashoffset: 0;
+  animation: signalDraw 7s ease-in-out infinite;
+}
+
+.signal-proof-line {
+  stroke: rgba(131, 247, 234, 0.48);
+  stroke-width: 2;
+  stroke-dasharray: 8 10;
+}
+
+.signal-dot {
+  fill: rgba(5, 7, 10, 0.98);
+  stroke-width: 2;
+}
+
+.signal-dot-a {
+  stroke: rgba(52, 211, 153, 0.9);
+}
+
+.signal-dot-b {
+  stroke: rgba(214, 189, 127, 0.9);
+}
+
+.signal-dot-c {
+  stroke: rgba(248, 113, 113, 0.88);
+}
+
+.signal-axis {
+  position: absolute;
+  bottom: 14px;
+  z-index: 2;
+  color: rgba(148, 163, 184, 0.48);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.signal-axis-left {
+  left: 18px;
+}
+
+.signal-axis-right {
+  right: 18px;
+}
+
+.signal-brief {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(15, 18, 24, 0.72), rgba(8, 10, 14, 0.84));
+  padding: 18px;
+}
+
+.signal-eyebrow {
+  color: rgba(169, 157, 242, 0.88);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.signal-brief h2 {
+  margin-top: 10px;
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 25px;
+  font-weight: 760;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.signal-brief p:not(.signal-eyebrow) {
+  margin-top: 12px;
+  color: rgba(203, 213, 225, 0.58);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.signal-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.signal-pill-row span {
+  border: 1px solid rgba(169, 157, 242, 0.18);
+  border-radius: 999px;
+  background: rgba(169, 157, 242, 0.075);
+  color: rgba(226, 232, 240, 0.72);
+  padding: 6px 9px;
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.signal-verdict {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  padding-top: 14px;
+}
+
+.signal-verdict span {
+  color: rgba(148, 163, 184, 0.55);
+  font-size: 11px;
+}
+
+.signal-verdict strong {
+  color: rgba(131, 247, 234, 0.9);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: right;
+}
+
+@keyframes signalDraw {
+  0%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.82;
+  }
+  48% {
+    stroke-dashoffset: 110;
+    opacity: 1;
+  }
+}
+
 .ops-status-pill {
   display: inline-flex;
   align-items: center;
@@ -1788,6 +2037,67 @@ textarea:focus-visible {
 
   .ops-topline-actions {
     justify-content: flex-start;
+  }
+
+  .signal-showcase {
+    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .signal-visual {
+    min-height: 148px;
+  }
+
+  .signal-brief {
+    padding: 12px;
+  }
+
+  .signal-brief h2 {
+    font-size: 18px;
+    line-height: 1.12;
+  }
+
+  .signal-brief p:not(.signal-eyebrow) {
+    display: none;
+  }
+
+  .signal-band {
+    height: 24px;
+    font-size: 9px;
+  }
+
+  .signal-band-sell {
+    top: 42px;
+  }
+
+  .signal-band-buy {
+    bottom: 28px;
+  }
+
+  .signal-brandmark {
+    top: 12px;
+    left: 14px;
+  }
+
+  .signal-axis,
+  .signal-pill-row {
+    display: none;
+  }
+
+  .signal-verdict {
+    align-items: center;
+    flex-direction: row;
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  .signal-verdict strong {
+    font-size: 12px;
+  }
+
+  .signal-verdict strong {
+    text-align: left;
   }
 
   .ops-grid {

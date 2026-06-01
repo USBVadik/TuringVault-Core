@@ -474,6 +474,64 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="signal-showcase" aria-label="mETH flip engine status">
+            <div className="signal-visual" aria-hidden="true">
+              <div className="signal-brandmark">
+                <Zap className="w-4 h-4" />
+                <span>TV</span>
+              </div>
+              <div className="signal-band signal-band-sell">
+                <span>Sell band</span>
+              </div>
+              <div className="signal-band signal-band-buy">
+                <span>Buy band</span>
+              </div>
+              <svg className="signal-sketch" viewBox="0 0 520 260" role="img">
+                <path
+                  className="signal-grid-line"
+                  d="M28 194 C72 178 91 122 132 136 C182 153 192 72 246 88 C297 104 319 42 376 66 C426 87 446 126 492 106"
+                />
+                <path
+                  className="signal-sketch-line"
+                  d="M34 196 C74 178 92 126 132 138 C178 152 196 78 244 90 C298 104 318 48 376 68 C428 88 448 128 492 108"
+                />
+                <path
+                  className="signal-proof-line"
+                  d="M88 214 C170 222 235 214 304 178 C354 152 398 148 470 162"
+                />
+                <circle className="signal-dot signal-dot-a" cx="132" cy="138" r="5" />
+                <circle className="signal-dot signal-dot-b" cx="244" cy="90" r="5" />
+                <circle className="signal-dot signal-dot-c" cx="376" cy="68" r="5" />
+              </svg>
+              <div className="signal-axis signal-axis-left">mETH</div>
+              <div className="signal-axis signal-axis-right">mUSD</div>
+            </div>
+
+            <div className="signal-brief">
+              <p className="signal-eyebrow">mETH flip grid</p>
+              <h2>Signal first. Proof before execution.</h2>
+              <p>
+                Lower-band risk-on ideas, upper-band risk-off exits, and
+                adversarial validation stay visible before the wallet moves.
+              </p>
+              <div className="signal-pill-row">
+                <span>Wallet-aware</span>
+                <span>Validator veto</span>
+                <span>DEX proof</span>
+              </div>
+              <div className="signal-verdict">
+                <span>Current verdict</span>
+                <strong>
+                  {latestDecision?.action
+                    ? `${latestDecision.action.toUpperCase()} ${
+                        latestDecision.targetAsset ?? ""
+                      }`
+                    : "WAITING"}
+                </strong>
+              </div>
+            </div>
+          </div>
+
           <div className="ops-grid">
             <div className="ops-panel ops-panel-primary">
               <div className="ops-panel-header">
