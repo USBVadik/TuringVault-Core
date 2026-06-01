@@ -28,6 +28,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { RelativeTime } from "../lib/time";
+import { deriveLiveStatus, type HealthForLiveness } from "../lib/live-status";
 
 type Decision = {
   id: number;
@@ -55,40 +56,7 @@ type Decision = {
   candleFromSnapshot?: boolean;
 };
 
-type Health = {
-  lastCycleTimestamp?: string | null;
-  lastCycleAge?: number | null;
-  mode?: string;
-};
-
-type LiveState = "live" | "idle" | "offline";
-
-function deriveLiveState(h: Health | null): LiveState {
-  if (!h || h.lastCycleAge == null) return "offline";
-  if (h.lastCycleAge < 600) return "live";
-  if (h.lastCycleAge < 3600) return "idle";
-  return "offline";
-}
-
-function badgeFor(state: LiveState) {
-  switch (state) {
-    case "live":
-      return { dot: "bg-green-400", label: "LIVE", tone: "text-green-400/80" };
-    case "idle":
-      return {
-        dot: "bg-yellow-400",
-        label: "IDLE",
-        tone: "text-yellow-400/80",
-      };
-    case "offline":
-    default:
-      return {
-        dot: "bg-red-400",
-        label: "REPLAY · OFFLINE",
-        tone: "text-red-400/80",
-      };
-  }
-}
+type Health = HealthForLiveness;
 
 /**
  * Extract the [TIER] prefix from on-chain reasoning text if present.
@@ -183,8 +151,11 @@ export function LiveTerminal() {
     }
   }, [decisions]);
 
-  const liveState = deriveLiveState(health);
-  const badge = badgeFor(liveState);
+  const liveStatus = deriveLiveStatus(health);
+  const badgeLabel =
+    liveStatus.tier === "offline" && liveStatus.label === "OFFLINE"
+      ? "REPLAY · OFFLINE"
+      : liveStatus.label;
 
   return (
     <div className="live-terminal">
@@ -199,25 +170,19 @@ export function LiveTerminal() {
         </span>
         <div
           className="flex items-center gap-2 ml-auto"
-          title={
-            liveState === "live"
-              ? "Last cycle within 10 minutes — streaming"
-              : liveState === "idle"
-              ? "Last cycle within 1 hour"
-              : "Cron not running — showing historical decisions"
-          }
+          title={liveStatus.detail}
         >
-          <span className={`w-2 h-2 rounded-full ${badge.dot}`} />
+          <span className={`w-2 h-2 rounded-full ${liveStatus.tone.dot}`} />
           <span
-            className={`text-[9px] font-mono uppercase tracking-wider ${badge.tone}`}
+            className={`text-[9px] font-mono uppercase tracking-wider ${liveStatus.tone.text}`}
           >
-            {badge.label}
+            {badgeLabel}
           </span>
         </div>
       </div>
       <div ref={terminalRef} className="live-terminal-body">
         {/* Header: replay disclosure when not live */}
-        {liveState !== "live" && (
+        {liveStatus.tier !== "live" && (
           <div className="terminal-line text-yellow-300/60 mb-2">
             ⚠ Replay: last cycle{" "}
             {health?.lastCycleTimestamp ? (

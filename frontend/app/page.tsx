@@ -33,6 +33,7 @@ import { LiveStatusBadge } from "./components/LiveStatusBadge";
 import { SkeletonStatsGrid } from "./components/Skeleton";
 import { RelativeTime } from "./lib/time";
 import { deriveSignalDisplay, formatSignalPrice } from "./lib/signal-display";
+import { deriveLiveStatus } from "./lib/live-status";
 import contractsData from "./data/contracts.json";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -287,11 +288,10 @@ export default function Home() {
       clearInterval(id);
     };
   }, []);
-  // GitHub Actions cron has two slots per hour (:17 and :47 UTC). Keep a
-  // conservative 65 min threshold so one delayed/skipped slot doesn't
-  // produce a false alarm, but two missed slots do.
-  const STALE_THRESHOLD_S = 65 * 60;
-  const isStale = health?.lastCycleAge != null && health.lastCycleAge > STALE_THRESHOLD_S;
+  const liveStatus = deriveLiveStatus(health);
+  const isStale =
+    Boolean(health?.lastCycleTimestamp) &&
+    (liveStatus.tier === "stale" || liveStatus.tier === "offline");
 
   const safetyPct = totalProposals ? Math.round(((totalRejected || 0) / totalProposals) * 100) : null;
 
@@ -375,14 +375,10 @@ export default function Home() {
   }, [FALLBACK_MARKET]);
 
   const latestDecision = recentDecisions?.[0] ?? null;
-  const agentStatusLabel = isStale
-    ? "STALE"
-    : health?.lastCycleTimestamp
-      ? "IDLE"
-      : "OFFLINE";
-  const agentStatusTone = isStale
+  const agentStatusLabel = liveStatus.label;
+  const agentStatusTone = liveStatus.tier === "stale"
     ? "warn"
-    : health?.lastCycleTimestamp
+    : liveStatus.tier === "live" || liveStatus.tier === "idle"
       ? "ok"
       : "danger";
   const latestReasoning = latestDecision?.reasoningHash
@@ -1055,7 +1051,9 @@ export default function Home() {
               <div className="ops-split-row">
                 <span>ETH</span>
                 <strong>
-                  {marketData ? `$${marketData.ethPrice.toLocaleString()}` : "—"}
+                  {marketData
+                    ? `$${marketData.ethPrice.toLocaleString("en-US")}`
+                    : "—"}
                 </strong>
               </div>
             </div>
@@ -1700,7 +1698,9 @@ export default function Home() {
               <MarketRow
                 label="ETH"
                 value={
-                  marketData ? `$${marketData.ethPrice.toLocaleString()}` : "—"
+                  marketData
+                    ? `$${marketData.ethPrice.toLocaleString("en-US")}`
+                    : "—"
                 }
                 change={marketData?.ethChange24h}
               />
@@ -2015,7 +2015,9 @@ function MarketRow({
     <div className="flex items-center justify-between">
       <span className="text-[11px] text-white/30">{label}</span>
       <div className="text-right">
-        <span className={`text-sm font-semibold ${color}`}>{value}</span>
+        <span className={`text-sm font-semibold tabular-nums ${color}`}>
+          {value}
+        </span>
         {change !== undefined && (
           <span
             className={`text-[10px] ml-2 ${
