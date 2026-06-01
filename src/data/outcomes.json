@@ -6722,6 +6722,78 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780291941340_209",
+      "decisionId": 209,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1991.44,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "Qmf1FpQ1Vk2bssPy4yYHiK5K8TPzJW1b97YLMMCosnoVxc",
+      "recordedAt": "2026-06-01T05:32:21.340Z",
+      "settleAfter": "2026-06-01T06:32:21.340Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780291941336
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate: position already open in mETH from $1996.49, stop-loss at $1983.99 not triggered, current price $1991.44 within tolerable drawdown. Grid BUY_mETH at 80% confidence with 2.5:1 R:R supports holding. ALREADY_IN_POSITION override correctly blocks redundant entry. Bearish consensus and F&G=29 noted but insufficient to trigger exit — no CRISIS/TREND_DOWN confirmed. Analyst reasoning",
+      "validatorFlaggedIssues": [
+        "Price $1991.44 below entry $1996.49 — monitor stop $1983.99 closely",
+        "Signal consensus BEARISH conflicts with grid BUY — acknowledged implicitly but not explicitly",
+        "F&G=29 extreme fear could accelerate downside if $1983.99 breached"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x356cdb9568fcfd801d9b14a49aaba7811fd5af08e36c563d934c5d5057e45adf",
+      "combinedAnchor": "0xca4a58ddc45c0404844444f01c901406f5844f096a72347328f5c0c80413da2e",
+      "decisionLogTxHash": "0xb28ce2f488e5fdb177557a10c7107d0ba09fc21b98fa78af062527a0f64ebe7a",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
