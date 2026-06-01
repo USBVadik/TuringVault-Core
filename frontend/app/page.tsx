@@ -494,6 +494,52 @@ export default function Home() {
     latestDecision?.decisionId ??
     latestDecision?.cycleId ??
     "latest";
+  const signalEvents: Array<{
+    id: string;
+    action: string;
+    target: string;
+    timeLabel: string;
+    tone: "executed" | "blocked" | "intent" | "hold";
+  }> = (recentDecisions ?? [])
+    .slice(0, 4)
+    .map((decision: any, index: number) => {
+      const reasoning = decision?.reasoningHash
+        ? parseReasoning(decision.reasoningHash)
+        : "";
+      const tier =
+        decision?.decisionTier ??
+        decision?.displayTier ??
+        decision?.tier ??
+        decision?.executionTier ??
+        extractDecisionTier(reasoning) ??
+        "—";
+      const tierLower = String(tier).toLowerCase();
+      const action = String(decision?.action ?? "WAIT").toUpperCase();
+      const target = String(decision?.targetAsset ?? "—");
+      const timestampMs = Number(decision?.timestamp ?? 0) * 1000;
+      const timeLabel = timestampMs
+        ? new Date(timestampMs).toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })
+        : `T-${index}`;
+      const tone = tierLower.includes("executed")
+        ? "executed"
+        : tierLower.includes("blocked")
+          ? "blocked"
+          : action.includes("SWAP") || action.includes("BUY") || action.includes("SELL")
+            ? "intent"
+            : "hold";
+
+      return {
+        id: String(decision?.id ?? decision?.decisionId ?? decision?.cycleId ?? index),
+        action,
+        target,
+        timeLabel,
+        tone,
+      };
+    });
 
   // ═══ REASONING ANIMATION ═══
   useEffect(() => {
@@ -629,6 +675,21 @@ export default function Home() {
                 <circle className="signal-dot signal-dot-b" cx="244" cy="90" r="5" />
                 <circle className="signal-dot signal-dot-c" cx="376" cy="68" r="5" />
               </svg>
+              {signalEvents.length > 0 && (
+                <div className="signal-event-tape">
+                  <span className="signal-event-label">decision tape</span>
+                  {signalEvents.map((event) => (
+                    <span
+                      key={`${event.id}-${event.timeLabel}`}
+                      className={`signal-event signal-event-${event.tone}`}
+                    >
+                      <span>{event.timeLabel}</span>
+                      <strong>{event.action}</strong>
+                      <em>{event.target}</em>
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="signal-axis signal-axis-left">mETH</div>
               <div className="signal-axis signal-axis-right">mUSD</div>
             </div>

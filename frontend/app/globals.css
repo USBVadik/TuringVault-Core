@@ -1669,6 +1669,114 @@ textarea:focus-visible {
   right: 18px;
 }
 
+.signal-event-tape {
+  position: absolute;
+  left: 18px;
+  right: 158px;
+  bottom: 82px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(4, 7, 11, 0.82), rgba(4, 7, 11, 0.46)),
+    linear-gradient(90deg, rgba(131, 247, 234, 0.04), transparent);
+  padding: 7px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.signal-event-tape::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 46px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(131, 247, 234, 0.08), transparent);
+  animation: signalTapeScan 4.8s ease-in-out infinite;
+}
+
+.signal-event-label {
+  flex: 0 0 auto;
+  color: rgba(148, 163, 184, 0.54);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.signal-event {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  max-width: 148px;
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.54);
+  padding: 4px 7px;
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+}
+
+.signal-event span {
+  color: rgba(148, 163, 184, 0.6);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.signal-event strong {
+  color: rgba(226, 232, 240, 0.8);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.signal-event em {
+  overflow: hidden;
+  color: rgba(203, 213, 225, 0.62);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signal-event-executed {
+  border-color: rgba(52, 211, 153, 0.28);
+  background: rgba(6, 78, 59, 0.2);
+}
+
+.signal-event-executed strong,
+.signal-event-executed em {
+  color: rgba(110, 231, 183, 0.86);
+}
+
+.signal-event-blocked {
+  border-color: rgba(214, 189, 127, 0.28);
+  background: rgba(113, 86, 23, 0.16);
+}
+
+.signal-event-blocked strong,
+.signal-event-blocked em {
+  color: rgba(214, 189, 127, 0.86);
+}
+
+.signal-event-intent {
+  border-color: rgba(169, 157, 242, 0.25);
+  background: rgba(88, 80, 160, 0.14);
+}
+
+.signal-event-intent strong,
+.signal-event-intent em {
+  color: rgba(199, 190, 255, 0.86);
+}
+
 .signal-brief {
   position: relative;
   z-index: 1;
@@ -1979,6 +2087,21 @@ textarea:focus-visible {
   }
   100% {
     transform: translateX(720%);
+    opacity: 0;
+  }
+}
+
+@keyframes signalTapeScan {
+  0%,
+  100% {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+  42% {
+    opacity: 0.72;
+  }
+  70% {
+    transform: translateX(320px);
     opacity: 0;
   }
 }
@@ -2417,7 +2540,7 @@ textarea:focus-visible {
   }
 
   .signal-visual {
-    min-height: 148px;
+    min-height: 174px;
   }
 
   .signal-brief {
@@ -2443,12 +2566,40 @@ textarea:focus-visible {
   }
 
   .signal-band-buy {
-    bottom: 28px;
+    bottom: 45px;
   }
 
   .signal-brandmark {
     top: 12px;
     left: 14px;
+  }
+
+  .signal-event-tape {
+    left: 14px;
+    right: 14px;
+    bottom: 12px;
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .signal-event-label {
+    display: none;
+  }
+
+  .signal-event {
+    gap: 4px;
+    max-width: 98px;
+    padding: 3px 5px;
+  }
+
+  .signal-event:nth-of-type(n + 5) {
+    display: none;
+  }
+
+  .signal-event span,
+  .signal-event strong,
+  .signal-event em {
+    font-size: 7px;
   }
 
   .signal-live-chip {
@@ -2465,7 +2616,7 @@ textarea:focus-visible {
 
   .signal-sweep {
     top: 34px;
-    bottom: 26px;
+    bottom: 42px;
   }
 
   .signal-sweep::after {
