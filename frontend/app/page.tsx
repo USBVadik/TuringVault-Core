@@ -1156,7 +1156,7 @@ export default function Home() {
           ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-1"
               title="On-chain reputation NFT score (ReputationRegistry.getReputation)"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -1170,7 +1170,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-2"
               title="(GOOD_CALL + CORRECT_BLOCK) / Settled — derived from outcomes.json"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -1186,7 +1186,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-3"
               title="Resolved outcomes in src/data/outcomes.json (settled[]).length"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -1200,7 +1200,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-4"
               title="Sum of outcomeTracker pnlBps across settled[]; model-quality score, not realized wallet PnL"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -1224,7 +1224,7 @@ export default function Home() {
               </div>
             </div>
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-5"
               title="Good Calls / Bad Calls — see outcomes.json scoring"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
@@ -1251,7 +1251,7 @@ export default function Home() {
                 Spec: .kiro/specs/meth-yield-surface.
                 Steering: §1 (provenance) + §3 (no phantom PnL). */}
             <div
-              className="text-center p-3 bg-white/[0.02] rounded-lg border border-emerald-500/15 stat-card-interactive"
+              className="text-center p-3 bg-white/[0.02] rounded-lg border border-emerald-500/15 stat-card-interactive anim-fade-up anim-delay-6"
               title={
                 yieldMethData?.referenceTs
                   ? `Passive Protocol Yield · mETH LST. Yield since dashboard launch (${new Date(
@@ -1694,7 +1694,7 @@ export default function Home() {
                 Live Market
               </span>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-0.5">
               <MarketRow
                 label="ETH"
                 value={
@@ -2012,7 +2012,7 @@ function MarketRow({
     else color = "text-yellow-400";
   }
   return (
-    <div className="flex items-center justify-between">
+    <div className="market-row">
       <span className="text-[11px] text-white/30">{label}</span>
       <div className="text-right">
         <span className={`text-sm font-semibold tabular-nums ${color}`}>

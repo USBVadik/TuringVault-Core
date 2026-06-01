@@ -1059,6 +1059,37 @@ body {
   }
 }
 
+/* Live Market rows — hairline dividers give the stack rhythm and a
+   subtle indent-on-hover reads as "scannable list", not flat dump.
+   design-taste: rhythm + depth via light. */
+.market-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 8px;
+  margin: 0 -8px;
+  border-radius: 7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    padding-left var(--dur-fast) var(--ease-out);
+}
+
+.market-row:last-child {
+  border-bottom: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .market-row:hover {
+    background: linear-gradient(
+      90deg,
+      rgba(131, 247, 234, 0.05),
+      transparent 70%
+    );
+    padding-left: 12px;
+  }
+}
+
 /* Button press effect */
 .btn-press {
   transition: transform var(--dur-press) var(--ease-out);
