@@ -432,6 +432,7 @@ export default function Home() {
       </div>
       <div className="noise-overlay" />
       <div className="grid-bg" />
+      <div className="proof-texture" aria-hidden="true" />
 
       <main className="relative min-h-screen px-4 sm:px-6 py-6 max-w-[1200px] mx-auto">
         {/* ═══ HEADER ═══ */}
@@ -454,6 +455,14 @@ export default function Home() {
 
         {/* ═══ OPERATOR OVERVIEW — first viewport, data before narrative ═══ */}
         <section className="ops-shell mb-8 anim-fade-up anim-delay-1">
+          <div className="proof-trace" aria-hidden="true">
+            <div className="trace-stem" />
+            <span className="trace-node trace-node-a" />
+            <span className="trace-node trace-node-b" />
+            <span className="trace-node trace-node-c" />
+            <span className="trace-scan" />
+            <span className="trace-label">keccak256 · ipfs · validator</span>
+          </div>
           <div className="ops-topline">
             <div>
               <p className="ops-kicker">Live Agent Console</p>
