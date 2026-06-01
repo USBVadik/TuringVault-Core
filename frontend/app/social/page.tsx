@@ -19,8 +19,9 @@
  *   GET /v2/aggregations/trending-tokens?timeWindow
  */
 
-import { useEffect, useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { type ReactNode, useEffect, useState } from "react";
+import { Database, MessageCircle, Plus, Radio, Search } from "lucide-react";
+import styles from "./social.module.css";
 
 type Snapshot = {
   available: boolean;
@@ -57,16 +58,16 @@ function relTime(iso: string | null | undefined): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-function signalColor(s: string | undefined): string {
-  if (s === "BULLISH") return "text-emerald-400";
-  if (s === "BEARISH") return "text-red-400";
-  return "text-white/60";
+function signalBg(s: string | undefined): string {
+  if (s === "BULLISH") return styles.signalBullish;
+  if (s === "BEARISH") return styles.signalBearish;
+  return styles.signalNeutral;
 }
 
-function signalBg(s: string | undefined): string {
-  if (s === "BULLISH") return "bg-emerald-500/[0.06] border-emerald-500/20";
-  if (s === "BEARISH") return "bg-red-500/[0.06] border-red-500/20";
-  return "bg-white/[0.02] border-white/[0.06]";
+function signalTone(s: string | undefined): string {
+  if (s === "BULLISH") return styles.toneBullish;
+  if (s === "BEARISH") return styles.toneBearish;
+  return styles.toneNeutral;
 }
 
 function fmtNum(n: number | null | undefined): string {
@@ -125,95 +126,134 @@ export default function SocialPage() {
     setCustomInput("");
   }
 
+  const snapshots = tickers.map((sym) => data[sym]).filter(Boolean) as Snapshot[];
+  const available = snapshots.filter((d) => d.available);
+  const unavailable = snapshots.filter((d) => !d.available);
+  const bullishCount = available.filter((d) => d.signal === "BULLISH").length;
+  const bearishCount = available.filter((d) => d.signal === "BEARISH").length;
+  const strongest = available.reduce<Snapshot | null>((best, d) => {
+    if (!best) return d;
+    return (d.strength ?? 0) > (best.strength ?? 0) ? d : best;
+  }, null);
+  const newestFetch = available
+    .map((d) => d.fetchedAt)
+    .filter(Boolean)
+    .sort((a, b) => Date.parse(b || "") - Date.parse(a || ""))[0];
+  const coverageLabel = loading
+    ? "syncing"
+    : `${available.length}/${tickers.length} live`;
+  const socialBias =
+    bullishCount > bearishCount
+      ? "bullish"
+      : bearishCount > bullishCount
+      ? "bearish"
+      : "neutral";
+
   return (
-    <main className="relative min-h-screen px-6 py-10 max-w-[1200px] mx-auto text-white anim-fade-up">
-      <header className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
-            <MessageCircle className="w-6 h-6 text-purple-400" />
-            Social Attention{" "}
-            <span className="text-white/40 font-normal">· Elfa REST v2</span>
-          </h1>
+    <main className={styles.page}>
+      <section className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <div className={styles.eyebrow}>
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>Social intelligence</span>
+              <span>Elfa REST v2</span>
+          </div>
+          <h1>Track the crowd signal before it reaches the trade prompt.</h1>
+          <p>
+            Live snapshot of the 5th structured signal feeding the agent:
+            mindshare rank, 24h surge, smart-account reposts, and engagement
+            quality. Raw tweet content stays out of the product, so sentiment is
+            left null instead of fabricated.
+          </p>
+          <div className={styles.sourceStrip}>
+            <a
+              href="https://github.com/USBVadik/TuringVault-Core/blob/main/src/data/elfa.js"
+              target="_blank"
+              rel="noreferrer"
+            >
+              src/data/elfa.js
+            </a>
+            <a
+              href="https://github.com/USBVadik/TuringVault-Core/blob/main/frontend/app/api/elfa-snapshot/route.ts"
+              target="_blank"
+              rel="noreferrer"
+            >
+              /api/elfa-snapshot
+            </a>
+          </div>
         </div>
-        <p className="text-xs text-white/40 mt-2 max-w-3xl leading-relaxed">
-          Live snapshot of the 5th structured signal feeding the agent:
-          mindshare leaderboard rank, 24h surge, and the breakdown of reposts
-          from smart vs ct (crypto-twitter generic) accounts. V2 strips raw
-          tweet content for ToS compliance — sentiment is reported as{" "}
-          <code className="font-mono text-white/60">null</code> rather than
-          fabricated. Refreshes every 5 min.
-        </p>
-        <div className="mt-3 text-[10px] font-mono text-white/30">
-          Source:{" "}
-          <a
-            href="https://github.com/USBVadik/TuringVault-Core/blob/main/src/data/elfa.js"
-            target="_blank"
-            rel="noreferrer"
-            className="text-purple-300/70 hover:text-purple-200"
-          >
-            src/data/elfa.js
-          </a>
-          {" · "}
-          <a
-            href="https://github.com/USBVadik/TuringVault-Core/blob/main/frontend/app/api/elfa-snapshot/route.ts"
-            target="_blank"
-            rel="noreferrer"
-            className="text-purple-300/70 hover:text-purple-200"
-          >
-            /api/elfa-snapshot
-          </a>
+
+        <div className={styles.commandCard}>
+          <div>
+            <div className={styles.commandLabel}>Signal state</div>
+            <strong className={signalTone(socialBias.toUpperCase())}>
+              {loading ? "SYNCING" : socialBias.toUpperCase()}
+            </strong>
+          </div>
+          <div className={styles.commandGrid}>
+            <CommandStat label="Coverage" value={coverageLabel} />
+            <CommandStat
+              label="Strongest"
+              value={
+                strongest?.symbol
+                  ? `${strongest.symbol} ${Math.round((strongest.strength ?? 0) * 100)}%`
+                  : "—"
+              }
+            />
+            <CommandStat label="Bullish" value={String(bullishCount)} />
+            <CommandStat label="Offline" value={String(unavailable.length)} />
+          </div>
+          <div className={styles.freshnessLine}>
+            <Radio className="w-3.5 h-3.5" />
+            <span>refreshes every 5 min · latest {relTime(newestFetch)}</span>
+          </div>
         </div>
-      </header>
+      </section>
 
-      {/* Add custom ticker */}
-      <div className="mb-6 flex items-center gap-2">
-        <input
-          value={customInput}
-          onChange={(e) => setCustomInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addTicker()}
-          placeholder="add ticker e.g. PEPE"
-          className="bg-white/[0.04] border border-white/10 rounded px-3 py-1.5 text-sm font-mono w-48 placeholder-white/20 focus:outline-none focus:border-purple-500/40"
-        />
-        <button
-          onClick={addTicker}
-          className="px-3 py-1.5 text-xs font-mono bg-purple-500/15 border border-purple-500/30 text-purple-200 rounded hover:bg-purple-500/25"
-        >
-          add
-        </button>
-        <span className="text-[10px] text-white/30 ml-2">
-          {loading
-            ? "loading…"
-            : `${tickers.length} ticker${
-                tickers.length === 1 ? "" : "s"
-              } tracked`}
-        </span>
-      </div>
+      <section className={styles.operatorBar}>
+        <div>
+          <span>Tracked tickers</span>
+          <strong>
+            {loading
+              ? "loading"
+              : `${tickers.length} ticker${tickers.length === 1 ? "" : "s"}`}
+          </strong>
+        </div>
+        <div className={styles.addTicker}>
+          <Search className="w-4 h-4" />
+          <input
+            value={customInput}
+            onChange={(e) => setCustomInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addTicker()}
+            placeholder="add ticker e.g. PEPE"
+            aria-label="Add ticker"
+          />
+          <button onClick={addTicker} aria-label="Add ticker">
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
+      </section>
 
-      {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <section className={styles.cardGrid}>
         {tickers.map((sym) => {
           const d = data[sym];
           if (!d) {
             return (
               <div
                 key={sym}
-                className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02] animate-pulse"
+                className={`${styles.assetCard} ${styles.loadingCard}`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-base font-semibold">{sym}</span>
-                  <span className="h-3 w-16 bg-white/5 rounded" />
+                <div className={styles.cardTopline}>
+                  <span>{sym}</span>
+                  <em />
                 </div>
-                <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className={styles.metricGrid}>
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="p-2.5 rounded bg-white/[0.03]">
-                      <div className="h-2 w-12 bg-white/5 rounded mb-2" />
-                      <div className="h-5 w-16 bg-white/5 rounded" />
+                    <div key={i} className={styles.metricBox}>
+                      <span />
+                      <strong />
                     </div>
                   ))}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="h-14 bg-white/[0.02] rounded border border-white/[0.04]" />
-                  <div className="h-14 bg-white/[0.02] rounded border border-white/[0.04]" />
                 </div>
               </div>
             );
@@ -238,15 +278,15 @@ export default function SocialPage() {
             return (
               <div
                 key={sym}
-                className="p-5 rounded-xl border border-yellow-500/20 bg-yellow-500/[0.04]"
+                className={`${styles.assetCard} ${styles.unavailableCard}`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-base font-semibold">{sym}</span>
-                  <span className="text-[10px] font-mono text-yellow-300/70">
+                <div className={styles.cardTopline}>
+                  <span>{sym}</span>
+                  <em>
                     {badgeLabel}
-                  </span>
+                  </em>
                 </div>
-                <p className="text-xs text-white/50 leading-relaxed">
+                <p>
                   {message}
                 </p>
               </div>
@@ -269,97 +309,87 @@ export default function SocialPage() {
           return (
             <div
               key={sym}
-              className={`p-5 rounded-xl border ${signalBg(d.signal)}`}
+              className={`${styles.assetCard} ${signalBg(d.signal)}`}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-xl font-bold">{sym}</span>
+              <div className={styles.cardHeader}>
+                <div>
+                  <span className={styles.symbol}>{sym}</span>
                   <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${signalColor(
-                      d.signal
-                    )}`}
+                    className={`${styles.signalPill} ${signalTone(d.signal)}`}
                   >
                     {d.signal}
                   </span>
-                  <span className="text-[10px] font-mono text-white/30">
-                    strength{" "}
-                    {d.strength != null
-                      ? `${Math.round(d.strength * 100)}%`
-                      : "—"}
-                  </span>
                 </div>
-                <span className="text-[10px] font-mono text-white/30">
+                <span>
                   {win} window · {relTime(d.fetchedAt)}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="p-2.5 rounded bg-white/[0.03]">
-                  <div className="text-[9px] text-white/30 uppercase tracking-wider mb-1">
-                    Mindshare
-                  </div>
-                  <div className="text-lg font-mono font-bold">
+              <div className={styles.strengthTrack}>
+                <span
+                  style={{
+                    width: `${
+                      d.strength != null
+                        ? Math.min(100, Math.max(0, d.strength * 100))
+                        : 0
+                    }%`,
+                  }}
+                />
+              </div>
+
+              <div className={styles.metricGrid}>
+                <MetricBox label="Mindshare">
+                  <strong>
                     {d.mindshare != null
                       ? `${Number(d.mindshare).toFixed(2)}%`
                       : "—"}
-                  </div>
-                  <div className={`text-[10px] font-mono mt-0.5 ${dmsColor}`}>
+                  </strong>
+                  <em className={dmsColor}>
                     {dmsLabel}
-                  </div>
-                </div>
-                <div className="p-2.5 rounded bg-white/[0.03]">
-                  <div className="text-[9px] text-white/30 uppercase tracking-wider mb-1">
-                    Rank
-                  </div>
-                  <div className="text-lg font-mono font-bold">
+                  </em>
+                </MetricBox>
+                <MetricBox label="Rank">
+                  <strong>
                     {d.mindshareRank != null ? `#${d.mindshareRank}` : "—"}
-                  </div>
-                  <div className="text-[10px] font-mono text-white/30 mt-0.5">
+                  </strong>
+                  <em>
                     in trending top 50
-                  </div>
-                </div>
-                <div className="p-2.5 rounded bg-white/[0.03]">
-                  <div className="text-[9px] text-white/30 uppercase tracking-wider mb-1">
-                    Mentions
-                  </div>
-                  <div className="text-lg font-mono font-bold">
+                  </em>
+                </MetricBox>
+                <MetricBox label="Mentions">
+                  <strong>
                     {fmtNum(d.mentionCount)}
-                  </div>
-                  <div className="text-[10px] font-mono text-white/30 mt-0.5">
+                  </strong>
+                  <em>
                     top {d.mentionCount ?? 0} sampled
-                  </div>
-                </div>
+                  </em>
+                </MetricBox>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-3 text-[11px]">
-                <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04]">
-                  <div className="text-[9px] text-white/30 uppercase tracking-wider mb-0.5">
-                    Reposts
-                  </div>
-                  <div className="font-mono">
-                    <span className="text-emerald-400/80">
+              <div className={styles.detailGrid}>
+                <div>
+                  <span>Reposts</span>
+                  <strong>
+                    <b>
                       {d.smartReposts ?? 0} smart
-                    </span>
-                    <span className="text-white/30"> / </span>
-                    <span className="text-white/55">{d.ctReposts ?? 0} ct</span>
-                  </div>
-                  <div className="text-[10px] text-white/40 mt-0.5">
+                    </b>
+                    <i>{d.ctReposts ?? 0} ct</i>
+                  </strong>
+                  <em>
                     smart-share{" "}
                     {d.smartShare != null
                       ? `${Math.round(Number(d.smartShare) * 100)}%`
                       : "—"}
-                  </div>
+                  </em>
                 </div>
-                <div className="p-2 rounded bg-white/[0.02] border border-white/[0.04]">
-                  <div className="text-[9px] text-white/30 uppercase tracking-wider mb-0.5">
-                    Engagement (avg)
-                  </div>
-                  <div className="font-mono text-white/70">
+                <div>
+                  <span>Engagement avg</span>
+                  <strong>
                     {fmtNum(d.avgViews)} views · {fmtNum(d.avgLikes)} likes
-                  </div>
-                  <div className="text-[10px] text-white/40 mt-0.5">
+                  </strong>
+                  <em>
                     across sampled mentions
-                  </div>
+                  </em>
                 </div>
               </div>
 
@@ -367,17 +397,17 @@ export default function SocialPage() {
                 href={`/api/elfa-snapshot?symbol=${sym}`}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[10px] font-mono text-purple-300/60 hover:text-purple-200"
+                className={styles.rawLink}
               >
+                <Database className="w-3 h-3" />
                 raw JSON →
               </a>
             </div>
           );
         })}
-      </div>
+      </section>
 
-      {/* Footer note */}
-      <div className="mt-10 pt-6 border-t border-white/5 text-[11px] text-white/40 leading-relaxed max-w-3xl">
+      <section className={styles.footerNote}>
         <p>
           The agent reads the same payload every cycle (rolled into the
           analyst&apos;s structured-signals prompt alongside funding rate, on-chain
@@ -398,7 +428,31 @@ export default function SocialPage() {
           </a>
           .
         </p>
-      </div>
+      </section>
     </main>
+  );
+}
+
+function CommandStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function MetricBox({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className={styles.metricBox}>
+      <span>{label}</span>
+      {children}
+    </div>
   );
 }
