@@ -23,6 +23,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { LiveStatusBadge } from "../../components/LiveStatusBadge";
 import { explorerUrl } from "../../lib/explorer";
+import styles from "../replay.module.css";
 
 interface CaptureEntry {
   role: string;
@@ -157,7 +158,7 @@ export default async function ReplayPage({
   const cycleId = parseInt(id, 10);
   if (Number.isNaN(cycleId) || cycleId < 0) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white p-12 font-mono text-sm">
+      <div className={styles.emptyState}>
         Cycle id must be a non-negative integer. Try{" "}
         <Link className="underline" href="/replay">
           /replay
@@ -187,7 +188,7 @@ export default async function ReplayPage({
 
   if (!manifest) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] text-white p-12 font-mono text-sm">
+      <div className={styles.emptyState}>
         <p className="text-red-400">
           Manifest for cycle {cycleId} not found.
         </p>
@@ -230,24 +231,24 @@ export default async function ReplayPage({
   const isLegacy = !manifest.onChain?.combinedAnchor;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white px-6 py-10 md:px-12">
-      <div className="mx-auto max-w-5xl">
+    <div className={styles.page}>
+      <div className={styles.detailShell}>
         {/* Header */}
-        <div className="flex items-baseline justify-between flex-wrap gap-3">
+        <div className={styles.detailHeader}>
           <div>
             <Link
               href="/replay"
-              className="text-xs uppercase tracking-wider text-white/40 hover:text-white/70"
+              className={styles.backLink}
             >
               ← Replay Manifests
             </Link>
-            <h1 className="mt-2 text-3xl font-bold font-mono">
+            <h1 className={styles.detailTitle}>
               Cycle{" "}
-              <span className="text-cyan-400">
+              <span className={styles.cycleAccent}>
                 #{String(cycleId).padStart(4, "0")}
               </span>
             </h1>
-            <p className="mt-1 text-white/50 text-sm font-mono">
+            <p className={styles.detailSubcopy}>
               Tier:{" "}
               <span className="text-amber-300">
                 {manifest.decisionTier || "—"}
@@ -262,28 +263,39 @@ export default async function ReplayPage({
             </div>
           </div>
           {/* Verdict badge */}
-          {isLegacy ? (
-            <div className="rounded-md border border-yellow-500/40 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-200">
-              Legacy manifest (pre audit-18) — on-chain row carries
-              keccak256(ipfsCid) only, no manifestHash binding.
+          <div className={styles.verdictCard}>
+            <div>
+              <div className={styles.verdictLabel}>Binding verdict</div>
+              {isLegacy ? (
+                <p className={`${styles.verdictValue} ${styles.verdictLegacy}`}>
+                  Legacy manifest
+                </p>
+              ) : fullChainOfTrust ? (
+                <p className={`${styles.verdictValue} ${styles.verdictOk}`}>
+                  Cryptographic binding verified
+                </p>
+              ) : (
+                <p className={`${styles.verdictValue} ${styles.verdictFail}`}>
+                  Binding mismatch
+                </p>
+              )}
             </div>
-          ) : fullChainOfTrust ? (
-            <div className="rounded-md border border-emerald-500/50 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
-              ✅ Cryptographic binding verified — manifest matches on-chain
+            <div className={styles.verdictMeta}>
+              {isLegacy
+                ? "Pre audit-18: on-chain row carries keccak256(ipfsCid) only."
+                : fullChainOfTrust
+                ? "Manifest hash, IPFS CID, and DecisionLog bytes32 all match."
+                : "Stored anchor and chain data diverge. Investigate before trusting this cycle."}
             </div>
-          ) : (
-            <div className="rounded-md border border-red-500/50 bg-red-500/10 px-3 py-2 text-xs text-red-200">
-              ⚠️ Binding mismatch — investigate
-            </div>
-          )}
+          </div>
         </div>
 
         {/* Binding panel */}
-        <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.02] p-5">
-          <div className="text-xs uppercase tracking-wider text-white/40">
+        <div className={styles.panel}>
+          <div className={styles.panelTitle}>
             Reproducible AI · cryptographic binding
           </div>
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+          <div className={styles.fieldGrid}>
             <Field
               label="ipfsCid (proof-of-reasoning)"
               value={ipfsCid}
@@ -338,13 +350,12 @@ export default async function ReplayPage({
           {/* Section 3 weakness #3 mitigation — give the judge an
               alternate explorer to click if Mantlescan returns 502. */}
           {!isLegacy && manifest.onChain?.decisionLogTxHash && (
-            <div className="mt-3 text-[10px] font-mono text-white/40">
+            <div className={styles.subNote}>
               Mantlescan flaky?{" "}
               <a
                 href={`https://explorer.mantle.xyz/tx/${manifest.onChain.decisionLogTxHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline decoration-dotted hover:text-white/70"
                 title="explorer.mantle.xyz — official Mantle explorer (use as fallback when Mantlescan returns 502)"
               >
                 Open same tx on explorer.mantle.xyz mirror →
@@ -352,7 +363,7 @@ export default async function ReplayPage({
             </div>
           )}
           {onChainIndex !== null && onChainIndex !== cycleId && (
-            <div className="mt-3 text-[10px] font-mono text-white/40">
+            <div className={styles.subNote}>
               Note: manifest decisionId={cycleId} resolves to
               DecisionLog index {onChainIndex} on-chain
               (ValidationRegistry.totalProposals drifted +
@@ -361,9 +372,9 @@ export default async function ReplayPage({
             </div>
           )}
           {!isLegacy && (
-            <div className="mt-5 rounded-md border border-white/5 bg-black/30 p-3 text-[11px] font-mono text-white/60">
+            <div className={styles.formulaBox}>
               Verifier formula:{" "}
-              <span className="text-cyan-400">
+              <span>
                 keccak256(utf8(ipfsCid) ‖ manifestHash) === DecisionLog.txHash
               </span>
               <br />
@@ -375,9 +386,12 @@ export default async function ReplayPage({
         </div>
 
         {/* Captures */}
-        <div className="mt-8 space-y-5">
-          <div className="text-xs uppercase tracking-wider text-white/40">
-            LLM call captures · prompts &amp; raw responses
+        <div className={styles.capturesSection}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p>LLM call captures</p>
+              <span>Prompts and raw model responses</span>
+            </div>
           </div>
           {manifest.captures.map((cap, i) => (
             <CaptureCard key={i} cap={cap} />
@@ -385,15 +399,14 @@ export default async function ReplayPage({
         </div>
 
         {/* Footer / how to verify locally */}
-        <div className="mt-10 rounded-lg border border-white/10 bg-white/[0.02] p-5 text-[12px] font-mono text-white/60 leading-relaxed">
-          <div className="text-xs uppercase tracking-wider text-white/40">
+        <div className={styles.verifyBox}>
+          <div className={styles.panelTitle}>
             Independent verification
           </div>
-          <ol className="mt-3 list-decimal list-inside space-y-2">
+          <ol>
             <li>
               Pull the manifest:{" "}
               <a
-                className="underline text-cyan-400"
                 href={`https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/raw/replay-manifests/cycle-${String(
                   cycleId
                 ).padStart(4, "0")}.json`}
@@ -410,7 +423,6 @@ export default async function ReplayPage({
               </span>{" "}
               and compare against on-chain{" "}
               <a
-                className="underline"
                 href={`https://mantlescan.xyz/address/${DECISION_LOG_ADDR}#readContract`}
                 target="_blank"
                 rel="noreferrer"
@@ -422,7 +434,7 @@ export default async function ReplayPage({
             <li>
               Optional: round-trip the LLM call. Clone the repo, set
               your AWS / GCP credentials, run{" "}
-              <code className="text-cyan-400">
+              <code>
                 npm run replay {cycleId}
               </code>
               .
@@ -448,26 +460,23 @@ function Field({
   status?: "ok" | "fail" | null;
 }) {
   return (
-    <div className="rounded-md border border-white/5 bg-black/30 p-3">
-      <div className="text-[10px] uppercase tracking-wider text-white/40">
-        {label}
-      </div>
-      <div className="mt-1 flex items-center gap-2 text-white/80 break-all">
+    <div className={styles.fieldCard}>
+      <div className={styles.fieldLabel}>{label}</div>
+      <div className={styles.fieldValue}>
         {link ? (
           <a
             href={link}
             target="_blank"
             rel="noreferrer"
             title={fullValue || value}
-            className="underline hover:text-cyan-400"
           >
             {value || "—"}
           </a>
         ) : (
           <span title={fullValue || value}>{value || "—"}</span>
         )}
-        {status === "ok" && <span className="text-emerald-400">✓</span>}
-        {status === "fail" && <span className="text-red-400">✗</span>}
+        {status === "ok" && <span className={styles.fieldOk}>OK</span>}
+        {status === "fail" && <span className={styles.fieldFail}>FAIL</span>}
       </div>
     </div>
   );
@@ -475,34 +484,30 @@ function Field({
 
 function CaptureCard({ cap }: { cap: CaptureEntry }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.02] p-5">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className={styles.captureCard}>
+      <div className={styles.captureHeader}>
         <div>
-          <span className="text-sm font-bold text-white">
+          <span className={styles.captureRole}>
             {cap.role.toUpperCase()}
           </span>
-          <span className="ml-3 text-[11px] text-white/50 font-mono">
+          <span className={`ml-3 ${styles.captureModel}`}>
             {cap.provider} · {cap.modelId}
           </span>
         </div>
-        <div className="text-[11px] font-mono text-white/40">
+        <div className={styles.captureMeta}>
           temp={cap.temperature ?? "n/a"} · maxTok={cap.maxTokens ?? "n/a"} ·
-          parsed={cap.parsedOk ? "✓" : "✗"}
+          parsed={cap.parsedOk ? "OK" : "FAIL"}
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px] font-mono">
+      <div className={styles.promptGrid}>
         <PromptBlock label="systemPrompt" body={cap.systemPrompt} />
         <PromptBlock label="userPrompt" body={cap.userPrompt} />
       </div>
 
-      <div className="mt-3 rounded-md border border-white/5 bg-black/40 p-3 text-[11px] font-mono">
-        <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">
-          rawText (model response)
-        </div>
-        <pre className="text-white/80 whitespace-pre-wrap break-words max-h-72 overflow-auto">
-          {cap.rawText || "(empty)"}
-        </pre>
+      <div className={styles.rawBlock}>
+        <div className={styles.blockLabel}>rawText (model response)</div>
+        <pre>{cap.rawText || "(empty)"}</pre>
       </div>
     </div>
   );
@@ -510,13 +515,9 @@ function CaptureCard({ cap }: { cap: CaptureEntry }) {
 
 function PromptBlock({ label, body }: { label: string; body: string }) {
   return (
-    <div className="rounded-md border border-white/5 bg-black/30 p-3">
-      <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">
-        {label}
-      </div>
-      <pre className="text-white/80 whitespace-pre-wrap break-words max-h-60 overflow-auto">
-        {body || "(empty)"}
-      </pre>
+    <div className={styles.promptBlock}>
+      <div className={styles.blockLabel}>{label}</div>
+      <pre>{body || "(empty)"}</pre>
     </div>
   );
 }

@@ -1,0 +1,631 @@
+.page {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 18% -8%, rgba(131, 247, 234, 0.1), transparent 38%),
+    radial-gradient(ellipse at 86% 8%, rgba(169, 157, 242, 0.1), transparent 34%),
+    linear-gradient(180deg, #07090c 0%, #050607 52%, #030405 100%);
+  color: rgba(248, 250, 252, 0.96);
+}
+
+.page::before {
+  content: "";
+  position: fixed;
+  inset: 56px 0 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, transparent 0 46%, rgba(131, 247, 234, 0.035) 46.1% 46.25%, transparent 46.4% 100%),
+    repeating-linear-gradient(90deg, rgba(151, 170, 191, 0.022) 0 1px, transparent 1px 118px),
+    repeating-linear-gradient(0deg, rgba(151, 170, 191, 0.018) 0 1px, transparent 1px 118px);
+  opacity: 0.68;
+}
+
+.shell,
+.detailShell {
+  position: relative;
+  z-index: 1;
+  width: min(1200px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 40px 0 72px;
+}
+
+.detailShell {
+  width: min(1120px, calc(100vw - 32px));
+}
+
+.hero,
+.detailHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: 28px;
+  align-items: stretch;
+  border-bottom: 1px solid rgba(151, 170, 191, 0.12);
+  padding: 28px 0 36px;
+}
+
+.detailHeader {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: rgba(148, 163, 184, 0.52);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.eyebrow > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eyebrow > span + span::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(131, 247, 234, 0.6);
+}
+
+.heroCopy h1,
+.detailTitle {
+  max-width: 780px;
+  margin: 0;
+  color: rgba(248, 250, 252, 0.98);
+  font-size: clamp(34px, 5vw, 64px);
+  font-weight: 760;
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.detailTitle {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: clamp(34px, 4.3vw, 54px);
+}
+
+.heroCopy p,
+.detailSubcopy {
+  max-width: 680px;
+  margin-top: 18px;
+  color: rgba(203, 213, 225, 0.62);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.formulaStrip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 24px;
+  border: 1px solid rgba(131, 247, 234, 0.16);
+  border-radius: 8px;
+  background: rgba(4, 8, 10, 0.72);
+  padding: 10px 12px;
+  color: rgba(148, 163, 184, 0.62);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+}
+
+.formulaStrip code {
+  color: rgba(131, 247, 234, 0.86);
+  white-space: normal;
+}
+
+.heroStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.statCard,
+.verdictCard,
+.panel,
+.captureCard,
+.verifyBox {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(151, 170, 191, 0.15);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(15, 18, 24, 0.9), rgba(7, 9, 12, 0.94)),
+    linear-gradient(135deg, rgba(131, 247, 234, 0.032), transparent 44%, rgba(214, 189, 127, 0.022));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 22px 60px rgba(0, 0, 0, 0.22);
+}
+
+.statCard {
+  min-height: 132px;
+  padding: 18px;
+}
+
+.statCard span,
+.verdictLabel,
+.sectionHeader span,
+.fieldLabel,
+.blockLabel {
+  color: rgba(148, 163, 184, 0.56);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.statCard strong {
+  display: block;
+  margin-top: 34px;
+  color: rgba(248, 250, 252, 0.95);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.listSection,
+.capturesSection {
+  margin-top: 28px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.sectionHeader p {
+  margin: 0 0 4px;
+  color: rgba(248, 250, 252, 0.8);
+  font-size: 14px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.indexMeta {
+  display: flex;
+  gap: 14px;
+  color: rgba(148, 163, 184, 0.48);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+}
+
+.manifestList {
+  overflow: hidden;
+  border: 1px solid rgba(151, 170, 191, 0.14);
+  border-radius: 8px;
+  background: rgba(7, 9, 12, 0.7);
+}
+
+.manifestRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  min-height: 66px;
+  border-bottom: 1px solid rgba(151, 170, 191, 0.08);
+  padding: 14px 16px;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.manifestRow:last-child {
+  border-bottom: 0;
+}
+
+.manifestRow:hover {
+  background: rgba(131, 247, 234, 0.035);
+}
+
+.rowMain {
+  display: grid;
+  grid-template-columns: 88px minmax(150px, 220px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-width: 0;
+}
+
+.cycleId {
+  color: rgba(131, 247, 234, 0.9);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 13px;
+}
+
+.tierPill,
+.anchorOk,
+.anchorLegacy {
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(151, 170, 191, 0.12);
+  padding: 5px 8px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tierExecuted {
+  border-color: rgba(52, 211, 153, 0.22);
+  background: rgba(52, 211, 153, 0.08);
+  color: rgba(52, 211, 153, 0.9);
+}
+
+.tierBlocked,
+.tierValidator {
+  border-color: rgba(248, 113, 113, 0.22);
+  background: rgba(248, 113, 113, 0.08);
+  color: rgba(248, 113, 113, 0.88);
+}
+
+.tierPortfolio,
+.tierRegime {
+  border-color: rgba(214, 189, 127, 0.24);
+  background: rgba(214, 189, 127, 0.08);
+  color: rgba(214, 189, 127, 0.9);
+}
+
+.tierParse,
+.tierNeutral {
+  border-color: rgba(169, 157, 242, 0.24);
+  background: rgba(169, 157, 242, 0.08);
+  color: rgba(169, 157, 242, 0.92);
+}
+
+.timestamp {
+  overflow: hidden;
+  color: rgba(203, 213, 225, 0.48);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.anchorOk {
+  border-color: rgba(52, 211, 153, 0.22);
+  background: rgba(52, 211, 153, 0.07);
+  color: rgba(52, 211, 153, 0.84);
+}
+
+.anchorLegacy {
+  border-color: rgba(234, 179, 8, 0.22);
+  background: rgba(234, 179, 8, 0.08);
+  color: rgba(250, 204, 21, 0.88);
+}
+
+.rowArrow {
+  color: rgba(148, 163, 184, 0.42);
+  font-size: 15px;
+}
+
+.footerNote {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 18px;
+  color: rgba(148, 163, 184, 0.5);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+}
+
+.footerNote a {
+  color: rgba(131, 247, 234, 0.72);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.backLink {
+  color: rgba(148, 163, 184, 0.58);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.backLink:hover {
+  color: rgba(248, 250, 252, 0.8);
+}
+
+.cycleAccent {
+  color: rgba(131, 247, 234, 0.9);
+}
+
+.verdictCard {
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.verdictValue {
+  margin: 10px 0 0;
+  color: rgba(248, 250, 252, 0.94);
+  font-size: 22px;
+  font-weight: 680;
+  line-height: 1.18;
+}
+
+.verdictOk {
+  color: rgba(52, 211, 153, 0.92);
+}
+
+.verdictFail {
+  color: rgba(248, 113, 113, 0.92);
+}
+
+.verdictLegacy {
+  color: rgba(250, 204, 21, 0.9);
+}
+
+.verdictMeta {
+  border-top: 1px solid rgba(151, 170, 191, 0.1);
+  padding-top: 14px;
+  color: rgba(203, 213, 225, 0.48);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.panel,
+.captureCard,
+.verifyBox {
+  margin-top: 28px;
+  padding: 20px;
+}
+
+.panelTitle {
+  margin-bottom: 14px;
+  color: rgba(148, 163, 184, 0.58);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fieldCard,
+.promptBlock,
+.rawBlock {
+  overflow: hidden;
+  border: 1px solid rgba(151, 170, 191, 0.1);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 12px;
+}
+
+.fieldValue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: rgba(248, 250, 252, 0.82);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.fieldValue a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.fieldOk {
+  color: rgba(52, 211, 153, 0.92);
+}
+
+.fieldFail {
+  color: rgba(248, 113, 113, 0.92);
+}
+
+.formulaBox {
+  margin-top: 18px;
+  border: 1px solid rgba(131, 247, 234, 0.14);
+  border-radius: 8px;
+  background: rgba(4, 8, 10, 0.7);
+  padding: 12px;
+  color: rgba(203, 213, 225, 0.6);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.formulaBox span {
+  color: rgba(131, 247, 234, 0.86);
+}
+
+.subNote {
+  margin-top: 12px;
+  color: rgba(148, 163, 184, 0.52);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.subNote a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.captureHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.captureRole {
+  color: rgba(248, 250, 252, 0.92);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.captureModel,
+.captureMeta {
+  color: rgba(148, 163, 184, 0.52);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+}
+
+.promptGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.promptBlock pre,
+.rawBlock pre {
+  max-height: 280px;
+  overflow: auto;
+  margin: 6px 0 0;
+  color: rgba(248, 250, 252, 0.76);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.rawBlock {
+  margin-top: 12px;
+}
+
+.verifyBox {
+  color: rgba(203, 213, 225, 0.62);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.verifyBox ol {
+  margin-top: 12px;
+  padding-left: 18px;
+}
+
+.verifyBox li + li {
+  margin-top: 8px;
+}
+
+.verifyBox a,
+.verifyBox code {
+  color: rgba(131, 247, 234, 0.86);
+}
+
+.emptyState {
+  min-height: 100vh;
+  background: #050607;
+  color: white;
+  padding: 48px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .detailHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .heroStats {
+    grid-template-columns: repeat(4, minmax(130px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .statCard {
+    min-width: 132px;
+    min-height: 104px;
+  }
+
+  .statCard strong {
+    margin-top: 22px;
+    font-size: 22px;
+  }
+
+  .fieldGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .promptGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .shell,
+  .detailShell {
+    width: min(100vw - 32px, 560px);
+    padding-top: 28px;
+  }
+
+  .hero,
+  .detailHeader {
+    padding-top: 18px;
+  }
+
+  .heroCopy h1,
+  .detailTitle {
+    font-size: 34px;
+    line-height: 1.02;
+  }
+
+  .formulaStrip {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .heroStats {
+    grid-template-columns: 1fr 1fr;
+    overflow-x: visible;
+  }
+
+  .statCard {
+    min-width: 0;
+  }
+
+  .manifestRow {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .rowMain {
+    grid-template-columns: 74px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .timestamp {
+    grid-column: 1 / -1;
+  }
+
+  .rowStatus {
+    justify-content: space-between;
+  }
+
+  .sectionHeader,
+  .footerNote {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+}

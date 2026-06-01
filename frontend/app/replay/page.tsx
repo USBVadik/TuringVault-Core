@@ -11,6 +11,7 @@ import Link from "next/link";
 import * as fs from "fs";
 import * as path from "path";
 import { LiveStatusBadge } from "../components/LiveStatusBadge";
+import styles from "./replay.module.css";
 
 interface ManifestSummary {
   cycleId: number;
@@ -98,33 +99,62 @@ export const revalidate = 60;
 
 export default async function ReplayIndexPage() {
   const summaries = await loadIndex();
+  const anchoredCount = summaries.filter((s) => s.hasOnChainAnchor).length;
+  const blockedCount = summaries.filter((s) =>
+    s.decisionTier?.startsWith("BLOCKED")
+  ).length;
+  const executedCount = summaries.filter((s) =>
+    s.decisionTier?.includes("EXECUTED")
+  ).length;
+  const latest = summaries[0] ?? null;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white px-6 py-10 md:px-12">
-      <div className="mx-auto max-w-4xl">
-        <div className="text-xs uppercase tracking-wider text-white/40">
-          Reproducible AI · Replay Manifests
-        </div>
-        <div className="mt-1 mb-2">
-          <LiveStatusBadge variant="compact" />
-        </div>
-        <h1 className="mt-2 text-3xl font-bold font-mono">
-          Verify any past decision
-        </h1>
-        <p className="mt-3 text-white/70 max-w-2xl">
-          Every multi-agent cycle commits a manifest with the exact
-          prompts and raw LLM responses for analyst, validator, and
-          arbiter. Each manifest is anchored on Mantle Mainnet via{" "}
-          <code className="text-cyan-400">
-            keccak256(utf8(ipfsCid) ‖ manifestHash)
-          </code>{" "}
-          stored in{" "}
-          <code className="text-cyan-400">DecisionLog.txHash</code>. Click
-          a cycle to see the prompts side by side and the binding
-          self-check.
-        </p>
+    <div className={styles.page}>
+      <div className={styles.shell}>
+        <section className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <div className={styles.eyebrow}>
+              <span>Reproducible AI</span>
+              <span>Replay manifests</span>
+              <LiveStatusBadge variant="compact" />
+            </div>
+            <h1>Replay every agent decision, byte-for-byte.</h1>
+            <p>
+              Every multi-agent cycle commits the exact prompts, raw LLM
+              responses, validation output, and on-chain anchor. Pick a cycle,
+              then verify the reasoning trail without trusting the UI.
+            </p>
+            <div className={styles.formulaStrip}>
+              <span>Verifier formula</span>
+              <code>keccak256(utf8(ipfsCid) ‖ manifestHash)</code>
+              <span>DecisionLog.txHash</span>
+            </div>
+          </div>
 
-        <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.02] divide-y divide-white/5">
+          <div className={styles.heroStats} aria-label="Replay manifest stats">
+            <StatCard label="Indexed cycles" value={String(summaries.length)} />
+            <StatCard label="On-chain anchors" value={String(anchoredCount)} />
+            <StatCard label="Blocked cycles" value={String(blockedCount)} />
+            <StatCard
+              label="Latest cycle"
+              value={latest ? `#${String(latest.cycleId).padStart(4, "0")}` : "—"}
+            />
+          </div>
+        </section>
+
+        <section className={styles.listSection}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p>Manifest index</p>
+              <span>Most recent committed cycles</span>
+            </div>
+            <div className={styles.indexMeta}>
+              <span>{executedCount} executed</span>
+              <span>{blockedCount} blocked</span>
+            </div>
+          </div>
+
+          <div className={styles.manifestList}>
           {summaries.length === 0 && (
             <div className="p-6 text-white/50 font-mono text-sm">
               No manifests indexed yet — try direct deep-link{" "}
@@ -135,47 +165,65 @@ export default async function ReplayIndexPage() {
             <Link
               key={s.cycleId}
               href={`/replay/${s.cycleId}`}
-              className="flex items-center justify-between p-4 hover:bg-white/[0.04] transition-colors"
+              className={styles.manifestRow}
             >
-              <div className="flex items-baseline gap-4 font-mono text-sm">
-                <span className="text-cyan-400">
+              <div className={styles.rowMain}>
+                <span className={styles.cycleId}>
                   #{String(s.cycleId).padStart(4, "0")}
                 </span>
-                <span className="text-amber-300 text-xs">
+                <span className={`${styles.tierPill} ${tierClass(s.decisionTier)}`}>
                   {s.decisionTier || "—"}
                 </span>
-                <span className="text-white/40 text-xs">
+                <span className={styles.timestamp}>
                   {s.cycleEndedAt
                     ? new Date(s.cycleEndedAt).toISOString()
                     : "—"}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-[11px]">
+              <div className={styles.rowStatus}>
                 {s.hasOnChainAnchor ? (
-                  <span className="text-emerald-400">⚓ on-chain anchor</span>
+                  <span className={styles.anchorOk}>ON-CHAIN ANCHOR</span>
                 ) : (
-                  <span className="text-yellow-400/80">legacy</span>
+                  <span className={styles.anchorLegacy}>LEGACY</span>
                 )}
-                <span className="text-white/30">→</span>
+                <span className={styles.rowArrow}>→</span>
               </div>
             </Link>
           ))}
-        </div>
+          </div>
+        </section>
 
-        <div className="mt-8 text-[11px] font-mono text-white/40">
-          Index capped at 30 most-recent cycles. All manifests live in
-          the public repo at{" "}
+        <div className={styles.footerNote}>
+          <span>Index capped at 30 most-recent cycles.</span>
           <a
-            className="underline hover:text-cyan-400"
             href="https://github.com/USBVadik/TuringVault-Core/tree/main/.kiro/audits/raw/replay-manifests"
             target="_blank"
             rel="noreferrer"
           >
-            .kiro/audits/raw/replay-manifests/
+            View raw manifests on GitHub →
           </a>
-          .
         </div>
       </div>
     </div>
   );
+}
+
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={styles.statCard}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function tierClass(tier: string | null) {
+  if (!tier) return styles.tierNeutral;
+  if (tier.includes("EXECUTED")) return styles.tierExecuted;
+  if (tier.includes("VALIDATOR")) return styles.tierValidator;
+  if (tier.includes("PARSE")) return styles.tierParse;
+  if (tier.includes("PORTFOLIO")) return styles.tierPortfolio;
+  if (tier.includes("REGIME")) return styles.tierRegime;
+  if (tier.startsWith("BLOCKED")) return styles.tierBlocked;
+  return styles.tierNeutral;
 }
