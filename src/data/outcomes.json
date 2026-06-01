@@ -286,6 +286,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780355375766_219",
+      "decisionId": 219,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1999.42,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmdVenidnBfZNs4Kbw3x9TDxsfwbPxEjskdrMeGLhPT9Yq",
+      "recordedAt": "2026-06-01T23:09:35.766Z",
+      "settleAfter": "2026-06-02T00:09:35.766Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780355375761
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on mETH is appropriate. ETH grid at 49% channel position (mid-zone, $1977.7-$2029.5) correctly signals wait. MNT EXIT_RANGING with UNKNOWN breakout direction rightly prevents action. Portfolio is already 19.5% risk (mETH $23.37) — stable-heavy posture confirmed. Funding 0.864% neutral, no flow catalyst. Analyst correctly cites all key signals. No hallucinated data. HOLD carries minimal capita",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD actions only",
+        "Yield spread -1% bearish signal acknowledged but not weighted heavily enough",
+        "F&G=29 Fear noted but contrarian entry not yet triggered without channel-edge proximity"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb918796b2fe74723136e2644aaeb5d3844163dc175b8be459066243357465a8c",
+      "combinedAnchor": "0xfaf6f84397c02ca50a20e0eb1c12a010598bf4effc9b3867282b6138301c9a0c",
+      "decisionLogTxHash": "0x203d891a8f0fce24f480931386bb215e352116c31976a8c96ab3eda91264a0d3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
