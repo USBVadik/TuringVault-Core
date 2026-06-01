@@ -260,36 +260,47 @@ export function ProofExplorerClient({
 
           <div className="proof-hero-grid">
             <div className="proof-hero-copy">
-              {/* Hero statement */}
               <h1 className="animate-[fadeIn_0.8s_ease-out_0.4s_both]">
-                The AI tried to panic-sell mETH.
-                <br />
-                <span className="proof-danger">TuringVault blocked it.</span>
-                <br />
-                <span className="proof-success">
-                  mETH recovered +1.2%.
-                </span>
+                Proof-of-Reasoning control room.
               </h1>
               <p className="animate-[fadeIn_0.6s_ease-out_0.8s_both]">
-                Proof-of-Reasoning: every autonomous decision is challenged,
-                gated, and recorded on-chain before execution.
+                Audit the exact path from model intent to validator objection,
+                VaR gate, and Mantle anchor. Every autonomous decision has to
+                leave a verifiable trail before it can be trusted.
               </p>
+              <div className="proof-control-strip animate-[fadeIn_0.6s_ease-out_0.95s_both]">
+                <div>
+                  <span>Featured case</span>
+                  <strong>Proposal #{featuredCase.id}</strong>
+                </div>
+                <div>
+                  <span>Safety result</span>
+                  <strong className="proof-danger">BLOCKED</strong>
+                </div>
+                <div>
+                  <span>On-chain record</span>
+                  <strong>DecisionLog</strong>
+                </div>
+              </div>
             </div>
 
             <div className="proof-verdict-card animate-[fadeIn_0.8s_ease-out_0.55s_both]">
               <div className="proof-verdict-top">
-                <span>Featured proof</span>
+                <span>Featured intervention</span>
                 <strong>Proposal #{featuredCase.id}</strong>
               </div>
               <div className="proof-verdict-main">
                 <span>Blocked intent</span>
-                <strong>{featuredCase.intent}</strong>
+                <strong>mETH exit prevented</strong>
+                <p>{featuredCase.intent}</p>
               </div>
               <div className="proof-verdict-grid">
                 <span>VaR gate</span>
                 <em>{featuredCase.varScore} bps</em>
                 <span>Risk score</span>
                 <em>{featuredCase.riskScore}/100</em>
+                <span>Validator</span>
+                <em>Rejected</em>
                 <span>Market after</span>
                 <em>mETH {featuredCase.marketAfter}</em>
               </div>
@@ -297,6 +308,10 @@ export function ProofExplorerClient({
           </div>
 
           {/* Replay timeline */}
+          <div className="proof-chain-label animate-[fadeIn_0.5s_ease-out_0.98s_both]">
+            <span>Decision chain</span>
+            <em>Intent → validation → risk gate → immutable record</em>
+          </div>
           <div className="proof-replay-timeline grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-0 items-stretch">
             {[
               {
@@ -415,9 +430,9 @@ export function ProofExplorerClient({
 
       {/* ═══ COMPACT HEADER ═══ */}
       <FadeIn>
-        <div className="max-w-[1200px] mx-auto px-6 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/5">
+        <div className="proof-summary-bar">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-purple-500/80 to-green-500/80 flex items-center justify-center float-gentle">
+            <div className="proof-summary-icon">
               <svg
                 className="w-4 h-4 text-white"
                 viewBox="0 0 24 24"
@@ -429,67 +444,60 @@ export function ProofExplorerClient({
               </svg>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white/80">
+              <h3 className="proof-summary-title">
                 Proof Explorer
               </h3>
-              <p className="text-[10px] text-white/30">
+              <p className="proof-summary-copy">
                 Full audit log &middot; {totalDecisions} on-chain decisions
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-8">
-            <div className="text-center">
-              <p className="text-xl font-bold font-mono text-white">
+          <div className="proof-summary-stats">
+            <div>
+              <p>
                 <AnimatedCounter value={totalDecisions} />
               </p>
-              <p className="text-[9px] text-white/30 uppercase">Decisions</p>
+              <span>Decisions</span>
             </div>
-            <div className="text-center">
-              <p className="text-xl font-bold font-mono text-red-400">
+            <div className="proof-stat-danger">
+              <p>
                 <AnimatedCounter value={validation?.totalRejected || 19} />
               </p>
-              <p className="text-[9px] text-red-400/50 uppercase">Blocked</p>
+              <span>Blocked</span>
             </div>
-            <div className="text-center">
-              <p className="text-xl font-bold font-mono text-green-400">
+            <div className="proof-stat-success">
+              <p>
                 <AnimatedCounter value={validation?.totalApproved || 1} />
               </p>
-              <p className="text-[9px] text-green-400/50 uppercase">Approved</p>
+              <span>Approved</span>
             </div>
           </div>
         </div>
       </FadeIn>
 
-      <main className="max-w-[1200px] mx-auto px-6 py-8 space-y-10">
+      <main className="proof-main">
         {/* ═══ CAPITAL SAVED SECTION ═══ */}
         <FadeIn>
-          <section>
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-white/60 mb-5 flex items-center gap-3">
-              <span className="inline-flex w-5 h-5 rounded bg-purple-500/20 items-center justify-center">
-                <svg
-                  className="w-3 h-3 text-purple-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-                </svg>
-              </span>
-              <span>Protected Capital — Trades That Would Have Lost</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 font-normal normal-case tracking-normal">
-                LIVE PROOF
-              </span>
+          <section className="proof-section">
+            <div className="proof-section-header">
+              <div>
+                <span>Protected Capital</span>
+                <h2>Trades the validator refused to execute</h2>
+              </div>
+              <em>Live proof</em>
+            </div>
+            <h2 className="sr-only">
+              Protected Capital — Trades That Would Have Lost
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="proof-case-grid">
               {blockedCases.map((c, idx) => (
                 <div
                   key={c.id}
-                  className={`relative rounded-xl border cursor-pointer card-hover ${
+                  className={`proof-case-card ${
                     expandedCase === c.id
-                      ? "border-purple-500/30 bg-purple-500/5 scale-[1.02]"
-                      : "border-white/[0.06] bg-white/[0.02] hover:border-purple-500/20 hover:bg-purple-500/[0.02]"
+                      ? "proof-case-card-open"
+                      : ""
                   }`}
                   onClick={() =>
                     setExpandedCase(expandedCase === c.id ? null : c.id)
@@ -497,7 +505,7 @@ export function ProofExplorerClient({
                   style={{ animationDelay: `${idx * 0.1}s` }}
                 >
                   {/* Status badge */}
-                  <div className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg shadow-red-500/20 glow-red">
+                  <div className="proof-case-badge">
                     BLOCKED
                   </div>
 
@@ -507,8 +515,8 @@ export function ProofExplorerClient({
                     </h3>
                     <p className="text-xs text-white/40 mb-4">{c.intent}</p>
 
-                    <div className="grid grid-cols-2 gap-3 mb-3">
-                      <div className="p-2 rounded-lg bg-white/[0.03] relative overflow-hidden scan-line">
+                    <div className="proof-case-metrics">
+                      <div className="proof-metric-tile">
                         <p className="text-[9px] text-white/30 uppercase">
                           VaR Score
                         </p>
@@ -517,7 +525,7 @@ export function ProofExplorerClient({
                           <span className="text-xs text-white/30"> bps</span>
                         </p>
                       </div>
-                      <div className="p-2 rounded-lg bg-white/[0.03]">
+                      <div className="proof-metric-tile proof-metric-risk">
                         <p className="text-[9px] text-white/30 uppercase">
                           Risk Score
                         </p>
@@ -528,7 +536,7 @@ export function ProofExplorerClient({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-green-500/5 border border-green-500/10">
+                    <div className="proof-outcome">
                       <svg
                         className="w-4 h-4 text-green-400 flex-shrink-0"
                         viewBox="0 0 24 24"
@@ -599,7 +607,7 @@ export function ProofExplorerClient({
               ))}
             </div>
 
-            <p className="mt-3 text-[11px] text-white/20 text-center">
+            <p className="proof-section-footnote">
               All 3 cases: correct market observation → wrong action conclusion
               → gate caught it. mETH recovered +1.2% within 12h.
             </p>
@@ -608,70 +616,69 @@ export function ProofExplorerClient({
 
         {/* ═══ DECISION PIPELINE ═══ */}
         <FadeIn delay={0.1}>
-          <section>
-            <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider relative">
-              Decision Pipeline
-            </h2>
-            <div className="glass-card p-6 relative overflow-hidden">
-            <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-2 md:gap-1 overflow-x-auto pb-2 relative">
+          <section className="proof-section">
+            <div className="proof-section-header">
+              <div>
+                <span>Decision Pipeline</span>
+                <h2>From market data to signed execution</h2>
+              </div>
+              <em>8 gates</em>
+            </div>
+            <div className="proof-panel proof-pipeline-panel">
+            <div className="proof-pipeline">
               {[
                 {
                   label: "Market Data",
                   sub: "Nansen MCP + CoinGecko + DeFiLlama + Elfa",
-                  color: "from-blue-500/20 to-blue-500/5",
+                  tone: "data",
                 },
                 {
                   label: "GLM-5 Analyst",
                   sub: "Z.ai via AWS Bedrock",
-                  color: "from-purple-500/20 to-purple-500/5",
+                  tone: "model",
                 },
                 {
                   label: "Claude 4.6 Validator",
                   sub: "Anthropic via AWS Bedrock",
-                  color: "from-orange-500/20 to-orange-500/5",
+                  tone: "validator",
                 },
                 {
                   label: "Gemini 3.5 Arbiter",
                   sub: "Google Vertex AI · soft-dispute tiebreaker",
-                  color: "from-pink-500/20 to-pink-500/5",
+                  tone: "arbiter",
                 },
                 {
                   label: "VaR Gate",
                   sub: "<50 auto · 50-150 supervised · >150 blocked",
-                  color: "from-red-500/20 to-red-500/5",
+                  tone: "risk",
                 },
                 {
                   label: "Sign",
                   sub: "ethers.Wallet on cron · KMS roadmap",
-                  color: "from-yellow-500/20 to-yellow-500/5",
+                  tone: "sign",
                 },
                 {
                   label: "Execution",
                   sub: "Merchant Moe LB v2.2",
-                  color: "from-green-500/20 to-green-500/5",
+                  tone: "execute",
                 },
                 {
                   label: "On-Chain",
                   sub: "Mantle Mainnet · IPFS via Pinata",
-                  color: "from-cyan-500/20 to-cyan-500/5",
+                  tone: "chain",
                 },
               ].map((s, i) => (
-                <div key={i} className="flex items-center">
-                  <div
-                    className={`flex flex-col items-center min-w-[90px] p-3 rounded-lg bg-gradient-to-b ${s.color} card-hover`}
-                  >
-                    <span className="text-[10px] font-medium text-white/80 text-center leading-tight">
+                <div key={i} className="proof-pipeline-hop">
+                  <div className={`proof-pipeline-node proof-pipeline-${s.tone}`}>
+                    <span>
                       {s.label}
                     </span>
-                    <span className="text-[8px] text-white/30 text-center mt-1">
+                    <em>
                       {s.sub}
-                    </span>
+                    </em>
                   </div>
                   {i < 7 && (
-                    <div
-                      className="mx-1 arrow-animate hidden md:block"
-                      style={{ animationDelay: `${i * 0.3}s` }}
-                    >
+                    <div className="proof-pipeline-arrow">
                       <svg
                         className="w-4 h-4 text-white/20"
                         viewBox="0 0 24 24"
@@ -692,12 +699,16 @@ export function ProofExplorerClient({
 
         {/* ═══ ECOSYSTEM PROOF STACK ═══ */}
         <FadeIn delay={0.15}>
-          <section>
-            <h2 className="text-sm font-semibold text-white/60 mb-5 uppercase tracking-wider">
-              Ecosystem Stack Used In This Proof
-            </h2>
-            <div className="glass-card p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <section className="proof-section">
+            <div className="proof-section-header">
+              <div>
+                <span>Ecosystem Stack</span>
+                <h2>Infrastructure referenced by the proof</h2>
+              </div>
+              <em>Source linked</em>
+            </div>
+            <div className="proof-panel">
+            <div className="proof-stack-grid">
               {[
                 {
                   name: "Mantle",
@@ -786,7 +797,7 @@ export function ProofExplorerClient({
                   href={p.proof}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block p-3 rounded-lg border border-white/5 bg-white/[0.02] hover:border-purple-500/40 hover:bg-purple-500/[0.04] transition-all duration-200 card-hover group"
+                  className="proof-stack-card group"
                 >
                   <p className="text-xs font-semibold text-white/80 mb-0.5">
                     {p.name}
@@ -806,16 +817,15 @@ export function ProofExplorerClient({
         </FadeIn>
 
         {/* ═══ TWO COLUMN: AUDIT LOG + SIDEBAR ═══ */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="proof-two-column">
           {/* Decision Audit Log */}
           <FadeIn className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white/60 uppercase tracking-wider">
-                Decision Audit Log
-              </h2>
-              <span className="text-[10px] text-white/20 font-mono">
-                {decisions.length} on-chain records
-              </span>
+            <div className="proof-section-header proof-section-header-compact">
+              <div>
+                <span>Decision Audit Log</span>
+                <h2>Recorded on-chain decisions</h2>
+              </div>
+              <em>{decisions.length} records</em>
             </div>
             <div className="space-y-2">
               {decisions.length === 0 ? (
@@ -837,12 +847,12 @@ export function ProofExplorerClient({
                   return (
                     <div
                       key={i}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:translate-x-1 ${
+                      className={`proof-log-row ${
                         isExpanded
-                          ? "border-white/10 bg-white/[0.04]"
+                          ? "proof-log-row-open"
                           : isBlocked
-                          ? "border-purple-500/10 bg-purple-500/[0.02] hover:border-purple-500/20"
-                          : "border-green-500/10 bg-green-500/[0.02] hover:border-green-500/20"
+                          ? "proof-log-row-blocked"
+                          : "proof-log-row-approved"
                       }`}
                       onClick={() => setSelectedDecision(isExpanded ? null : i)}
                     >
@@ -954,16 +964,16 @@ export function ProofExplorerClient({
           </FadeIn>
 
           {/* ═══ SIDEBAR ═══ */}
-          <FadeIn delay={0.2} className="space-y-5">
+          <FadeIn delay={0.2} className="proof-sidebar">
             {/* Agent Identity */}
-            <div className="glass-card p-5 relative overflow-hidden scan-line">
+            <div className="proof-side-panel">
               <h3 className="text-[10px] font-semibold text-white/40 mb-3 uppercase tracking-wider relative">
                 Agent Identity (ERC-8004)
               </h3>
               {agentCard ? (
                 <div className="space-y-3 relative">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/30 to-blue-500/30 flex items-center justify-center float-gentle">
+                    <div className="proof-agent-icon">
                       <svg
                         className="w-5 h-5 text-purple-300"
                         viewBox="0 0 24 24"
@@ -1019,7 +1029,7 @@ export function ProofExplorerClient({
             </div>
 
             {/* Safety Parameters */}
-            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02] card-hover">
+            <div className="proof-side-panel">
               <h3 className="text-[10px] font-semibold text-white/40 mb-3 uppercase tracking-wider">
                 Safety Parameters
               </h3>
@@ -1088,7 +1098,7 @@ export function ProofExplorerClient({
             </div>
 
             {/* Verify On-Chain */}
-            <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02] card-hover">
+            <div className="proof-side-panel">
               <h3 className="text-[10px] font-semibold text-white/40 mb-3 uppercase tracking-wider">
                 Verify On-Chain
               </h3>
@@ -1128,7 +1138,7 @@ export function ProofExplorerClient({
             </div>
 
             {/* SDK Teaser */}
-            <div className="p-5 rounded-xl border border-cyan-500/10 bg-cyan-500/[0.02] card-hover">
+            <div className="proof-side-panel proof-sdk-panel">
               <h3 className="text-[10px] font-semibold text-cyan-400/60 mb-2 uppercase tracking-wider">
                 Build With SDK
               </h3>
@@ -1152,7 +1162,7 @@ const stats = await sdk.getConsensusRate();
         {/* Backtest Results */}
         <div className="grid grid-cols-1 gap-4 mb-10">
           <FadeIn delay={1.8}>
-            <div className="rounded-xl border border-green-500/10 bg-green-500/[0.02] p-5">
+            <div className="proof-backtest-panel">
               <h3 className="text-[11px] text-green-400/70 uppercase tracking-widest mb-4 font-medium flex items-center gap-2">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M3 3v18h18" />
@@ -1160,8 +1170,8 @@ const stats = await sdk.getConsensusRate();
                 </svg>
                 Grid Strategy Backtest (500h simulations)
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="rounded-lg bg-black/30 p-3 border border-white/5">
+              <div className="proof-backtest-grid">
+                <div className="proof-backtest-card">
                   <p className="text-[9px] text-white/30 uppercase mb-1">
                     Tight Channel (1.9%)
                   </p>
@@ -1170,7 +1180,7 @@ const stats = await sdk.getConsensusRate();
                     87% win rate · 23 trades · DD -0.63%
                   </p>
                 </div>
-                <div className="rounded-lg bg-black/30 p-3 border border-white/5">
+                <div className="proof-backtest-card">
                   <p className="text-[9px] text-white/30 uppercase mb-1">
                     Medium Channel (3%)
                   </p>
@@ -1181,7 +1191,7 @@ const stats = await sdk.getConsensusRate();
                     97% win rate · 39 trades · DD -0.13%
                   </p>
                 </div>
-                <div className="rounded-lg bg-black/30 p-3 border border-white/5">
+                <div className="proof-backtest-card">
                   <p className="text-[9px] text-white/30 uppercase mb-1">
                     Wide Channel (5%)
                   </p>
@@ -1247,9 +1257,9 @@ const stats = await sdk.getConsensusRate();
         </div>
 
         {/* Footer */}
-        <footer className="pt-8 pb-12 border-t border-white/5 text-center relative">
+        <footer className="proof-footer">
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-purple-900/[0.03] to-transparent" />
-          <p className="text-[10px] text-white/15 shimmer-text">
+          <p>
             TuringVault — Proof-of-Reasoning infrastructure for autonomous
             agents on Mantle
           </p>
