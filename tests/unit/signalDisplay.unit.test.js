@@ -1,8 +1,32 @@
 const {
+  deriveSignalDisplay,
   deriveMethSignalDisplay,
 } = require("../../frontend/app/lib/signal-display.shared.js");
 
-describe("mETH signal display data binding", () => {
+describe("asset-aware signal display data binding", () => {
+  test("uses MNT channel data when the latest decision targets MNT", () => {
+    const display = deriveSignalDisplay({
+      latestDecision: { targetAsset: "MNT" },
+      strategyData: {
+        currentPrice: 0.65,
+        channel: { support: 0.61, resistance: 0.7 },
+      },
+      marketData: { ethPrice: 1974.39, mantlePrice: 0.65 },
+      perfData: { prices: { mETH: 1981.12, MNT: 0.65 } },
+      signalMode: "risk-on",
+    });
+
+    expect(display.baseAsset).toBe("MNT");
+    expect(display.gridLabel).toBe("MNT flip grid");
+    expect(display.axisLeft).toBe("MNT");
+    expect(display.axisRight).toBe("mUSD");
+    expect(display.channelLooksPrimary).toBe(true);
+    expect(display.referenceLabel).toBe("Channel cursor");
+    expect(display.referencePriceLabel).toBe("$0.65");
+    expect(display.markerLeft).toBeCloseTo(45.33, 1);
+    expect(display.priceAtChannelPct(50)).toBeCloseTo(0.655);
+  });
+
   test("does not use MNT strategy channel price for the mETH hero", () => {
     const display = deriveMethSignalDisplay({
       strategyData: {
@@ -15,6 +39,7 @@ describe("mETH signal display data binding", () => {
     });
 
     expect(display.channelLooksEth).toBe(false);
+    expect(display.channelLooksPrimary).toBe(false);
     expect(display.referenceLabel).toBe("mETH ref price");
     expect(display.referencePrice).toBe(1981.12);
     expect(display.referencePriceLabel).toBe("$1,981");

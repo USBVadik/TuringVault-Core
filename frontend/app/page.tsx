@@ -25,7 +25,7 @@ import { RiskMascot } from "./components/RiskMascot";
 import { LiveStatusBadge } from "./components/LiveStatusBadge";
 import { SkeletonStatsGrid } from "./components/Skeleton";
 import { RelativeTime } from "./lib/time";
-import { deriveMethSignalDisplay, formatSignalPrice } from "./lib/signal-display";
+import { deriveSignalDisplay, formatSignalPrice } from "./lib/signal-display";
 import contractsData from "./data/contracts.json";
 
 // ═══ CONTRACTS ═══
@@ -407,6 +407,7 @@ export default function Home() {
   const latestActionRaw = String(latestDecision?.action ?? "");
   const latestAction = latestActionRaw.toLowerCase();
   const latestTarget = String(latestDecision?.targetAsset ?? "").trim();
+  const latestSource = String(latestDecision?.sourceAsset ?? "").trim();
   const latestTargetLower = latestTarget.toLowerCase();
   const latestTierLower = String(latestDecisionTier ?? "").toLowerCase();
   const latestReasoningLower = latestReasoning.toLowerCase();
@@ -462,7 +463,11 @@ export default function Home() {
       : signalMode === "blocked"
         ? "M34 168 C82 126 124 128 162 112 C202 94 234 122 278 106 C330 82 366 82 410 88 C450 94 470 102 492 96"
         : "M34 196 C74 178 92 126 132 138 C178 152 196 78 244 90 C298 104 318 48 376 68 C428 88 448 128 492 108";
-  const signalDisplay = deriveMethSignalDisplay({
+  const signalDisplay = deriveSignalDisplay({
+    latestDecision: {
+      targetAsset: latestTarget,
+      sourceAsset: latestSource,
+    },
     strategyData,
     marketData,
     perfData,
@@ -580,15 +585,15 @@ export default function Home() {
       : `${signalChannelPrice} · ${latestConfidence} conf`;
     const detail = hoverPrice
       ? `Support ${formatSignalPrice(channelSupport)} · Resistance ${formatSignalPrice(channelResistance)}`
-      : `mETH reference · latest ${signalVerdict} · ${latestDecisionTier}`;
+      : `${signalDisplay.displayAsset} reference · latest ${signalVerdict} · ${latestDecisionTier}`;
 
     return {
       label: zone,
       value,
       detail,
-      meta: signalDisplay.channelLooksEth
-        ? `${signalFeedLabel} · ETH channel`
-        : `${signalFeedLabel} · no ETH channel in strategy feed`,
+      meta: signalDisplay.channelLooksPrimary
+        ? `${signalFeedLabel} · ${signalDisplay.displayAsset} channel`
+        : `${signalFeedLabel} · no ${signalDisplay.displayAsset} channel in strategy feed`,
       x: clampedX,
       y: clampedY,
       tone: "live",
@@ -717,12 +722,12 @@ export default function Home() {
             className={`signal-showcase signal-mode-${signalMode} signal-feed-${
               isStale ? "replay" : health?.lastCycleTimestamp ? "live" : "syncing"
             }`}
-            aria-label="mETH flip engine live status"
+            aria-label={`${signalDisplay.displayAsset} flip engine live status`}
           >
             <div
               className={`signal-visual ${signalHover ? "signal-visual-active" : ""}`}
               role="group"
-              aria-label="Interactive mETH signal map"
+              aria-label={`Interactive ${signalDisplay.displayAsset} signal map`}
               tabIndex={0}
               onPointerMove={handleSignalPointerMove}
               onPointerLeave={() => setSignalHover(null)}
@@ -749,13 +754,13 @@ export default function Home() {
                   setSignalHover({
                     label: "Upper sell band",
                     value:
-                      signalDisplay.channelLooksEth && channelResistance > 0
+                      signalDisplay.channelLooksPrimary && channelResistance > 0
                         ? formatSignalPrice(channelResistance)
                         : "exit zone",
-                    detail: `Risk-off trims route to ${stableAssetTarget ? latestTarget || "stables" : "mUSD"}`,
-                    meta: signalDisplay.channelLooksEth
+                    detail: `Risk-off trims ${signalDisplay.displayAsset} exposure to ${stableAssetTarget ? latestTarget || "stables" : "mUSD"}`,
+                    meta: signalDisplay.channelLooksPrimary
                       ? `${strategyData?.regime ?? "regime sync"} · validator watched`
-                      : `mETH ref ${signalChannelPrice} · no ETH channel`,
+                      : `${signalDisplay.displayAsset} ref ${signalChannelPrice} · no ${signalDisplay.displayAsset} channel`,
                     x: 76,
                     y: 27,
                     tone: "intent",
@@ -771,13 +776,13 @@ export default function Home() {
                   setSignalHover({
                     label: "Lower buy band",
                     value:
-                      signalDisplay.channelLooksEth && channelSupport > 0
+                      signalDisplay.channelLooksPrimary && channelSupport > 0
                         ? formatSignalPrice(channelSupport)
                         : "re-entry zone",
-                    detail: `Risk-on re-entry watches ${riskAssetTarget ? latestTarget || "mETH" : "mETH/WETH/MNT"}`,
-                    meta: signalDisplay.channelLooksEth
+                    detail: `Risk-on re-entry watches ${riskAssetTarget ? latestTarget || signalDisplay.displayAsset : signalDisplay.displayAsset}`,
+                    meta: signalDisplay.channelLooksPrimary
                       ? `${latestConfidence} confidence · proof required`
-                      : `mETH ref ${signalChannelPrice} · proof required`,
+                      : `${signalDisplay.displayAsset} ref ${signalChannelPrice} · proof required`,
                     x: 24,
                     y: 74,
                     tone: "executed",
@@ -868,12 +873,12 @@ export default function Home() {
                   </div>
                 </>
               )}
-              <div className="signal-axis signal-axis-left">mETH</div>
-              <div className="signal-axis signal-axis-right">mUSD</div>
+              <div className="signal-axis signal-axis-left">{signalDisplay.axisLeft}</div>
+              <div className="signal-axis signal-axis-right">{signalDisplay.axisRight}</div>
             </div>
 
             <div className="signal-brief">
-              <p className="signal-eyebrow">mETH flip grid</p>
+              <p className="signal-eyebrow">{signalDisplay.gridLabel}</p>
               <h2>{signalHeadline}</h2>
               <p>
                 {signalCopy}

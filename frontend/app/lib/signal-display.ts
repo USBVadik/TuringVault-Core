@@ -10,15 +10,27 @@ export type MethSignalMode =
   | "waiting";
 
 export interface MethSignalDisplayInput {
+  latestDecision?: any;
+  targetAsset?: string | null;
+  sourceAsset?: string | null;
   strategyData?: any;
   marketData?: any;
   perfData?: any;
   signalMode?: MethSignalMode | string;
   fallbackEthPrice?: number;
+  fallbackMntPrice?: number;
+  baseAsset?: "mETH" | "MNT";
 }
 
 export interface MethSignalDisplay {
+  baseAsset: "mETH" | "MNT";
+  displayAsset: string;
+  gridLabel: string;
+  axisLeft: string;
+  axisRight: string;
   channelLooksEth: boolean;
+  channelLooksMnt: boolean;
+  channelLooksPrimary: boolean;
   referenceLabel: string;
   referencePrice: number;
   referencePriceLabel: string;
@@ -27,6 +39,10 @@ export interface MethSignalDisplay {
   resistance: number;
   priceAtChannelPct: (pct: number) => number | null;
 }
+
+export const deriveSignalDisplay: (
+  input: MethSignalDisplayInput
+) => MethSignalDisplay = shared.deriveSignalDisplay;
 
 export const deriveMethSignalDisplay: (
   input: MethSignalDisplayInput
