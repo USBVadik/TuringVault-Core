@@ -7114,6 +7114,276 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780332486883_213",
+      "decisionId": 213,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1969.81,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmeY2SRSUh7XyMuJd3mnNpNJoicUWBHPvyqCv1LdPFTDDq",
+      "recordedAt": "2026-06-01T16:48:06.883Z",
+      "settleAfter": "2026-06-01T17:48:06.883Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780332486878
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Both ETH and MNT grids show confirmed EXIT_RANGING with downward breakouts (70% and 80% confidence respectively). Regime hint is TREND_DOWN — this satisfies the CRISIS/TREND_DOWN exception to the stable-heavy HOLD rule. Analyst correctly identifies PRIMARY EDGE on MNT grid. F&G=29 (Fear) and yield spread -1% (BEARISH) corroborate de-risking. Funding 0.901% is neutral, not a counter-signal. R:R is ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly quantified by Analyst — inferred from capital protection logic",
+        "Low intraday vol (0.29%) raises false-breakout risk",
+        "RSI 37.5 rising — potential mean-reversion bounce",
+        "Funding 0.901% shows mild long bias, slight counter-signal",
+        "mETH position small ($18.50) — impact limited but direction correct"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "stable-heavy wallet (84.6% stables, $101.83 stable vs $18.52 tradable risk); refusing repeated risk-off while FLAT",
+        "summary": {
+          "stableUsd": 101.834046,
+          "tradableRiskUsd": 18.522203017901003,
+          "nativeMnt": 17.972159770219278,
+          "stableShare": 0.8461051821651061,
+          "riskShare": 0.1538948178348939,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "lower-band risk-on blocked by confirmed down-break"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x4d8dd233205c6a44893b82905c71c8834597e8ccf60a2bcc78d8ed9cd49caa47",
+      "combinedAnchor": "0x4aad3b880b50a50a64bc3a3b760cddc57dc7a4dac7ffa9989b56d0205a5034fe",
+      "decisionLogTxHash": "0xe26a5932e38e17cda9d3cb9e36aa06f66d2a6817d6ac84182cf02786cffdf7e4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1780333671709_214",
+      "decisionId": 214,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 1978.3,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "Qmbg7B49huzJGnFktEzTw5mzK24kbGoCEjVxgTnhzLj5bU",
+      "recordedAt": "2026-06-01T17:07:51.709Z",
+      "settleAfter": "2026-06-01T18:07:51.709Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 96101677"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780333671704
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid BUY_mETH at 74% confidence with price at 11% of channel ($1977.7 support) is valid mean-reversion in RANGING regime — grid confirmation present. R:R 4.14:1 exceeds 1.5:1 mandatory threshold. Fear & Greed 29 supports contrarian bias. Funding 0.901% is neutral, not contradicting. MNT TREND_DOWN is MNT-specific; PRIMARY EDGE correctly isolates ETH. Stable-heavy FLAT portfolio warrants deploy",
+      "validatorFlaggedIssues": [
+        "Yield spread mETH vs USDY -1% is a relative-value headwind",
+        "Smart money flow neutral — no institutional accumulation confirmation",
+        "MNT ecosystem TREND_DOWN may exert cross-asset sentiment drag",
+        "Route USDT0->USDT->WMNT->WETH->mETH has multi-hop slippage risk on low-liquidity Mantle pools (mETH 24h vol only $1.6k)",
+        "Low intraday vol 0.29% means breakout direction unconfirmed — stop at $1972.52 must be respected"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($101.83)",
+        "summary": {
+          "stableUsd": 101.834046,
+          "tradableRiskUsd": 18.60192628448739,
+          "nativeMnt": 17.902430456934805,
+          "stableShare": 0.8455450980995369,
+          "riskShare": 0.15445490190046307,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-buy",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "mETH",
+        "sourceAsset": "USDT0",
+        "allocationPct": 15,
+        "confidence": 0.7430501930501944,
+        "reasoning": "ETHEREUM grid emitted BUY_mETH with 74% confidence; stable-heavy FLAT wallet has deployable stables. Risk plan: entry 1983.6, stop 1972.52, take-profit 2029.5, R:R 4.14:1.",
+        "riskFactors": [
+          "False lower-band break could continue lower",
+          "Validator must reject if funding/flow contradict the grid edge"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT",
+          "WETH",
+          "mETH"
+        ],
+        "gridSignal": {
+          "action": "BUY_mETH",
+          "confidence": 0.7430501930501944,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.11,
+          "support": 1977.7,
+          "resistance": 2029.5,
+          "currentPrice": 1983.6
+        },
+        "riskReward": {
+          "entry": 1983.6,
+          "stopLoss": 1972.52,
+          "takeProfit": 2029.5,
+          "ratio": 4.14,
+          "riskPct": 0.56,
+          "rewardPct": 2.31
+        }
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "mETH",
+        "amountIn": 5,
+        "amountOut": 0.002294989284170321,
+        "txHash": "0xac0eeba21b66de66cead762954b7b3184b1d011ab48c3817d62c3d8f9b7c6686",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0xe96689d163e03a5d8330857dbdf063ad60735dfded12babc298bd2f82e85b2e2",
+            "blockNumber": 96101660,
+            "amountIn": 5,
+            "amountOut": 5.000499
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0xfa7fb73aa5d82920c3e4fe9a87ca344dbd43a0f520edda48266fe52a5c203dae",
+            "blockNumber": 96101665,
+            "amountIn": 4.995498500999999,
+            "amountOut": 7.90428407072136
+          },
+          {
+            "leg": 3,
+            "from": "WMNT",
+            "to": "WETH",
+            "txHash": "0xa258cded007543889247d9c148c0ee09f13834b780ad82411c354db4779ba757",
+            "blockNumber": 96101672,
+            "amountIn": 7.896379786650638,
+            "amountOut": 0.002510318957721352
+          },
+          {
+            "leg": 4,
+            "from": "WETH",
+            "to": "mETH",
+            "txHash": "0xac0eeba21b66de66cead762954b7b3184b1d011ab48c3817d62c3d8f9b7c6686",
+            "blockNumber": 96101677,
+            "amountIn": 0.002507808638763631,
+            "amountOut": 0.002294989284170321
+          }
+        ]
+      },
+      "manifestHash": "0x05b121fce18c8e50ff0920a86429917d419f9056b75b93b7d6953a1e96ae3f24",
+      "combinedAnchor": "0x36964bf1df757593669d42c17012ad190da7bd659bfa3b9e04bd28b520704b77",
+      "decisionLogTxHash": "0x4e05d404a425b20c3dd5c2690a4d792d7bc60c07a3a340d660907dc979a5d55f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "ACCEPTED",
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
