@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { BarChart3 } from "lucide-react";
-import { Skeleton, SkeletonCard } from "../components/Skeleton";
+import { Activity, BarChart3, Database, ShieldCheck, TrendingUp } from "lucide-react";
+import { Skeleton } from "../components/Skeleton";
 
 function BacktestSkeleton() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
-      <div className="max-w-[1200px] mx-auto">
+    <div className="performance-page min-h-screen text-white">
+      <div className="performance-shell">
         <div className="flex items-center gap-3 mb-2">
           <BarChart3 className="w-7 h-7 text-purple-400" />
           <Skeleton className="w-48 h-8" />
@@ -81,23 +81,59 @@ export default function BacktestPage() {
   const { summary, equityCurve, trades } = data;
   const maxNav = Math.max(...equityCurve.map((p: any) => p.nav));
   const minNav = Math.min(...equityCurve.map((p: any) => p.nav));
+  const hitRate =
+    summary.totalTrades > 0
+      ? Math.round((summary.positiveTrades / summary.totalTrades) * 100)
+      : 0;
+  const scoreTone = summary.cumulativeBps >= 0 ? "positive" : "negative";
+  const latestTrade = trades[trades.length - 1] ?? null;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
-      <div className="max-w-[1200px] mx-auto anim-fade-up">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-          <BarChart3 className="w-7 h-7 text-purple-400" />
-          Outcome Score
-        </h1>
-        <p className="text-white/40 text-sm mb-2">
-          {summary.period} · decision-quality score, not realized wallet PnL
-        </p>
-        <p className="text-[10px] text-white/20 mb-8">
-          Source: {summary.dataSource}
-        </p>
+    <div className="performance-page min-h-screen text-white">
+      <div className="performance-shell anim-fade-up">
+        <section className="performance-hero">
+          <div className="performance-hero-copy">
+            <p className="performance-kicker">
+              <BarChart3 className="w-4 h-4" />
+              Model outcome ledger
+            </p>
+            <h1>Outcome Score</h1>
+            <p>
+              {summary.period} scored decisions. This is decision-quality
+              review, not realized wallet PnL.
+            </p>
+            <div className="performance-source-pill">
+              <Database className="w-3.5 h-3.5" />
+              <span>{summary.dataSource}</span>
+            </div>
+          </div>
+
+          <div className={`performance-score-card ${scoreTone}`}>
+            <span>Outcome score</span>
+            <strong>
+              {summary.cumulativeBps > 0 ? "+" : ""}
+              {summary.cumulativeBps} bps
+            </strong>
+            <div className="performance-score-grid">
+              <span>Score return</span>
+              <em>
+                {summary.totalReturn > 0 ? "+" : ""}
+                {summary.totalReturn}%
+              </em>
+              <span>Hit rate</span>
+              <em>{hitRate}%</em>
+              <span>Last row</span>
+              <em>
+                {latestTrade
+                  ? `#${latestTrade.idx} ${String(latestTrade.action).toUpperCase()}`
+                  : "-"}
+              </em>
+            </div>
+          </div>
+        </section>
 
         {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div className="performance-stat-grid">
           <StatCard
             label="Outcome Score"
             value={`+${summary.cumulativeBps} bps`}
@@ -143,57 +179,74 @@ export default function BacktestPage() {
         </div>
 
         {/* Equity Curve */}
-        <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02] mb-6">
-          <h3 className="text-xs font-bold text-white/60 uppercase mb-4">
-            Score Curve (normalized $100 start)
-          </h3>
+        <div className="performance-panel performance-chart-panel">
+          <div className="performance-panel-header">
+            <div>
+              <span>Score curve</span>
+              <strong>Normalized $100 start</strong>
+            </div>
+            <div className="performance-panel-badge">
+              <TrendingUp className="w-3.5 h-3.5" />
+              {summary.totalTrades} settled
+            </div>
+          </div>
           <EquityCurveChart equityCurve={equityCurve} maxNav={maxNav} minNav={minNav} />
         </div>
 
         {/* Trade Table */}
-        <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-          <h3 className="text-xs font-bold text-white/60 uppercase mb-4">
-            Recent Settled Decisions
-          </h3>
-          <div className="space-y-1 font-mono text-xs">
-            <div className="grid grid-cols-5 text-white/30 pb-2 border-b border-white/[0.04]">
-              <span>#</span>
-              <span>ACTION</span>
-              <span>ASSET</span>
-              <span>PRICE</span>
-              <span>SCORE (bps)</span>
+        <div className="performance-panel">
+          <div className="performance-panel-header">
+            <div>
+              <span>Recent settled decisions</span>
+              <strong>Outcome-score rows</strong>
             </div>
-            {trades.map((t: any, i: number) => (
-              <div
-                key={i}
-                className={`grid grid-cols-5 py-1 ${
-                  t.pnlBps > 0
-                    ? "text-green-400/70"
-                    : t.pnlBps < 0
-                    ? "text-red-400/70"
-                    : "text-white/40"
-                }`}
-              >
-                <span className="text-white/40">#{t.idx}</span>
-                <span className="uppercase">{t.action}</span>
-                <span>{t.asset}</span>
-                <span>${t.price?.toFixed(2) || "—"}</span>
-                <span>
-                  {t.pnlBps > 0 ? "+" : ""}
-                  {t.pnlBps}
-                </span>
+            <div className="performance-panel-badge muted">
+              <Activity className="w-3.5 h-3.5" />
+              latest {trades.length}
+            </div>
+          </div>
+          <div className="performance-table-wrap">
+            <div className="performance-table">
+              <div className="performance-table-head">
+                <span>#</span>
+                <span>Action</span>
+                <span>Asset</span>
+                <span>Price</span>
+                <span>Score</span>
               </div>
-            ))}
+              {trades.map((t: any, i: number) => (
+                <div
+                  key={i}
+                  className={`performance-table-row ${
+                    t.pnlBps > 0
+                      ? "positive"
+                      : t.pnlBps < 0
+                      ? "negative"
+                      : "neutral"
+                  }`}
+                >
+                  <span>#{t.idx}</span>
+                  <span>{String(t.action).toUpperCase()}</span>
+                  <span>{t.asset}</span>
+                  <span>${t.price?.toFixed(2) || "-"}</span>
+                  <span>
+                    {t.pnlBps > 0 ? "+" : ""}
+                    {t.pnlBps} bps
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Methodology */}
-        <div className="mt-6 p-4 rounded-lg border border-white/[0.04] bg-white/[0.01]">
-          <p className="text-[10px] text-white/20 leading-relaxed">
-            <strong className="text-white/30">Data Source:</strong> This page
-            charts outcomeTracker scoring from settled decisions in outcomes.json.
-            It is useful for model-quality review, but it is not realized wallet
-            PnL. DEX execution truth lives on each decision row via executedOnChain,
+        <div className="performance-methodology">
+          <ShieldCheck className="w-4 h-4" />
+          <p>
+            <strong>Data Source:</strong> This page charts outcomeTracker scoring
+            from settled decisions in outcomes.json. It is useful for
+            model-quality review, but it is not realized wallet PnL. DEX
+            execution truth lives on each decision row via executedOnChain,
             directionalSwap, and transaction hashes.
           </p>
         </div>
@@ -237,11 +290,13 @@ function EquityCurveChart({
   const pnlFromStart = hoverPoint
     ? ((hoverPoint.nav - 100) * 100).toFixed(0)
     : null;
+  const navRange = Math.max(maxNav - minNav, 1);
+  const yForNav = (nav: number) => 100 - ((nav - minNav) / navRange) * 90 - 5;
 
   return (
     <div
       ref={containerRef}
-      className="relative h-48 w-full cursor-crosshair"
+      className="performance-chart relative h-48 w-full cursor-crosshair"
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setHover(null)}
     >
@@ -253,28 +308,29 @@ function EquityCurveChart({
         aria-label={`Equity curve chart showing NAV from $${minNav.toFixed(2)} to $${maxNav.toFixed(2)} over ${equityCurve.length} data points. Hover for details.`}
       >
         {/* Grid lines */}
-        <line x1="0" y1="50" x2={equityCurve.length} y2="50" stroke="rgba(255,255,255,0.05)" />
-        <line x1="0" y1="25" x2={equityCurve.length} y2="25" stroke="rgba(255,255,255,0.03)" />
-        <line x1="0" y1="75" x2={equityCurve.length} y2="75" stroke="rgba(255,255,255,0.03)" />
+        <line x1="0" y1="50" x2={equityCurve.length} y2="50" stroke="rgba(255,255,255,0.05)" vectorEffect="non-scaling-stroke" />
+        <line x1="0" y1="25" x2={equityCurve.length} y2="25" stroke="rgba(255,255,255,0.03)" vectorEffect="non-scaling-stroke" />
+        <line x1="0" y1="75" x2={equityCurve.length} y2="75" stroke="rgba(255,255,255,0.03)" vectorEffect="non-scaling-stroke" />
 
         {/* Equity line */}
         <polyline
           points={equityCurve
             .map((p: any, i: number) => {
-              const y = 100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
+              const y = yForNav(p.nav);
               return `${i},${y}`;
             })
             .join(" ")}
           fill="none"
           stroke="url(#gradient)"
-          strokeWidth="0.8"
+          strokeWidth="2.4"
+          vectorEffect="non-scaling-stroke"
         />
 
         {/* Gradient fill under curve */}
         <polygon
           points={`0,100 ${equityCurve
             .map((p: any, i: number) => {
-              const y = 100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
+              const y = yForNav(p.nav);
               return `${i},${y}`;
             })
             .join(" ")} ${equityCurve.length - 1},100`}
@@ -286,13 +342,13 @@ function EquityCurveChart({
           .filter((p: any) => p.action)
           .map((p: any, i: number) => {
             const idx = equityCurve.indexOf(p);
-            const y = 100 - ((p.nav - minNav) / (maxNav - minNav)) * 90 - 5;
+            const y = yForNav(p.nav);
             return (
               <circle
                 key={i}
                 cx={idx}
                 cy={y}
-                r="1.5"
+                r="1"
                 fill={p.action === "swap" ? "#4ade80" : "#a78bfa"}
               />
             );
@@ -306,8 +362,9 @@ function EquityCurveChart({
             x2={hover.idx}
             y2="100"
             stroke="rgba(255,255,255,0.2)"
-            strokeWidth="0.3"
+            strokeWidth="1"
             strokeDasharray="2,2"
+            vectorEffect="non-scaling-stroke"
           />
         )}
 
@@ -373,16 +430,16 @@ function StatCard({
   color: string;
 }) {
   const colors: Record<string, string> = {
-    green: "text-green-400",
-    red: "text-red-400",
-    purple: "text-purple-400",
-    blue: "text-blue-400",
-    white: "text-white/80",
+    green: "positive",
+    red: "negative",
+    purple: "accent",
+    blue: "info",
+    white: "neutral",
   };
   return (
-    <div className="p-3 rounded-lg border border-white/[0.06] bg-white/[0.02] stat-card-interactive">
-      <div className={`text-lg font-bold ${colors[color]}`}>{value}</div>
-      <div className="text-[10px] text-white/30 uppercase">{label}</div>
+    <div className={`performance-stat-card ${colors[color]}`}>
+      <div>{value}</div>
+      <span>{label}</span>
     </div>
   );
 }
