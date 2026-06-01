@@ -13,7 +13,7 @@ const BLOCKED_CASES = [
   {
     id: 12,
     title: "Panic Swap Blocked",
-    intent: "Swap ETH → mUSD during extreme fear",
+    intent: "Swap mETH → mUSD during extreme fear",
     validatorReason:
       "Surface-level fear metrics don't justify exit when fundamentals intact",
     varScore: 228,

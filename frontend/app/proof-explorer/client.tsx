@@ -192,7 +192,7 @@ export function ProofExplorerClient({
 
   return (
     <div
-      className="min-h-screen text-white overflow-x-hidden relative"
+      className="proof-explorer-page min-h-screen text-white overflow-x-hidden relative"
       style={{ background: "var(--vault-bg)" }}
     >
       {/* Background effects */}
@@ -225,7 +225,7 @@ export function ProofExplorerClient({
       </div>
 
       {/* ═══ FEATURED PROOF REPLAY ═══ */}
-      <section className="relative overflow-hidden border-b border-white/5">
+      <section className="proof-hero-section relative overflow-hidden border-b border-white/5">
         {/* Atmospheric animated background */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-950/30 via-[#030308] to-transparent pointer-events-none" />
         <div
@@ -237,9 +237,9 @@ export function ProofExplorerClient({
           style={{ animationDuration: "10s", animationDelay: "2s" }}
         />
 
-        <div className="relative max-w-5xl mx-auto px-6 py-12">
+        <div className="proof-hero-shell relative max-w-5xl mx-auto px-6 py-12">
           {/* Timestamp & network */}
-          <div className="flex items-center gap-3 mb-6 animate-[fadeIn_0.8s_ease-out_0.2s_both] flex-wrap">
+          <div className="proof-hero-meta flex items-center gap-3 mb-6 animate-[fadeIn_0.8s_ease-out_0.2s_both] flex-wrap">
             <span className="text-[11px] font-mono text-white/30">
               {formatTime(featuredCase.timestamp)}
             </span>
@@ -258,27 +258,50 @@ export function ProofExplorerClient({
             <LiveStatusBadge variant="compact" />
           </div>
 
-          {/* Hero statement */}
-          <h1 className="text-[28px] md:text-[36px] font-bold leading-tight tracking-tight max-w-3xl mb-3 animate-[fadeIn_0.8s_ease-out_0.4s_both]">
-            The AI tried to panic-sell ETH.
-            <br />
-            <span className="text-red-400">TuringVault blocked it.</span>
-            <br />
-            <span className="text-green-400/80 text-[24px] md:text-[28px]">
-              ETH recovered +1.2%.
-            </span>
-          </h1>
-          <p className="text-white/30 text-sm max-w-lg mb-10 animate-[fadeIn_0.6s_ease-out_0.8s_both]">
-            Proof-of-Reasoning: every autonomous decision is challenged, gated,
-            and recorded on-chain before execution.
-          </p>
+          <div className="proof-hero-grid">
+            <div className="proof-hero-copy">
+              {/* Hero statement */}
+              <h1 className="animate-[fadeIn_0.8s_ease-out_0.4s_both]">
+                The AI tried to panic-sell mETH.
+                <br />
+                <span className="proof-danger">TuringVault blocked it.</span>
+                <br />
+                <span className="proof-success">
+                  mETH recovered +1.2%.
+                </span>
+              </h1>
+              <p className="animate-[fadeIn_0.6s_ease-out_0.8s_both]">
+                Proof-of-Reasoning: every autonomous decision is challenged,
+                gated, and recorded on-chain before execution.
+              </p>
+            </div>
+
+            <div className="proof-verdict-card animate-[fadeIn_0.8s_ease-out_0.55s_both]">
+              <div className="proof-verdict-top">
+                <span>Featured proof</span>
+                <strong>Proposal #{featuredCase.id}</strong>
+              </div>
+              <div className="proof-verdict-main">
+                <span>Blocked intent</span>
+                <strong>{featuredCase.intent}</strong>
+              </div>
+              <div className="proof-verdict-grid">
+                <span>VaR gate</span>
+                <em>{featuredCase.varScore} bps</em>
+                <span>Risk score</span>
+                <em>{featuredCase.riskScore}/100</em>
+                <span>Market after</span>
+                <em>mETH {featuredCase.marketAfter}</em>
+              </div>
+            </div>
+          </div>
 
           {/* Replay timeline */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-0 items-stretch">
+          <div className="proof-replay-timeline grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-0 items-stretch">
             {[
               {
                 phase: "AI INTENT",
-                content: "Swap ETH → mUSD",
+                content: "Swap mETH → mUSD",
                 detail:
                   "Market intelligence + Fear & Greed signal → 78% confidence",
                 color: "border-white/10",
@@ -315,7 +338,7 @@ export function ProofExplorerClient({
               },
               {
                 phase: "MARKET AFTER",
-                content: "ETH +1.2%",
+                content: "mETH +1.2%",
                 detail: "Avoided estimated downside",
                 color: "border-green-500/20",
                 textColor: "text-green-400",
@@ -340,7 +363,7 @@ export function ProofExplorerClient({
                   </span>
                 </div>
                 <div
-                  className={`flex-1 p-3 rounded-lg border ${step.color} bg-white/[0.02] card-hover`}
+                  className={`proof-replay-step flex-1 p-3 rounded-lg border ${step.color} bg-white/[0.02] card-hover`}
                 >
                   <p className={`text-sm font-semibold ${step.textColor} mb-1`}>
                     {step.content}
@@ -354,7 +377,7 @@ export function ProofExplorerClient({
           </div>
 
           {/* Proof link */}
-          <div className="mt-6 flex items-center gap-4 animate-[fadeIn_0.6s_ease-out_1.8s_both] flex-wrap">
+          <div className="proof-link-row mt-6 flex items-center gap-4 animate-[fadeIn_0.6s_ease-out_1.8s_both] flex-wrap">
             <a
               href={`https://mantlescan.xyz/tx/${featuredCase.txHash}`}
               target="_blank"
@@ -521,7 +544,7 @@ export function ProofExplorerClient({
                           Market after block
                         </p>
                         <p className="text-xs font-semibold text-green-400">
-                          ETH {c.marketAfter} — avoided estimated downside:{" "}
+                          mETH {c.marketAfter} — avoided estimated downside:{" "}
                           {c.savedEstimate}
                         </p>
                       </div>
@@ -578,7 +601,7 @@ export function ProofExplorerClient({
 
             <p className="mt-3 text-[11px] text-white/20 text-center">
               All 3 cases: correct market observation → wrong action conclusion
-              → gate caught it. ETH recovered +1.2% within 12h.
+              → gate caught it. mETH recovered +1.2% within 12h.
             </p>
           </section>
         </FadeIn>
