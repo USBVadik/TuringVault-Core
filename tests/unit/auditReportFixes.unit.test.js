@@ -6,17 +6,23 @@ const { spawnSync } = require("child_process");
 const repoRoot = path.resolve(__dirname, "../..");
 
 describe("post-audit report regression fixes", () => {
-  test("Vercel cron bridge stays within Hobby deployment limits", () => {
+  test("Vercel cron bridge keeps hourly daily watchdog slots within Hobby limits", () => {
     const vercelConfig = JSON.parse(
       fs.readFileSync(path.join(repoRoot, "frontend/vercel.json"), "utf8")
     );
 
-    const job = vercelConfig.crons?.find(
-      (entry) => entry.path === "/api/cron/trigger-cycle"
-    );
+    const jobs =
+      vercelConfig.crons?.filter(
+        (entry) => entry.path === "/api/cron/trigger-cycle"
+      ) ?? [];
 
-    expect(job).toBeTruthy();
-    expect(job.schedule).toBe("17 0 * * *");
+    expect(jobs).toHaveLength(24);
+    expect(jobs.map((job) => job.schedule)).toEqual(
+      Array.from({ length: 24 }, (_, hour) => `23 ${hour} * * *`)
+    );
+    for (const job of jobs) {
+      expect(job.schedule).toMatch(/^\d{1,2} \d{1,2} \* \* \*$/);
+    }
   });
 
   test("cron bridge dispatch policy only fires when health is stale or unknown", () => {

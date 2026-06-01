@@ -1,9 +1,11 @@
 /**
  * Vercel Cron → GitHub Actions workflow_dispatch bridge.
  *
- * Vercel cron is a once-daily fallback on Hobby deployments. GitHub Actions is
- * the primary twice-hourly scheduler; this bridge only dispatches the
- * agent-cycle workflow when /api/health says the last cycle is stale.
+ * Vercel cron is a Hobby-safe watchdog: vercel.json declares multiple
+ * once-daily slots (one per hour) instead of one high-frequency expression.
+ * GitHub Actions is still the primary twice-hourly scheduler; this bridge only
+ * dispatches the agent-cycle workflow when /api/health says the last cycle is
+ * stale.
  *
  * Protected by CRON_SECRET (Vercel cron auth) to prevent abuse.
  *
