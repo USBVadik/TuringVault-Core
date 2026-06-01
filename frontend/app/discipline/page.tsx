@@ -10,9 +10,10 @@
  * Spec: discipline-layer-ui R4.
  */
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Shield, Check, X, AlertTriangle, Circle, MinusCircle, ChevronDown, ChevronUp, Receipt, Clock, Activity, ExternalLink } from "lucide-react";
 import { Skeleton } from "../components/Skeleton";
+import styles from "./discipline.module.css";
 
 function DisciplineSkeleton() {
   return (
@@ -152,40 +153,84 @@ export default function DisciplinePage() {
   if (loading) return <DisciplineSkeleton />;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
-      <div className="max-w-[1200px] mx-auto anim-fade-up">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-            <Shield className="w-7 h-7 text-purple-400" />
-            Discipline Layer
-          </h1>
-          <p className="text-white/40 text-sm">
-            Post-execution proof verification — Synrail-inspired. Every
-            multi-agent cycle passes through three gates:
-            <span className="text-white/30">
-              {" "}
-              TX exists on chain · price data &lt; 60s old · action aligns with
-              declared regime.
-            </span>
-          </p>
-        </div>
+    <div className={styles.page}>
+      <div className={`${styles.shell} anim-fade-up`}>
+        <section className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <div className={styles.eyebrow}>
+              <span>Discipline Layer</span>
+              <span>Post-execution gates</span>
+            </div>
+            <h1>Every AI trade has to prove itself after execution.</h1>
+            <p>
+              The agent can propose, validate, and execute. The Discipline
+              Layer checks the aftermath: did the transaction land, was the
+              market data fresh, and did the action match the declared regime?
+            </p>
+            <div className={styles.gateStrip}>
+              <span>TX exists on chain</span>
+              <span>price data &lt; 60s</span>
+              <span>regime alignment</span>
+            </div>
+          </div>
+
+          {data && (
+            <div className={styles.verdictCard}>
+              <div>
+                <div className={styles.verdictLabel}>Latest verdict</div>
+                <div
+                  className={`${styles.verdictValue} ${
+                    data.latest?.status === "ACCEPTED"
+                      ? styles.verdictAccepted
+                      : data.latest?.status === "BLOCKED"
+                      ? styles.verdictBlocked
+                      : data.latest?.status === "ERROR"
+                      ? styles.verdictWarn
+                      : styles.verdictMuted
+                  }`}
+                >
+                  {data.latest?.status ?? "UNKNOWN"}
+                </div>
+              </div>
+              <div className={styles.verdictMeta}>
+                <span>
+                  cycle #{data.latestEntry?.decisionId ?? "?"}
+                </span>
+                <span>
+                  {data.latestEntry?.at ? relativeTime(data.latestEntry.at) : "—"}
+                </span>
+              </div>
+              <div className={styles.miniGateList}>
+                {KNOWN_GATES.map((g) => {
+                  const c = data.latest?.checks.find((x) => x.name === g);
+                  return (
+                    <div key={g}>
+                      <StatusIcon status={c?.status} />
+                      <span>{GATE_LABEL[g]}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </section>
 
         {/* Plain-language explainer. Collapsed by default so the
             data-first view doesn't change for power users; open by
             judges + first-time visitors who want the "why this
             exists". */}
-        <div className="mb-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+        <div className={styles.explainer}>
           <button
             type="button"
             onClick={() => setExplainerOpen((v) => !v)}
             aria-expanded={explainerOpen}
-            className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-white/[0.02] rounded-lg transition-colors"
+            className={styles.explainerButton}
           >
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-white/30 uppercase tracking-widest">
+              <span className={styles.explainerKicker}>
                 What is this · plain English
               </span>
-              <span className="text-xs text-white/60">
+              <span className={styles.explainerTitle}>
                 Why every AI trade goes through three independent checks
               </span>
             </div>
@@ -197,8 +242,8 @@ export default function DisciplinePage() {
           </button>
 
           {explainerOpen && (
-            <div className="px-4 pb-5 anim-fade-up">
-              <p className="text-sm text-white/60 leading-relaxed mb-5 max-w-3xl">
+            <div className={styles.explainerBody}>
+              <p>
                 Think of the AI agent as a fast, never-sleeping junior trader.
                 It can be smart, but it can also drift, hallucinate a trade
                 that never landed on chain, or make decisions on stale data.
@@ -209,7 +254,7 @@ export default function DisciplinePage() {
                 instead.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+              <div className={styles.explainerGrid}>
                 <ExplainerGate
                   icon={Receipt}
                   title="TX Proof"
@@ -259,8 +304,8 @@ export default function DisciplinePage() {
                 />
               </div>
 
-              <div className="rounded-md border border-white/[0.04] bg-white/[0.015] p-4">
-                <p className="text-[11px] text-white/50 leading-relaxed mb-2">
+              <div className={styles.explainerNote}>
+                <p>
                   Verdict on every cycle is one of two things:{" "}
                   <span className="text-emerald-400/80 font-mono">
                     ACCEPTED
@@ -274,7 +319,7 @@ export default function DisciplinePage() {
                   (how to fix it). Both are stored alongside the decision so
                   judges and operators see the same truth.
                 </p>
-                <p className="text-[11px] text-white/50 leading-relaxed">
+                <p>
                   This is the &quot;Proof of Reasoning&quot; backbone: an AI
                   agent that{" "}
                   <span className="text-white/70">
@@ -282,7 +327,7 @@ export default function DisciplinePage() {
                   </span>{" "}
                   — not just claim it.
                 </p>
-                <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4 pt-3 border-t border-white/[0.04]">
+                <div className={styles.sourceLinks}>
                   <a
                     href="https://github.com/USBVadik/synrail"
                     target="_blank"
@@ -323,56 +368,59 @@ export default function DisciplinePage() {
 
             {/* Latest with full detail */}
             {data.latest && (
-              <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02] mb-6">
-                <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3">
-                  Latest Cycle
-                </h3>
-                <div className="flex items-center gap-4 mb-3">
+              <div className={styles.latestPanel}>
+                <div className={styles.sectionHeader}>
+                  <div>
+                    <h3>Latest cycle</h3>
+                    <p>Full post-execution gate detail</p>
+                  </div>
                   <span
-                    className={`text-base font-bold ${
+                    className={`${styles.statusPill} ${
                       data.latest.status === "ACCEPTED"
-                        ? "text-emerald-400"
+                        ? styles.statusAccepted
                         : data.latest.status === "BLOCKED"
-                        ? "text-red-400"
+                        ? styles.statusBlocked
                         : data.latest.status === "ERROR"
-                        ? "text-yellow-400"
-                        : "text-white/50"
+                        ? styles.statusWarn
+                        : styles.statusMuted
                     }`}
                   >
                     {data.latest.status}
                   </span>
+                </div>
+                <div className={styles.latestMeta}>
                   {data.latestEntry?.at && (
-                    <span className="text-[10px] text-white/30 font-mono">
+                    <span>
                       {relativeTime(data.latestEntry.at)} · cycle #
                       {data.latestEntry.decisionId ?? "?"}
                     </span>
                   )}
                 </div>
                 {data.latest.blockReason && (
-                  <div className="mb-3 p-3 bg-red-500/5 border border-red-500/20 rounded text-xs text-red-300/80 font-mono">
+                  <div className={styles.blockReason}>
                     blockReason: {data.latest.blockReason}
                   </div>
                 )}
                 {data.latest.repairStep && (
-                  <div className="mb-3 p-3 bg-yellow-500/5 border border-yellow-500/20 rounded text-xs text-yellow-300/80 font-mono">
+                  <div className={styles.repairStep}>
                     repairStep: {data.latest.repairStep}
                   </div>
                 )}
-                <div className="space-y-1">
+                <div className={styles.latestChecks}>
                   {data.latest.checks.map((c, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-3 text-xs font-mono"
+                      className={styles.latestCheckRow}
                     >
-                      <span className="w-4 inline-flex items-center justify-center">
+                      <span>
                         <StatusIcon status={c.status} />
                       </span>
-                      <span className="text-white/70 w-32">
+                      <strong>
                         {GATE_LABEL[c.name] ?? c.name}
-                      </span>
-                      <span className="text-white/40 flex-1">
+                      </strong>
+                      <em>
                         {c.detail ?? ""}
-                      </span>
+                      </em>
                     </div>
                   ))}
                 </div>
@@ -380,114 +428,107 @@ export default function DisciplinePage() {
             )}
 
             {/* History table */}
-            <div className="p-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-              <h3 className="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">
-                History — last {data.history.length} cycles
-              </h3>
+            <div className={styles.historyPanel}>
+              <div className={styles.sectionHeader}>
+                <div>
+                  <h3>History</h3>
+                  <p>Last {data.history.length} cycles</p>
+                </div>
+              </div>
               {data.history.length === 0 ? (
                 <p className="text-white/30 text-sm">
                   No cycles recorded yet. New cycles auto-populate.
                 </p>
               ) : (
-                <table className="w-full text-xs font-mono">
-                  <thead>
-                    <tr className="text-left text-white/30 border-b border-white/5">
-                      <th className="py-2 pr-3">cycle</th>
-                      <th className="py-2 pr-3">when</th>
-                      <th className="py-2 pr-3">verdict</th>
-                      {KNOWN_GATES.map((g) => (
-                        <th key={g} className="py-2 pr-3">
-                          {GATE_LABEL[g]}
-                        </th>
-                      ))}
-                      <th className="py-2 pr-3">block reason</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.history.map((e, i) => {
-                      const checkByName = Object.fromEntries(
-                        e.checks.map((c) => [c.name, c])
-                      );
-                      const isOpen = expanded.has(i);
-                      return (
-                        <>
-                          <tr
-                            key={`row-${i}`}
-                            onClick={() => toggle(i)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                toggle(i);
-                              }
-                            }}
-                            role="button"
-                            tabIndex={0}
-                            aria-expanded={isOpen}
-                            className="border-b border-white/[0.04] hover:bg-white/[0.02] cursor-pointer"
-                          >
-                            <td className="py-2 pr-3 text-white/60">
-                              {e.decisionId ?? "?"}
-                            </td>
-                            <td className="py-2 pr-3 text-white/40">
-                              {relativeTime(e.at)}
-                            </td>
-                            <td
-                              className={`py-2 pr-3 ${
-                                e.verdict === "ACCEPTED"
-                                  ? "text-emerald-400/80"
-                                  : e.verdict === "BLOCKED"
-                                  ? "text-red-400/80"
-                                  : e.verdict === "ERROR"
-                                  ? "text-yellow-400/80"
-                                  : "text-white/40"
-                              }`}
+                <div className={styles.tableScroller}>
+                  <table className={styles.historyTable}>
+                    <thead>
+                      <tr>
+                        <th>cycle</th>
+                        <th>when</th>
+                        <th>verdict</th>
+                        {KNOWN_GATES.map((g) => (
+                          <th key={g}>{GATE_LABEL[g]}</th>
+                        ))}
+                        <th>block reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.history.map((e, i) => {
+                        const checkByName = Object.fromEntries(
+                          e.checks.map((c) => [c.name, c])
+                        );
+                        const isOpen = expanded.has(i);
+                        return (
+                          <Fragment key={i}>
+                            <tr
+                              onClick={() => toggle(i)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  toggle(i);
+                                }
+                              }}
+                              role="button"
+                              tabIndex={0}
+                              aria-expanded={isOpen}
                             >
-                              {e.verdict}
-                            </td>
-                            {KNOWN_GATES.map((g) => {
-                              const c = checkByName[g];
-                              return (
-                                <td
-                                  key={g}
-                                  className="py-2 pr-3"
-                                  title={
-                                    c?.status
-                                      ? `${c.status}${c.detail ? ` — ${c.detail}` : ""}`
-                                      : "no check recorded for this cycle"
-                                  }
+                              <td>{e.decisionId ?? "?"}</td>
+                              <td>{relativeTime(e.at)}</td>
+                              <td>
+                                <span
+                                  className={`${styles.statusPill} ${
+                                    e.verdict === "ACCEPTED"
+                                      ? styles.statusAccepted
+                                      : e.verdict === "BLOCKED"
+                                      ? styles.statusBlocked
+                                      : e.verdict === "ERROR"
+                                      ? styles.statusWarn
+                                      : styles.statusMuted
+                                  }`}
                                 >
-                                  <span className="inline-flex items-center">
-                                    <StatusIcon status={c?.status} />
-                                  </span>
-                                </td>
-                              );
-                            })}
-                            <td className="py-2 pr-3 text-white/40 truncate max-w-[200px]">
-                              {e.blockReason ?? e.error ?? ""}
-                            </td>
-                          </tr>
-                          {isOpen && (
-                            <tr key={`drill-${i}`} className="bg-white/[0.01]">
-                              <td
-                                colSpan={3 + KNOWN_GATES.length + 1}
-                                className="py-3 px-3"
-                              >
-                                <pre className="text-[10px] text-white/50 whitespace-pre-wrap leading-relaxed">
-                                  {JSON.stringify(e, null, 2)}
-                                </pre>
+                                  {e.verdict}
+                                </span>
+                              </td>
+                              {KNOWN_GATES.map((g) => {
+                                const c = checkByName[g];
+                                return (
+                                  <td
+                                    key={g}
+                                    title={
+                                      c?.status
+                                        ? `${c.status}${c.detail ? ` — ${c.detail}` : ""}`
+                                        : "no check recorded for this cycle"
+                                    }
+                                  >
+                                    <span className={styles.gateIconCell}>
+                                      <StatusIcon status={c?.status} />
+                                    </span>
+                                  </td>
+                                );
+                              })}
+                              <td className={styles.reasonCell}>
+                                {e.blockReason ?? e.error ?? ""}
                               </td>
                             </tr>
-                          )}
-                        </>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                            {isOpen && (
+                              <tr className={styles.drillRow}>
+                                <td colSpan={3 + KNOWN_GATES.length + 1}>
+                                  <pre>{JSON.stringify(e, null, 2)}</pre>
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
 
             {data.summary.firstCycleAt && (
-              <div className="text-center mt-6 text-[10px] text-white/20 font-mono">
+              <div className={styles.footerNote}>
                 first cycle ran {relativeTime(data.summary.firstCycleAt)}
               </div>
             )}
@@ -500,7 +541,7 @@ export default function DisciplinePage() {
 
 function SummaryCard({ summary }: { summary: Summary }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div className={styles.summaryGrid}>
       <Tile label="Cycles tracked" value={String(summary.totalEntries)} />
       <Tile
         label="Accepted"
@@ -565,17 +606,15 @@ function Tile({
   tooltip?: string;
 }) {
   const colors = {
-    emerald: "text-emerald-400 border-emerald-500/20 bg-emerald-500/[0.03]",
-    red: "text-red-400 border-red-500/20 bg-red-500/[0.03]",
-    amber: "text-yellow-400 border-yellow-500/20 bg-yellow-500/[0.03]",
-    muted: "text-white/40 border-white/[0.06] bg-white/[0.02]",
+    emerald: styles.tileEmerald,
+    red: styles.tileRed,
+    amber: styles.tileAmber,
+    muted: styles.tileMuted,
   }[tone ?? "muted"];
   return (
-    <div className={`p-4 rounded-lg border ${colors}`} title={tooltip}>
-      <div className="text-[9px] text-white/30 uppercase tracking-widest mb-1">
-        {label}
-      </div>
-      <div className="text-lg font-mono">{value}</div>
+    <div className={`${styles.tile} ${colors}`} title={tooltip}>
+      <div>{label}</div>
+      <strong>{value}</strong>
     </div>
   );
 }
@@ -594,21 +633,19 @@ function ExplainerGate({
   whyItMatters: string;
 }) {
   return (
-    <div className="rounded-md border border-white/[0.04] bg-white/[0.015] p-4 flex flex-col">
-      <div className="flex items-center gap-2 mb-2">
+    <div className={styles.explainerGate}>
+      <div>
         <Icon className="w-4 h-4 text-purple-300/80 shrink-0" />
-        <span className="text-sm font-bold text-white/80">{title}</span>
+        <span>{title}</span>
       </div>
-      <p className="text-[11px] text-white/40 italic mb-3">
-        &ldquo;{oneLiner}&rdquo;
-      </p>
-      <p className="text-xs text-white/60 leading-relaxed mb-3">{body}</p>
-      <p className="text-[10px] text-white/35 leading-relaxed mt-auto pt-2 border-t border-white/[0.03]">
-        <span className="text-white/50 font-mono uppercase tracking-wider">
+      <p>&ldquo;{oneLiner}&rdquo;</p>
+      <section>{body}</section>
+      <footer>
+        <span>
           Why it matters ·
         </span>{" "}
         {whyItMatters}
-      </p>
+      </footer>
     </div>
   );
 }
