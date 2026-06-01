@@ -392,6 +392,89 @@ export default function Home() {
       : stableNav > 0
         ? "known priced balance"
         : "NAV · syncing prices";
+  const latestActionRaw = String(latestDecision?.action ?? "");
+  const latestAction = latestActionRaw.toLowerCase();
+  const latestTarget = String(latestDecision?.targetAsset ?? "").trim();
+  const latestTargetLower = latestTarget.toLowerCase();
+  const latestTierLower = String(latestDecisionTier ?? "").toLowerCase();
+  const latestReasoningLower = latestReasoning.toLowerCase();
+  const isBlockedDecision =
+    latestTierLower.includes("blocked") ||
+    latestReasoningLower.includes("blocked_") ||
+    latestReasoningLower.includes("blocked by");
+  const riskAssetTarget = ["meth", "weth", "mnt", "wmnt"].some((asset) =>
+    latestTargetLower.includes(asset)
+  );
+  const stableAssetTarget = ["musd", "usdt", "usdt0", "usdy", "usd"].some(
+    (asset) => latestTargetLower.includes(asset)
+  );
+  const signalMode = isBlockedDecision
+    ? "blocked"
+    : latestAction.includes("buy") ||
+        (latestAction.includes("swap") && riskAssetTarget)
+      ? "risk-on"
+      : latestAction.includes("sell") ||
+          (latestAction.includes("swap") && stableAssetTarget)
+        ? "risk-off"
+        : latestAction
+          ? "watch"
+          : isStale
+            ? "stale"
+            : "waiting";
+  const signalHeadline =
+    signalMode === "risk-on"
+      ? "Risk-on band is live."
+      : signalMode === "risk-off"
+        ? "Risk-off exit is active."
+        : signalMode === "blocked"
+          ? "Idea blocked before execution."
+          : signalMode === "stale"
+            ? "Awaiting next live cycle."
+            : "Signal first. Proof before execution.";
+  const signalCopy =
+    signalMode === "blocked"
+      ? `${latestDecisionTier} stopped the latest idea before wallet movement.`
+      : signalMode === "risk-on"
+        ? `Latest agent action points toward ${latestTarget || "risk assets"} while validator guardrails stay visible.`
+        : signalMode === "risk-off"
+          ? `Latest agent action points toward ${latestTarget || "stable assets"} while proof capture stays required.`
+          : signalMode === "stale"
+            ? "Cron feed is paused; the module keeps the last known regime and wallet context visible."
+            : "Lower-band risk-on ideas, upper-band risk-off exits, and adversarial validation stay visible before the wallet moves.";
+  const signalVerdict = latestActionRaw
+    ? `${latestActionRaw.toUpperCase()} ${latestTarget || ""}`.trim()
+    : "WAITING";
+  const signalPath =
+    signalMode === "risk-off"
+      ? "M34 72 C84 54 124 72 164 98 C214 132 262 128 304 154 C358 188 410 176 492 206"
+      : signalMode === "blocked"
+        ? "M34 168 C82 126 124 128 162 112 C202 94 234 122 278 106 C330 82 366 82 410 88 C450 94 470 102 492 96"
+        : "M34 196 C74 178 92 126 132 138 C178 152 196 78 244 90 C298 104 318 48 376 68 C428 88 448 128 492 108";
+  const channelSupport = Number(strategyData?.channel?.support ?? 0);
+  const channelResistance = Number(strategyData?.channel?.resistance ?? 0);
+  const channelCurrent = Number(strategyData?.currentPrice ?? 0);
+  const channelPosition =
+    channelResistance > channelSupport && channelCurrent > 0
+      ? (channelCurrent - channelSupport) / (channelResistance - channelSupport)
+      : null;
+  const signalMarkerLeft =
+    channelPosition != null
+      ? Math.max(8, Math.min(92, 8 + channelPosition * 84))
+      : signalMode === "risk-on"
+        ? 24
+        : signalMode === "risk-off"
+          ? 82
+          : 54;
+  const signalStatusLabel =
+    signalMode === "risk-on"
+      ? "buy band"
+      : signalMode === "risk-off"
+        ? "sell band"
+        : signalMode === "blocked"
+          ? "blocked"
+          : signalMode === "stale"
+            ? "paused"
+            : "watch";
 
   // ═══ REASONING ANIMATION ═══
   useEffect(() => {
@@ -474,7 +557,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="signal-showcase" aria-label="mETH flip engine status">
+          <div
+            className={`signal-showcase signal-mode-${signalMode}`}
+            aria-label="mETH flip engine live status"
+          >
             <div className="signal-visual" aria-hidden="true">
               <div className="signal-brandmark">
                 <Zap className="w-4 h-4" />
@@ -486,14 +572,20 @@ export default function Home() {
               <div className="signal-band signal-band-buy">
                 <span>Buy band</span>
               </div>
+              <span
+                className="signal-live-marker"
+                style={{ left: `${signalMarkerLeft}%` }}
+              >
+                <span>{signalStatusLabel}</span>
+              </span>
               <svg className="signal-sketch" viewBox="0 0 520 260" role="img">
                 <path
                   className="signal-grid-line"
-                  d="M28 194 C72 178 91 122 132 136 C182 153 192 72 246 88 C297 104 319 42 376 66 C426 87 446 126 492 106"
+                  d={signalPath}
                 />
                 <path
                   className="signal-sketch-line"
-                  d="M34 196 C74 178 92 126 132 138 C178 152 196 78 244 90 C298 104 318 48 376 68 C428 88 448 128 492 108"
+                  d={signalPath}
                 />
                 <path
                   className="signal-proof-line"
@@ -509,25 +601,24 @@ export default function Home() {
 
             <div className="signal-brief">
               <p className="signal-eyebrow">mETH flip grid</p>
-              <h2>Signal first. Proof before execution.</h2>
+              <h2>{signalHeadline}</h2>
               <p>
-                Lower-band risk-on ideas, upper-band risk-off exits, and
-                adversarial validation stay visible before the wallet moves.
+                {signalCopy}
               </p>
               <div className="signal-pill-row">
-                <span>Wallet-aware</span>
-                <span>Validator veto</span>
-                <span>DEX proof</span>
+                <span>{strategyData?.regime ?? "regime sync"}</span>
+                <span>{strategyData?.position || "FLAT"}</span>
+                <span>{latestConfidence} conf</span>
+              </div>
+              <div className="signal-live-feed">
+                <span>Regime</span>
+                <strong>{strategyData?.regime ?? "—"}</strong>
+                <span>Tier</span>
+                <strong>{latestDecisionTier}</strong>
               </div>
               <div className="signal-verdict">
                 <span>Current verdict</span>
-                <strong>
-                  {latestDecision?.action
-                    ? `${latestDecision.action.toUpperCase()} ${
-                        latestDecision.targetAsset ?? ""
-                      }`
-                    : "WAITING"}
-                </strong>
+                <strong>{signalVerdict}</strong>
               </div>
             </div>
           </div>

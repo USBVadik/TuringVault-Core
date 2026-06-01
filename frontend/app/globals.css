@@ -1457,6 +1457,35 @@ textarea:focus-visible {
   color: rgba(110, 231, 183, 0.76);
 }
 
+.signal-live-marker {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  display: grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(131, 247, 234, 0.84);
+  border-radius: 999px;
+  background: rgba(5, 7, 10, 0.94);
+  box-shadow: 0 0 18px rgba(131, 247, 234, 0.18);
+}
+
+.signal-live-marker span {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: rgba(226, 232, 240, 0.72);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .signal-sketch {
   position: absolute;
   inset: 12px 12px 0 12px;
@@ -1587,6 +1616,31 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
+.signal-live-feed {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 7px 12px;
+  margin-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  padding-top: 12px;
+}
+
+.signal-live-feed span {
+  color: rgba(148, 163, 184, 0.52);
+  font-size: 10px;
+}
+
+.signal-live-feed strong {
+  overflow: hidden;
+  color: rgba(226, 232, 240, 0.76);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .signal-verdict {
   display: flex;
   align-items: center;
@@ -1608,6 +1662,65 @@ textarea:focus-visible {
   font-size: 13px;
   font-weight: 800;
   text-align: right;
+}
+
+.signal-mode-risk-on .signal-band-buy {
+  border-color: rgba(52, 211, 153, 0.42);
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.18), transparent);
+}
+
+.signal-mode-risk-on .signal-sketch-line,
+.signal-mode-risk-on .signal-live-marker {
+  stroke: rgba(52, 211, 153, 0.92);
+  border-color: rgba(52, 211, 153, 0.92);
+  box-shadow: 0 0 22px rgba(52, 211, 153, 0.22);
+}
+
+.signal-mode-risk-on .signal-verdict strong {
+  color: rgba(110, 231, 183, 0.94);
+}
+
+.signal-mode-risk-off .signal-band-sell {
+  border-color: rgba(248, 113, 113, 0.38);
+  background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.16));
+}
+
+.signal-mode-risk-off .signal-sketch-line,
+.signal-mode-risk-off .signal-live-marker {
+  stroke: rgba(248, 113, 113, 0.9);
+  border-color: rgba(248, 113, 113, 0.86);
+  box-shadow: 0 0 22px rgba(248, 113, 113, 0.18);
+}
+
+.signal-mode-risk-off .signal-verdict strong {
+  color: rgba(248, 113, 113, 0.9);
+}
+
+.signal-mode-blocked .signal-sketch-line {
+  stroke: rgba(214, 189, 127, 0.88);
+}
+
+.signal-mode-blocked .signal-live-marker {
+  border-color: rgba(214, 189, 127, 0.9);
+  box-shadow: 0 0 20px rgba(214, 189, 127, 0.18);
+}
+
+.signal-mode-blocked .signal-verdict strong {
+  color: rgba(214, 189, 127, 0.9);
+}
+
+.signal-mode-stale {
+  filter: saturate(0.78);
+}
+
+.signal-mode-stale .signal-sketch-line,
+.signal-mode-stale .signal-proof-line {
+  opacity: 0.5;
+}
+
+.signal-mode-stale .signal-live-marker {
+  border-color: rgba(148, 163, 184, 0.64);
+  box-shadow: none;
 }
 
 @keyframes signalDraw {
@@ -2081,7 +2194,8 @@ textarea:focus-visible {
   }
 
   .signal-axis,
-  .signal-pill-row {
+  .signal-pill-row,
+  .signal-live-feed {
     display: none;
   }
 
