@@ -339,7 +339,9 @@ export async function GET() {
     const responseBody = {
       regime,
       position,
+      channelAsset: "MNT",
       channel: {
+        asset: "MNT",
         support: Number(channel.support.toFixed(4)),
         resistance: Number(channel.resistance.toFixed(4)),
       },

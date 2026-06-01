@@ -26,6 +26,28 @@ import path from "node:path";
 import { createPublicClient, http } from "viem";
 import { mantle } from "viem/chains";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const freshness = require("./freshness.shared.js") as {
+  maxIso: (a: string | null | undefined, b: string | null | undefined) => string | null;
+  newestOutcomeIso: (outcomes: Outcomes | null) => string | null;
+  pickFreshestByIso: <T>(
+    localValue: T | null,
+    remoteValue: T | null,
+    getIso: (value: T) => string | null
+  ) => T | null;
+  pickFreshestOutcomes: (
+    localOutcomes: Outcomes | null,
+    remoteOutcomes: Outcomes | null
+  ) => Outcomes | null;
+};
+
+const {
+  maxIso,
+  newestOutcomeIso,
+  pickFreshestByIso,
+  pickFreshestOutcomes,
+} = freshness;
+
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const revalidate = 0;
@@ -176,25 +198,6 @@ function safeStat(filePath: string): fs.Stats | null {
   }
 }
 
-function maxIso(a: string | null, b: string | null): string | null {
-  if (!a) return b;
-  if (!b) return a;
-  return Date.parse(a) >= Date.parse(b) ? a : b;
-}
-
-function newestOutcomeIso(outcomes: Outcomes | null): string | null {
-  if (!outcomes) return null;
-  let newest: string | null = null;
-  for (const entry of outcomes.pending ?? []) {
-    newest = maxIso(newest, entry.recordedAt ?? null);
-  }
-  for (const entry of outcomes.settled ?? []) {
-    // settledAt > recordedAt for settled entries; prefer settledAt
-    newest = maxIso(newest, entry.settledAt ?? entry.recordedAt ?? null);
-  }
-  return newest;
-}
-
 function isWithinLast24h(iso: string | undefined, nowMs: number): boolean {
   if (!iso) return false;
   const ts = Date.parse(iso);
@@ -321,10 +324,11 @@ export async function GET(): Promise<NextResponse> {
 
     // 2. src/data/outcomes.json — newest entry (try local, then GitHub)
     const outcomesPath = backendPath("src", "data", "outcomes.json");
-    let outcomes = safeReadJson<Outcomes>(outcomesPath);
-    if (!outcomes) {
-      outcomes = await fetchFromGitHub<Outcomes>("src/data/outcomes.json");
-    }
+    const localOutcomes = safeReadJson<Outcomes>(outcomesPath);
+    const remoteOutcomes = await fetchFromGitHub<Outcomes>(
+      "src/data/outcomes.json"
+    );
+    const outcomes = pickFreshestOutcomes(localOutcomes, remoteOutcomes);
     const outcomesIso = newestOutcomeIso(outcomes);
 
     // 3. Combined freshness
@@ -404,11 +408,19 @@ export async function GET(): Promise<NextResponse> {
 
     // 8. Cron summary, run history, failures (continuous-cron-and-health T5)
     const summaryPath = backendPath("data", "last-cycle-summary.json");
-    let lastCycleSummary = safeReadJson<LastCycleSummary>(summaryPath);
+    const localLastCycleSummary =
+      safeReadJson<LastCycleSummary>(summaryPath);
     // Vercel runs are stateless: backend `data/` files don't exist.
-    if (!lastCycleSummary) {
-      lastCycleSummary = await fetchFromGitHub<LastCycleSummary>("data/last-cycle-summary.json");
-    }
+    // In local dev, files can also be stale while GitHub raw has the
+    // newest cron commit. Pick the freshest timestamp across both.
+    const remoteLastCycleSummary =
+      await fetchFromGitHub<LastCycleSummary>("data/last-cycle-summary.json");
+    const lastCycleSummary = pickFreshestByIso(
+      localLastCycleSummary,
+      remoteLastCycleSummary,
+      (summary) =>
+        maxIso(summary.cycleEndedAt ?? null, summary.cycleStartedAt ?? null)
+    );
 
     // Promote summary's mode if the env didn't already set one explicitly.
     // This matches reality (cron writes "cron-github-actions") instead of
@@ -418,10 +430,23 @@ export async function GET(): Promise<NextResponse> {
     }
 
     const historyPath = backendPath("data", "cycle-history.json");
-    let historyAll = safeReadJson<CycleHistoryRaw[]>(historyPath);
-    if (!historyAll) {
-      historyAll = await fetchFromGitHub<CycleHistoryRaw[]>("data/cycle-history.json");
-    }
+    const localHistoryAll = safeReadJson<CycleHistoryRaw[]>(historyPath);
+    const remoteHistoryAll = await fetchFromGitHub<CycleHistoryRaw[]>(
+      "data/cycle-history.json"
+    );
+    const historyAll = pickFreshestByIso(
+      Array.isArray(localHistoryAll) ? localHistoryAll : null,
+      Array.isArray(remoteHistoryAll) ? remoteHistoryAll : null,
+      (history) =>
+        history.reduce<string | null>(
+          (newest, entry) =>
+            maxIso(
+              newest,
+              maxIso(entry.cycleEndedAt ?? null, entry.cycleStartedAt ?? null)
+            ),
+          null
+        )
+    );
     const runHistory: RunHistoryEntry[] = (
       Array.isArray(historyAll) ? historyAll : []
     )
@@ -433,10 +458,19 @@ export async function GET(): Promise<NextResponse> {
       }));
 
     const failuresPath = backendPath("data", "cycle-failures.json");
-    let failures = safeReadJson<CycleFailureRaw[]>(failuresPath);
-    if (!failures) {
-      failures = await fetchFromGitHub<CycleFailureRaw[]>("data/cycle-failures.json");
-    }
+    const localFailures = safeReadJson<CycleFailureRaw[]>(failuresPath);
+    const remoteFailures = await fetchFromGitHub<CycleFailureRaw[]>(
+      "data/cycle-failures.json"
+    );
+    const failures = pickFreshestByIso(
+      Array.isArray(localFailures) ? localFailures : null,
+      Array.isArray(remoteFailures) ? remoteFailures : null,
+      (items) =>
+        items.reduce<string | null>(
+          (newest, entry) => maxIso(newest, entry.at ?? null),
+          null
+        )
+    );
     let cyclesFailed24h: number | null = null;
     if (Array.isArray(failures)) {
       const cutoffMs = Date.now() - 24 * 60 * 60 * 1000;

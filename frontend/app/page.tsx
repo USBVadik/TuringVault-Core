@@ -35,6 +35,20 @@ import { RelativeTime } from "./lib/time";
 import { deriveSignalDisplay, formatSignalPrice } from "./lib/signal-display";
 import contractsData from "./data/contracts.json";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const walletDisplay = require("./lib/wallet-display.shared.js") as {
+  formatHoldingUsd: (
+    symbol: string,
+    balance: number | string | null,
+    perfData: unknown,
+    marketData: unknown
+  ) => string;
+  formatStrategyChannel: (strategyData: unknown) => {
+    label: string;
+    value: string;
+  };
+};
+
 // ═══ CONTRACTS ═══
 const CONTRACTS = {
   IDENTITY: "0x6f862802e0d5463DF18d267e422347BeCacc28bD" as `0x${string}`,
@@ -485,6 +499,9 @@ export default function Home() {
     signalMode,
     fallbackEthPrice: FALLBACK_MARKET.ethPrice,
   });
+  const strategyChannelDisplay = walletDisplay.formatStrategyChannel(
+    strategyData
+  );
   const channelSupport = signalDisplay.support;
   const channelResistance = signalDisplay.resistance;
   const signalMarkerLeft = signalDisplay.markerLeft;
@@ -1433,18 +1450,22 @@ export default function Home() {
                   {perfData?.holdings && (
                     <div className="grid grid-cols-1 gap-1 pl-2 border-l border-white/[0.04]">
                       {[
-                        ["MNT", "native"],
-                        ["WMNT", "wrapped"],
-                        ["mETH", "staking"],
+                        ["MNT", "MNT native"],
+                        ["WMNT", "WMNT wrapped"],
+                        ["mETH", "mETH staking"],
                         ["USDT_legacy", "USDT"],
                         ["USDT0", "USDT0"],
                         ["mUSD", "mUSD"],
                         ["USDY", "USDY · RWA"],
                       ].map(([sym, label]) => {
                         const bal = perfData.holdings[sym];
-                        const price = perfData.prices?.[sym];
                         if (bal == null || bal === 0) return null;
-                        const usd = price != null ? bal * price : null;
+                        const usd = walletDisplay.formatHoldingUsd(
+                          sym,
+                          bal,
+                          perfData,
+                          marketData
+                        );
                         return (
                           <div
                             key={sym}
@@ -1454,7 +1475,7 @@ export default function Home() {
                             <span>
                               {bal} <span className="text-white/25">·</span>{" "}
                               <span className="text-white/55">
-                                {usd != null ? `$${usd.toFixed(2)}` : "—"}
+                                {usd}
                               </span>
                             </span>
                           </div>
@@ -1520,12 +1541,10 @@ export default function Home() {
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">
-                      Grid Channel
+                      {strategyChannelDisplay.label}
                     </span>
                     <span className="text-[10px] font-mono text-white/50">
-                      {strategyData?.channel
-                        ? `$${strategyData.channel.support} – $${strategyData.channel.resistance}`
-                        : "—"}
+                      {strategyChannelDisplay.value}
                     </span>
                   </div>
                   <div className="funding-strategy-row">
