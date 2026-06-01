@@ -30,7 +30,7 @@ jobs:
   cycle:
     name: Run multi-agent cycle
     runs-on: ubuntu-latest
-    timeout-minutes: 8 # Hard ceiling; node call has its own 5m timeout
+    timeout-minutes: 15 # Hard ceiling; node call has its own 10m timeout
 
     env:
       AGENT_RUN_MODE: cron-github-actions
@@ -85,7 +85,25 @@ jobs:
       - name: Run cycle
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ./gemini-service-account.json
-        run: timeout 300 node scripts/run-cycle.js
+        run: |
+          set +e
+          CYCLE_STARTED_AT=$(date -u +%FT%TZ)
+          timeout 600 node scripts/run-cycle.js
+          code=$?
+          set -e
+
+          if [ "$code" -eq 0 ]; then
+            exit 0
+          fi
+
+          # Exit 2 means run-cycle detected corrupt JSON state. Stop before
+          # the commit step so we never publish broken state files.
+          if [ "$code" -eq 2 ]; then
+            exit "$code"
+          fi
+
+          CYCLE_EXIT_CODE="$code" CYCLE_STARTED_AT="$CYCLE_STARTED_AT" \
+            node scripts/write-cycle-failure-summary.js "run-cycle exited ${code}"
 
       # Honesty-rule invariant: outcomes.json MUST NOT advertise
       # EXECUTED_SWAP without a real on-chain TX. This is the exact

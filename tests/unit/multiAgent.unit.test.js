@@ -14,6 +14,7 @@ const {
   getDynamicConfidenceThreshold,
   evaluateConsensus,
   ANALYST_SYSTEM_PROMPT,
+  VALIDATOR_SYSTEM_PROMPT,
 } = require("../../src/orchestrator/multiAgent");
 const { DEFAULT_CONFIDENCE_FALLBACK } = require("../../src/config/constants");
 
@@ -437,6 +438,14 @@ describe("multi-agent prompt guardrails", () => {
   test("analyst prompt requires explicit risk-off source asset", () => {
     expect(ANALYST_SYSTEM_PROMPT).toMatch(/sourceAsset="mETH"/);
     expect(ANALYST_SYSTEM_PROMPT).toMatch(/sourceAsset="WMNT"/);
+  });
+
+  test("validator prompt recognizes deterministic lower-band grid confirmation", () => {
+    expect(VALIDATOR_SYSTEM_PROMPT).toMatch(
+      /DETERMINISTIC GRID TRADE CANDIDATE/
+    );
+    expect(VALIDATOR_SYSTEM_PROMPT).toMatch(/lower-band/i);
+    expect(VALIDATOR_SYSTEM_PROMPT).toMatch(/confirmed down-break/i);
   });
 });
 

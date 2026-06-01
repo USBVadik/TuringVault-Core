@@ -202,6 +202,38 @@ function compactPortfolioGuardResult(result) {
   };
 }
 
+function finitePositiveNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function chooseNextLegAmount({
+  previousLegOut = null,
+  beforeBalance = null,
+  afterBalance = null,
+  currentBalance = null,
+  dustMultiplier = 0.999,
+} = {}) {
+  const previousOut = finitePositiveNumber(previousLegOut);
+  const before = Number(beforeBalance);
+  const after = Number(afterBalance ?? currentBalance);
+  const measuredDelta =
+    Number.isFinite(before) && Number.isFinite(after)
+      ? Math.max(0, after - before)
+      : null;
+  const liveBalance = finitePositiveNumber(currentBalance ?? afterBalance);
+
+  let spendable = previousOut ?? measuredDelta ?? 0;
+  if (previousOut !== null && measuredDelta !== null) {
+    spendable = Math.min(previousOut, measuredDelta);
+  }
+  if (liveBalance !== null) {
+    spendable = Math.min(spendable, liveBalance);
+  }
+
+  return Math.max(0, spendable * dustMultiplier);
+}
+
 async function runMultiAgentCycle(opts = {}) {
   const dryRun = opts.dryRun === true;
   if (dryRun) {
@@ -1079,6 +1111,7 @@ async function runMultiAgentCycle(opts = {}) {
           let legFailed = false;
           let lastLegOut = finalSourceAmount;
           let nextAmountIn = finalSourceAmount;
+          const legOutputBaselines = {};
 
           // If we wrapped MNT first, the wrap is leg 0 — record it
           // before the swap legs so the outcomes ledger captures the
@@ -1092,13 +1125,21 @@ async function runMultiAgentCycle(opts = {}) {
             const toTok = path[i + 1];
             const fromDec =
               fromTok === "USDT" || fromTok === "USDT0" ? 6 : 18;
+            let balancesBeforeLeg = null;
 
             // For legs after the first, refresh actual balance to
-            // avoid float drift between estimatedOut and on-chain wei.
+            // avoid float drift between estimatedOut and on-chain wei,
+            // but only spend the amount created by the previous leg.
             if (i > 0) {
-              const bal = await liveDex.getBalances(wallet.address);
-              const have = bal[fromTok] || 0;
-              nextAmountIn = have * 0.999; // leave dust
+              balancesBeforeLeg = await liveDex.getBalances(wallet.address);
+              const have = balancesBeforeLeg[fromTok] || 0;
+              const baseline = legOutputBaselines[fromTok] || {};
+              nextAmountIn = chooseNextLegAmount({
+                previousLegOut: baseline.previousLegOut,
+                beforeBalance: baseline.beforeBalance,
+                afterBalance: have,
+                currentBalance: have,
+              });
               if (nextAmountIn < 0.0001) {
                 console.log(
                   `   ⚠️  Leg ${i + 1} skipped: intermediate ${fromTok} balance ${have} too low`
@@ -1113,6 +1154,11 @@ async function runMultiAgentCycle(opts = {}) {
                 break;
               }
             }
+
+            if (!balancesBeforeLeg) {
+              balancesBeforeLeg = await liveDex.getBalances(wallet.address);
+            }
+            const toBalanceBefore = balancesBeforeLeg[toTok] || 0;
 
             const amountInWei = ethers.parseUnits(
               nextAmountIn.toFixed(fromDec),
@@ -1167,6 +1213,10 @@ async function runMultiAgentCycle(opts = {}) {
 
             lastLegOut = legResp.estimatedOut;
             nextAmountIn = legResp.estimatedOut; // overridden next iteration via balance read
+            legOutputBaselines[toTok] = {
+              beforeBalance: toBalanceBefore,
+              previousLegOut: legResp.estimatedOut,
+            };
           }
 
           if (legFailed) {
@@ -1343,14 +1393,22 @@ async function runMultiAgentCycle(opts = {}) {
         const hbLegs = [];
         let hbLegFailed = false;
         let hbNextAmountIn = sourceAmount;
+        const hbLegOutputBaselines = {};
         for (let i = 0; i < hbPath.length - 1; i++) {
           const ftk = hbPath[i];
           const ttk = hbPath[i + 1];
           const fdec = ftk === "USDT" || ftk === "USDT0" ? 6 : 18;
+          let hbBalancesBeforeLeg = null;
           if (i > 0) {
-            const bal = await liveDex.getBalances(wallet.address);
-            const have = bal[ftk] || 0;
-            hbNextAmountIn = have * 0.999;
+            hbBalancesBeforeLeg = await liveDex.getBalances(wallet.address);
+            const have = hbBalancesBeforeLeg[ftk] || 0;
+            const baseline = hbLegOutputBaselines[ftk] || {};
+            hbNextAmountIn = chooseNextLegAmount({
+              previousLegOut: baseline.previousLegOut,
+              beforeBalance: baseline.beforeBalance,
+              afterBalance: have,
+              currentBalance: have,
+            });
             if (hbNextAmountIn < 0.0001) {
               hbLegs.push({
                 leg: i + 1,
@@ -1362,6 +1420,10 @@ async function runMultiAgentCycle(opts = {}) {
               break;
             }
           }
+          if (!hbBalancesBeforeLeg) {
+            hbBalancesBeforeLeg = await liveDex.getBalances(wallet.address);
+          }
+          const hbToBalanceBefore = hbBalancesBeforeLeg[ttk] || 0;
           const wei =
             i === 0
               ? amountInWei
@@ -1394,6 +1456,10 @@ async function runMultiAgentCycle(opts = {}) {
             amountOut: legResp.estimatedOut,
           });
           hbNextAmountIn = legResp.estimatedOut;
+          hbLegOutputBaselines[ttk] = {
+            beforeBalance: hbToBalanceBefore,
+            previousLegOut: legResp.estimatedOut,
+          };
         }
 
         const heartbeatResult = {
@@ -1909,6 +1975,7 @@ module.exports = {
   runMultiAgentCycle,
   _private: {
     buildPortfolioPrices,
+    chooseNextLegAmount,
     inferSettlementSourceAsset,
     getSettlementSnapshot,
   },

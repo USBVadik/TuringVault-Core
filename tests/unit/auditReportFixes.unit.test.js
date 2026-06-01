@@ -6,7 +6,7 @@ const { spawnSync } = require("child_process");
 const repoRoot = path.resolve(__dirname, "../..");
 
 describe("post-audit report regression fixes", () => {
-  test("Vercel cron bridge stays within Hobby deployment limits", () => {
+  test("Vercel cron bridge runs hourly to cover missed GitHub slots", () => {
     const vercelConfig = JSON.parse(
       fs.readFileSync(path.join(repoRoot, "frontend/vercel.json"), "utf8")
     );
@@ -16,7 +16,7 @@ describe("post-audit report regression fixes", () => {
     );
 
     expect(job).toBeTruthy();
-    expect(job.schedule).toBe("17 0 * * *");
+    expect(job.schedule).toBe("7 * * * *");
   });
 
   test("cron bridge dispatch policy only fires when health is stale or unknown", () => {
@@ -43,6 +43,49 @@ describe("post-audit report regression fixes", () => {
       dispatch: true,
       reason: "health-unavailable",
     });
+  });
+
+  test("agent-cycle workflow gives run-cycle enough time and preserves timeout evidence", () => {
+    const workflow = fs.readFileSync(
+      path.join(repoRoot, ".github/workflows/agent-cycle.yml"),
+      "utf8"
+    );
+
+    expect(workflow).toMatch(/timeout-minutes:\s*15/);
+    expect(workflow).toMatch(/timeout 600 node scripts\/run-cycle\.js/);
+    expect(workflow).toMatch(/write-cycle-failure-summary\.js/);
+  });
+
+  test("cycle failure summary writer records timeout evidence without execution claims", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "tv-cycle-failure-"));
+    process.env.CYCLE_FAILURE_REPO_ROOT = tmp;
+    jest.resetModules();
+    const {
+      writeFailureSummary,
+    } = require("../../scripts/write-cycle-failure-summary.js");
+
+    const summary = writeFailureSummary({
+      message: "run-cycle exited 124",
+      exitCode: 124,
+    });
+
+    expect(summary).toMatchObject({
+      decisionTier: "CYCLE_TIMEOUT",
+      executionStatus: "FAILED",
+      txHashes: [],
+      consensus: null,
+    });
+
+    const saved = JSON.parse(
+      fs.readFileSync(path.join(tmp, "data/last-cycle-summary.json"), "utf8")
+    );
+    const failures = JSON.parse(
+      fs.readFileSync(path.join(tmp, "data/cycle-failures.json"), "utf8")
+    );
+
+    expect(saved.decisionTier).toBe("CYCLE_TIMEOUT");
+    expect(failures[0].exitCode).toBe(124);
+    delete process.env.CYCLE_FAILURE_REPO_ROOT;
   });
 
   test("Proof Explorer derives current Sourcify summary from contracts data", () => {

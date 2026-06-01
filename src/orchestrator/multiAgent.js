@@ -392,6 +392,9 @@ VALIDATION CHECKLIST (ALL must pass for APPROVE):
 4. Is slippage realistic for current pool liquidity?
 5. Is the Risk:Reward ratio >= 1.5:1? (MANDATORY — reject if not met)
 6. Does the regime support directional trades? (RANGING = no directional swaps without grid confirmation)
+   A DETERMINISTIC GRID TRADE CANDIDATE lower-band re-entry block counts as
+   grid confirmation only when it includes R:R >= 1.5:1 and the raw signals
+   do not show confirmed down-break, strong outflow, or route infeasibility.
 
 REJECTION TRIGGERS (any ONE of these = automatic REJECT):
 - R:R ratio below 1.5:1
@@ -1209,4 +1212,5 @@ module.exports = {
   // OVERSOLD COUNTER-BIAS section that fixes the risk_on / risk_off
   // asymmetry. Not intended for runtime modification.
   ANALYST_SYSTEM_PROMPT,
+  VALIDATOR_SYSTEM_PROMPT,
 };
