@@ -19,6 +19,14 @@ describe("frontend honesty + polish guardrails", () => {
     expect(terminal).not.toMatch(/lastCycleAge\s*<\s*3600/);
   });
 
+  test("LiveStatusBadge syncs late-arriving initial health", () => {
+    const badge = read("frontend/app/components/LiveStatusBadge.tsx");
+
+    expect(badge).toMatch(
+      /if\s*\(initialHealth\)\s*{\s*setHealth\(initialHealth\);/s
+    );
+  });
+
   test("home ETH price formatting is locale-stable", () => {
     const page = read("frontend/app/page.tsx");
 

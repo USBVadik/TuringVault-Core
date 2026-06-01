@@ -50,6 +50,9 @@ export function LiveStatusBadge({
         /* honest degradation: keep showing whatever we had */
       }
     }
+    if (initialHealth) {
+      setHealth(initialHealth);
+    }
     // Run immediately if we have no initialHealth, then on a 30s tick.
     if (!initialHealth) {
       void poll();
