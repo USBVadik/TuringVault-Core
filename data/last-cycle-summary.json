@@ -1,85 +1,46 @@
 {
-  "cycleStartedAt": "2026-05-31T22:14:58.320Z",
-  "cycleEndedAt": "2026-05-31T22:16:27.193Z",
-  "durationSeconds": 88.87,
+  "cycleStartedAt": "2026-06-01T10:59:47.261Z",
+  "cycleEndedAt": "2026-06-01T11:01:07.935Z",
+  "durationSeconds": 80.67,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 2704,
-    "validatorMs": 6272,
+    "analystMs": 18172,
+    "validatorMs": 9554,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 205,
+  "decisionId": 211,
   "decisionTier": "INTENT_SWAP_NO_EXEC",
   "consensus": true,
-  "txHashes": [
-    "0x1c15b554709252c066e72c412fbac21640e39949be1e8faeb5c11d899bac7e0a",
-    "0x4d8f730039582003935d874de24f18c7e499ba71c802ef2f434da929dc3e98f5"
-  ],
+  "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26726012243",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26750790919",
   "errors": [],
   "gridTradeCandidate": {
-    "active": true,
-    "kind": "stable-heavy-lower-band-reentry",
-    "action": "swap",
-    "direction": "risk_on",
-    "targetAsset": "mETH",
-    "sourceAsset": "USDT0",
-    "allocationPct": 12,
-    "confidence": 0.64,
-    "reason": null,
-    "routeHint": [
-      "USDT0",
-      "USDT",
-      "WMNT",
-      "mETH"
-    ]
+    "active": false,
+    "kind": null,
+    "action": null,
+    "direction": null,
+    "targetAsset": null,
+    "sourceAsset": null,
+    "allocationPct": null,
+    "confidence": null,
+    "reason": "not stable-heavy FLAT inventory",
+    "routeHint": null
   },
   "directionalSwap": {
     "executed": false,
-    "direction": "risk-on",
-    "from": "USDT0",
-    "to": "mETH",
+    "direction": "risk-off",
+    "from": "mETH",
+    "to": "USDT0",
     "amountIn": null,
     "amountOut": null,
-    "reason": "leg3-failed: not-viable",
+    "reason": "insufficient-balance: 0.011938 mETH",
     "error": null,
-    "legs": [
-      {
-        "leg": 1,
-        "from": "USDT0",
-        "to": "USDT",
-        "txHash": "0x1c15b554709252c066e72c412fbac21640e39949be1e8faeb5c11d899bac7e0a",
-        "blockNumber": 96067722,
-        "amountIn": 5,
-        "amountOut": 5.000499,
-        "reason": null
-      },
-      {
-        "leg": 2,
-        "from": "USDT",
-        "to": "WMNT",
-        "txHash": "0x4d8f730039582003935d874de24f18c7e499ba71c802ef2f434da929dc3e98f5",
-        "blockNumber": 96067728,
-        "amountIn": 4.9977442530000005,
-        "amountOut": 7.485216829753909,
-        "reason": null
-      },
-      {
-        "leg": 3,
-        "from": "WMNT",
-        "to": "mETH",
-        "txHash": null,
-        "blockNumber": null,
-        "amountIn": null,
-        "amountOut": null,
-        "reason": "not-viable"
-      }
-    ]
+    "legs": null
   },
   "executionStatus": "INTENT_ONLY"
 }
