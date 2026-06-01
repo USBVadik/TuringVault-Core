@@ -31,6 +31,18 @@ const proofStatus = require("./proofStatus.js") as {
 };
 
 const { deriveDisplayTier, deriveExecutionProofStatus } = proofStatus;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { deriveOutcomeSourceAsset } = require("./sourceAsset.js") as {
+  deriveOutcomeSourceAsset: (row?: {
+    sourceAsset?: string | null;
+    settlementSourceAsset?: string | null;
+    directionalSwap?: {
+      from?: string | null;
+      sourceAsset?: string | null;
+      legs?: Array<{ from?: string | null; sourceAsset?: string | null }>;
+    } | null;
+  }) => string | null;
+};
 
 export const dynamic = "force-dynamic";
 // Audit Section 3 weakness #3 — was 0, every request hits Mantle RPC.
@@ -100,6 +112,7 @@ async function loadOutcomesIndex(): Promise<Map<
     displayTier: string | null;
     decisionTier: string | null;
     executionProofStatus: string | null;
+    sourceAsset: string | null;
     // Audit 19/20 provenance — surfaced on /api/decisions so the
     // dashboard can render a "fed by Binance fallback" pill.
     priceSource: string | null;
@@ -118,6 +131,7 @@ async function loadOutcomesIndex(): Promise<Map<
       displayTier: string | null;
       decisionTier: string | null;
       executionProofStatus: string | null;
+      sourceAsset: string | null;
       priceSource: string | null;
       priceFromSnapshot: boolean;
       priceSnapshotAgeSec: number | null;
@@ -133,10 +147,21 @@ async function loadOutcomesIndex(): Promise<Map<
         decisionId?: number;
         rwaIntent?: { source?: string; executed?: boolean };
         decisionTier?: string;
+        sourceAsset?: string | null;
+        settlementSourceAsset?: string | null;
         _displayTier?: string;
         executedOnChain?: boolean;
         txHash?: string | null;
-        directionalSwap?: { executed?: boolean; legs?: Array<{ txHash?: string }> };
+        directionalSwap?: {
+          executed?: boolean;
+          from?: string | null;
+          sourceAsset?: string | null;
+          legs?: Array<{
+            txHash?: string;
+            from?: string | null;
+            sourceAsset?: string | null;
+          }>;
+        };
         priceSource?: string | null;
         priceFromSnapshot?: boolean;
         priceSnapshotAgeSec?: number | null;
@@ -150,10 +175,21 @@ async function loadOutcomesIndex(): Promise<Map<
         decisionId?: number;
         rwaIntent?: { source?: string; executed?: boolean };
         decisionTier?: string;
+        sourceAsset?: string | null;
+        settlementSourceAsset?: string | null;
         _displayTier?: string;
         executedOnChain?: boolean;
         txHash?: string | null;
-        directionalSwap?: { executed?: boolean; legs?: Array<{ txHash?: string }> };
+        directionalSwap?: {
+          executed?: boolean;
+          from?: string | null;
+          sourceAsset?: string | null;
+          legs?: Array<{
+            txHash?: string;
+            from?: string | null;
+            sourceAsset?: string | null;
+          }>;
+        };
         priceSource?: string | null;
         priceFromSnapshot?: boolean;
         priceSnapshotAgeSec?: number | null;
@@ -197,6 +233,7 @@ async function loadOutcomesIndex(): Promise<Map<
         displayTier,
         decisionTier: tier,
         executionProofStatus,
+        sourceAsset: deriveOutcomeSourceAsset(e),
         priceSource: e.priceSource ?? null,
         priceFromSnapshot: e.priceFromSnapshot === true,
         priceSnapshotAgeSec: e.priceSnapshotAgeSec ?? null,
@@ -294,6 +331,7 @@ export async function GET() {
           id,
           action: args[1],
           targetAsset,
+          sourceAsset: outcomeRow?.sourceAsset ?? null,
           asset: targetAsset,
           assetClass: classifyAsset(targetAsset, rwaIntent),
           confidence: Number(args[3]),

@@ -27,6 +27,24 @@ describe("asset-aware signal display data binding", () => {
     expect(display.priceAtChannelPct(50)).toBeCloseTo(0.655);
   });
 
+  test("uses MNT channel data when the latest decision sells MNT into stables", () => {
+    const display = deriveSignalDisplay({
+      latestDecision: { targetAsset: "mUSD", sourceAsset: "WMNT" },
+      strategyData: {
+        currentPrice: 0.65,
+        channel: { support: 0.61, resistance: 0.7 },
+      },
+      marketData: { ethPrice: 1974.39, mantlePrice: 0.65 },
+      perfData: { prices: { mETH: 1981.12, MNT: 0.65 } },
+      signalMode: "risk-off",
+    });
+
+    expect(display.baseAsset).toBe("MNT");
+    expect(display.gridLabel).toBe("MNT flip grid");
+    expect(display.referencePriceLabel).toBe("$0.65");
+    expect(display.priceAtChannelPct(50)).toBeCloseTo(0.655);
+  });
+
   test("does not use MNT strategy channel price for the mETH hero", () => {
     const display = deriveMethSignalDisplay({
       strategyData: {
