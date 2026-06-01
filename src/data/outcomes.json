@@ -460,6 +460,78 @@
       "executedOnChain": true,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1780357760515_222",
+      "decisionId": 222,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.52,
+      "priceAtDecision": 2002.46,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmdEx9v19VpMyzH2vRvkKZ1BvFfFVPTe2AJ1YVrgqBJq1E",
+      "recordedAt": "2026-06-01T23:49:20.515Z",
+      "settleAfter": "2026-06-02T00:49:20.515Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780357760511
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal on mETH is well-supported. ETH grid at 52% channel position correctly identifies no actionable edge — neither support ($1977.7) nor resistance ($2029.5) is being tested. MNT EXIT_RANGING with UNKNOWN breakout direction correctly precludes action. Portfolio is already 20.1% risk (mETH $23.41), stable-heavy at 79.9% — HOLD is appropriate per inventory rule. Funding 0.901% neutral, smar",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% mildly bearish for mETH — monitor if it widens",
+        "MNT trend forming at 8% channel position — breakout risk warrants attention next cycle",
+        "F&G=29 Fear context noted but insufficient alone to trigger action"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8ff2ed78aeea73898f1efdc801ba43d4f9240b503029f618e40ac09fcca33044",
+      "combinedAnchor": "0xaee8637310703ca5e228052b4fa94a92f83deb81e86104faa68386bd8e1baf11",
+      "decisionLogTxHash": "0xbaab1b6c0bc63207d8d609d4debf6cf6b5a5f7fe5fc114133b8115321401bded",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
