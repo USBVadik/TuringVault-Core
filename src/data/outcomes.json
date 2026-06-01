@@ -7114,6 +7114,87 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780332486883_213",
+      "decisionId": 213,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1969.81,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmeY2SRSUh7XyMuJd3mnNpNJoicUWBHPvyqCv1LdPFTDDq",
+      "recordedAt": "2026-06-01T16:48:06.883Z",
+      "settleAfter": "2026-06-01T17:48:06.883Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780332486878
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Both ETH and MNT grids show confirmed EXIT_RANGING with downward breakouts (70% and 80% confidence respectively). Regime hint is TREND_DOWN — this satisfies the CRISIS/TREND_DOWN exception to the stable-heavy HOLD rule. Analyst correctly identifies PRIMARY EDGE on MNT grid. F&G=29 (Fear) and yield spread -1% (BEARISH) corroborate de-risking. Funding 0.901% is neutral, not a counter-signal. R:R is ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly quantified by Analyst — inferred from capital protection logic",
+        "Low intraday vol (0.29%) raises false-breakout risk",
+        "RSI 37.5 rising — potential mean-reversion bounce",
+        "Funding 0.901% shows mild long bias, slight counter-signal",
+        "mETH position small ($18.50) — impact limited but direction correct"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "stable-heavy wallet (84.6% stables, $101.83 stable vs $18.52 tradable risk); refusing repeated risk-off while FLAT",
+        "summary": {
+          "stableUsd": 101.834046,
+          "tradableRiskUsd": 18.522203017901003,
+          "nativeMnt": 17.972159770219278,
+          "stableShare": 0.8461051821651061,
+          "riskShare": 0.1538948178348939,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "lower-band risk-on blocked by confirmed down-break"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x4d8dd233205c6a44893b82905c71c8834597e8ccf60a2bcc78d8ed9cd49caa47",
+      "combinedAnchor": "0x4aad3b880b50a50a64bc3a3b760cddc57dc7a4dac7ffa9989b56d0205a5034fe",
+      "decisionLogTxHash": "0xe26a5932e38e17cda9d3cb9e36aa06f66d2a6817d6ac84182cf02786cffdf7e4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
