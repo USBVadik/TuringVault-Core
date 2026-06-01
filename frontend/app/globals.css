@@ -1508,11 +1508,24 @@ textarea:focus-visible {
 
 .ops-title {
   margin-top: 4px;
+  /* Monochrome vertical ink gradient — bright at the top where the
+     light hits, settling cooler below. Depth on the headline without
+     rainbow slop. Falls back to solid color if bg-clip unsupported. */
   color: rgba(244, 249, 249, 0.97);
+  background: linear-gradient(
+    180deg,
+    rgba(248, 252, 252, 1) 0%,
+    rgba(214, 226, 228, 0.86) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-size: clamp(22px, 3vw, 34px);
   font-weight: 700;
   line-height: 1.08;
-  letter-spacing: 0;
+  /* Tighter tracking reads as premium on large display type. */
+  letter-spacing: -0.018em;
+  text-wrap: balance;
 }
 
 .ops-topline-actions {

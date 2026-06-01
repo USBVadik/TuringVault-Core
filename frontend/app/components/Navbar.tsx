@@ -58,10 +58,10 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-[color,background-color,border-color,box-shadow] duration-200 ease-out active:scale-[0.97] ${
                   isActive
-                    ? "bg-cyan-400/10 text-cyan-100 border border-cyan-400/20"
-                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
+                    ? "bg-cyan-400/10 text-cyan-100 border border-cyan-400/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_18px_rgba(131,247,234,0.12)]"
+                    : "text-white/40 hover:text-white/70 hover:bg-white/[0.03] border border-transparent"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
