@@ -2,7 +2,7 @@
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, type PointerEvent } from "react";
 import {
   Shield,
   TrendingUp,
@@ -169,12 +169,23 @@ const SECONDARY_PARTNERS = [
 // multiAgent.js where activeAnalystPrompt = ANALYST_SYSTEM_PROMPT.
 // Re-enabling is tracked in spec agent-reasoning-quality.
 
+type SignalHover = {
+  label: string;
+  value: string;
+  detail: string;
+  meta: string;
+  x: number;
+  y: number;
+  tone: "executed" | "blocked" | "intent" | "hold" | "live";
+};
+
 export default function Home() {
   const { address, isConnected } = useAccount();
   const [marketData, setMarketData] = useState<any>(null);
   const [reasoningStep, setReasoningStep] = useState(0);
   const [chainData, setChainData] = useState<any>(null);
   const [liveNotification, setLiveNotification] = useState<any>(null);
+  const [signalHover, setSignalHover] = useState<SignalHover | null>(null);
   const prevTotalRef = useRef(0);
 
   // ═══ ON-CHAIN READS (via server API to avoid client tuple decode issues) ═══
@@ -480,6 +491,12 @@ export default function Home() {
       ? "Replay feed"
       : "Live feed"
     : "Syncing feed";
+  const currentSignalTone: SignalHover["tone"] =
+    signalMode === "blocked"
+      ? "blocked"
+      : signalMode === "risk-on" || signalMode === "risk-off"
+        ? "intent"
+        : "hold";
   const signalSourceLabel =
     latestDecision?.priceSource ??
     latestDecision?.candleSource ??
@@ -489,6 +506,8 @@ export default function Home() {
     channelCurrent > 0
       ? `$${channelCurrent >= 100 ? channelCurrent.toFixed(0) : channelCurrent.toFixed(2)}`
       : "syncing";
+  const formatSignalPrice = (price: number) =>
+    price >= 100 ? `$${price.toFixed(0)}` : `$${price.toFixed(2)}`;
   const signalDecisionId =
     latestDecision?.id ??
     latestDecision?.decisionId ??
@@ -500,6 +519,9 @@ export default function Home() {
     target: string;
     timeLabel: string;
     tone: "executed" | "blocked" | "intent" | "hold";
+    tier: string;
+    confidence: string;
+    source: string;
   }> = (recentDecisions ?? [])
     .slice(0, 4)
     .map((decision: any, index: number) => {
@@ -538,8 +560,86 @@ export default function Home() {
         target,
         timeLabel,
         tone,
+        tier,
+        confidence:
+          decision?.confidence != null
+            ? `${(decision.confidence / 100).toFixed(1)}%`
+            : "—",
+        source:
+          decision?.priceSource ??
+          decision?.candleSource ??
+          decision?.source ??
+          "on-chain",
       };
     });
+  const buildSignalHover = (xPct: number, yPct: number): SignalHover => {
+    const clampedX = Math.max(16, Math.min(84, xPct));
+    const clampedY = Math.max(30, Math.min(78, yPct));
+    const channelPct = Math.max(0, Math.min(100, xPct));
+    const hoverPrice =
+      channelResistance > channelSupport && channelSupport > 0
+        ? channelSupport + (channelResistance - channelSupport) * (channelPct / 100)
+        : null;
+    const zone =
+      yPct < 32
+        ? "Upper sell band"
+        : yPct > 68
+          ? "Lower buy band"
+          : "Grid midline";
+    const value = hoverPrice
+      ? `${formatSignalPrice(hoverPrice)} · ${Math.round(channelPct)}% channel`
+      : `${signalVerdict} · ${latestConfidence} conf`;
+    const detail = hoverPrice
+      ? `Support ${formatSignalPrice(channelSupport)} · Resistance ${formatSignalPrice(channelResistance)}`
+      : `Latest ${signalVerdict} · ${latestDecisionTier}`;
+
+    return {
+      label: zone,
+      value,
+      detail,
+      meta: `${signalFeedLabel} · ${strategyData?.regime ?? "regime sync"}`,
+      x: clampedX,
+      y: clampedY,
+      tone: "live",
+    };
+  };
+  const handleSignalPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-signal-hotspot='true']")) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const xPct = ((event.clientX - rect.left) / rect.width) * 100;
+    const yPct = ((event.clientY - rect.top) / rect.height) * 100;
+    setSignalHover(buildSignalHover(xPct, yPct));
+  };
+  const handleSignalFocus = () => {
+    setSignalHover(buildSignalHover(signalMarkerLeft, 50));
+  };
+  const handleSignalEventHover = (
+    event: PointerEvent<HTMLElement>,
+    signalEvent: (typeof signalEvents)[number]
+  ) => {
+    const visual = event.currentTarget.closest(".signal-visual");
+    const visualRect = visual?.getBoundingClientRect();
+    const eventRect = event.currentTarget.getBoundingClientRect();
+    const x = visualRect
+      ? ((eventRect.left + eventRect.width / 2 - visualRect.left) / visualRect.width) *
+        100
+      : signalMarkerLeft;
+    const y = visualRect
+      ? ((eventRect.top + eventRect.height / 2 - visualRect.top) / visualRect.height) *
+        100
+      : 62;
+
+    setSignalHover({
+      label: `Decision #${signalEvent.id} · ${signalEvent.timeLabel}`,
+      value: `${signalEvent.action} ${signalEvent.target}`,
+      detail: `${signalEvent.tier} · ${signalEvent.confidence} confidence`,
+      meta: `source ${signalEvent.source}`,
+      x: Math.max(16, Math.min(84, x)),
+      y: Math.max(30, Math.min(78, y - 18)),
+      tone: signalEvent.tone,
+    });
+  };
 
   // ═══ REASONING ANIMATION ═══
   useEffect(() => {
@@ -628,7 +728,16 @@ export default function Home() {
             }`}
             aria-label="mETH flip engine live status"
           >
-            <div className="signal-visual" aria-hidden="true">
+            <div
+              className={`signal-visual ${signalHover ? "signal-visual-active" : ""}`}
+              role="group"
+              aria-label="Interactive mETH signal map"
+              tabIndex={0}
+              onPointerMove={handleSignalPointerMove}
+              onPointerLeave={() => setSignalHover(null)}
+              onFocus={handleSignalFocus}
+              onBlur={() => setSignalHover(null)}
+            >
               <div className="signal-live-chip">
                 <span />
                 {signalFeedLabel}
@@ -642,10 +751,38 @@ export default function Home() {
                 <strong>{signalChannelPrice}</strong>
               </div>
               <span className="signal-scanline" />
-              <div className="signal-band signal-band-sell">
+              <div
+                className="signal-band signal-band-sell"
+                data-signal-hotspot="true"
+                onPointerEnter={() =>
+                  setSignalHover({
+                    label: "Upper sell band",
+                    value: channelResistance > 0 ? formatSignalPrice(channelResistance) : "exit zone",
+                    detail: `Risk-off trims route to ${stableAssetTarget ? latestTarget || "stables" : "mUSD"}`,
+                    meta: `${strategyData?.regime ?? "regime sync"} · validator watched`,
+                    x: 76,
+                    y: 27,
+                    tone: "intent",
+                  })
+                }
+              >
                 <span>Sell band</span>
               </div>
-              <div className="signal-band signal-band-buy">
+              <div
+                className="signal-band signal-band-buy"
+                data-signal-hotspot="true"
+                onPointerEnter={() =>
+                  setSignalHover({
+                    label: "Lower buy band",
+                    value: channelSupport > 0 ? formatSignalPrice(channelSupport) : "re-entry zone",
+                    detail: `Risk-on re-entry watches ${riskAssetTarget ? latestTarget || "mETH" : "mETH/WETH/MNT"}`,
+                    meta: `${latestConfidence} confidence · proof required`,
+                    x: 24,
+                    y: 74,
+                    tone: "executed",
+                  })
+                }
+              >
                 <span>Buy band</span>
               </div>
               <span
@@ -654,7 +791,19 @@ export default function Home() {
               />
               <span
                 className="signal-live-marker"
+                data-signal-hotspot="true"
                 style={{ left: `${signalMarkerLeft}%` }}
+                onPointerEnter={() =>
+                  setSignalHover({
+                    label: "Current verdict",
+                    value: signalVerdict,
+                    detail: `${latestDecisionTier} · ${latestConfidence} confidence`,
+                    meta: `${signalFeedLabel} · ${signalSourceLabel}`,
+                    x: signalMarkerLeft,
+                    y: 45,
+                    tone: currentSignalTone,
+                  })
+                }
               >
                 <span>{signalStatusLabel}</span>
               </span>
@@ -682,6 +831,10 @@ export default function Home() {
                     <span
                       key={`${event.id}-${event.timeLabel}`}
                       className={`signal-event signal-event-${event.tone}`}
+                      data-signal-hotspot="true"
+                      onPointerEnter={(pointerEvent) =>
+                        handleSignalEventHover(pointerEvent, event)
+                      }
                     >
                       <span>{event.timeLabel}</span>
                       <strong>{event.action}</strong>
@@ -689,6 +842,30 @@ export default function Home() {
                     </span>
                   ))}
                 </div>
+              )}
+              {signalHover && (
+                <>
+                  <span
+                    className="signal-hover-crosshair"
+                    style={{ left: `${signalHover.x}%` }}
+                  />
+                  <span
+                    className="signal-hover-row"
+                    style={{ top: `${signalHover.y}%` }}
+                  />
+                  <div
+                    className={`signal-inspector signal-inspector-${signalHover.tone}`}
+                    style={{
+                      left: `${signalHover.x}%`,
+                      top: `${signalHover.y}%`,
+                    }}
+                  >
+                    <span>{signalHover.label}</span>
+                    <strong>{signalHover.value}</strong>
+                    <em>{signalHover.detail}</em>
+                    <small>{signalHover.meta}</small>
+                  </div>
+                </>
               )}
               <div className="signal-axis signal-axis-left">mETH</div>
               <div className="signal-axis signal-axis-right">mUSD</div>

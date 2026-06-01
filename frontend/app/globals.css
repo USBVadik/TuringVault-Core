@@ -1405,9 +1405,23 @@ textarea:focus-visible {
   overflow: hidden;
   border: 1px solid rgba(169, 157, 242, 0.16);
   border-radius: 8px;
+  cursor: crosshair;
   background:
     radial-gradient(circle at 34% 28%, rgba(169, 157, 242, 0.14), transparent 28%),
     linear-gradient(180deg, rgba(10, 13, 20, 0.92), rgba(4, 6, 10, 0.94));
+}
+
+.signal-visual:focus-visible {
+  outline: 2px solid rgba(131, 247, 234, 0.44);
+  outline-offset: 3px;
+}
+
+.signal-visual-active {
+  border-color: rgba(131, 247, 234, 0.24);
+}
+
+.signal-visual-active .signal-sketch-line {
+  filter: drop-shadow(0 0 14px rgba(169, 157, 242, 0.18));
 }
 
 .signal-live-chip {
@@ -1514,6 +1528,15 @@ textarea:focus-visible {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  cursor: default;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.signal-band:hover {
+  transform: translateY(-1px);
 }
 
 .signal-band-sell {
@@ -1723,6 +1746,17 @@ textarea:focus-visible {
   background: rgba(15, 23, 42, 0.54);
   padding: 4px 7px;
   font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  cursor: default;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.signal-event:hover {
+  border-color: rgba(131, 247, 234, 0.34);
+  background: rgba(15, 23, 42, 0.82);
+  transform: translateY(-1px);
 }
 
 .signal-event span {
@@ -1775,6 +1809,127 @@ textarea:focus-visible {
 .signal-event-intent strong,
 .signal-event-intent em {
   color: rgba(199, 190, 255, 0.86);
+}
+
+.signal-hover-crosshair,
+.signal-hover-row {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.signal-hover-crosshair {
+  top: 36px;
+  bottom: 34px;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, rgba(131, 247, 234, 0.46), transparent);
+  box-shadow: 0 0 14px rgba(131, 247, 234, 0.2);
+}
+
+.signal-hover-row {
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, transparent, rgba(131, 247, 234, 0.28), transparent);
+}
+
+.signal-inspector {
+  position: absolute;
+  z-index: 9;
+  display: grid;
+  min-width: 196px;
+  max-width: 236px;
+  gap: 4px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(131, 247, 234, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(7, 11, 16, 0.94), rgba(4, 6, 10, 0.94)),
+    linear-gradient(135deg, rgba(131, 247, 234, 0.08), transparent);
+  padding: 10px 11px;
+  pointer-events: none;
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  animation: signalInspectorIn 140ms ease-out;
+}
+
+.signal-inspector::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(131, 247, 234, 0.9);
+  box-shadow: 0 0 12px rgba(131, 247, 234, 0.36);
+}
+
+.signal-inspector span {
+  color: rgba(148, 163, 184, 0.68);
+  padding-left: 12px;
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.signal-inspector strong {
+  overflow: hidden;
+  color: rgba(248, 250, 252, 0.96);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signal-inspector em,
+.signal-inspector small {
+  overflow: hidden;
+  color: rgba(203, 213, 225, 0.68);
+  font-size: 10px;
+  font-style: normal;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signal-inspector small {
+  color: rgba(148, 163, 184, 0.56);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+}
+
+.signal-inspector-executed {
+  border-color: rgba(52, 211, 153, 0.28);
+}
+
+.signal-inspector-executed::before {
+  background: rgba(52, 211, 153, 0.95);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.42);
+}
+
+.signal-inspector-blocked {
+  border-color: rgba(214, 189, 127, 0.3);
+}
+
+.signal-inspector-blocked::before {
+  background: rgba(214, 189, 127, 0.94);
+  box-shadow: 0 0 12px rgba(214, 189, 127, 0.38);
+}
+
+.signal-inspector-intent {
+  border-color: rgba(169, 157, 242, 0.3);
+}
+
+.signal-inspector-intent::before {
+  background: rgba(169, 157, 242, 0.95);
+  box-shadow: 0 0 12px rgba(169, 157, 242, 0.38);
 }
 
 .signal-brief {
@@ -2103,6 +2258,17 @@ textarea:focus-visible {
   70% {
     transform: translateX(320px);
     opacity: 0;
+  }
+}
+
+@keyframes signalInspectorIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -2622,6 +2788,31 @@ textarea:focus-visible {
   .signal-sweep::after {
     width: 7px;
     height: 7px;
+  }
+
+  .signal-hover-crosshair {
+    top: 34px;
+    bottom: 14px;
+  }
+
+  .signal-hover-row {
+    left: 14px;
+    right: 14px;
+  }
+
+  .signal-inspector {
+    min-width: 154px;
+    max-width: 190px;
+    padding: 8px 9px;
+  }
+
+  .signal-inspector strong {
+    font-size: 12px;
+  }
+
+  .signal-inspector em,
+  .signal-inspector small {
+    font-size: 9px;
   }
 
   .signal-axis,
