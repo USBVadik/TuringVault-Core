@@ -6879,6 +6879,91 @@
       "executedOnChain": false,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1780311657766_211",
+      "decisionId": 211,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.72,
+      "priceAtDecision": 1981.89,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmVQAMCxRetdWX7qBoDWtYdJqmsoZNwESPXSUGxszzCvj2",
+      "recordedAt": "2026-06-01T11:00:57.766Z",
+      "settleAfter": "2026-06-01T12:00:57.766Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780311657762
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Proposal passes validation. Both ETH and MNT grids confirm EXIT_RANGING with downward breakouts (70% confidence each). Regime hint explicitly TREND_DOWN — satisfies the RANGING directional exception via grid signal confirmation. STOP_LOSS override is active on mETH entered at $1996.49 vs current $1981.89 (-0.7%). Downside liquidation cluster at $1883 represents ~5% further drop; swap to mUSD is de",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly quantified by Analyst — inferred from stop-loss logic",
+        "RANGING regime requires grid confirmation for directional action — confirmed here at 70%",
+        "Funding 0.587% slightly long may delay downside but does not negate breakout signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: open position IN_mETH can be exited",
+        "summary": {
+          "stableUsd": 96.376142,
+          "tradableRiskUsd": 23.673123535366802,
+          "nativeMnt": 18.16955058801881,
+          "stableShare": 0.8028049282118045,
+          "riskShare": 0.1971950717881955,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "mETH",
+        "to": "USDT0",
+        "reason": "insufficient-balance: 0.011938 mETH"
+      },
+      "manifestHash": "0x5a12289d76c438bfe6ecc100c171f7ca66b389180a26487264de974461e2d522",
+      "combinedAnchor": "0x7c44e2bba08472d65ece656483a12b011185161a752ca2ff9346541933d6a744",
+      "decisionLogTxHash": "0xbdd35fdd07e29e51b8a75ddd1626a4d5f4ba8ea48ed9903a62f2bde3fa05c75d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
