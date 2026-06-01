@@ -25,6 +25,7 @@ import { RiskMascot } from "./components/RiskMascot";
 import { LiveStatusBadge } from "./components/LiveStatusBadge";
 import { SkeletonStatsGrid } from "./components/Skeleton";
 import { RelativeTime } from "./lib/time";
+import { deriveMethSignalDisplay, formatSignalPrice } from "./lib/signal-display";
 import contractsData from "./data/contracts.json";
 
 // ═══ CONTRACTS ═══
@@ -461,21 +462,16 @@ export default function Home() {
       : signalMode === "blocked"
         ? "M34 168 C82 126 124 128 162 112 C202 94 234 122 278 106 C330 82 366 82 410 88 C450 94 470 102 492 96"
         : "M34 196 C74 178 92 126 132 138 C178 152 196 78 244 90 C298 104 318 48 376 68 C428 88 448 128 492 108";
-  const channelSupport = Number(strategyData?.channel?.support ?? 0);
-  const channelResistance = Number(strategyData?.channel?.resistance ?? 0);
-  const channelCurrent = Number(strategyData?.currentPrice ?? 0);
-  const channelPosition =
-    channelResistance > channelSupport && channelCurrent > 0
-      ? (channelCurrent - channelSupport) / (channelResistance - channelSupport)
-      : null;
-  const signalMarkerLeft =
-    channelPosition != null
-      ? Math.max(8, Math.min(92, 8 + channelPosition * 84))
-      : signalMode === "risk-on"
-        ? 24
-        : signalMode === "risk-off"
-          ? 82
-          : 54;
+  const signalDisplay = deriveMethSignalDisplay({
+    strategyData,
+    marketData,
+    perfData,
+    signalMode,
+    fallbackEthPrice: FALLBACK_MARKET.ethPrice,
+  });
+  const channelSupport = signalDisplay.support;
+  const channelResistance = signalDisplay.resistance;
+  const signalMarkerLeft = signalDisplay.markerLeft;
   const signalStatusLabel =
     signalMode === "risk-on"
       ? "buy band"
@@ -502,12 +498,8 @@ export default function Home() {
     latestDecision?.candleSource ??
     latestDecision?.source ??
     "on-chain log";
-  const signalChannelPrice =
-    channelCurrent > 0
-      ? `$${channelCurrent >= 100 ? channelCurrent.toFixed(0) : channelCurrent.toFixed(2)}`
-      : "syncing";
-  const formatSignalPrice = (price: number) =>
-    price >= 100 ? `$${price.toFixed(0)}` : `$${price.toFixed(2)}`;
+  const signalChannelPrice = signalDisplay.referencePriceLabel;
+  const signalChannelLabel = signalDisplay.referenceLabel;
   const signalDecisionId =
     latestDecision?.id ??
     latestDecision?.decisionId ??
@@ -576,10 +568,7 @@ export default function Home() {
     const clampedX = Math.max(16, Math.min(84, xPct));
     const clampedY = Math.max(30, Math.min(78, yPct));
     const channelPct = Math.max(0, Math.min(100, xPct));
-    const hoverPrice =
-      channelResistance > channelSupport && channelSupport > 0
-        ? channelSupport + (channelResistance - channelSupport) * (channelPct / 100)
-        : null;
+    const hoverPrice = signalDisplay.priceAtChannelPct(channelPct);
     const zone =
       yPct < 32
         ? "Upper sell band"
@@ -588,16 +577,18 @@ export default function Home() {
           : "Grid midline";
     const value = hoverPrice
       ? `${formatSignalPrice(hoverPrice)} · ${Math.round(channelPct)}% channel`
-      : `${signalVerdict} · ${latestConfidence} conf`;
+      : `${signalChannelPrice} · ${latestConfidence} conf`;
     const detail = hoverPrice
       ? `Support ${formatSignalPrice(channelSupport)} · Resistance ${formatSignalPrice(channelResistance)}`
-      : `Latest ${signalVerdict} · ${latestDecisionTier}`;
+      : `mETH reference · latest ${signalVerdict} · ${latestDecisionTier}`;
 
     return {
       label: zone,
       value,
       detail,
-      meta: `${signalFeedLabel} · ${strategyData?.regime ?? "regime sync"}`,
+      meta: signalDisplay.channelLooksEth
+        ? `${signalFeedLabel} · ETH channel`
+        : `${signalFeedLabel} · no ETH channel in strategy feed`,
       x: clampedX,
       y: clampedY,
       tone: "live",
@@ -747,7 +738,7 @@ export default function Home() {
                 <span>TV</span>
               </div>
               <div className="signal-channel-readout">
-                <span>Channel cursor</span>
+                <span>{signalChannelLabel}</span>
                 <strong>{signalChannelPrice}</strong>
               </div>
               <span className="signal-scanline" />
@@ -757,9 +748,14 @@ export default function Home() {
                 onPointerEnter={() =>
                   setSignalHover({
                     label: "Upper sell band",
-                    value: channelResistance > 0 ? formatSignalPrice(channelResistance) : "exit zone",
+                    value:
+                      signalDisplay.channelLooksEth && channelResistance > 0
+                        ? formatSignalPrice(channelResistance)
+                        : "exit zone",
                     detail: `Risk-off trims route to ${stableAssetTarget ? latestTarget || "stables" : "mUSD"}`,
-                    meta: `${strategyData?.regime ?? "regime sync"} · validator watched`,
+                    meta: signalDisplay.channelLooksEth
+                      ? `${strategyData?.regime ?? "regime sync"} · validator watched`
+                      : `mETH ref ${signalChannelPrice} · no ETH channel`,
                     x: 76,
                     y: 27,
                     tone: "intent",
@@ -774,9 +770,14 @@ export default function Home() {
                 onPointerEnter={() =>
                   setSignalHover({
                     label: "Lower buy band",
-                    value: channelSupport > 0 ? formatSignalPrice(channelSupport) : "re-entry zone",
+                    value:
+                      signalDisplay.channelLooksEth && channelSupport > 0
+                        ? formatSignalPrice(channelSupport)
+                        : "re-entry zone",
                     detail: `Risk-on re-entry watches ${riskAssetTarget ? latestTarget || "mETH" : "mETH/WETH/MNT"}`,
-                    meta: `${latestConfidence} confidence · proof required`,
+                    meta: signalDisplay.channelLooksEth
+                      ? `${latestConfidence} confidence · proof required`
+                      : `mETH ref ${signalChannelPrice} · proof required`,
                     x: 24,
                     y: 74,
                     tone: "executed",
