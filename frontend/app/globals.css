@@ -10,10 +10,20 @@
   --vault-surface: rgba(13, 15, 18, 0.94);
   --vault-glass: rgba(13, 15, 18, 0.84);
   --vault-glass-border: rgba(184, 196, 211, 0.13);
+  --vault-panel: rgba(10, 13, 17, 0.94);
+  --vault-panel-strong: rgba(14, 18, 23, 0.98);
+  --vault-border: rgba(166, 183, 204, 0.16);
+  --vault-border-strong: rgba(166, 183, 204, 0.24);
+  --vault-cyan-rgb: 131, 247, 234;
+  --vault-brass-rgb: 214, 189, 127;
+  --vault-ink: #020304;
+  --vault-brass: #d6bd7f;
+  --vault-cyan: #83f7ea;
+  --vault-red: #f87171;
 
-  --purple-primary: #a99df2;
-  --purple-glow: #c4b8ff;
-  --purple-deep: #17151f;
+  --purple-primary: #83f7ea;
+  --purple-glow: #b6fff8;
+  --purple-deep: #08171a;
 
   --green-primary: #34d399;
   --green-glow: #6ee7b7;
@@ -42,8 +52,8 @@
 body {
   background: var(--vault-bg);
   background-image:
-    radial-gradient(ellipse at 44% -12%, rgba(131, 247, 234, 0.13) 0%, rgba(33, 53, 63, 0.16) 28%, transparent 58%),
-    radial-gradient(ellipse at 92% 18%, rgba(169, 157, 242, 0.11) 0%, transparent 36%),
+    radial-gradient(ellipse at 42% -18%, rgba(var(--vault-cyan-rgb), 0.115) 0%, rgba(33, 55, 61, 0.12) 30%, transparent 58%),
+    radial-gradient(ellipse at 88% 14%, rgba(var(--vault-brass-rgb), 0.055) 0%, transparent 34%),
     linear-gradient(180deg, #070a0d 0%, #050608 46%, #030405 100%);
   background-attachment: fixed;
   background-size: auto;
@@ -162,8 +172,8 @@ body {
 
 .grid-bg::before {
   background:
-    linear-gradient(135deg, transparent 0 38%, rgba(131, 247, 234, 0.026) 38.1% 38.4%, transparent 38.5% 100%),
-    linear-gradient(135deg, transparent 0 62%, rgba(169, 157, 242, 0.018) 62.1% 62.32%, transparent 62.45% 100%);
+    linear-gradient(135deg, transparent 0 38%, rgba(var(--vault-cyan-rgb), 0.026) 38.1% 38.4%, transparent 38.5% 100%),
+    linear-gradient(135deg, transparent 0 62%, rgba(var(--vault-brass-rgb), 0.014) 62.1% 62.32%, transparent 62.45% 100%);
   background-size: 360px 360px;
   opacity: 0.8;
 }
@@ -208,17 +218,18 @@ body {
 .glass-card {
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(14, 17, 23, 0.92), rgba(8, 10, 13, 0.94)),
-    linear-gradient(135deg, rgba(131, 247, 234, 0.028), transparent 36%, rgba(214, 189, 127, 0.018));
+    linear-gradient(180deg, rgba(15, 19, 24, 0.94), rgba(7, 9, 12, 0.96)),
+    linear-gradient(135deg, rgba(var(--vault-cyan-rgb), 0.03), transparent 36%, rgba(var(--vault-brass-rgb), 0.02));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(151, 170, 191, 0.16);
+  border: 1px solid var(--vault-border);
   border-radius: 8px;
   position: relative;
   transition: border-color 0.2s ease, background 0.2s ease;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.035),
-    0 22px 70px rgba(0, 0, 0, 0.22);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.012),
+    0 22px 70px rgba(0, 0, 0, 0.24);
 }
 
 .glass-card::before {
@@ -239,7 +250,7 @@ body {
 }
 
 .glass-card:hover {
-  border-color: rgba(151, 170, 191, 0.22);
+  border-color: var(--vault-border-strong);
   transform: none;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
@@ -427,9 +438,9 @@ body {
 }
 
 .reasoning-line.active {
-  color: rgba(168, 85, 247, 0.9);
+  color: rgba(var(--vault-cyan-rgb), 0.92);
   border-left-color: var(--purple-primary);
-  background: rgba(124, 58, 237, 0.03);
+  background: rgba(var(--vault-cyan-rgb), 0.035);
 }
 
 .reasoning-line.success {
@@ -439,15 +450,20 @@ body {
 
 /* ══════ TABLE V2 ══════ */
 .table-v2 {
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border: 1px solid var(--vault-border);
+  border-radius: 8px;
   overflow: hidden;
-  background: rgba(6, 6, 14, 0.5);
+  background:
+    linear-gradient(180deg, rgba(11, 14, 18, 0.9), rgba(5, 7, 10, 0.94)),
+    linear-gradient(135deg, rgba(var(--vault-cyan-rgb), 0.024), transparent 48%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.026),
+    0 20px 56px rgba(0, 0, 0, 0.18);
 }
 
 .table-v2-header {
-  background: rgba(14, 14, 28, 0.8);
-  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(15, 19, 24, 0.9);
+  border-bottom: 1px solid rgba(166, 183, 204, 0.12);
   padding: 14px 20px;
   display: grid;
   align-items: center;
@@ -470,7 +486,7 @@ body {
 }
 
 .table-v2-row:hover {
-  background: rgba(124, 58, 237, 0.03);
+  background: rgba(var(--vault-cyan-rgb), 0.028);
 }
 
 .table-v2-row:last-child {
@@ -479,12 +495,14 @@ body {
 
 /* ══════ BUTTONS V2 ══════ */
 .btn-primary {
-  background: linear-gradient(135deg, var(--purple-primary), #6d28d9);
-  color: white;
+  background:
+    linear-gradient(135deg, rgba(var(--vault-cyan-rgb), 0.18), rgba(var(--vault-brass-rgb), 0.13)),
+    rgba(15, 23, 42, 0.82);
+  color: rgba(248, 250, 252, 0.96);
   font-weight: 600;
   padding: 12px 28px;
   border-radius: 12px;
-  border: none;
+  border: 1px solid rgba(var(--vault-cyan-rgb), 0.26);
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
@@ -559,9 +577,10 @@ body {
   align-items: center;
   gap: 6px;
   padding: 5px 14px;
-  border-radius: 9999px;
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(6, 78, 59, 0.16), rgba(4, 8, 10, 0.62));
+  border: 1px solid rgba(52, 211, 153, 0.24);
   color: var(--green-glow);
   font-size: 10px;
   font-weight: 700;
@@ -663,11 +682,11 @@ body {
   width: 100%;
   padding: 14px 24px;
   border-radius: 12px;
-  border: 1px solid rgba(124, 58, 237, 0.3);
+  border: 1px solid rgba(var(--vault-cyan-rgb), 0.24);
   background: linear-gradient(
     135deg,
-    rgba(124, 58, 237, 0.1) 0%,
-    rgba(16, 185, 129, 0.05) 100%
+    rgba(var(--vault-cyan-rgb), 0.085) 0%,
+    rgba(var(--vault-brass-rgb), 0.04) 100%
   );
   color: rgba(255, 255, 255, 0.9);
   font-size: 13px;
@@ -677,13 +696,13 @@ body {
 }
 
 .verify-btn:hover {
-  border-color: rgba(124, 58, 237, 0.6);
+  border-color: rgba(var(--vault-cyan-rgb), 0.42);
   background: linear-gradient(
     135deg,
-    rgba(124, 58, 237, 0.2) 0%,
-    rgba(16, 185, 129, 0.1) 100%
+    rgba(var(--vault-cyan-rgb), 0.14) 0%,
+    rgba(var(--vault-brass-rgb), 0.06) 100%
   );
-  box-shadow: 0 0 30px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 30px rgba(var(--vault-cyan-rgb), 0.1);
   transform: translateY(-1px);
 }
 
@@ -1141,6 +1160,12 @@ textarea:focus-visible {
 
 /* ══════ R14: Demo mode banner — fade out left/right edges ══════ */
 .demo-mode-banner {
+  border-top: 1px solid rgba(var(--vault-brass-rgb), 0.12);
+  border-bottom: 1px solid rgba(var(--vault-brass-rgb), 0.1);
+  background:
+    linear-gradient(90deg, transparent, rgba(var(--vault-brass-rgb), 0.045), transparent),
+    rgba(5, 6, 7, 0.42);
+  color: rgba(var(--vault-brass-rgb), 0.72);
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0,
@@ -1247,11 +1272,11 @@ textarea:focus-visible {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid rgba(154, 173, 194, 0.18);
+  border: 1px solid var(--vault-border-strong);
   border-radius: 8px;
   background:
-    linear-gradient(180deg, rgba(14, 18, 24, 0.985), rgba(7, 9, 12, 0.992)),
-    linear-gradient(118deg, rgba(131, 247, 234, 0.055), transparent 30%, rgba(169, 157, 242, 0.042) 62%, rgba(214, 189, 127, 0.026));
+    linear-gradient(180deg, rgba(15, 19, 24, 0.988), rgba(6, 8, 11, 0.994)),
+    linear-gradient(118deg, rgba(var(--vault-cyan-rgb), 0.05), transparent 31%, rgba(var(--vault-brass-rgb), 0.027) 72%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.055),
     inset 0 0 0 1px rgba(255, 255, 255, 0.018),
@@ -1266,8 +1291,10 @@ textarea:focus-visible {
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(131, 247, 234, 0.08), transparent 22%, transparent 78%, rgba(214, 189, 127, 0.045)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 30%);
+    repeating-linear-gradient(90deg, rgba(166, 183, 204, 0.028) 0 1px, transparent 1px 78px),
+    repeating-linear-gradient(0deg, rgba(166, 183, 204, 0.016) 0 1px, transparent 1px 58px),
+    linear-gradient(90deg, rgba(var(--vault-cyan-rgb), 0.07), transparent 22%, transparent 78%, rgba(var(--vault-brass-rgb), 0.042)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.034), transparent 30%);
   opacity: 0.74;
 }
 
@@ -1375,7 +1402,7 @@ textarea:focus-visible {
 }
 
 .ops-kicker {
-  color: rgba(131, 247, 234, 0.78);
+  color: rgba(var(--vault-brass-rgb), 0.78);
   font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
   font-size: 10px;
   font-weight: 700;
@@ -1385,7 +1412,7 @@ textarea:focus-visible {
 
 .ops-title {
   margin-top: 4px;
-  color: rgba(247, 250, 252, 0.96);
+  color: rgba(244, 249, 249, 0.97);
   font-size: clamp(22px, 3vw, 34px);
   font-weight: 700;
   line-height: 1.08;
@@ -1407,11 +1434,11 @@ textarea:focus-visible {
   gap: 16px;
   margin-top: 16px;
   padding: 14px;
-  border: 1px solid rgba(154, 173, 194, 0.13);
+  border: 1px solid rgba(166, 183, 204, 0.14);
   border-radius: 8px;
   background:
     linear-gradient(180deg, rgba(9, 12, 17, 0.78), rgba(5, 7, 10, 0.9)),
-    linear-gradient(115deg, rgba(169, 157, 242, 0.06), transparent 34%, rgba(131, 247, 234, 0.045));
+    linear-gradient(115deg, rgba(var(--vault-cyan-rgb), 0.04), transparent 34%, rgba(var(--vault-brass-rgb), 0.025));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.032),
     0 18px 58px rgba(0, 0, 0, 0.18);
@@ -1423,7 +1450,7 @@ textarea:focus-visible {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, transparent, rgba(169, 157, 242, 0.12), transparent 62%),
+    linear-gradient(90deg, transparent, rgba(var(--vault-cyan-rgb), 0.08), transparent 62%),
     repeating-linear-gradient(90deg, rgba(148, 163, 184, 0.035) 0 1px, transparent 1px 64px);
   opacity: 0.34;
 }
@@ -1432,7 +1459,7 @@ textarea:focus-visible {
   position: relative;
   min-height: 238px;
   overflow: hidden;
-  border: 1px solid rgba(169, 157, 242, 0.16);
+  border: 1px solid rgba(var(--vault-cyan-rgb), 0.16);
   border-radius: 8px;
   cursor: crosshair;
   background:
@@ -1465,7 +1492,7 @@ textarea:focus-visible {
 
 .signal-visual::after {
   background:
-    linear-gradient(115deg, transparent 0 42%, rgba(169, 157, 242, 0.05) 42.1% 42.6%, transparent 42.8% 100%),
+    linear-gradient(115deg, transparent 0 42%, rgba(var(--vault-brass-rgb), 0.044) 42.1% 42.6%, transparent 42.8% 100%),
     linear-gradient(115deg, transparent 0 68%, rgba(131, 247, 234, 0.036) 68.1% 68.35%, transparent 68.55% 100%);
   opacity: 0.78;
 }
@@ -1534,7 +1561,7 @@ textarea:focus-visible {
   width: var(--signal-confidence, 0%);
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(52, 211, 153, 0.82), rgba(131, 247, 234, 0.82), rgba(169, 157, 242, 0.72));
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.82), rgba(var(--vault-cyan-rgb), 0.84), rgba(var(--vault-brass-rgb), 0.72));
   box-shadow: 0 0 14px rgba(131, 247, 234, 0.25);
   transition: width 260ms ease;
 }
@@ -1549,7 +1576,7 @@ textarea:focus-visible {
 }
 
 .signal-visual-active .signal-sketch-line {
-  filter: drop-shadow(0 0 14px rgba(169, 157, 242, 0.18));
+  filter: drop-shadow(0 0 14px rgba(var(--vault-cyan-rgb), 0.2));
 }
 
 .signal-live-chip {
@@ -1590,11 +1617,27 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: rgba(199, 190, 255, 0.92);
+  color: rgba(226, 232, 240, 0.82);
   font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.08em;
+}
+
+.signal-brand-seal {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgba(var(--vault-cyan-rgb), 0.32);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(var(--vault-cyan-rgb), 0.12), transparent 48%, rgba(var(--vault-brass-rgb), 0.1)),
+    rgba(2, 4, 7, 0.74);
+  color: rgba(var(--vault-cyan-rgb), 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 24px rgba(var(--vault-cyan-rgb), 0.08);
 }
 
 .signal-channel-readout {
@@ -1817,7 +1860,7 @@ textarea:focus-visible {
 }
 
 .signal-sketch-line {
-  stroke: rgba(169, 157, 242, 0.94);
+  stroke: rgba(var(--vault-cyan-rgb), 0.86);
   stroke-width: 3.4;
   stroke-dasharray: 580;
   stroke-dashoffset: 0;
@@ -1978,13 +2021,13 @@ textarea:focus-visible {
 }
 
 .signal-event-intent {
-  border-color: rgba(169, 157, 242, 0.25);
-  background: rgba(88, 80, 160, 0.14);
+  border-color: rgba(var(--vault-brass-rgb), 0.25);
+  background: rgba(113, 86, 23, 0.13);
 }
 
 .signal-event-intent strong,
 .signal-event-intent em {
-  color: rgba(199, 190, 255, 0.86);
+  color: rgba(var(--vault-brass-rgb), 0.86);
 }
 
 .signal-hover-crosshair,
@@ -2100,12 +2143,12 @@ textarea:focus-visible {
 }
 
 .signal-inspector-intent {
-  border-color: rgba(169, 157, 242, 0.3);
+  border-color: rgba(var(--vault-brass-rgb), 0.3);
 }
 
 .signal-inspector-intent::before {
-  background: rgba(169, 157, 242, 0.95);
-  box-shadow: 0 0 12px rgba(169, 157, 242, 0.38);
+  background: rgba(var(--vault-brass-rgb), 0.95);
+  box-shadow: 0 0 12px rgba(var(--vault-brass-rgb), 0.38);
 }
 
 .signal-brief {
@@ -2119,13 +2162,13 @@ textarea:focus-visible {
   border-radius: 8px;
   background:
     linear-gradient(180deg, rgba(15, 18, 24, 0.76), rgba(8, 10, 14, 0.9)),
-    linear-gradient(135deg, rgba(169, 157, 242, 0.045), transparent 46%, rgba(131, 247, 234, 0.026));
+    linear-gradient(135deg, rgba(var(--vault-brass-rgb), 0.035), transparent 46%, rgba(var(--vault-cyan-rgb), 0.028));
   padding: 18px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.028);
 }
 
 .signal-eyebrow {
-  color: rgba(169, 157, 242, 0.88);
+  color: rgba(var(--vault-brass-rgb), 0.86);
   font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
   font-size: 10px;
   font-weight: 800;
@@ -2157,9 +2200,9 @@ textarea:focus-visible {
 }
 
 .signal-pill-row span {
-  border: 1px solid rgba(169, 157, 242, 0.18);
+  border: 1px solid rgba(var(--vault-cyan-rgb), 0.16);
   border-radius: 999px;
-  background: rgba(169, 157, 242, 0.075);
+  background: rgba(var(--vault-cyan-rgb), 0.055);
   color: rgba(226, 232, 240, 0.72);
   padding: 6px 9px;
   font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
@@ -2700,7 +2743,7 @@ textarea:focus-visible {
 }
 
 .trust-body code {
-  color: rgba(216, 180, 254, 0.75);
+  color: rgba(var(--vault-cyan-rgb), 0.72);
   font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
   font-size: 12px;
 }
@@ -2814,7 +2857,103 @@ textarea:focus-visible {
 }
 
 .funding-strategy-row {
-  background: rgba(15, 23, 42, 0.38);
+  border-color: rgba(166, 183, 204, 0.08);
+  background:
+    linear-gradient(180deg, rgba(18, 24, 32, 0.42), rgba(7, 10, 14, 0.44));
+}
+
+/* ══════ PREMIUM IDENTITY DETAILS ══════ */
+.premium-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(52, 211, 153, 0.26);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(12, 22, 19, 0.94), rgba(4, 7, 9, 0.96)),
+    linear-gradient(90deg, rgba(52, 211, 153, 0.08), transparent);
+  padding: 12px 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+.premium-toast::before {
+  content: "";
+  width: 2px;
+  align-self: stretch;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(52, 211, 153, 0.85), rgba(var(--vault-cyan-rgb), 0.38));
+}
+
+.premium-demo-banner {
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vault-nav {
+  border-bottom-color: rgba(166, 183, 204, 0.11) !important;
+  background:
+    linear-gradient(180deg, rgba(8, 10, 13, 0.93), rgba(3, 5, 8, 0.9)) !important;
+}
+
+.vault-nav-mark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid rgba(var(--vault-cyan-rgb), 0.28);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(var(--vault-cyan-rgb), 0.12), transparent 48%, rgba(var(--vault-brass-rgb), 0.08)),
+    rgba(3, 7, 10, 0.82);
+  color: rgba(var(--vault-cyan-rgb), 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.vault-wordmark {
+  display: grid;
+  gap: 1px;
+  line-height: 1;
+}
+
+.vault-wordmark em {
+  color: rgba(var(--vault-brass-rgb), 0.54);
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vault-terminal-alert {
+  border: 1px solid rgba(var(--vault-brass-rgb), 0.28);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(var(--vault-brass-rgb), 0.075), transparent 48%),
+    rgba(7, 8, 7, 0.76);
+  color: rgba(var(--vault-brass-rgb), 0.82);
+}
+
+[class*="text-purple-400"],
+[class*="text-purple-300"] {
+  color: rgba(var(--vault-cyan-rgb), 0.78) !important;
+}
+
+[class*="hover:text-purple"]:hover {
+  color: rgba(var(--vault-cyan-rgb), 0.96) !important;
+}
+
+[class*="border-purple-500"],
+[class*="border-purple-400"] {
+  border-color: rgba(var(--vault-cyan-rgb), 0.24) !important;
+}
+
+[class*="bg-purple-500"],
+[class*="bg-purple-400"] {
+  background-color: rgba(var(--vault-cyan-rgb), 0.09) !important;
 }
 
 /* ══════ CHALLENGE LAB ══════ */

@@ -683,7 +683,7 @@ export default function Home() {
       {/* ═══ LIVE NOTIFICATION TOAST ═══ */}
       {liveNotification && (
         <div className="fixed top-20 right-6 animate-in slide-in-from-right duration-300" style={{ zIndex: "var(--z-toast)" }}>
-          <div className="glass-card border border-green-500/30 bg-green-500/5 px-5 py-3 rounded-xl shadow-[0_0_30px_rgba(34,197,94,0.15)] flex items-center gap-3">
+          <div className="premium-toast">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <div>
               <p className="text-[11px] font-bold text-green-400">
@@ -722,7 +722,7 @@ export default function Home() {
         <div
           role="note"
           aria-live="polite"
-          className="demo-mode-banner mb-6 -mx-6 px-6 py-2 text-center text-[10px] text-yellow-300/80 bg-yellow-400/[0.04] border-y border-yellow-400/10 anim-fade-up anim-delay-1"
+          className="demo-mode-banner premium-demo-banner mb-6 -mx-6 px-6 py-2 text-center text-[10px] anim-fade-up anim-delay-1"
         >
           Demo Mode · No public deposits · Stats below are agent-lifetime
           aggregate (agentId=0)
@@ -740,8 +740,8 @@ export default function Home() {
           </div>
           <div className="ops-topline">
             <div>
-              <p className="ops-kicker">Live Agent Console</p>
-              <h1 className="ops-title">TuringVault autonomous portfolio agent</h1>
+              <p className="ops-kicker">TV-PRF/001 · Live Agent Console</p>
+              <h1 className="ops-title">Proof-locked autonomous portfolio agent</h1>
             </div>
             <div className="ops-topline-actions">
               <LiveStatusBadge variant="compact" initialHealth={health} />
@@ -784,8 +784,8 @@ export default function Home() {
                 {signalFeedLabel}
               </div>
               <div className="signal-brandmark">
-                <Zap className="w-4 h-4" />
-                <span>TV</span>
+                <span className="signal-brand-seal">TV</span>
+                <span>proof grid</span>
               </div>
               <div className="signal-channel-readout">
                 <span>{signalChannelLabel}</span>
@@ -885,7 +885,7 @@ export default function Home() {
               </svg>
               {signalEvents.length > 0 && (
                 <div className="signal-event-tape">
-                  <span className="signal-event-label">decision tape</span>
+                  <span className="signal-event-label">proof tape</span>
                   {signalEvents.map((event) => (
                     <span
                       key={`${event.id}-${event.timeLabel}`}
@@ -1404,7 +1404,7 @@ export default function Home() {
             {isStale ? (
               <div
                 role="alert"
-                className="mb-3 border border-yellow-400/30 bg-yellow-400/[0.04] text-yellow-300/80 px-3 py-2 rounded text-[11px] font-mono flex items-center gap-2"
+                className="vault-terminal-alert mb-3 px-3 py-2 text-[11px] font-mono flex items-center gap-2"
               >
                 <AlertCircle className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
                 <span>

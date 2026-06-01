@@ -198,28 +198,10 @@ export function ProofExplorerClient({
       {/* Background effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div
-          className="absolute w-[600px] h-[600px] top-[-200px] left-[-100px] rounded-full blur-[80px]"
+          className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)",
-            animation: "orbFloat 25s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute w-[500px] h-[500px] bottom-[-150px] right-[-100px] rounded-full blur-[80px]"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)",
-            animation: "orbFloat 30s ease-in-out infinite reverse",
-          }}
-        />
-        <div
-          className="absolute w-[550px] h-[550px] bottom-[10%] left-[25%] rounded-full blur-[100px]"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%)",
-            animation: "orbFloat 35s ease-in-out infinite",
-            animationDelay: "-12s",
+              "linear-gradient(90deg, transparent 0 49.95%, rgba(131,247,234,0.025) 50%, transparent 50.05% 100%), repeating-linear-gradient(90deg, rgba(148,163,184,0.018) 0 1px, transparent 1px 96px), repeating-linear-gradient(0deg, rgba(148,163,184,0.014) 0 1px, transparent 1px 96px), radial-gradient(ellipse at 66% 0%, rgba(131,247,234,0.08), transparent 34%), radial-gradient(ellipse at 24% 24%, rgba(214,189,127,0.035), transparent 30%)",
           }}
         />
       </div>
@@ -227,15 +209,9 @@ export function ProofExplorerClient({
       {/* ═══ FEATURED PROOF REPLAY ═══ */}
       <section className="proof-hero-section relative overflow-hidden border-b border-white/5">
         {/* Atmospheric animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/30 via-[#030308] to-transparent pointer-events-none" />
-        <div
-          className="absolute top-10 left-1/4 w-[600px] h-[300px] bg-purple-500/[0.05] rounded-full blur-[120px] animate-pulse"
-          style={{ animationDuration: "8s" }}
-        />
-        <div
-          className="absolute bottom-0 right-1/4 w-[400px] h-[200px] bg-green-500/[0.04] rounded-full blur-[100px] animate-pulse"
-          style={{ animationDuration: "10s", animationDelay: "2s" }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-950/[0.09] via-[#030608] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/25 to-transparent" />
+        <div className="absolute top-0 bottom-0 left-[58%] w-px bg-gradient-to-b from-transparent via-cyan-300/10 to-transparent" />
 
         <div className="proof-hero-shell relative max-w-5xl mx-auto px-6 py-12">
           {/* Timestamp & network */}
@@ -1258,7 +1234,7 @@ const stats = await sdk.getConsensusRate();
 
         {/* Footer */}
         <footer className="proof-footer">
-          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-purple-900/[0.03] to-transparent" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-cyan-950/[0.035] to-transparent" />
           <p>
             TuringVault — Proof-of-Reasoning infrastructure for autonomous
             agents on Mantle

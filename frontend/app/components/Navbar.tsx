@@ -31,17 +31,20 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 overflow-x-hidden backdrop-blur-xl bg-[#07080b]/88 border-b border-white/[0.06]" style={{ zIndex: "var(--z-nav)" }}>
+    <nav className="vault-nav fixed top-0 left-0 right-0 overflow-x-hidden backdrop-blur-xl bg-[#07080b]/88 border-b border-white/[0.06]" style={{ zIndex: "var(--z-nav)" }}>
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group shrink-0">
-          <div className="relative w-8 h-8">
-            <div className="relative w-8 h-8 rounded-lg bg-[#0d1117] border border-cyan-400/20 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-cyan-300/80" />
-            </div>
+        <Link
+          href="/"
+          aria-label="TuringVault.ai proof registry"
+          className="flex items-center gap-3 group shrink-0"
+        >
+          <div className="vault-nav-mark">
+            <Zap className="w-4 h-4" />
           </div>
-          <span className="text-sm font-bold tracking-tight">
-            TuringVault<span className="text-cyan-300/55">.ai</span>
+          <span className="vault-wordmark text-sm font-bold tracking-tight">
+            <span>TuringVault<span className="text-cyan-300/55">.ai</span></span>
+            <em aria-hidden="true">proof registry</em>
           </span>
         </Link>
 
