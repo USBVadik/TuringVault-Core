@@ -475,6 +475,25 @@ export default function Home() {
           : signalMode === "stale"
             ? "paused"
             : "watch";
+  const signalFeedLabel = health?.lastCycleTimestamp
+    ? isStale
+      ? "Replay feed"
+      : "Live feed"
+    : "Syncing feed";
+  const signalSourceLabel =
+    latestDecision?.priceSource ??
+    latestDecision?.candleSource ??
+    latestDecision?.source ??
+    "on-chain log";
+  const signalChannelPrice =
+    channelCurrent > 0
+      ? `$${channelCurrent >= 100 ? channelCurrent.toFixed(0) : channelCurrent.toFixed(2)}`
+      : "syncing";
+  const signalDecisionId =
+    latestDecision?.id ??
+    latestDecision?.decisionId ??
+    latestDecision?.cycleId ??
+    "latest";
 
   // ═══ REASONING ANIMATION ═══
   useEffect(() => {
@@ -558,20 +577,35 @@ export default function Home() {
           </div>
 
           <div
-            className={`signal-showcase signal-mode-${signalMode}`}
+            className={`signal-showcase signal-mode-${signalMode} signal-feed-${
+              isStale ? "replay" : health?.lastCycleTimestamp ? "live" : "syncing"
+            }`}
             aria-label="mETH flip engine live status"
           >
             <div className="signal-visual" aria-hidden="true">
+              <div className="signal-live-chip">
+                <span />
+                {signalFeedLabel}
+              </div>
               <div className="signal-brandmark">
                 <Zap className="w-4 h-4" />
                 <span>TV</span>
               </div>
+              <div className="signal-channel-readout">
+                <span>Channel cursor</span>
+                <strong>{signalChannelPrice}</strong>
+              </div>
+              <span className="signal-scanline" />
               <div className="signal-band signal-band-sell">
                 <span>Sell band</span>
               </div>
               <div className="signal-band signal-band-buy">
                 <span>Buy band</span>
               </div>
+              <span
+                className="signal-sweep"
+                style={{ left: `${signalMarkerLeft}%` }}
+              />
               <span
                 className="signal-live-marker"
                 style={{ left: `${signalMarkerLeft}%` }}
@@ -611,13 +645,25 @@ export default function Home() {
                 <span>{latestConfidence} conf</span>
               </div>
               <div className="signal-live-feed">
+                <span>Feed</span>
+                <strong>{signalFeedLabel}</strong>
+                <span>Source</span>
+                <strong>{signalSourceLabel}</strong>
+                <span>Last cycle</span>
+                <strong>
+                  {health?.lastCycleTimestamp ? (
+                    <RelativeTime ts={health.lastCycleTimestamp} />
+                  ) : (
+                    "—"
+                  )}
+                </strong>
                 <span>Regime</span>
                 <strong>{strategyData?.regime ?? "—"}</strong>
                 <span>Tier</span>
                 <strong>{latestDecisionTier}</strong>
               </div>
               <div className="signal-verdict">
-                <span>Current verdict</span>
+                <span>Current verdict · {signalDecisionId}</span>
                 <strong>{signalVerdict}</strong>
               </div>
             </div>
