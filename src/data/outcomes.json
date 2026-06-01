@@ -7456,6 +7456,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780347927870_216",
+      "decisionId": 216,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 0.636606,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "QmcNpbB87tw56zD6HvNr2Qbj4rtQNgmEwYUy1UAEZZ92Ps",
+      "recordedAt": "2026-06-01T21:05:27.870Z",
+      "settleAfter": "2026-06-01T22:05:27.870Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780347927865
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on existing mETH position is appropriate. ETH grid at 57% channel (HOLD zone 30-70%), confidence 50% — no edge to act. Portfolio is stable-heavy (80.5%) with only $23.41 mETH exposure. MNT breakdown is confirmed (EXIT_RANGING, TREND_DOWN, 70% confidence) but PRIMARY EDGE is ETH and inventory rule favors HOLD over repeated risk_off when posture is already stable-heavy and no CRISIS confirmed. ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD action",
+        "MNT TREND_DOWN could propagate to ETH if sentiment deteriorates further",
+        "Fear & Greed at 29 warrants monitoring for capitulation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x59fd8fd6839a3a4be9c01ac59586db4e414fd1ee213236bbe2e691185b161f8d",
+      "combinedAnchor": "0xc37a14a5a85de7cf30e51ec79cfa929eb8a269053200b80d67af735c7593ee58",
+      "decisionLogTxHash": "0xe664fb5619f9e8518618a3042fab2e87b958aa07dc21d393a42c59af48e0c5d3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
