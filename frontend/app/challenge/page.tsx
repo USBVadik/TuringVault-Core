@@ -19,19 +19,37 @@ import { useState } from "react";
 import { Zap, Rocket, Eye, Bot, Shield, Skull, Swords, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 
 const CHALLENGE_TYPES = [
-  { id: "flash_crash", label: "Flash Crash", icon: Zap, tone: "red" },
-  { id: "pump_signal", label: "Pump & Dump", icon: Rocket, tone: "green" },
+  {
+    id: "flash_crash",
+    label: "Flash Crash",
+    icon: Zap,
+    tone: "red",
+    signal: "ETH wick -25%",
+    gate: "Volatility guard",
+  },
+  {
+    id: "pump_signal",
+    label: "Pump & Dump",
+    icon: Rocket,
+    tone: "green",
+    signal: "Thin-liquidity hype",
+    gate: "FOMO veto",
+  },
   {
     id: "oracle_conflict",
     label: "Oracle Manipulation",
     icon: Eye,
     tone: "purple",
+    signal: "Oracle spread >10%",
+    gate: "Source conflict",
   },
   {
     id: "sybil_consensus",
     label: "Sybil Consensus",
     icon: Bot,
     tone: "yellow",
+    signal: "Clustered bot votes",
+    gate: "Wallet graph",
   },
 ];
 
@@ -139,6 +157,7 @@ export default function ChallengePage() {
   // see the attack buttons immediately, judges arriving cold open
   // the explainer for context.
   const [explainerOpen, setExplainerOpen] = useState(false);
+  const selectedChallenge = CHALLENGE_TYPES.find((c) => c.id === selectedType);
 
   async function runChallenge(type: string) {
     setSelectedType(type);
@@ -163,39 +182,58 @@ export default function ChallengePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white p-8">
-      <div className="max-w-[1200px] mx-auto anim-fade-up">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-            <Swords className="w-7 h-7 text-red-400" />
-            Adversarial Challenge
-          </h1>
-          <p className="text-white/40 text-sm">
-            Inject fake market signals and watch the multi-agent pipeline react.
-            <br />
-            <span className="text-white/20">
-              Live mode: GLM-5 → Claude 4.6 → Gemini 3.5 Flash, full reasoning
-              verbatim. Preview mode: deterministic-rules simulation.
-            </span>
-          </p>
-        </div>
+    <div className="challenge-page min-h-screen text-white">
+      <div className="challenge-shell anim-fade-up">
+        <section className="challenge-hero">
+          <div className="challenge-hero-copy">
+            <p className="challenge-kicker">
+              <Swords className="w-4 h-4" />
+              Adversarial test lab
+            </p>
+            <h1>Adversarial Challenge</h1>
+            <p>
+              Inject hostile market states into the same GLM-5 → Claude 4.6 →
+              Gemini 3.5 Flash pipeline that guards wallet actions.
+            </p>
+          </div>
+
+          <div className="challenge-pipeline-card" aria-label="Challenge pipeline status">
+            <div className="challenge-pipeline-top">
+              <span>{loading ? "Running" : result ? "Result ready" : "Ready"}</span>
+              <strong>{selectedChallenge?.label ?? "Select vector"}</strong>
+            </div>
+            <div className="challenge-pipeline-flow">
+              <span className={stage === "analyst" ? "active" : ""}>GLM-5</span>
+              <i />
+              <span className={stage === "validator" ? "active" : ""}>Claude</span>
+              <i />
+              <span className={stage === "arbiter" ? "active" : ""}>Gemini</span>
+            </div>
+            <div className="challenge-pipeline-meta">
+              <span>Reasoning</span>
+              <strong>{result ? "captured" : loading ? "streaming" : "verbatim"}</strong>
+              <span>Anchor</span>
+              <strong>{result && isLive(result) ? "Mantle" : "conditional"}</strong>
+            </div>
+          </div>
+        </section>
 
         {/* Plain-language explainer. Mirrors /discipline pattern.
             Collapsed by default so the data-first view doesn't change. */}
-        <div className="mb-6 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+        <div className="challenge-explainer">
           <button
             type="button"
             onClick={() => setExplainerOpen((v) => !v)}
             aria-expanded={explainerOpen}
-            className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-white/[0.02] rounded-lg transition-colors"
+            className="challenge-explainer-toggle"
           >
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] text-white/30 uppercase tracking-widest">
+            <div className="challenge-explainer-title">
+              <span>
                 What is this · plain English
               </span>
-              <span className="text-xs text-white/60">
+              <strong>
                 What the four attacks do, and why this page exists
-              </span>
+              </strong>
             </div>
             {explainerOpen ? (
               <ChevronUp className="w-4 h-4 text-white/40 shrink-0" />
@@ -359,7 +397,7 @@ export default function ChallengePage() {
         </div>
 
         {/* Attack buttons */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div className="challenge-vector-grid">
           {CHALLENGE_TYPES.map((c) => {
             const Icon = c.icon;
             return (
@@ -367,20 +405,20 @@ export default function ChallengePage() {
                 key={c.id}
                 onClick={() => runChallenge(c.id)}
                 disabled={loading}
-                className={`p-4 rounded-lg border transition-all text-left
-                ${
-                  selectedType === c.id
-                    ? "border-white/30 bg-white/[0.04]"
-                    : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
-                }
-                ${loading ? "opacity-50 cursor-wait" : "cursor-pointer"}`}
+                className={`challenge-vector-card challenge-tone-${c.tone} ${
+                  selectedType === c.id ? "selected" : ""
+                } ${loading ? "loading" : ""}`}
               >
-                <div className="text-lg mb-1 flex items-center gap-2">
+                <div className="challenge-vector-icon">
                   <Icon className="w-4 h-4" />
-                  {c.label}
                 </div>
-                <div className="text-[10px] text-white/30 uppercase">
-                  Attack Vector
+                <div className="challenge-vector-copy">
+                  <strong>{c.label}</strong>
+                  <span>{c.signal}</span>
+                </div>
+                <div className="challenge-vector-foot">
+                  <span>Attack vector</span>
+                  <em>{c.gate}</em>
                 </div>
               </button>
             );
@@ -389,8 +427,8 @@ export default function ChallengePage() {
 
         {/* Loading with 3-stage progress */}
         {loading && (
-          <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-6">
-            <div className="text-white/50 text-sm mb-4">
+          <div className="challenge-runner">
+            <div className="challenge-runner-copy">
               Running attack through live multi-agent pipeline (this is a real
               round-trip, takes ~10s)…
             </div>
@@ -400,7 +438,7 @@ export default function ChallengePage() {
 
         {/* Result */}
         {result && !loading && (
-          <div className="space-y-4">
+          <div className="challenge-results">
             {isError(result) && (
               <div className="p-6 rounded-lg border border-red-500/30 bg-red-500/[0.03]">
                 <div className="text-red-400 font-bold mb-1">
@@ -427,12 +465,17 @@ export default function ChallengePage() {
         )}
 
         {!result && !loading && (
-          <div className="p-12 rounded-lg border border-white/[0.04] bg-white/[0.01] flex flex-col items-center text-center">
-            <Shield className="w-12 h-12 text-white/10 mb-4" />
-            <h3 className="text-white/50 text-sm font-medium mb-1">
+          <div className="challenge-empty">
+            <div className="challenge-empty-orbit" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+            <Shield className="w-12 h-12" />
+            <h3>
               No attack selected
             </h3>
-            <p className="text-white/25 text-xs max-w-sm">
+            <p>
               Choose an attack vector above to inject adversarial signals into
               the live multi-agent pipeline. The agent must detect and block
               every manipulated signal in real-time.
