@@ -1162,7 +1162,7 @@ export default function Home() {
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
               </div>
-              <div className="text-xl font-bold text-green-400">
+              <div className="text-xl font-bold text-green-400 stat-value">
                 {reputationData?.normalizedScore ?? "—"}
               </div>
               <div className="text-[9px] text-white/30 mt-1 uppercase">
@@ -1176,7 +1176,7 @@ export default function Home() {
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
               </div>
-              <div className="text-xl font-bold text-white/90">
+              <div className="text-xl font-bold text-white/90 stat-value">
                 {perfData?.winRate != null
                   ? `${perfData.winRate.toFixed(1)}%`
                   : "—"}
@@ -1192,7 +1192,7 @@ export default function Home() {
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
               </div>
-              <div className="text-xl font-bold text-white/90">
+              <div className="text-xl font-bold text-white/90 stat-value">
                 {perfData?.settledCount ?? "—"}
               </div>
               <div className="text-[9px] text-white/30 mt-1 uppercase">
@@ -1207,7 +1207,7 @@ export default function Home() {
                 Lifetime
               </div>
               <div
-                className={`text-xl font-bold ${
+                className={`text-xl font-bold stat-value ${
                   (perfData?.cumulativePnlBps ?? 0) >= 0
                     ? "text-green-400"
                     : "text-red-400"
@@ -1230,7 +1230,7 @@ export default function Home() {
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
               </div>
-              <div className="text-xl font-bold text-yellow-400">
+              <div className="text-xl font-bold text-yellow-400 stat-value">
                 {perfData
                   ? `${perfData.goodCallCount ?? 0} / ${
                       perfData.badCallCount ?? 0
@@ -1280,7 +1280,7 @@ export default function Home() {
                     </span>
                   )}
               </div>
-              <div className="text-xl font-bold text-emerald-400">
+              <div className="text-xl font-bold text-emerald-400 stat-value">
                 {yieldMethData?.passiveYieldUsd != null &&
                 Number.isFinite(yieldMethData.passiveYieldUsd) &&
                 yieldMethData.passiveYieldUsd > 0

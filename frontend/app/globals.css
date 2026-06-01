@@ -39,6 +39,30 @@
 
   --border-subtle: rgba(148, 163, 184, 0.12);
   --border-accent: rgba(103, 232, 249, 0.2);
+
+  /* ══ MOTION SYSTEM (design-taste skill / audit 32) ══
+     Built-in CSS easings are too weak for UI. These give motion
+     intent. Enter/exit → ease-out; on-screen move → ease-in-out. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-press: 140ms; /* button :active feedback */
+  --dur-fast: 180ms;  /* tooltips, hovers, small popovers */
+  --dur-base: 240ms;  /* dropdowns, cards, selects */
+  --dur-slow: 300ms;  /* modals, drawers — UI ceiling */
+
+  /* ══ ELEVATION (light-from-top, layered — kills flatness) ══
+     A single consistent light source + layered shadow is what
+     reads as "expensive". Used by stat tiles + cards. */
+  --elev-rim: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --elev-1:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 6px 16px rgba(0, 0, 0, 0.22);
+  --elev-2:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.34),
+    0 14px 38px rgba(0, 0, 0, 0.3);
 }
 
 @theme inline {
@@ -225,11 +249,10 @@ body {
   border: 1px solid var(--vault-border);
   border-radius: 8px;
   position: relative;
-  transition: border-color 0.2s ease, background 0.2s ease;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.035),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.012),
-    0 22px 70px rgba(0, 0, 0, 0.24);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+  box-shadow: var(--elev-2);
 }
 
 .glass-card::before {
@@ -251,10 +274,10 @@ body {
 
 .glass-card:hover {
   border-color: var(--vault-border-strong);
-  transform: none;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 22px 70px rgba(0, 0, 0, 0.24);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 4px rgba(0, 0, 0, 0.34),
+    0 20px 52px rgba(0, 0, 0, 0.36);
 }
 
 /* Hero card — extra dramatic */
@@ -962,9 +985,14 @@ body {
   background:
     linear-gradient(180deg, rgba(18, 21, 28, 0.78), rgba(10, 12, 16, 0.86)) !important;
   border-color: rgba(151, 170, 191, 0.12) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  transition: border-color 0.2s ease, background 0.2s ease;
+  box-shadow: var(--elev-1);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
   cursor: default;
+  will-change: transform;
 }
 
 .stat-card-interactive::before {
@@ -977,17 +1005,63 @@ body {
   pointer-events: none;
   background: linear-gradient(90deg, transparent, rgba(131, 247, 234, 0.24), transparent);
   opacity: 0.58;
+  transition: opacity var(--dur-fast) var(--ease-out), left var(--dur-base) var(--ease-out), right var(--dur-base) var(--ease-out);
 }
 
-.stat-card-interactive:hover {
-  background:
-    linear-gradient(180deg, rgba(19, 23, 30, 0.84), rgba(10, 12, 16, 0.9)) !important;
-  border-color: rgba(131, 247, 234, 0.2) !important;
+/* Radial sheen that tracks in on hover — adds depth, not decoration.
+   Sits under content (z-0), content is above. */
+.stat-card-interactive::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 80% at 50% -10%, rgba(131, 247, 234, 0.07), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stat-card-interactive:hover {
+    background:
+      linear-gradient(180deg, rgba(21, 25, 33, 0.9), rgba(11, 13, 18, 0.94)) !important;
+    border-color: rgba(131, 247, 234, 0.26) !important;
+    box-shadow: var(--elev-2);
+    transform: translateY(-2px);
+  }
+  .stat-card-interactive:hover::before {
+    opacity: 0.9;
+    left: 8%;
+    right: 8%;
+  }
+  .stat-card-interactive:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Keep the numeric value above the ::after sheen layer */
+.stat-card-interactive > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Stat numeric value — tabular figures so digits don't jitter when
+   they update, with a hairline glow that lifts the number off the
+   flat tile. design-taste: depth via light, not decoration. */
+.stat-value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  transition: text-shadow var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stat-card-interactive:hover .stat-value {
+    text-shadow: 0 0 18px rgba(131, 247, 234, 0.28);
+  }
 }
 
 /* Button press effect */
 .btn-press {
-  transition: transform 0.1s ease;
+  transition: transform var(--dur-press) var(--ease-out);
 }
 
 .btn-press:active {
