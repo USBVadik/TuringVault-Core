@@ -1397,6 +1397,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780385398007_234",
+      "decisionId": 234,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1975.69,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmWso2pqsgtktf9pfi8cAntFKMg456hmn4cHjRrHPcPcTE",
+      "recordedAt": "2026-06-02T07:29:58.007Z",
+      "settleAfter": "2026-06-02T08:29:58.007Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780385398002
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already IN_mETH at $1978.3 with ALREADY_IN_POSITION override active. Grid BUY signals (80% conf, 2.5:1 R:R) are valid but position is already established — no new edge justifies scaling. F&G=23 + RSI 43.1 falling + MACD SELL + negative yield spread (-1%) support caution. Analyst correctly identified all key signals without hallucination. RANGING regime with HOLD =",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% mildly bearish — monitor for deterioration",
+        "Funding 0.787% slightly elevated long bias — crowded positioning risk",
+        "MACD histogram negative and weakening — short-term momentum bearish"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9807efd06d2bb2859ffa819135e5afa0518dc39ce58543e41766876186f32b41",
+      "combinedAnchor": "0x053f749475a8613b7376463b956fb6261f82b32146d44f09043046002dbe244f",
+      "decisionLogTxHash": "0x17e7c6c86c920982d7192c42415f745da7e04cce4f698f406204976e76a63800",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
