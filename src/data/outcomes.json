@@ -698,6 +698,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780366005917_225",
+      "decisionId": 225,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1975.06,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmX79egbWeJrhanQjm6kekHxuVAjiEU5FSycQYf7CKMRUo",
+      "recordedAt": "2026-06-02T02:06:45.917Z",
+      "settleAfter": "2026-06-02T03:06:45.917Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780366005913
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. ETH grid BUY_mETH at 80% confidence with 2.5:1 R:R is valid, but ALREADY_IN_POSITION override correctly prevents doubling at same level ($1978.3 entry vs $1975.8 support — negligible difference). MNT EXIT_RANGING with UNKNOWN breakout direction and trend_forming=true correctly warrants no new MNT exposure. Portfolio is stable-heavy (80.1%) with existing mETH position active. A",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish not explicitly weighted in reasoning",
+        "Social mindshare +88% spike warrants monitoring for momentum shift"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb18ca25268868781499bdbce001e8428eb26a0826a28f7d7e5f188502aacde75",
+      "combinedAnchor": "0xddc2d0670131ca6e5c6d1d7c6a15137d8a6a04d523f7d8a5c83b97033ac279b1",
+      "decisionLogTxHash": "0x8d8731b928c5b4c8547c27fdfb3260dbab68bfca658593ec751eeb1efd262623",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
