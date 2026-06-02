@@ -1056,6 +1056,109 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780377840849_230",
+      "decisionId": 230,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1996.16,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "QmQMi6vAnGofPybvuVGtjNwPV9JP4TJap6UY84CZDvtZAr",
+      "recordedAt": "2026-06-02T05:24:00.849Z",
+      "settleAfter": "2026-06-02T06:24:00.849Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780377840844
+      },
+      "decisionTier": "HEARTBEAT_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. MNT grid BUY_mETH signal (77% conf, 2.5:1 R:R) is correctly overridden by ALREADY_IN_POSITION flag — adding would increase concentration risk with no incremental edge. ETH grid at 47% channel is neutral HOLD zone. Extreme Fear (F&G=23), -1% yield spread, and MNT -3.40% 24h all justify patience. Funding 0.818% mild-long is insufficient alone to prompt action. HOLD p",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% mildly bearish for mETH — monitor for deterioration",
+        "MNT -3.40% 24h weakness could pressure existing position",
+        "F&G=23 Extreme Fear — downside risk remains elevated",
+        "MACD histogram weakening on ETH — bullish momentum fading"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 0.8,
+        "amountUsd": 0.8,
+        "tier": "HEARTBEAT_SWAP",
+        "rationale": "Heartbeat micro-swap to maintain on-chain liveness during a passive window. NOT alpha-seeking. Quiet cycles: 15. Direction: risk-on. Cap: $0.80.",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0x0adcc59b43506e636bafa4859c1c3d4ee914aac8312e54e81f6139640088c48b",
+            "blockNumber": 96123757,
+            "amountIn": 0.8,
+            "amountOut": 0.800079
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0x9889fb972a9ddd8cc74b7a8185ad3654a2e34d57dc20cff9c43b0669c542e813",
+            "blockNumber": 96123763,
+            "amountIn": 0.799278921,
+            "amountOut": 1.258392224078324
+          }
+        ],
+        "txHash": "0x9889fb972a9ddd8cc74b7a8185ad3654a2e34d57dc20cff9c43b0669c542e813"
+      },
+      "manifestHash": "0xb3072ab793abda5b489cf33c659b0d4cac563831c8655038560620c891859393",
+      "combinedAnchor": "0x33901de238d05fb7589b906333d26caa97af93d81316631484d4ecf99ca21526",
+      "decisionLogTxHash": "0xd8be03c8a08ee51027d684ba564eb1aa57c24ae6b29ffaa2dea3a6d8197f9d88",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HEARTBEAT_SWAP"
     }
   ],
   "settled": [

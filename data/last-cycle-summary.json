@@ -1,23 +1,26 @@
 {
-  "cycleStartedAt": "2026-06-02T05:17:17.743Z",
-  "cycleEndedAt": "2026-06-02T05:18:25.407Z",
-  "durationSeconds": 67.66,
+  "cycleStartedAt": "2026-06-02T05:22:39.910Z",
+  "cycleEndedAt": "2026-06-02T05:24:11.564Z",
+  "durationSeconds": 91.65,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 10091,
-    "validatorMs": 6504,
+    "analystMs": 6719,
+    "validatorMs": 6762,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 229,
-  "decisionTier": "BLOCKED_BY_REGIME",
+  "decisionId": 230,
+  "decisionTier": "HEARTBEAT_SWAP",
   "consensus": false,
-  "txHashes": [],
+  "txHashes": [
+    "0x0adcc59b43506e636bafa4859c1c3d4ee914aac8312e54e81f6139640088c48b",
+    "0x9889fb972a9ddd8cc74b7a8185ad3654a2e34d57dc20cff9c43b0669c542e813"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26800010240",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/26800186862",
   "errors": [],
   "gridTradeCandidate": {
     "active": false,
@@ -31,5 +34,37 @@
     "reason": "not stable-heavy FLAT inventory",
     "routeHint": null
   },
-  "executionStatus": "BLOCKED_BY_REGIME"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 0.8,
+    "amountOut": null,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "USDT",
+        "txHash": "0x0adcc59b43506e636bafa4859c1c3d4ee914aac8312e54e81f6139640088c48b",
+        "blockNumber": 96123757,
+        "amountIn": 0.8,
+        "amountOut": 0.800079,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "WMNT",
+        "txHash": "0x9889fb972a9ddd8cc74b7a8185ad3654a2e34d57dc20cff9c43b0669c542e813",
+        "blockNumber": 96123763,
+        "amountIn": 0.799278921,
+        "amountOut": 1.258392224078324,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
