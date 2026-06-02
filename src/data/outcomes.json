@@ -1027,6 +1027,76 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780411039322_243",
+      "decisionId": 243,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 0.623794,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "QmTCxNHg2ewJP6TDQVWJEx2xMF2Qvc26MWNUiCUZuKmuac",
+      "recordedAt": "2026-06-02T14:37:19.322Z",
+      "settleAfter": "2026-06-02T15:37:19.322Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780411039317
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes risk-off WMNT→mUSD swap, but the MNT GRID explicitly signals BUY_mETH at 80% confidence with R:R=2.5:1 and portfolio is already IN_MNT since $0.626432. Portfolio is balanced (not stable-heavy/FLAT), so the inventory rule does not force HOLD. However, the ETH grid EXIT_RANGING with confirmed DOWN breakout and TREND_DOWN hint is a legitimate bearish signal. The core flaw: Analyst ig",
+      "validatorFlaggedIssues": [
+        "R:R not provided for proposed swap — mandatory rejection trigger",
+        "MNT GRID BUY signal (80% confidence, R:R 2.5:1) directly contradicts proposed de-risk of WMNT",
+        "PRIMARY EDGE directive explicitly favors MNT grid action; Analyst overrides without sufficient justification",
+        "ETH EXIT_RANGING DOWN breakout is real but does not negate MNT-specific grid signal at lower band",
+        "Analyst conflates ETH regime breakdown with MNT position risk without acknowledging the contradiction"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x7d520be4ceb74df8c1e7ce36a4dd6dd1b6bb38781c6eb1ef1a973f05b1d94c17",
+      "combinedAnchor": "0xd47325287e4dfcc282e109364e32ce0e0cb38fdedbf4a20807ac8360e60648c9",
+      "decisionLogTxHash": "0x667884b5a32c278878207c5d7c2b069d2446d3789959a4807a58d9c9e3215483",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
