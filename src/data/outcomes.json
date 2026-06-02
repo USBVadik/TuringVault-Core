@@ -626,6 +626,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780364255057_224",
+      "decisionId": 224,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1986.44,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "Qmbhdexky2QFhBFQp1iVSod6Rqm8p4oFs21Sr8Tm3ksRWv",
+      "recordedAt": "2026-06-02T01:37:35.057Z",
+      "settleAfter": "2026-06-02T02:37:35.057Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780364255052
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate and well-reasoned. Position is ALREADY_IN_POSITION since $1978.3 with ~$8 unrealized gain. ETH grid BUY_mETH at 71% confidence with 2.5:1 R:R is already captured — adding exposure would be redundant. MNT EXIT_RANGING with UNKNOWN breakout direction correctly avoided. Funding 0.867% neutral, not extreme. Yield spread -1% BEARISH noted but insufficient to force exit. Extreme Fear",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% BEARISH mildly undermines mETH hold thesis — monitor for deterioration",
+        "F&G=23 Extreme Fear could accelerate downside if $1977.7 support breaks",
+        "MNT RSI 34.4 falling near channel floor — watch for confirmed breakdown"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x42f7ba672c13a25741bf67a7d29a5e0fdc616a990f7785bb73362bc4da42b6be",
+      "combinedAnchor": "0x82fe52b9a722ab6d35d421c3338ff9d3da495fafb3bfb80d74ba1a62e603f8de",
+      "decisionLogTxHash": "0xca73c894e592f2da1f0584026d3b051a4f1280cf0abffc0089e6b6e5a80a3647",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
