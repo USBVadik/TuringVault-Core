@@ -62,6 +62,31 @@ describe("post-audit report regression fixes", () => {
     expect(workflow).toMatch(/write-cycle-failure-summary\.js/);
   });
 
+  test("agent-cycle workflow starts cycles from the latest main revision", () => {
+    const workflow = fs.readFileSync(
+      path.join(repoRoot, ".github/workflows/agent-cycle.yml"),
+      "utf8"
+    );
+
+    expect(workflow).toMatch(/cancel-in-progress:\s*false/);
+    expect(workflow).toMatch(/name:\s*Sync latest main before cycle/);
+    expect(workflow).toMatch(/git pull --ff-only origin main/);
+    expect(workflow.indexOf("name: Sync latest main before cycle")).toBeLessThan(
+      workflow.indexOf("name: Run cycle")
+    );
+  });
+
+  test("agent-cycle workflow does not rebase generated JSON state on push conflict", () => {
+    const workflow = fs.readFileSync(
+      path.join(repoRoot, ".github/workflows/agent-cycle.yml"),
+      "utf8"
+    );
+
+    expect(workflow).not.toMatch(/git pull --rebase --autostash/);
+    expect(workflow).toMatch(/origin\/main advanced after cycle generation/);
+    expect(workflow).toMatch(/Skipping stale cycle commit/);
+  });
+
   test("cycle failure summary writer records timeout evidence without execution claims", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "tv-cycle-failure-"));
     process.env.CYCLE_FAILURE_REPO_ROOT = tmp;

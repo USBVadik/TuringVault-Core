@@ -11,14 +11,14 @@ on:
   schedule:
     # Two slots per hour at off-peak minutes. GH Actions regularly skips
     # one slot under load; having two gives near-100% hourly coverage.
-    # If both fire within an hour, the concurrency group (cancel-in-progress:
-    # false) means the second waits for the first — effectively a no-op.
+    # If both fire within an hour, the concurrency group queues the second
+    # run; the explicit sync step below refreshes it before execution.
     - cron: "17 * * * *"
     - cron: "47 * * * *"
   workflow_dispatch: # Manual trigger for debugging
 
 # Prevent overlapping runs (in case a cycle is slow). cancel-in-progress=false
-# means the new trigger waits for the old one to finish rather than aborting.
+# lets the current LLM cycle finish; queued triggers sync main before running.
 concurrency:
   group: agent-cycle
   cancel-in-progress: false
@@ -59,6 +59,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+
+      - name: Sync latest main before cycle
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
 
       - name: Setup Node 22
         uses: actions/setup-node@v4
@@ -175,10 +181,11 @@ jobs:
 
           git commit -m "chore(cron): cycle ${DECISION_ID} ${TIMESTAMP} ${TIER}"
 
-          # Retry once on rebase conflict (operator may have committed
-          # while we ran).
+          # If origin/main advanced after cycle generation, do not rebase
+          # generated JSON state. The next schedule/watchdog trigger will
+          # regenerate from the fresher main revision.
           if ! git push origin main; then
-            sleep 5
-            git pull --rebase --autostash origin main
-            git push origin main
+            echo "::warning::origin/main advanced after cycle generation. Skipping stale cycle commit instead of rebasing generated JSON state."
+            echo "Skipping stale cycle commit; the next scheduled or watchdog trigger will regenerate from the latest main."
+            exit 0
           fi
