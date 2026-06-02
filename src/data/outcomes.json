@@ -841,6 +841,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780372450096_227",
+      "decisionId": 227,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 2000.41,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmYQvuT3yiuk7AFSQrcPcFc9QwwNdyQ9oLSatPKWb4a9jY",
+      "recordedAt": "2026-06-02T03:54:10.096Z",
+      "settleAfter": "2026-06-02T04:54:10.096Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780372450091
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. ALREADY_IN_POSITION override correctly blocks re-entry on MNT grid BUY_mETH. ETH grid at 57% channel position confirms HOLD zone. No exit signal fired. Analyst reasoning aligns with raw signals: MNT grid BUY_mETH at 75% confidence acknowledged but blocked by override. Yield spread bearish (-1%) and F&G=23 noted as risk factors. No hallucinated data. HOLD carries minimal capita",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not fully weighted in confidence assessment",
+        "MNT -3.28% 24h weakness warrants monitoring stop at $0.62"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1831f5eb49de7002651268464da6ad4c0eb3cac3bd3a434333e1f896f9dff73a",
+      "combinedAnchor": "0xf190a1185036c00a162aac5bfd92fac8219a7aaa768704f8ca8cf150ec6999d6",
+      "decisionLogTxHash": "0x5a59bb64a47ca037be28f9bc08270559c89195037904b3633fe7e458d21534d4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
