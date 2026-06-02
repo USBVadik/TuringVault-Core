@@ -4,6 +4,7 @@ const UPPER_BAND_MIN = 0.8;
 const STABLE_REENTRY_ALLOCATION_PCT = 12;
 const GRID_BUY_ALLOCATION_PCT = 15;
 const GRID_SELL_ALLOCATION_PCT = 20;
+const MIN_GRID_SELL_SOURCE_USD = 1.0;
 
 function num(v, fallback = 0) {
   const n = Number(v);
@@ -16,6 +17,12 @@ function upper(v) {
 
 function isFlat(positionState = {}) {
   return !positionState?.status || upper(positionState.status) === "FLAT";
+}
+
+function hasOpenPositionForGridAsset(asset, positionState = {}) {
+  const status = upper(positionState.status);
+  if (asset === "mantle") return ["IN_MNT", "IN_RISK"].includes(status);
+  return status === "IN_METH";
 }
 
 function isConfirmedDownBreak(signal = {}) {
@@ -67,6 +74,24 @@ function riskTargetForAsset(asset) {
 
 function riskSourceForTarget(targetAsset) {
   return targetAsset === "mETH" ? "USDT0" : "USDT0";
+}
+
+function riskSourceForGridAsset(asset) {
+  return asset === "mantle" ? "WMNT" : "mETH";
+}
+
+function sourceUsdForGridAsset(asset, portfolioSummary = {}) {
+  const explicit =
+    asset === "mantle" ? portfolioSummary.wmntUsd : portfolioSummary.methUsd;
+  if (Number.isFinite(Number(explicit))) return num(explicit, 0);
+  return num(portfolioSummary.tradableRiskUsd, 0);
+}
+
+function hasSellInventoryForGridAsset(asset, portfolioSummary, positionState) {
+  return (
+    sourceUsdForGridAsset(asset, portfolioSummary) >= MIN_GRID_SELL_SOURCE_USD ||
+    hasOpenPositionForGridAsset(asset, positionState)
+  );
 }
 
 function routeForTarget(targetAsset) {
@@ -213,13 +238,73 @@ function buildGridTradeCandidate({
   const regime = upper(structuredSignals.regime?.regime);
   const ranging = structuredSignals.signals?.ranging || {};
   const signals = collectGridSignals(ranging);
+  const riskOnRegimeAllowed = ["RANGING", "CONTRARIAN_LONG", "TREND_UP"].includes(
+    regime
+  );
+  const sellRegimeAllowed = ["RANGING", "TREND_UP", "TREND_DOWN", "CRISIS"].includes(
+    regime
+  );
 
-  if (!["RANGING", "CONTRARIAN_LONG", "TREND_UP"].includes(regime)) {
+  let blockedSell = null;
+  const directSell = sellRegimeAllowed
+    ? signals
+        .map(({ asset, signal }) => ({
+          asset,
+          signal,
+          pos: channelPosition(signal),
+          confidence: num(signal.confidence, 0),
+        }))
+        .filter(({ signal, pos }) => {
+          if (upper(signal.action) === "SELL_METH") return true;
+          return isConfirmedUpBreak(signal) && pos != null && pos >= UPPER_BAND_MIN;
+        })
+        .sort((a, b) => b.confidence - a.confidence)[0]
+    : null;
+
+  if (directSell) {
+    const sourceAsset = riskSourceForGridAsset(directSell.asset);
+    if (
+      hasSellInventoryForGridAsset(
+        directSell.asset,
+        portfolioSummary,
+        positionState
+      )
+    ) {
+      const riskReward = buildShortRiskReward(directSell.signal);
+      return activeCandidate({
+        kind: "grid-sell",
+        asset: directSell.asset,
+        targetAsset: "mUSD",
+        sourceAsset,
+        allocationPct: GRID_SELL_ALLOCATION_PCT,
+        confidence: directSell.confidence,
+        signal: directSell.signal,
+        riskReward,
+        reasoning:
+          `${directSell.asset.toUpperCase()} grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.` +
+          riskRewardSentence(riskReward),
+        riskFactors: ["Portfolio guard must block redundant risk-off without sellable inventory"],
+      });
+    }
+    blockedSell = inactive(
+      `no tradable ${sourceAsset} inventory for grid sell`,
+      {
+        inspectedSignal: {
+          asset: directSell.asset,
+          ...compactSignal(directSell.signal),
+        },
+      }
+    );
+  }
+
+  if (!riskOnRegimeAllowed) {
     return inactive(`regime ${regime || "UNKNOWN"} does not allow grid risk-on`);
   }
 
   if (!portfolioSummary.stableHeavy || !isFlat(positionState)) {
-    return inactive("not stable-heavy FLAT inventory");
+    return inactive("not stable-heavy FLAT inventory", {
+      sellCandidateBlocked: blockedSell?.reason || null,
+    });
   }
 
   const directBuy = signals
@@ -301,36 +386,7 @@ function buildGridTradeCandidate({
     return inactive(`lower-band risk-on blocked by ${blockedLowerBand.block}`);
   }
 
-  const directSell = signals
-    .map(({ asset, signal }) => ({
-      asset,
-      signal,
-      pos: channelPosition(signal),
-      confidence: num(signal.confidence, 0),
-    }))
-    .filter(({ signal, pos }) => {
-      if (upper(signal.action) === "SELL_METH") return true;
-      return isConfirmedUpBreak(signal) && pos != null && pos >= UPPER_BAND_MIN;
-    })
-    .sort((a, b) => b.confidence - a.confidence)[0];
-
-  if (directSell) {
-    const riskReward = buildShortRiskReward(directSell.signal);
-    return activeCandidate({
-      kind: "grid-sell",
-      asset: directSell.asset,
-      targetAsset: "mUSD",
-      sourceAsset: directSell.asset === "mantle" ? "WMNT" : "mETH",
-      allocationPct: GRID_SELL_ALLOCATION_PCT,
-      confidence: directSell.confidence,
-      signal: directSell.signal,
-      riskReward,
-      reasoning:
-        `${directSell.asset.toUpperCase()} grid indicates upper-band/risk-off exit; validate sell-high only if real risk inventory exists.` +
-        riskRewardSentence(riskReward),
-      riskFactors: ["Portfolio guard must block redundant stable-heavy risk-off"],
-    });
-  }
+  if (blockedSell) return blockedSell;
 
   return inactive("no actionable lower-band or grid edge", {
     inspectedSignals: signals.map(({ asset, signal }) => ({

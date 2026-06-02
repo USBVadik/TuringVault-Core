@@ -34,6 +34,29 @@ describe("walletRouter.pickSource — risk-off", () => {
     expect(r.sourceBalance).toBe(5);
   });
 
+  test("explicit mETH risk-off source is honored even when WMNT is available", () => {
+    const r = pickSource({
+      direction: "risk-off",
+      preferredSource: "mETH",
+      balances: { WMNT: 5, MNT: 0, USDT0: 100, USDT: 0, mETH: 0.01 },
+    });
+    expect(r.feasible).toBe(true);
+    expect(r.source).toBe("mETH");
+    expect(r.path).toEqual(["mETH", "WETH", "WMNT", "USDT", "USDT0"]);
+    expect(r.sourceBalance).toBe(0.01);
+  });
+
+  test("explicit mETH risk-off source does not silently fall back to WMNT", () => {
+    const r = pickSource({
+      direction: "risk-off",
+      preferredSource: "mETH",
+      balances: { WMNT: 5, MNT: 0, USDT0: 100, USDT: 0, mETH: 0 },
+    });
+    expect(r.feasible).toBe(false);
+    expect(r.source).toBeNull();
+    expect(r.reason).toMatch(/preferred source mETH/i);
+  });
+
   test("stable-heavy wallet does not wrap native MNT for repeated risk-off", () => {
     const r = pickSource({
       direction: "risk-off",

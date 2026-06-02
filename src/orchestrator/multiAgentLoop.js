@@ -1022,6 +1022,7 @@ async function runMultiAgentCycle(opts = {}) {
           balances: fullBalances,
           floors: { WMNT: 0.5, USDT0: 0.5, mETH: 0.001, USDT: 0.5 },
           targetIsMeth: targetAsset === "mETH" || targetAsset === "WETH",
+          preferredSource: decision.analyst?.sourceAsset || null,
         });
 
         if (!route.feasible) {

@@ -104,6 +104,76 @@ describe("gridTradeCandidate", () => {
     expect(candidate.reason).toMatch(/down/i);
   });
 
+  test("emits a risk-off sell candidate when an existing mETH position reaches the upper band", () => {
+    const s = structuredSignals();
+    s.signals.ranging.multiAsset.ethereum = {
+      action: "SELL_mETH",
+      confidence: 0.74,
+      breakoutDirection: "UNKNOWN",
+      regimeHint: "HOLD",
+      channel: {
+        support: 1977.7,
+        resistance: 2029.5,
+        currentPrice: 2026.2,
+        channelPosition: 0.94,
+      },
+    };
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 82,
+        tradableRiskUsd: 24,
+        methUsd: 24,
+        stableShare: 0.77,
+        riskShare: 0.23,
+        stableHeavy: false,
+      }),
+      positionState: {
+        status: "IN_mETH",
+        entryPrice: 1983.6,
+        targetExit: 2029.5,
+      },
+    });
+
+    expect(candidate.active).toBe(true);
+    expect(candidate.kind).toBe("grid-sell");
+    expect(candidate.direction).toBe("risk_off");
+    expect(candidate.targetAsset).toBe("mUSD");
+    expect(candidate.sourceAsset).toBe("mETH");
+    expect(candidate.reasoning).toMatch(/existing risk inventory/i);
+  });
+
+  test("does not emit a sell candidate when upper-band grid fires but no matching risk inventory exists", () => {
+    const s = structuredSignals();
+    s.signals.ranging.multiAsset.ethereum = {
+      action: "SELL_mETH",
+      confidence: 0.74,
+      channel: {
+        support: 1977.7,
+        resistance: 2029.5,
+        currentPrice: 2026.2,
+        channelPosition: 0.94,
+      },
+    };
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 106,
+        tradableRiskUsd: 0,
+        methUsd: 0,
+        stableShare: 1,
+        riskShare: 0,
+        stableHeavy: true,
+      }),
+      positionState: { status: "FLAT" },
+    });
+
+    expect(candidate.active).toBe(false);
+    expect(candidate.reason).toMatch(/no tradable mETH inventory/i);
+  });
+
   test("formats an active candidate into a validator-visible prompt block", () => {
     const text = formatGridTradeCandidateForPrompt({
       active: true,

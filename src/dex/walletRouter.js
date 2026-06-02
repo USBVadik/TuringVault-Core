@@ -67,6 +67,13 @@ const DECIMALS = {
   WETH: 18,
 };
 
+function normalizeRiskOffPreferredSource(source) {
+  const s = String(source || "").trim().toUpperCase();
+  if (["METH", "WETH", "ETH"].includes(s)) return "mETH";
+  if (["WMNT", "MNT"].includes(s)) return "WMNT";
+  return null;
+}
+
 /**
  * Read every balance we care about, in human units (number).
  * Native MNT comes from provider.getBalance, ERC20s from balanceOf.
@@ -176,6 +183,7 @@ const MAX_WRAP_PER_CYCLE_MNT = 2.0;
  *   balances        — output of readAllBalances()
  *   floors          — { WMNT: 0.1, USDT0: 0.5, mETH: 0.001 }
  *   gasReserveMnt   — number, default GAS_RESERVE_MNT
+ *   preferredSource — optional source token requested by analyst/grid
  *
  * @returns {object}
  *   feasible        — bool, can the swap happen at all?
@@ -193,8 +201,56 @@ function pickSource({
   floors = { WMNT: 0.1, USDT0: 0.5, mETH: 0.001, USDT: 0.5 },
   gasReserveMnt = GAS_RESERVE_MNT,
   targetIsMeth = false,
+  preferredSource = null,
 }) {
   if (direction === "risk-off") {
+    const preferred = normalizeRiskOffPreferredSource(preferredSource);
+    if (preferred === "mETH") {
+      if (balances.mETH >= floors.mETH) {
+        return {
+          feasible: true,
+          source: "mETH",
+          wrapMntFirst: false,
+          wrapAmountMnt: 0,
+          path: ["mETH", "WETH", "WMNT", "USDT", "USDT0"],
+          sourceBalance: balances.mETH,
+          reason: `preferred source mETH ${balances.mETH.toFixed(6)} ≥ floor ${floors.mETH}`,
+        };
+      }
+      return {
+        feasible: false,
+        source: null,
+        wrapMntFirst: false,
+        wrapAmountMnt: 0,
+        path: [],
+        sourceBalance: 0,
+        reason: `preferred source mETH unavailable: ${balances.mETH.toFixed(6)} < floor ${floors.mETH}; refusing to sell a different risk asset`,
+      };
+    }
+
+    if (preferred === "WMNT") {
+      if (balances.WMNT >= floors.WMNT) {
+        return {
+          feasible: true,
+          source: "WMNT",
+          wrapMntFirst: false,
+          wrapAmountMnt: 0,
+          path: ["WMNT", "USDT", "USDT0"],
+          sourceBalance: balances.WMNT,
+          reason: `preferred source WMNT ${balances.WMNT.toFixed(4)} ≥ floor ${floors.WMNT}`,
+        };
+      }
+      return {
+        feasible: false,
+        source: null,
+        wrapMntFirst: false,
+        wrapAmountMnt: 0,
+        path: [],
+        sourceBalance: 0,
+        reason: `preferred source WMNT unavailable: ${balances.WMNT.toFixed(4)} < floor ${floors.WMNT}; refusing to sell a different risk asset`,
+      };
+    }
+
     // Goal: end at USDT0. Try in order:
     //   1. WMNT directly
     //   2. unwind mETH → WETH → WMNT → USDT → USDT0
