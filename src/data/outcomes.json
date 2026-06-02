@@ -380,11 +380,6 @@
         "status": "ACCEPTED",
         "checks": [
           {
-            "name": "tx_proof",
-            "status": "SKIP",
-            "detail": "Hold action — no tx to verify"
-          },
-          {
             "name": "price_freshness",
             "status": "PASS",
             "detail": "Price data was 5s old"
@@ -393,11 +388,37 @@
             "name": "drift_detection",
             "status": "PASS",
             "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Re-proof: block 96112834"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Re-proof: sender 0xDC783CDBfA993f3FC299460627b204E83bf4fb5a"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "Re-proof: 1936 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "Re-proof: TX successful"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Re-proofed during outcome settlement"
           }
         ],
         "blockReason": null,
         "repairStep": null,
-        "timestamp": 1780355981554
+        "timestamp": 1780355981554,
+        "reproofedAt": "2026-06-02T00:24:13.461Z"
       },
       "decisionTier": "HEARTBEAT_SWAP",
       "tierSource": "live",
@@ -458,7 +479,7 @@
       "candleFromSnapshot": false,
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
-      "executionProofStatus": "SKIPPED",
+      "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
     },
     {
@@ -532,6 +553,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780359913071_223",
+      "decisionId": 223,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1998.62,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmViAQ851JJ4ARru2h4vWqbrZuqsS8qVgkADFAfaytcK6v",
+      "recordedAt": "2026-06-02T00:25:13.071Z",
+      "settleAfter": "2026-06-02T01:25:13.071Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780359913067
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on existing mETH position is appropriate. Both grids signal EXIT_RANGING with UNKNOWN breakout direction — no directional trade is warranted. Portfolio is 79.9% stable, mETH position is small ($23.36) and up ~1.1% from entry $1978.3. Regime RANGING at 55% confidence with vol expanding but direction unconfirmed. Analyst correctly avoids a directional swap. Yield spread bearish (-1%) and F&G=23",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD since no new capital deployed",
+        "Yield spread -1% bearish signal not fully weighted in reasoning",
+        "Low intraday vol (0.32%) vs vol-expanding grid signal is a genuine contradiction worth monitoring",
+        "MNT at 1% channel position with trend forming warrants close watch for breakdown"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x4e1c10524cdae6087e9ad47158fe4bb2d77f2d77b8310c64f9e421a2beb6c25a",
+      "combinedAnchor": "0x6aa1da80922db177a5094ff9cdf9ea443969a9d7dbc95c80c08c8633496230f1",
+      "decisionLogTxHash": "0xb18bbbed689e788e95ce3c3b938d59a5f35b68afd7b2e2020c31076c95f4962c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
