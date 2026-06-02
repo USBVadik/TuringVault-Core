@@ -12,6 +12,7 @@
  * State machine:
  *   FLAT      → no position, looking for entry
  *   IN_mETH   → bought mETH at entryPrice, waiting for take-profit or stop
+ *   IN_MNT    → bought WMNT/MNT exposure, managed by multi-asset grid candidate
  *   IN_mUSD   → sold mETH (defensive or take-profit), waiting for re-entry
  *
  * Used by:
@@ -25,7 +26,7 @@ const fs = require("fs");
 const STATE_PATH = path.resolve(__dirname, "../data/position_state.json");
 
 const INITIAL_STATE = {
-  status: "FLAT", // FLAT | IN_mETH | IN_mUSD
+  status: "FLAT", // FLAT | IN_mETH | IN_MNT | IN_mUSD
   entryPrice: null, // price when we entered current position
   entryTime: null, // ISO timestamp of entry
   targetExit: null, // take-profit price (from rangingGrid at entry)
@@ -77,7 +78,7 @@ function enterPosition({
   allocationPct,
 }) {
   const state = {
-    status, // 'IN_mETH' or 'IN_mUSD'
+    status, // 'IN_mETH', 'IN_MNT', or 'IN_mUSD'
     entryPrice,
     entryTime: new Date().toISOString(),
     targetExit: targetExit || null,

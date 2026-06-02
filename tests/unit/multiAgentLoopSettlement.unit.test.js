@@ -1,5 +1,9 @@
 const {
-  _private: { getSettlementSnapshot, inferSettlementSourceAsset },
+  _private: {
+    buildPositionEntryState,
+    getSettlementSnapshot,
+    inferSettlementSourceAsset,
+  },
 } = require("../../src/orchestrator/multiAgentLoop");
 
 function marketWithPrimary(primary, action = "SELL_mETH") {
@@ -133,6 +137,94 @@ describe("multiAgentLoop settlement snapshot", () => {
       priceAtDecision: null,
       sourceAsset: "WMNT",
       missingPriceReason: "missing-MNT-price",
+    });
+  });
+});
+
+describe("multiAgentLoop position entry state", () => {
+  test("records mETH entries with ETH grid levels even when Mantle is primary", () => {
+    const market = {
+      ethPrice: 1978.94,
+      mntPrice: 0.6476,
+      structuredSignals: {
+        signals: {
+          ranging: {
+            action: "BUY_MNT",
+            targetExit: 0.6833,
+            stopLoss: 0.61,
+            multiAsset: {
+              primary: "mantle",
+              mantle: {
+                action: "BUY_MNT",
+                targetExit: 0.6833,
+                stopLoss: 0.61,
+              },
+              ethereum: {
+                action: "BUY_mETH",
+                targetExit: 2008.62,
+                stopLoss: 1943.32,
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(
+      buildPositionEntryState({
+        market,
+        targetAsset: "mETH",
+        allocationPct: 25,
+      })
+    ).toEqual({
+      status: "IN_mETH",
+      entryPrice: 1978.94,
+      targetExit: 2008.62,
+      stopLoss: 1943.32,
+      allocationPct: 25,
+    });
+  });
+
+  test("records WMNT entries with Mantle grid levels and MNT spot price", () => {
+    const market = {
+      ethPrice: 1978.94,
+      mntPrice: 0.6476,
+      structuredSignals: {
+        signals: {
+          ranging: {
+            action: "BUY_mETH",
+            targetExit: 2008.62,
+            stopLoss: 1943.32,
+            multiAsset: {
+              primary: "ethereum",
+              mantle: {
+                action: "BUY_MNT",
+                targetExit: 0.6833,
+                stopLoss: 0.61,
+              },
+              ethereum: {
+                action: "BUY_mETH",
+                targetExit: 2008.62,
+                stopLoss: 1943.32,
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(
+      buildPositionEntryState({
+        market,
+        targetAsset: "WMNT",
+        allocationPct: 30,
+      })
+    ).toEqual({
+      status: "IN_MNT",
+      entryPrice: 0.6476,
+      targetExit: 0.6833,
+      stopLoss: 0.61,
+      allocationPct: 30,
     });
   });
 });

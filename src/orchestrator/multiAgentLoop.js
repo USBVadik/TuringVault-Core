@@ -184,6 +184,71 @@ function getSettlementSnapshot(
   };
 }
 
+function normalizePositionTargetAsset(asset) {
+  const symbol = outcomeTracker.normalizeAssetSymbol(asset);
+  if (["mETH", "WETH"].includes(symbol)) return "mETH";
+  if (["MNT", "WMNT"].includes(symbol)) return "WMNT";
+  return null;
+}
+
+function isStableTargetAsset(asset) {
+  return ["mUSD", "USDT", "USDT0"].includes(
+    outcomeTracker.normalizeAssetSymbol(asset)
+  );
+}
+
+function selectPositionGridSignal(market = {}, targetAsset = "mETH") {
+  const rangingSignal = market.structuredSignals?.signals?.ranging || null;
+  const multiAsset = rangingSignal?.multiAsset || null;
+  const normalizedTarget = normalizePositionTargetAsset(targetAsset);
+
+  if (normalizedTarget === "mETH") {
+    return multiAsset?.ethereum || rangingSignal;
+  }
+  if (normalizedTarget === "WMNT") {
+    return multiAsset?.mantle || rangingSignal;
+  }
+  return rangingSignal;
+}
+
+function positionEntryPriceForTarget(market = {}, targetAsset = "mETH") {
+  const normalizedTarget = normalizePositionTargetAsset(targetAsset);
+  if (normalizedTarget === "WMNT") {
+    return finitePositiveNumber(market.mntPrice);
+  }
+  if (normalizedTarget === "mETH") {
+    return finitePositiveNumber(
+      market.wethPrice ??
+        market.ethPrice ??
+        market.methPrice ??
+        market.mETHPrice
+    );
+  }
+  return null;
+}
+
+function buildPositionEntryState({
+  market = {},
+  targetAsset = "mETH",
+  allocationPct = 30,
+} = {}) {
+  const normalizedTarget = normalizePositionTargetAsset(targetAsset);
+  if (!normalizedTarget) return null;
+
+  const entryPrice = positionEntryPriceForTarget(market, targetAsset);
+  if (!entryPrice) return null;
+
+  const gridSignal = selectPositionGridSignal(market, targetAsset);
+  return {
+    status: normalizedTarget === "WMNT" ? "IN_MNT" : "IN_mETH",
+    entryPrice,
+    targetExit:
+      finitePositiveNumber(gridSignal?.targetExit) || entryPrice * 1.015,
+    stopLoss: finitePositiveNumber(gridSignal?.stopLoss) || entryPrice * 0.982,
+    allocationPct: positiveNumberOr(allocationPct, 30),
+  };
+}
+
 function compactPortfolioGuardResult(result) {
   if (!result) return null;
   const s = result.summary || {};
@@ -1768,23 +1833,23 @@ async function runMultiAgentCycle(opts = {}) {
     if (decision.consensus && decision.action === "swap" && alphaSwapExecuted) {
       const targetAsset = decision.analyst?.targetAsset;
       const overrideReason = rangingSignal?.overrideReason;
+      const entryState = buildPositionEntryState({
+        market,
+        targetAsset,
+        allocationPct: decision.analyst?.allocationPct || 30,
+      });
 
-      if (targetAsset === "mETH") {
-        // Entered a mETH position
-        positionState.enterPosition({
-          status: "IN_mETH",
-          entryPrice: market.ethPrice,
-          targetExit: rangingSignal?.targetExit || market.ethPrice * 1.015,
-          stopLoss: rangingSignal?.stopLoss || market.ethPrice * 0.982,
-          allocationPct: decision.analyst?.allocationPct || 30,
-        });
-        console.log(`   📍 Position state: IN_mETH @ $${market.ethPrice}`);
-      } else if (targetAsset === "mUSD") {
-        // Exited to mUSD
+      if (entryState) {
+        positionState.enterPosition(entryState);
+        console.log(
+          `   📍 Position state: ${entryState.status} @ $${entryState.entryPrice}`
+        );
+      } else if (isStableTargetAsset(targetAsset)) {
+        // Exited to stable inventory.
         const reason = overrideReason || "GRID_SELL";
         positionState.exitPosition(reason);
         console.log(
-          `   📍 Position state: FLAT (exited to mUSD, reason: ${reason})`
+          `   📍 Position state: FLAT (exited to stable, reason: ${reason})`
         );
 
         // USDY idle parking — don't let cash sit at 0% yield
@@ -2054,10 +2119,15 @@ module.exports = {
   runMultiAgentCycle,
   _private: {
     buildPortfolioPrices,
+    buildPositionEntryState,
     calculateDirectionalSwapSizing,
     chooseNextLegAmount,
     inferSettlementSourceAsset,
     getSettlementSnapshot,
+    isStableTargetAsset,
+    normalizePositionTargetAsset,
+    positionEntryPriceForTarget,
+    selectPositionGridSignal,
     sourceUsdPriceForToken,
   },
 };
