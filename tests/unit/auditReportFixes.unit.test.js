@@ -60,6 +60,9 @@ describe("post-audit report regression fixes", () => {
     expect(workflow).toMatch(/timeout-minutes:\s*15/);
     expect(workflow).toMatch(/timeout 600 node scripts\/run-cycle\.js/);
     expect(workflow).toMatch(/write-cycle-failure-summary\.js/);
+    expect(workflow).toMatch(/actions\/checkout@v6/);
+    expect(workflow).toMatch(/actions\/setup-node@v6/);
+    expect(workflow).not.toMatch(/actions\/checkout@v4|actions\/setup-node@v4/);
   });
 
   test("agent-cycle workflow starts cycles from the latest main revision", () => {
