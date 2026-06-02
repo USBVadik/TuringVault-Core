@@ -1252,6 +1252,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780383513964_232",
+      "decisionId": 232,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1978.4,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmXsnu3EJeaoaXN7BZ4awKEgxExfkquogqCmGJSCkufT6R",
+      "recordedAt": "2026-06-02T06:58:33.964Z",
+      "settleAfter": "2026-06-02T07:58:33.964Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780383513960
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate: ALREADY_IN_POSITION override blocks new entry. Existing mETH position ($23.13, 20.6% NAV) is within conservative sizing for RANGING regime. Grid R:R=2.5:1 meets threshold. Analyst correctly cites take-profit $2009.58 and stop $1968.03. Risk factors acknowledged: falling RSI 43.4, -1% yield spread, mild long funding 0.776%. No hallucinated data detected. HOLD carries minimal ca",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish for mETH — monitor for deterioration",
+        "RSI 43.4 falling — momentum not confirming grid buy",
+        "F&G=23 Extreme Fear adds downside tail risk",
+        "Low vol 0.31% — breakout direction unresolved"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb2d6200734b9d225d021c5a655f815c01fb994635626684cc3be73158f1668a1",
+      "combinedAnchor": "0x743896c83c9cb9c37c25a8f332ee51e60e9989442f605d5c7c9c7264d66a9c9a",
+      "decisionLogTxHash": "0xce97b0a39e3b4612d41dc45df554fd26808409db4d9c88fa8fbd9251ac73b4e8",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
