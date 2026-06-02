@@ -1325,6 +1325,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780384381597_233",
+      "decisionId": 233,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1976.99,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmWQGzbfMGh1GdxrDUzz51UEAGgE6GtdAqUNrGDJoGivxX",
+      "recordedAt": "2026-06-02T07:13:01.597Z",
+      "settleAfter": "2026-06-02T08:13:01.597Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780384381592
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Position is already IN_mETH since $1978.3 with 20.6% risk allocation. Both grids confirm BUY_mETH at channel support (5% and 0%), but ALREADY_IN_POSITION override correctly prevents over-accumulation at same level. Grid R:R=2.5:1 meets threshold. Analyst correctly acknowledges bearish technicals (RSI 42.8 falling, MACD negative, EMA bearish) and F&G=23 as downside risks. No ha",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "RSI 42.8 falling with MACD sell — no reversal confirmation yet",
+        "Funding 0.782% mild long bias adds marginal crowding risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x022042c60471ca99d5086dd9195313e6e7e18e9482ab2dd8e94cec049a0877c2",
+      "combinedAnchor": "0x731704945dabbfec8c1418bcf706ff9540936bf682b10b5a03ed2d30ba99381b",
+      "decisionLogTxHash": "0xfee7698528fb40c0496ae86ade760b3c411f9351d584caad7158ac2df1e17271",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
