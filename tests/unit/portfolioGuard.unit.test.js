@@ -2,6 +2,7 @@ const {
   assessTradeInventory,
   formatPortfolioForPrompt,
   summarizePortfolio,
+  SCALE_IN_ALLOCATION_PCT,
 } = require("../../src/orchestrator/portfolioGuard");
 
 const PRICES = {
@@ -58,6 +59,134 @@ describe("portfolioGuard", () => {
 
     expect(result.allowed).toBe(true);
     expect(result.reason).toMatch(/stable inventory available/i);
+  });
+
+  test("blocks same-asset risk-on when already in position without a fresh lower grid level", () => {
+    const result = assessTradeInventory({
+      direction: "risk-on",
+      targetAsset: "MNT",
+      balances: {
+        MNT: 20,
+        WMNT: 20,
+        mETH: 0,
+        USDT0: 80,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: PRICES,
+      regime: "RANGING",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.67,
+        scaleInCount: 0,
+      },
+      structuredSignals: {
+        signals: {
+          ranging: {
+            multiAsset: {
+              mantle: {
+                action: "BUY_mETH",
+                confidence: 0.8,
+                channel: {
+                  currentPrice: 0.668,
+                  channelPosition: 0.04,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/scale-in blocked/i);
+    expect(result.reason).toMatch(/not below prior entry/i);
+  });
+
+  test("allows controlled same-asset scale-in after a deeper lower-band move", () => {
+    const result = assessTradeInventory({
+      direction: "risk-on",
+      targetAsset: "WMNT",
+      balances: {
+        MNT: 20,
+        WMNT: 20,
+        mETH: 0,
+        USDT0: 80,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: PRICES,
+      regime: "RANGING",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.67,
+        scaleInCount: 0,
+      },
+      structuredSignals: {
+        signals: {
+          onChainFlow: { signal: "NEUTRAL", netUsd: 0 },
+          ranging: {
+            multiAsset: {
+              mantle: {
+                action: "BUY_mETH",
+                confidence: 0.82,
+                channel: {
+                  currentPrice: 0.642,
+                  channelPosition: 0.03,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/controlled scale-in/i);
+    expect(result.suggestedAllocationPct).toBe(SCALE_IN_ALLOCATION_PCT);
+  });
+
+  test("blocks controlled scale-in during confirmed down-break", () => {
+    const result = assessTradeInventory({
+      direction: "risk-on",
+      targetAsset: "WMNT",
+      balances: {
+        MNT: 20,
+        WMNT: 20,
+        mETH: 0,
+        USDT0: 80,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: PRICES,
+      regime: "TREND_DOWN",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.67,
+        scaleInCount: 0,
+      },
+      structuredSignals: {
+        signals: {
+          ranging: {
+            multiAsset: {
+              mantle: {
+                action: "BUY_mETH",
+                confidence: 0.82,
+                breakoutDirection: "DOWN",
+                regimeHint: "TREND_DOWN",
+                channel: {
+                  currentPrice: 0.642,
+                  channelPosition: 0.03,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/confirmed down-break/i);
   });
 
   test("allows risk-off exits when an actual grid position is open", () => {

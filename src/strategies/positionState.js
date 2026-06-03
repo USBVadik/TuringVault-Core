@@ -33,6 +33,8 @@ const INITIAL_STATE = {
   stopLoss: null, // stop-loss price (from rangingGrid at entry — SINGLE SOURCE OF TRUTH)
   highWaterMark: null, // highest price since entry (for trailing stop)
   allocationPct: null, // how much % of portfolio was moved
+  scaleInCount: 0, // controlled same-asset scale-ins used in this position
+  lastScaleInAt: null,
   cycleCount: 0, // how many cycles in current position (prevent infinite hold)
   // ISO of when we became FLAT. Used by rwaAllocator (Path B idle-parking)
   // to know how long the wallet has been idle. Null while in a position.
@@ -59,6 +61,64 @@ function save(state) {
   return state;
 }
 
+function num(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function buildEnteredPositionState(prevState = {}, entry = {}, nowIso) {
+  const now = nowIso || new Date().toISOString();
+  const samePosition =
+    prevState.status === entry.status &&
+    prevState.status !== "FLAT" &&
+    num(prevState.entryPrice, 0) > 0;
+
+  if (!samePosition) {
+    return {
+      status: entry.status,
+      entryPrice: entry.entryPrice,
+      entryTime: now,
+      targetExit: entry.targetExit || null,
+      stopLoss: entry.stopLoss || null,
+      highWaterMark: entry.entryPrice,
+      allocationPct: entry.allocationPct || null,
+      scaleInCount: 0,
+      lastScaleInAt: null,
+      cycleCount: 0,
+      flatSince: null,
+      lastUpdated: null,
+    };
+  }
+
+  const previousAllocation = Math.max(0, num(prevState.allocationPct, 0));
+  const nextAllocation = Math.max(0, num(entry.allocationPct, 0));
+  const totalAllocation = previousAllocation + nextAllocation;
+  const averagedEntry =
+    totalAllocation > 0
+      ? (num(prevState.entryPrice) * previousAllocation +
+          num(entry.entryPrice) * nextAllocation) /
+        totalAllocation
+      : entry.entryPrice;
+
+  return {
+    status: entry.status,
+    entryPrice: averagedEntry,
+    entryTime: prevState.entryTime || now,
+    targetExit: entry.targetExit || prevState.targetExit || null,
+    stopLoss: entry.stopLoss || prevState.stopLoss || null,
+    highWaterMark: Math.max(
+      num(prevState.highWaterMark, num(prevState.entryPrice)),
+      num(entry.entryPrice)
+    ),
+    allocationPct: totalAllocation || nextAllocation || previousAllocation || null,
+    scaleInCount: num(prevState.scaleInCount, 0) + 1,
+    lastScaleInAt: now,
+    cycleCount: 0,
+    flatSince: null,
+    lastUpdated: null,
+  };
+}
+
 /**
  * Get current position state
  */
@@ -77,18 +137,13 @@ function enterPosition({
   stopLoss,
   allocationPct,
 }) {
-  const state = {
+  const state = buildEnteredPositionState(load(), {
     status, // 'IN_mETH', 'IN_MNT', or 'IN_mUSD'
     entryPrice,
-    entryTime: new Date().toISOString(),
-    targetExit: targetExit || null,
-    stopLoss: stopLoss || null,
-    highWaterMark: entryPrice, // starts at entry
-    allocationPct: allocationPct || null,
-    cycleCount: 0,
-    flatSince: null, // not flat anymore
-    lastUpdated: null,
-  };
+    targetExit,
+    stopLoss,
+    allocationPct,
+  });
   return save(state);
 }
 
@@ -258,6 +313,7 @@ function applyPositionAwareness(rawSignal, currentPrice) {
 
 module.exports = {
   getState,
+  buildEnteredPositionState,
   enterPosition,
   exitPosition,
   tickCycle,

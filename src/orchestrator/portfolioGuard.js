@@ -2,8 +2,13 @@ const { GAS_RESERVE_MNT } = require("../dex/walletRouter");
 
 const STABLE_HEAVY_SHARE = 0.8;
 const MAX_RISK_SHARE_FOR_BUY = 0.65;
+const MAX_RISK_SHARE_FOR_SCALE_IN = 0.4;
 const MIN_STABLE_USD_FOR_RISK_ON = 0.5;
 const MIN_RISK_USD_FOR_RISK_OFF = 1.0;
+const MIN_SCALE_IN_DIP_PCT = 0.01;
+const SCALE_IN_LOWER_BAND_MAX = 0.12;
+const SCALE_IN_ALLOCATION_PCT = 10;
+const MAX_SCALE_INS_PER_POSITION = 2;
 
 function num(v, fallback = 0) {
   const n = Number(v);
@@ -28,6 +33,121 @@ function inferTradeDirection(targetAsset) {
     return "risk-off";
   }
   return null;
+}
+
+function normalizeRiskAsset(asset) {
+  if (["MNT", "WMNT"].includes(asset)) return "WMNT";
+  if (["mETH", "WETH", "ETH"].includes(asset)) return "mETH";
+  return null;
+}
+
+function positionRiskAsset(positionState = {}) {
+  if (positionState.status === "IN_MNT") return "WMNT";
+  if (positionState.status === "IN_mETH") return "mETH";
+  if (positionState.status === "IN_RISK") return "risk";
+  return null;
+}
+
+function selectRiskSignal(structuredSignals = {}, targetAsset) {
+  const ranging = structuredSignals.signals?.ranging || {};
+  const multi = ranging.multiAsset || {};
+  const normalized = normalizeRiskAsset(targetAsset);
+  if (normalized === "WMNT") return multi.mantle || ranging;
+  if (normalized === "mETH") return multi.ethereum || ranging;
+  return ranging;
+}
+
+function channelPosition(signal = {}) {
+  const direct = Number(signal.channel?.channelPosition);
+  if (Number.isFinite(direct)) return direct;
+  return null;
+}
+
+function isConfirmedDownBreak(signal = {}, regimeLabel = "") {
+  return (
+    regimeLabel === "CRISIS" ||
+    regimeLabel === "TREND_DOWN" ||
+    String(signal.breakoutDirection || "").toUpperCase() === "DOWN" ||
+    String(signal.regimeHint || "").toUpperCase() === "TREND_DOWN"
+  );
+}
+
+function assessScaleIn({
+  targetAsset,
+  summary,
+  prices = {},
+  regimeLabel,
+  positionState = {},
+  structuredSignals = {},
+} = {}) {
+  const targetRisk = normalizeRiskAsset(targetAsset);
+  const openRisk = positionRiskAsset(positionState);
+  if (!targetRisk || openRisk !== targetRisk) return null;
+
+  const signal = selectRiskSignal(structuredSignals, targetAsset);
+  if (isConfirmedDownBreak(signal, regimeLabel)) {
+    return {
+      allowed: false,
+      reason: "scale-in blocked: confirmed down-break / trend-down",
+    };
+  }
+
+  if (summary.riskShare >= MAX_RISK_SHARE_FOR_SCALE_IN) {
+    return {
+      allowed: false,
+      reason: `scale-in blocked: risk share ${(summary.riskShare * 100).toFixed(1)}% already above ${(MAX_RISK_SHARE_FOR_SCALE_IN * 100).toFixed(0)}% scale-in ceiling`,
+    };
+  }
+
+  const usedScaleIns = num(positionState.scaleInCount, 0);
+  if (usedScaleIns >= MAX_SCALE_INS_PER_POSITION) {
+    return {
+      allowed: false,
+      reason: `scale-in blocked: ${usedScaleIns} scale-ins already used for ${positionState.status}`,
+    };
+  }
+
+  const pos = channelPosition(signal);
+  if (pos == null || pos > SCALE_IN_LOWER_BAND_MAX) {
+    return {
+      allowed: false,
+      reason: "scale-in blocked: no fresh lower-band grid edge",
+    };
+  }
+
+  const currentPrice =
+    num(signal.channel?.currentPrice, 0) ||
+    (targetRisk === "WMNT" ? priceOf(prices, "WMNT") : priceOf(prices, "mETH"));
+  const entryPrice = num(positionState.entryPrice, 0);
+  if (
+    !currentPrice ||
+    !entryPrice ||
+    currentPrice > entryPrice * (1 - MIN_SCALE_IN_DIP_PCT)
+  ) {
+    return {
+      allowed: false,
+      reason: `scale-in blocked: price ${currentPrice || "n/a"} is not below prior entry by ${(MIN_SCALE_IN_DIP_PCT * 100).toFixed(1)}%`,
+    };
+  }
+
+  const flow = structuredSignals.signals?.onChainFlow || {};
+  if (
+    String(flow.signal || "").toUpperCase() === "BEARISH" &&
+    num(flow.netUsd, 0) <= -1_000_000
+  ) {
+    return {
+      allowed: false,
+      reason: "scale-in blocked: strong smart-money outflow",
+    };
+  }
+
+  return {
+    allowed: true,
+    reason:
+      `controlled scale-in allowed: ${targetRisk} lower-band price ` +
+      `${currentPrice} is below prior entry ${entryPrice}; size capped at ${SCALE_IN_ALLOCATION_PCT}%`,
+    suggestedAllocationPct: SCALE_IN_ALLOCATION_PCT,
+  };
 }
 
 function summarizePortfolio({
@@ -86,6 +206,7 @@ function assessTradeInventory({
   prices = {},
   regime,
   positionState = {},
+  structuredSignals = {},
 } = {}) {
   const inferred = direction || inferTradeDirection(targetAsset);
   const summary = summarizePortfolio({ balances, prices });
@@ -109,6 +230,28 @@ function assessTradeInventory({
         reason: `risk-on blocked: risk share ${(summary.riskShare * 100).toFixed(1)}% already above ${(MAX_RISK_SHARE_FOR_BUY * 100).toFixed(0)}% ceiling`,
       };
     }
+
+    if (openRiskPosition) {
+      const scaleIn = assessScaleIn({
+        targetAsset,
+        summary,
+        prices,
+        regimeLabel,
+        positionState,
+        structuredSignals,
+      });
+      if (scaleIn) {
+        return {
+          allowed: scaleIn.allowed,
+          direction: inferred,
+          summary,
+          reason: scaleIn.reason,
+          scaleIn: true,
+          suggestedAllocationPct: scaleIn.suggestedAllocationPct || null,
+        };
+      }
+    }
+
     return {
       allowed: true,
       direction: inferred,
@@ -180,6 +323,7 @@ function formatPortfolioForPrompt(summary) {
     `Native MNT gas/runway: ${summary.nativeMnt.toFixed(4)} MNT (${formatUsd(summary.nativeMntUsd)}), reserve floor ${summary.gasReserveMnt.toFixed(1)} MNT`,
     `Portfolio posture: ${posture}`,
     "Inventory rule: when portfolio is stable-heavy and position state is FLAT, risk_off should become HOLD unless CRISIS/TREND_DOWN is explicitly confirmed. Do not propose repeated risk_off just to sell native MNT or tiny residual risk; prefer risk_on when grid/funding/flow support a buy.",
+    "Scale-in rule: when already IN_MNT or IN_mETH, another risk_on is allowed only as a controlled scale-in after a fresh deeper lower-band move, no confirmed down-break, below risk cap, and with reduced sizing.",
     "=== END PORTFOLIO ===",
   ].join("\n");
 }
@@ -191,6 +335,10 @@ module.exports = {
   summarizePortfolio,
   STABLE_HEAVY_SHARE,
   MAX_RISK_SHARE_FOR_BUY,
+  MAX_RISK_SHARE_FOR_SCALE_IN,
   MIN_STABLE_USD_FOR_RISK_ON,
   MIN_RISK_USD_FOR_RISK_OFF,
+  MIN_SCALE_IN_DIP_PCT,
+  SCALE_IN_ALLOCATION_PCT,
+  MAX_SCALE_INS_PER_POSITION,
 };

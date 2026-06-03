@@ -256,6 +256,8 @@ function compactPortfolioGuardResult(result) {
     allowed: result.allowed === true,
     direction: result.direction || null,
     reason: result.reason || null,
+    scaleIn: result.scaleIn === true,
+    suggestedAllocationPct: result.suggestedAllocationPct ?? null,
     summary: {
       stableUsd: s.stableUsd ?? null,
       tradableRiskUsd: s.tradableRiskUsd ?? null,
@@ -611,6 +613,7 @@ async function runMultiAgentCycle(opts = {}) {
         prices: portfolioPrices,
         regime: market.structuredSignals?.regime?.regime,
         positionState: positionState.getState(),
+        structuredSignals: market.structuredSignals,
       });
       decision._portfolioGuard = compactPortfolioGuardResult(
         portfolioGuardResult
@@ -626,6 +629,18 @@ async function runMultiAgentCycle(opts = {}) {
         decision.reason = `Blocked by portfolio guard: ${portfolioGuardResult.reason}`;
         console.log(`   [PORTFOLIO] VETO: ${portfolioGuardResult.reason}`);
       } else {
+        if (
+          portfolioGuardResult.suggestedAllocationPct &&
+          decision.analyst
+        ) {
+          const requestedAllocation =
+            Number(decision.analyst.allocationPct) ||
+            portfolioGuardResult.suggestedAllocationPct;
+          decision.analyst.allocationPct = Math.min(
+            requestedAllocation,
+            portfolioGuardResult.suggestedAllocationPct
+          );
+        }
         console.log(`   [PORTFOLIO] OK: ${portfolioGuardResult.reason}`);
       }
     }
