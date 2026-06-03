@@ -283,6 +283,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780483528563_250",
+      "decisionId": 250,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.52,
+      "priceAtDecision": 1881.54,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmRtwcMxFZB14SzzUD36rH2A41jFqaHU5ayFfaf4f2AREK",
+      "recordedAt": "2026-06-03T10:45:28.563Z",
+      "settleAfter": "2026-06-03T11:45:28.563Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780483528558
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 59.9% stable-heavy with FLAT posture — inventory rule explicitly favors HOLD over repeated risk_off unless CRISIS is confirmed. TREND_DOWN at 60% confidence is mild, not crisis-level. Analyst correctly notes RSI 43 rising + MACD improving histogram (5.09) as mixed signals preventing clear directional edge. Yield spread -1% bearish and EMA cross",
+      "validatorFlaggedIssues": [
+        "Funding rate 0.717% cited as neutral — valid, but mild long bias slightly contradicts full bearish consensus",
+        "Analyst confidence 52% is low but appropriate given mixed technicals",
+        "No R:R provided — acceptable for HOLD action only"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc0bbda5ee81bd398f70948a61488ad623cb19a6a3ce5e53bff0fbabffb6f7520",
+      "combinedAnchor": "0x1489d6995aa33d214046d5c11214f38b8edbd463c7d7280eaa7fd93a9b0525f7",
+      "decisionLogTxHash": "0x5f48d0c3fc13c09e2f55697d078a519eb9800e8c225ca3229b8a6a6c9e7d6bc0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
