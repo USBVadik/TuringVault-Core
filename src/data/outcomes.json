@@ -782,6 +782,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780506975623_257",
+      "decisionId": 257,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1818.23,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmNsRTaGYfxN5YYDWYP3PMefewrJDWJsx6HCSyxigeHdMx",
+      "recordedAt": "2026-06-03T17:16:15.623Z",
+      "settleAfter": "2026-06-03T18:16:15.623Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780506975618
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with BEARISH consensus is fully supported. Portfolio is already stable-heavy at 60.5% — no new capital deployment required. RSI 26 oversold is acknowledged but correctly discounted: EMA bearish, MACD negative, yield spread -1% BEARISH, and ETH -5.36% with liquidation cluster at $1702 nearby. Funding +0.348% per 8h (~127% annualized) confirms crowded ",
+      "validatorFlaggedIssues": [
+        "R:R not formally provided, but HOLD requires no deployment so R:R gate is not applicable",
+        "Analyst annualizes funding correctly but raw signal block shows 'n/a' for funding strength — minor data gap, not disqualifying",
+        "RSI STRONG_BUY signal not fully reconciled against CRISIS regime — Analyst dismisses it without explicit acknowledgment of contradiction"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x670da52a89961a9ce9b64d90f687579e2b8845f2c1f22298e43a566194252947",
+      "combinedAnchor": "0xa8273da9e87e9c45d808815bff9277a216fe42163892a678a490c6c8e2f92ddd",
+      "decisionLogTxHash": "0x1ee5cb1f42d0ed16ee1aa792ca119d38db5ec62983cbea4b08a9baeb6f410c21",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
