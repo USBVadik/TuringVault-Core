@@ -426,6 +426,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780488640559_252",
+      "decisionId": 252,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1875.03,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmP6YZXtzxEbJuP5y8jQFnAKquTkNwVnEhyNnbTMp7UqDq",
+      "recordedAt": "2026-06-03T12:10:40.559Z",
+      "settleAfter": "2026-06-03T13:10:40.559Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780488640554
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime (85%) confirmed with Extreme Fear (11) and ETH -5.12%. Portfolio already 59.9% stable-heavy — inventory rule explicitly supports HOLD over repeated risk_off when FLAT. Analyst correctly notes NEUTRAL smart money flow ($0.0M), mild funding (0.699% SLIGHTLY_LONG, not extreme), and RSI 40.9 not yet oversold. No directional swap proposed. Bearish consensu",
+      "validatorFlaggedIssues": [
+        "CRISIS regime could escalate on ETH break below $1781 liquidation cluster",
+        "Yield spread -1% mETH vs USDY is a persistent bearish drag on risk inventory",
+        "EMA_CROSS=SELL signal not explicitly addressed in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1065dcade99d7c2cfa1e4976d7fb593fc0d2778d2cf1e953b2f62bb9baeba464",
+      "combinedAnchor": "0x9525f62777d0f096428d84b47e6b1011807b7dedf5f2976ac8288417c3c0e554",
+      "decisionLogTxHash": "0x19d0058ed9e3023e780a185ef960db38a1199d92099aa609dc3f688517062ffe",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
