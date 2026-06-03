@@ -569,6 +569,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780493819192_254",
+      "decisionId": 254,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1872.33,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmfJJwdomNwkPu6ZYiCL3j5i1btrgZ4Xmun9kbSMkjCJE4",
+      "recordedAt": "2026-06-03T13:36:59.193Z",
+      "settleAfter": "2026-06-03T14:36:59.193Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780493819187
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with BEARISH consensus is fully aligned. Portfolio already stable-heavy at 59.9% — no repeated risk_off needed. Analyst correctly notes RSI 39.9 not yet oversold (<30 threshold), NEUTRAL smart money flow ($0.0M), and mildly long funding (0.682%) insufficient for directional conviction. Yield spread -1% BEARISH confirms caution. No hallucinated data. ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD requires no R:R gate",
+        "Funding 0.682% slightly long-biased creates minor squeeze risk if held too long"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x3ade2130c8acffe00bee9a6e0d5a30bcfba013a9a5084e87027519a07d4d7e2d",
+      "combinedAnchor": "0x94f4da1ef9ac36d43a2037038ec0c7675f92da450e14aa14ffcfe7ff31f1a3f0",
+      "decisionLogTxHash": "0xd518c5a89ebf85c4ed7d5271bd17ad78e372f8ad75f3348ba3999d54c06a59ca",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
