@@ -141,6 +141,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780477954813_248",
+      "decisionId": 248,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1877.87,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmVr2SBJ5rX9ddjNuAEXmgvayxETAwQ3ZLdWSWPcNVmtxB",
+      "recordedAt": "2026-06-03T09:12:34.813Z",
+      "settleAfter": "2026-06-03T10:12:34.813Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780477954808
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 59.9% stable-heavy with only $46.99 risk exposure. TREND_DOWN at 60% confidence is confirmed but not extreme. Inventory rule explicitly supports HOLD over repeated risk_off when stable-heavy and FLAT. RSI 41 not yet oversold, MACD histogram improving (+3.05), smart money flow neutral at $0.0M. No directional swap proposed, no R:R gate required ",
+      "validatorFlaggedIssues": [
+        "Funding 0.702% is mildly bullish, slightly contradicts full bearish consensus — acknowledged implicitly",
+        "MACD improving signal partially contradicts TREND_DOWN — not addressed explicitly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2543e26baf863df87a1cded6ab5732a40a4f174b69a31ac3bdcc565828951be1",
+      "combinedAnchor": "0xbed3dc594758d90e1213db5111c2596653982d622ea86968556750ce71080317",
+      "decisionLogTxHash": "0x5f4796bab5d4ca5885e9d7034d0da4becbfc3c8d97cd9e1ebcfd905649179a28",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
