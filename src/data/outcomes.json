@@ -854,6 +854,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780507081790_258",
+      "decisionId": 258,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1819.37,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmSFLq5erQkkXFhah9uMc2xAwiJE3SrwG2DAcybiky29dY",
+      "recordedAt": "2026-06-03T17:18:01.790Z",
+      "settleAfter": "2026-06-03T18:18:01.790Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780507081785
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime at 85% confidence with BEARISH consensus, Extreme Fear at 11, ETH -5.31%, and negative yield spread (-1%) all validate defensive posture. Portfolio already 60.5% stable — no forced risk_off needed. Analyst correctly notes RSI 26.2 STRONG_BUY and neutral funding as counterweights preventing premature de-risking. Inventory rule satisfied: stable-heavy F",
+      "validatorFlaggedIssues": [
+        "R:R not formally provided — acceptable for HOLD as no capital deployment occurs",
+        "RSI oversold divergence unresolved — watch for bounce or breakdown at $1728",
+        "Low vol compression (0.54%) signals imminent directional move — reassess next cycle"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2f49e3d54a343cf293fca41cfee648ad9a0481c6309ace17c8cdfb63916141cc",
+      "combinedAnchor": "0x4f5297b3dcd316d2dc6759ad3edae213e7e9c0b3bf19a0015f0e2f7afccd7094",
+      "decisionLogTxHash": "0xbe9c2591571fc01de042969cf904e57f58e402d4249571a72a3e9c1e3b900318",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
