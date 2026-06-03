@@ -1285,6 +1285,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780525254952_264",
+      "decisionId": 264,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1831.8,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmXf8VN5XHFf869ZfDX1jpBpTL4Hqt15sTazjhLbSR5TYE",
+      "recordedAt": "2026-06-03T22:20:54.952Z",
+      "settleAfter": "2026-06-03T23:20:54.952Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780525254947
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 60.4% stable — inventory rule explicitly blocks further risk_off absent CRISIS confirmation. TREND_DOWN at only 60% confidence is insufficient to override the rule. Funding 0.557% neutral, smart money flow flat $0.0M, RSI 42.8 above oversold threshold. No directional trade proposed, so R:R gate is not triggered. Risk factors acknowledged accura",
+      "validatorFlaggedIssues": [
+        "TREND_DOWN 60% confidence is borderline — monitor for regime strengthening",
+        "Yield spread -1% bearish but already reflected in stable-heavy posture",
+        "Fear & Greed at 11 warrants continued vigilance for capitulation signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf55311ff0207707c913f7a83fcaf838b64b26d76e815128f7e563d7484498f9d",
+      "combinedAnchor": "0x64e8dcdbc482d0e8a267a4190a930b67affa097e691ec857fda3998a034b1b5a",
+      "decisionLogTxHash": "0x7e062c3a8724881d79871497b9d64c9c21ffb77800e79e21fc7b510e779ca053",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
