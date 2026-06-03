@@ -466,6 +466,22 @@ describe("grid candidate promotion", () => {
 });
 
 describe("validator structured signal summary", () => {
+  test("does not throw when ranging signal is temporarily null", () => {
+    expect(() =>
+      formatStructuredSignalsForValidator({
+        regime: { regime: "RANGING", confidence: 55, rationale: "Grid pending" },
+        consensus: "NEUTRAL",
+        signals: {
+          onChainFlow: { direction: "FLAT", netUsd: 0, label: "NEUTRAL" },
+          funding: { value: 0.1, label: "NEUTRAL", strength: "LOW" },
+          yieldSpread: { spread: -1, label: "BEARISH" },
+          liquidation: { riskType: "n/a" },
+          ranging: null,
+        },
+      })
+    ).not.toThrow();
+  });
+
   test("includes ETH and MNT grid lines instead of collapsing to primary HOLD", () => {
     const summary = formatStructuredSignalsForValidator({
       regime: { regime: "RANGING", confidence: 55, rationale: "Grid OK" },

@@ -616,12 +616,13 @@ function formatGridLine(label, signal = {}) {
 }
 
 function formatRangingSignalsForValidator(ranging = {}) {
-  const multi = ranging.multiAsset || {};
+  const safeRanging = ranging || {};
+  const multi = safeRanging.multiAsset || {};
   const lines = [];
   if (multi.ethereum) lines.push(formatGridLine("ETH", multi.ethereum));
   if (multi.mantle) lines.push(formatGridLine("MNT", multi.mantle));
-  if (lines.length === 0 && ranging.action) {
-    lines.push(formatGridLine("RANGING", ranging));
+  if (lines.length === 0 && safeRanging.action) {
+    lines.push(formatGridLine("RANGING", safeRanging));
   }
   return lines.join("\n");
 }
