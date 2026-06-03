@@ -926,6 +926,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780508188295_259",
+      "decisionId": 259,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1832.69,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "Qmb3p9L986LFxCPG5vQf8sfCcGwJSzpDTGphyeFhix1dzp",
+      "recordedAt": "2026-06-03T17:36:28.295Z",
+      "settleAfter": "2026-06-03T18:36:28.295Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780508188290
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 60.4% stable-heavy with only $46.15 risk exposure. TREND_DOWN at 60% confidence with bearish EMA cross and MACD sell signals justify caution. RSI at 30 is oversold but smart money flow is NEUTRAL with $0.0M inflow — insufficient confirmation for counter-trend entry. Scale-in rule correctly blocks risk_on. Yield spread -1% bearish. No action = c",
+      "validatorFlaggedIssues": [
+        "Funding rate cited as 0.39% annualized but raw data shows 0.39% per period — minor framing imprecision",
+        "RSI STRONG_BUY signal not explicitly reconciled against bearish consensus — acknowledged implicitly but not directly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xceae54e735d420761e04fdc3fa70cdac9f9e75b40885b18615d6508f2d737392",
+      "combinedAnchor": "0x2fd0b36fabaea5dd2f99262bd8bf72b28cbe4fa0857f0b41fb46fed422b7ce9d",
+      "decisionLogTxHash": "0x08652f828d0629a4a461430bf45afc9b62c981ba6e9bc03fa07edbc54576d685",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
