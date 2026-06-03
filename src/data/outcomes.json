@@ -70,6 +70,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780471684605_247",
+      "decisionId": 247,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1875.29,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmWKy7dcfcH5gnszPgkytsMMAnTrNDvxQyMJTkV87nicYp",
+      "recordedAt": "2026-06-03T07:28:04.605Z",
+      "settleAfter": "2026-06-03T08:28:04.605Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780471684599
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) is well-supported. Portfolio already stable-heavy at 59.9% — no repeated risk_off triggered. CRISIS is explicitly confirmed, satisfying the inventory rule exception. Bearish consensus, yield spread -1%, ETH -5.08%, Fear&Greed 11 all align. RSI/MACD improvement noted but correctly flagged as early signals insufficient to override CRISIS block. No hall",
+      "validatorFlaggedIssues": [
+        "RSI 39.8 rising and MACD improving could accelerate — monitor for regime shift",
+        "Funding 0.661% mild long bias slightly contradicts full defensive stance but not disqualifying"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x3cb683f111ee488b54081e44dd1fe8680b7b9090f3dc8c02c9e3c479633b164f",
+      "combinedAnchor": "0x2f82ff99fc4bc0dc71598f09b85d3412d82123cc9e838c46687890426e250663",
+      "decisionLogTxHash": "0x61d7de09cbcd6fc93218807a840f3c9a87945c0bd8eca78413b39b4a4a8ea8c2",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
