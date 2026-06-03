@@ -1,5 +1,77 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "id": "1780470534363_246",
+      "decisionId": 246,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1869.88,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmTqQ5nntNj7TyaiYjY551WmPBnXFZ1Gh1dHuoetZ4CeCo",
+      "recordedAt": "2026-06-03T07:08:54.363Z",
+      "settleAfter": "2026-06-03T08:08:54.363Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780470534358
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate here. CRISIS regime confirmed at 85% confidence with Extreme Fear (11) and BEARISH signal consensus. Portfolio already 60% stable — no further de-risking needed. RSI 37.7 approaching oversold but not yet at reversal threshold. Yield spread -1% bearish, smart money neutral. Analyst correctly identifies no actionable edge. No directional trade proposed, no R:R gate required for H",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not prominently weighted in reasoning",
+        "ETH -5.38% with $1740 liq zone proximity warrants monitoring"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0689a556ebd3ced5bfdf062b7b5725e20f2fd35f8541b47218b20195e0ab8ae4",
+      "combinedAnchor": "0x2652a17a30de4819318acbaa94b7061ddac306a4f03a5e4f1aee0e0d6d2c678e",
+      "decisionLogTxHash": "0xe26f4c02eebe55387ddb369f739fd106a97fa2eb37f7a48e18120531ac5d6ff0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
+    }
+  ],
   "settled": [
     {
       "id": "1779427651480_9999",
