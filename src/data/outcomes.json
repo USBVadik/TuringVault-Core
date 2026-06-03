@@ -997,6 +997,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780511200702_260",
+      "decisionId": 260,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1822.37,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmPA34idaC2Kj7fZMN5qPyRno2X53pDaZFLfKZ9kaaonN8",
+      "recordedAt": "2026-06-03T18:26:40.702Z",
+      "settleAfter": "2026-06-03T19:26:40.702Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780511200697
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already 60.5% stable, TREND_DOWN confirmed at 60% confidence with BEARISH consensus. Analyst correctly avoids repeated risk_off per inventory rule. RSI 26.7 oversold but no reversal confirmation (EMA bearish, MACD negative histogram). Funding neutral at 0.466% — no contrarian edge. Smart money flow $0.0M neutral. HOLD preserves capital without chasing further de-r",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD action with zero new capital deployment",
+        "RSI oversold may signal near-term bounce but EMA/MACD contradict reversal",
+        "Yield spread -1% bearish signal acknowledged implicitly but not cited directly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd959be39967092ab3319c8e9a6b76ff41b43b8a79df142668fa535b782762834",
+      "combinedAnchor": "0x9cc7bd58483dd37a0e1bed0d7383746e843e38625d96d91a5db2225bc4d5b520",
+      "decisionLogTxHash": "0x62f40c0cf114fb8ceaf520608fba1bb25aa81ce6472aad1a793b2cb785b5adfd",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
