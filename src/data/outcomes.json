@@ -498,6 +498,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780489641250_253",
+      "decisionId": 253,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1869.17,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmYAq9Agz9yiDsPcaSjjpZdvgWEFNKV7HhLuYFBh6GiyXm",
+      "recordedAt": "2026-06-03T12:27:21.250Z",
+      "settleAfter": "2026-06-03T13:27:21.250Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780489641246
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime (85% confidence) confirmed with Extreme Fear (11), bearish signal consensus, and negative yield spread (-1%). Portfolio already stable-heavy at 60% — no repeated risk_off needed per inventory rule. No actionable edge to add or reduce risk. RSI at 39 not yet oversold; EMA bearish. Analyst correctly identifies no clear directional edge. All signals cros",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly stated but HOLD requires no directional R:R gate",
+        "Funding 0.696% mildly bullish — minor contradiction acknowledged implicitly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x28991775a4ceae491fe53cf90891dee7cd4c80788ee2eadce02957de492ff4cc",
+      "combinedAnchor": "0xb5b31e7ca14aaabf7bdaa97db2d84c7cc7988766ec0faa6352422b2a77b75b8c",
+      "decisionLogTxHash": "0x94354341cf0ee7faf61839e0e41cac3226970ea97980628f0b7c9b7879c85b26",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
