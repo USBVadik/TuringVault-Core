@@ -1069,6 +1069,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780515629167_261",
+      "decisionId": 261,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1817.39,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmcmcqTUEBD8uro6XpHmNDgaxC2kCWy8LJ6DWXwxJAhAiV",
+      "recordedAt": "2026-06-03T19:40:29.167Z",
+      "settleAfter": "2026-06-03T20:40:29.167Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780515629161
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. TREND_DOWN (60% confidence) confirmed with BEARISH consensus. Portfolio already 60.5% stable — no further de-risking needed. RSI 27.3 oversold but EMA/MACD bearish; mixed signals correctly acknowledged. Funding +0.544% mild long bias noted accurately. Scale-in rule correctly blocks risk_on. No hallucinated data. Inventory rule supports HOLD over repeated risk_off g",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD as no capital at risk",
+        "Yield spread -1% bearish signal slightly underweighted in reasoning",
+        "ETH $114 above long liq zone at $1703 warrants monitoring"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x71c3b9080a89b207ffcaba773a0f44708081ba4638266d2d300eaeeb9076e1ca",
+      "combinedAnchor": "0xc05864a57d272ad8be68b76ccc65a468293e86f6ca31367a4991d02420528361",
+      "decisionLogTxHash": "0xc0b4021d9940230ac4e3929862041805f5708c49818e90d0a2d2e6be36dd2b41",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
