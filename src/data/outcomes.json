@@ -355,6 +355,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780487576856_251",
+      "decisionId": 251,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1874.77,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmNt35P69PUfn1N5gokBA6ewrJz8jhJdc7pQEA52hdgYk8",
+      "recordedAt": "2026-06-03T11:52:56.856Z",
+      "settleAfter": "2026-06-03T12:52:56.856Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780487576850
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with Extreme Fear 11 and BEARISH consensus is well-supported. Portfolio is already stable-heavy at 59.9% — no further de-risking action required. Funding 0.716% mildly long but neutral; smart money flow NEUTRAL at $0.0M; yield spread -1% bearish but not extreme. EMA bearish cross and falling RSI 40.8 confirm caution. No hallucinated data. HOLD is low",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD requires no directional edge calculation",
+        "Yield spread -1% bearish signal acknowledged but not prominently weighted"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2765250d2c46f697ad918957e7d379ec31e81cb10bb12cccfe8a5fcb99c6aa2c",
+      "combinedAnchor": "0xac611495481b30de76e4fea505a1919718bbf47ac1aa68bc07263515ce8ea3b0",
+      "decisionLogTxHash": "0xbc8cf40dce0246c74723e673f39ebeaca8995467ee9711f72f20b99e5093f63e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
