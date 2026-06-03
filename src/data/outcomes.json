@@ -1493,6 +1493,76 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780528517027_266",
+      "decisionId": 266,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 0.597326,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmUkGTXojuNW7Wc76iLDmVBBWcbSEaog4XgE8m1yiXGwJc",
+      "recordedAt": "2026-06-03T23:15:17.027Z",
+      "settleAfter": "2026-06-04T00:15:17.027Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780528517023
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "ETH grid signals EXIT_RANGING with confirmed DOWN breakout and TREND_DOWN regime hint at 70% confidence. MNT BUY signal exists but MNT price ($0.5978) is already BELOW stated support ($0.60), meaning the grid support has failed — buying into a broken support is not a valid lower-band re-entry. Scale-in rule requires no confirmed down-break; ETH breakdown directly contradicts this. Yield spread bea",
+      "validatorFlaggedIssues": [
+        "MNT price $0.5978 is BELOW grid support $0.60 — support already broken, invalidating BUY_mETH signal basis",
+        "ETH EXIT_RANGING with confirmed DOWN breakout violates scale-in rule requiring no confirmed down-break",
+        "R:R of 2.5:1 relies on breached support level — unverifiable and likely overstated",
+        "Scale-in into existing IN_MNT position during cross-asset breakdown increases correlated downside risk",
+        "Analyst labels this grid confirmation but raw signals show down-break — misread of rejection trigger condition"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x61d909846572341647131f0731e1f34274fb1320bf68fdd56ab6c441aaf6b51b",
+      "combinedAnchor": "0x2b8176a19579b6062c76aa0ad37bfb6fb10a914f43a590c3673db950f66b81d9",
+      "decisionLogTxHash": "0xd151a4a57aaca60743d196501b20b15f6d5c790b5224852eef516790264a58cb",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
