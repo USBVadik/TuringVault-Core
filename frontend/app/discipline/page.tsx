@@ -90,6 +90,12 @@ type Summary = {
   gatePassRates: Record<string, number | null>;
   firstCycleAt: string | null;
   latestCycleAt: string | null;
+  cyclesWithTx: number;
+  cyclesWithoutTx: number;
+  txProofPassCount: number;
+  txProofFailCount: number;
+  txProofSkipCount: number;
+  txProofPassRateExecutedOnly: number | null;
 };
 
 type ApiResponse = {
@@ -125,6 +131,36 @@ function relativeTime(iso: string | null | undefined): string {
   if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
   if (ms < 86_400_000) return `${Math.floor(ms / 3_600_000)}h ago`;
   return `${Math.floor(ms / 86_400_000)}d ago`;
+}
+
+function txProofStatus(checks: Check[] | undefined): string {
+  return String(checks?.find((c) => c.name === "tx_proof")?.status ?? "").toLowerCase();
+}
+
+function displayVerdict(status: string | undefined, checks: Check[] | undefined): string {
+  const verdict = status ?? "UNKNOWN";
+  const tx = txProofStatus(checks);
+  if (verdict === "ACCEPTED" && tx === "skip") return "HOLD (no tx)";
+  if (verdict === "ACCEPTED" && tx === "pass") return "SWAP VERIFIED";
+  return verdict;
+}
+
+function verdictTextClass(status: string | undefined, checks: Check[] | undefined): string {
+  const tx = txProofStatus(checks);
+  if (status === "ACCEPTED" && tx === "skip") return styles.verdictMuted;
+  if (status === "ACCEPTED") return styles.verdictAccepted;
+  if (status === "BLOCKED") return styles.verdictBlocked;
+  if (status === "ERROR") return styles.verdictWarn;
+  return styles.verdictMuted;
+}
+
+function verdictPillClass(status: string | undefined, checks: Check[] | undefined): string {
+  const tx = txProofStatus(checks);
+  if (status === "ACCEPTED" && tx === "skip") return styles.statusMuted;
+  if (status === "ACCEPTED") return styles.statusAccepted;
+  if (status === "BLOCKED") return styles.statusBlocked;
+  if (status === "ERROR") return styles.statusWarn;
+  return styles.statusMuted;
 }
 
 export default function DisciplinePage() {
@@ -180,16 +216,10 @@ export default function DisciplinePage() {
                 <div className={styles.verdictLabel}>Latest verdict</div>
                 <div
                   className={`${styles.verdictValue} ${
-                    data.latest?.status === "ACCEPTED"
-                      ? styles.verdictAccepted
-                      : data.latest?.status === "BLOCKED"
-                      ? styles.verdictBlocked
-                      : data.latest?.status === "ERROR"
-                      ? styles.verdictWarn
-                      : styles.verdictMuted
+                    verdictTextClass(data.latest?.status, data.latest?.checks)
                   }`}
                 >
-                  {data.latest?.status ?? "UNKNOWN"}
+                  {displayVerdict(data.latest?.status, data.latest?.checks)}
                 </div>
               </div>
               <div className={styles.verdictMeta}>
@@ -375,17 +405,12 @@ export default function DisciplinePage() {
                     <p>Full post-execution gate detail</p>
                   </div>
                   <span
-                    className={`${styles.statusPill} ${
-                      data.latest.status === "ACCEPTED"
-                        ? styles.statusAccepted
-                        : data.latest.status === "BLOCKED"
-                        ? styles.statusBlocked
-                        : data.latest.status === "ERROR"
-                        ? styles.statusWarn
-                        : styles.statusMuted
-                    }`}
+                    className={`${styles.statusPill} ${verdictPillClass(
+                      data.latest.status,
+                      data.latest.checks
+                    )}`}
                   >
-                    {data.latest.status}
+                    {displayVerdict(data.latest.status, data.latest.checks)}
                   </span>
                 </div>
                 <div className={styles.latestMeta}>
@@ -477,17 +502,12 @@ export default function DisciplinePage() {
                               <td>{relativeTime(e.at)}</td>
                               <td>
                                 <span
-                                  className={`${styles.statusPill} ${
-                                    e.verdict === "ACCEPTED"
-                                      ? styles.statusAccepted
-                                      : e.verdict === "BLOCKED"
-                                      ? styles.statusBlocked
-                                      : e.verdict === "ERROR"
-                                      ? styles.statusWarn
-                                      : styles.statusMuted
-                                  }`}
+                                  className={`${styles.statusPill} ${verdictPillClass(
+                                    e.verdict,
+                                    e.checks
+                                  )}`}
                                 >
-                                  {e.verdict}
+                                  {displayVerdict(e.verdict, e.checks)}
                                 </span>
                               </td>
                               {KNOWN_GATES.map((g) => {
@@ -552,13 +572,36 @@ function SummaryCard({ summary }: { summary: Summary }) {
       <Tile label="Skipped" value={String(summary.skippedCount)} tone="muted" />
 
       {KNOWN_GATES.map((g) => {
+        if (g === "tx_proof") {
+          const hasExecutedTx = summary.cyclesWithTx > 0;
+          const rate = summary.txProofPassRateExecutedOnly;
+          return (
+            <Tile
+              key={g}
+              label="TX Proof"
+              value={
+                hasExecutedTx
+                  ? `${summary.txProofPassCount}/${summary.cyclesWithTx} swaps`
+                  : "No swaps"
+              }
+              tooltip={
+                hasExecutedTx
+                  ? `${rate ?? "—"}% pass rate across cycles with a transaction; ${summary.cyclesWithoutTx} HOLD cycles had no tx to verify`
+                  : `${summary.cyclesWithoutTx} HOLD cycles had no tx to verify`
+              }
+              tone={
+                !hasExecutedTx
+                  ? "muted"
+                  : rate != null && rate >= 90
+                  ? "emerald"
+                  : "amber"
+              }
+            />
+          );
+        }
+
         const rate = summary.gatePassRates[g];
         const hasData = rate != null;
-        // tx_proof legitimately stays null when every cycle was a hold —
-        // there is no swap to verify on chain. Show "n/a" with a tooltip
-        // rather than a vague "—" so judges don't read it as "broken".
-        const isTxProofWithoutSwaps =
-          g === "tx_proof" && !hasData && summary.acceptedCount > 0;
         return (
           <Tile
             key={g}
@@ -566,22 +609,13 @@ function SummaryCard({ summary }: { summary: Summary }) {
             value={
               hasData
                 ? `${rate}%`
-                : isTxProofWithoutSwaps
-                ? "n/a"
                 : "—"
-            }
-            tooltip={
-              isTxProofWithoutSwaps
-                ? "No swaps in the tracked window — TX Proof gate had nothing to verify"
-                : undefined
             }
             tone={
               hasData && rate! >= 90
                 ? "emerald"
                 : hasData
                 ? "amber"
-                : isTxProofWithoutSwaps
-                ? "muted"
                 : "amber"
             }
           />

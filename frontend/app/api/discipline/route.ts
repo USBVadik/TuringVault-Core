@@ -19,6 +19,12 @@ import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const disciplineSummary = require("../../lib/discipline-summary.shared.js") as {
+  buildSummary: (history: HistoryEntry[]) => Summary;
+  KNOWN_GATES: string[];
+};
+
 export const dynamic = "force-dynamic";
 // Audit Section 3 weakness #3 — was 0. The route reads from
 // outcomes.json + discipline-history.json (small files via GitHub
@@ -60,6 +66,12 @@ type Summary = {
   gatePassRates: Record<string, number | null>;
   firstCycleAt: string | null;
   latestCycleAt: string | null;
+  cyclesWithTx: number;
+  cyclesWithoutTx: number;
+  txProofPassCount: number;
+  txProofFailCount: number;
+  txProofSkipCount: number;
+  txProofPassRateExecutedOnly: number | null;
 };
 
 /**
@@ -71,7 +83,7 @@ const SWR_CACHE: HeadersInit = {
   "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300",
   "X-Cache-Mode": "swr",
 };
-const KNOWN_GATES = ["tx_proof", "price_freshness", "drift_detection"] as const;
+const KNOWN_GATES = disciplineSummary.KNOWN_GATES;
 
 function backendPath(...segments: string[]): string {
   return path.resolve(process.cwd(), "..", ...segments);
@@ -94,54 +106,6 @@ async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
   } catch {
     return null;
   }
-}
-
-/**
- * Build the aggregate summary in pure TypeScript (mirror of the
- * backend `disciplineHistory.summary`, kept in sync via this comment).
- */
-function buildSummary(history: HistoryEntry[]): Summary {
-  const counts = { ACCEPTED: 0, BLOCKED: 0, SKIPPED: 0, ERROR: 0, UNKNOWN: 0 };
-  const gateStats: Record<
-    string,
-    { pass: number; fail: number; warn: number; skip: number }
-  > = {};
-  for (const g of KNOWN_GATES)
-    gateStats[g] = { pass: 0, fail: 0, warn: 0, skip: 0 };
-
-  for (const e of history) {
-    const v = (e?.verdict ?? "UNKNOWN") as keyof typeof counts;
-    counts[v] = (counts[v] ?? 0) + 1;
-    for (const c of e?.checks ?? []) {
-      if (!KNOWN_GATES.includes(c.name as (typeof KNOWN_GATES)[number]))
-        continue;
-      const s = String(c.status ?? "").toLowerCase();
-      const stats = gateStats[c.name];
-      if (s === "pass") stats.pass++;
-      else if (s === "fail") stats.fail++;
-      else if (s === "warn") stats.warn++;
-      else if (s === "skip") stats.skip++;
-    }
-  }
-
-  const gatePassRates: Record<string, number | null> = {};
-  for (const g of KNOWN_GATES) {
-    const s = gateStats[g];
-    const total = s.pass + s.fail + s.warn;
-    gatePassRates[g] =
-      total > 0 ? Math.round((s.pass / total) * 1000) / 10 : null;
-  }
-
-  return {
-    totalEntries: history.length,
-    acceptedCount: counts.ACCEPTED,
-    blockedCount: counts.BLOCKED,
-    skippedCount: counts.SKIPPED,
-    errorCount: counts.ERROR,
-    gatePassRates,
-    firstCycleAt: history[0]?.at ?? null,
-    latestCycleAt: history[history.length - 1]?.at ?? null,
-  };
 }
 
 /**
@@ -177,7 +141,7 @@ export async function GET() {
   history = history ?? [];
 
   const last30 = history.slice(-30).reverse(); // newest first for display
-  const summary = buildSummary(history);
+  const summary = disciplineSummary.buildSummary(history);
   const latestDetail = readLatestDetail();
 
   // Best-effort: if outcomes.json has no disciplineDetail (older entries),
