@@ -1068,6 +1068,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780577830483_283",
+      "decisionId": 283,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1777.85,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmexytkKKToP7DeoMzN2nwyZQqkumV2xsyfh2aDbwXFMSA",
+      "recordedAt": "2026-06-04T12:57:10.483Z",
+      "settleAfter": "2026-06-04T13:57:10.483Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780577830478
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. CRISIS regime (85% confidence) confirmed. Portfolio already 61.6% stable — no repeated risk_off needed per inventory rule. Analyst correctly identifies neutral funding (0.439%), zero smart-money flow, and bearish yield spread (-1%). RSI 27.9 on MNT is oversold but no bounce confirmation. EMA bearish on ETH, Extreme Fear at 12. HOLD preserves capital without unnecessary churn. ",
+      "validatorFlaggedIssues": [
+        "Analyst references RSI(4h) but raw data shows RSI(14) — minor label inconsistency, not material",
+        "No explicit stop-loss level stated, though HOLD requires none",
+        "Social attention bullish signal (60% strength) not acknowledged — minor omission"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xfd17c88236085618b02673446c47adb7588d662c5f6716861e996d1603002510",
+      "combinedAnchor": "0x5ed0f7b01fdb69cbe1db1cd8f420bf787dd3fd1daa404bd935591d066050b04f",
+      "decisionLogTxHash": "0xc73e25d3edfb6a0f6fc4d292059b31fcf8e4216ab8c28d447bbaed651821cab0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
