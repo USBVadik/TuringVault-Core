@@ -1709,6 +1709,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780537781365_269",
+      "decisionId": 269,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1774.45,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "Qme7xkhAjzBEwhf7puDA3Ti9ZGNyGKfX27YdNsVV7VV9mN",
+      "recordedAt": "2026-06-04T01:49:41.365Z",
+      "settleAfter": "2026-06-04T02:49:41.365Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780537781359
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. TREND_DOWN (60% confidence) confirmed by bearish EMA (9=1809 < 21=1834), MACD histogram -2.67, and negative yield spread -1%. Portfolio already balanced at 56.6% stables — no forced rebalancing required. RSI 32.6 near oversold and Extreme Fear (12) justify waiting rather than adding risk. Smart money flow neutral at $0.0M. No directional swap proposed, so R:R gate ",
+      "validatorFlaggedIssues": [
+        "TREND_DOWN confidence only 60% — not high conviction",
+        "Yield spread -1% bearish signal not fully resolved",
+        "RSI and Bollinger BUY signals create mild contradiction with bearish regime",
+        "Social mindshare +30% bullish signal acknowledged but not actioned — acceptable given regime"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc3351b9ef19d4e442492b562a8019c55f54ee1673f5e911411e4d5189ca5a5cc",
+      "combinedAnchor": "0x27e0a0f8c6891b5abcf7398e74a1a84eecbb6147ba9cadcdd4932546647e7ef1",
+      "decisionLogTxHash": "0xdf96fe40e388f0460bfdb94d1eab672abc0e7fc4180365c819f774c853cb335d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
