@@ -26,7 +26,9 @@
 - [x] Module F - RWA Claim Matrix And Asset Copy.
   - Added `docs/rwa-live-vs-paper-ready.md`.
   - Removed live-sounding USDY crisis-mode wording from README.
-- [ ] Module G - Demo Script And Social Proof Pack.
+- [x] Module G - Demo Script And Social Proof Pack.
+  - Rewrote `docs/demo-script.md`.
+  - Added `docs/demo-runbook-final.md` and `docs/x-thread-final.md`.
 - [ ] Module H - Final Verification And Submission Freeze.
 
 ---
