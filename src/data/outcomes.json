@@ -351,6 +351,79 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780547839099_273",
+      "decisionId": 273,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 0.589084,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "QmNUpv7y5Gad43V6qoyx8n8J53tRWk442nTpfd5Lhx8KW6",
+      "recordedAt": "2026-06-04T04:37:19.100Z",
+      "settleAfter": "2026-06-04T05:37:19.100Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780547839093
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. MNT broke below $0.59 support with TREND_DOWN hint — no buy signal. ETH grid shows EXIT_RANGING with UNKNOWN breakout direction — no directional edge. Portfolio is already 60.9% stable, satisfying the inventory rule. Analyst correctly defers action pending breakout confirmation. Funding neutral, smart money flat, yield spread bearish. No hallucinated data. HOLD car",
+      "validatorFlaggedIssues": [
+        "MNT confirmed down-break warrants monitoring for risk_off trigger if WMNT position grows",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "Extreme Fear F&G=12 with falling RSI could accelerate downside — liquidation cascade risk at $1715 real"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0d642c0cbddd2df9fd8282ace0ff8051555367425388aef8ef553c7a3033eb13",
+      "combinedAnchor": "0x8734df1f77240acfd4ed76309815dd6c30e8fb9c7ff3ad26a2586232fb6f76f6",
+      "decisionLogTxHash": "0x4d32f9e12f3ee9cc4b352859180101fdb5944971035a2bce4b95b82c262a6555",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
