@@ -1357,6 +1357,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780585292736_287",
+      "decisionId": 287,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1771.84,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmXUfLXZoUxGQZHt5gfXupP98Ax2NH4YZbojgAQh2yGZJ1",
+      "recordedAt": "2026-06-04T15:01:32.736Z",
+      "settleAfter": "2026-06-04T16:01:32.736Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780585292731
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 61.6% stable, TREND_DOWN at 60% confidence is mild not crisis-level, so repeated risk_off is not warranted per inventory rule. Analyst correctly identifies NEUTRAL smart money flow ($0.0M), balanced funding (0.286%), and no grid confirmation. RSI 43 falling, EMA bearish, mixed MACD — no clear entry edge. Yield spread -1% bearish. HOLD preserves",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional R:R gate",
+        "Analyst references RSI(4h) but data shows RSI(14) — minor label mismatch, not material",
+        "Social attention bullish signal (mindshare +26%) not acknowledged in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x57bc20a84e9ff8b2a71044545171c62b7de9b8b7794165205fa3781cdce14de8",
+      "combinedAnchor": "0x9dc730ee9ae55879f6570b428435958dfce3f116248a4c840cd42253fbfb5437",
+      "decisionLogTxHash": "0x199dd9fa3adba799cfd414a3a211acbb9b3cc6302e58166374734aaea8f6a9db",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
