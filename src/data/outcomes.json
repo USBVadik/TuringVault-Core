@@ -1645,6 +1645,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780600478515_291",
+      "decisionId": 291,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1770.06,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmcQ1yZR7hJp2PKx4Meis33C4Z6cwfpcLWZtNBK9jEJagQ",
+      "recordedAt": "2026-06-04T19:14:38.515Z",
+      "settleAfter": "2026-06-04T20:14:38.515Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780600478510
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 61.7% stable, risk exposure only $43.57. TREND_DOWN at 60% confidence is confirmed by bearish EMA cross, negative yield spread (-1%), and ETH -3%/MNT -7.64%. Funding neutral (0.436%) and smart money flow neutral ($0.0M) provide no contrarian entry signal. RSI 43.2 not oversold enough for counter-trend entry. No repeated risk_off proposed — corr",
+      "validatorFlaggedIssues": [
+        "MNT RSI 29.6 near oversold — monitor for potential grid re-entry signal next cycle",
+        "Yield spread -1% confirms mETH underperformance but no action needed given stable-heavy posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x51ad7f0e1bed0ad55bd1efff7950be78a3e73a4585c3ba2c0ac3daa4f50a33e0",
+      "combinedAnchor": "0x5cbda4a7e96ff783723e7e6ae0735335f436ad221f6bedabcf499f10f82b0991",
+      "decisionLogTxHash": "0x65f9e37cfa43a3fc325cdf532c137824bc22ef10ed7a1827bae586482a986b58",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
