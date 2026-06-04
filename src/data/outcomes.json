@@ -143,6 +143,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780615651208_296",
+      "decisionId": 296,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1757.41,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmXLBmQQiqZyCurSXA32cJAmfWQ3Yhwab3QPhVLxvLS2vu",
+      "recordedAt": "2026-06-04T23:27:31.208Z",
+      "settleAfter": "2026-06-05T00:27:31.208Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780615651203
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is the correct low-risk action here. Portfolio is already 57.7% stable, TREND_DOWN at only 60% confidence does not justify further de-risking. RSI 40.5 above oversold threshold, funding neutral at 0.297%, smart money flow $0.0M neutral — no cascade trigger imminent. Analyst correctly declines repeated risk_off per inventory rule. All cited figures match raw signals. No R:R gate applies to HOL",
+      "validatorFlaggedIssues": [
+        "MNT -7.56% sector weakness warrants monitoring for stop-loss review on WMNT $18.65 position",
+        "ETH approaching $1670 liq level — proximity warrants alert but not action yet"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf0d89a2a4923bdf58a0cca89293b92c61314296a34be3ecaf29dff84d1d19b81",
+      "combinedAnchor": "0x1621e40c3bf675a4369fe98f1725db366cff909b76d556b5cd839fc13c4dd8c8",
+      "decisionLogTxHash": "0x240b8a7ce22ad6ad176d89747478ed095ae64fbceffb4ba034d34b9dd6e8a97d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
