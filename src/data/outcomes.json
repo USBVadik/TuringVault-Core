@@ -1637,6 +1637,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780533272642_268",
+      "decisionId": 268,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1794.82,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmYNiyzqp3PJ6ENqJvoN99EDXvQKiiFoZ8SWLmRaqGmucP",
+      "recordedAt": "2026-06-04T00:34:32.642Z",
+      "settleAfter": "2026-06-04T01:34:32.642Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780533272636
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. TREND_DOWN at 60% confidence is confirmed by bearish EMA cross (9EMA 1818 < 21EMA 1841), negative MACD histogram (-0.93), and negative yield spread (-1%). Portfolio is balanced at 56.5% stables — not FLAT — so repeated risk_off is not warranted per inventory rule. Smart money flow is neutral ($0.0M), funding 0.636% is mildly long-biased but not actionable. RSI 35.8",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD actions",
+        "Social attention bullish signal (60% strength) not addressed in reasoning",
+        "TREND_DOWN confidence only 60% — not high-conviction bearish"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa9c947ab7ba536e7cdfefc60c0c6fa40dc08353e79240ca1639614bb61431b31",
+      "combinedAnchor": "0x0796018ef121977dd9bc206989dcbf40a18e7db2360d25edd6f84de8c43d96a1",
+      "decisionLogTxHash": "0x18759c549b9224cd5b72c14e3cca50f74c569b9be7629f6af9851b64c86ac6d0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
