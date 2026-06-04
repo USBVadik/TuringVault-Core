@@ -2,7 +2,7 @@
 
 Use this after the demo video or during live judging. The goal is to answer hard questions before they become objections.
 
-Observed snapshot for numeric examples: 2026-06-04 16:15 UTC. Refresh final numbers from `/api/health`, `/api/performance`, and `/api/proof-explorer` before pasting externally.
+Observed snapshot for numeric examples: 2026-06-04 17:05 UTC. Refresh final numbers from `/api/health`, `/api/performance`, and `/api/proof-explorer` before pasting externally.
 
 ---
 
