@@ -81,7 +81,7 @@ Screen: Proof Explorer and Mantle contract tabs.
 
 Voiceover:
 
-"The agent is represented by an ERC-8004-style identity and active validation and reputation registries. The current snapshot shows 288 DecisionLog rows and 289 ValidationRegistry proposals. The counters are labelled separately because they are different contract surfaces."
+"The agent is represented by an ERC-8004-style identity and active validation and reputation registries. The current snapshot shows 290 DecisionLog rows and 291 ValidationRegistry proposals. The counters are labelled separately because they are different contract surfaces."
 
 Show:
 
