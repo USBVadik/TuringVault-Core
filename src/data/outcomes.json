@@ -1429,6 +1429,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780587195420_288",
+      "decisionId": 288,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1776.56,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmWXtZMmh5NKYwJpXw7dhSi18HcjTQYcywPzbTrpZozPAB",
+      "recordedAt": "2026-06-04T15:33:15.420Z",
+      "settleAfter": "2026-06-04T16:33:15.420Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780587195417
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 61.6% stable — no forced risk_off needed. TREND_DOWN at 60% confidence is mild, not CRISIS. Funding neutral at 0.299%, smart money flow flat at $0.0M, signal consensus NEUTRAL. Bearish EMA cross and -1% yield spread are acknowledged risk factors. RSI 44.3 rising and MACD histogram improving (+3.85) provide mild counter-signals. No grid confirma",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish for mETH — minor drag on risk inventory",
+        "Bearish EMA cross (9 below 21) confirms mild downside bias",
+        "Liquidation clusters at $1688 and $1599 remain nearby risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x01f29025345ece41395eb9c7cfdc1da38efac452818be4d14229aeef7a076355",
+      "combinedAnchor": "0x9aae0a15fbc5cb02e4d10c9e28195ca96039f7971338dc8cbbb5d7f96d920ee1",
+      "decisionLogTxHash": "0x01ba48189c8aa3bb28d0d15db0fc953ede65664b4e0475963c2c87a1b5fdd76b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
