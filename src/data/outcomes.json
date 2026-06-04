@@ -225,6 +225,80 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780606484058_293",
+      "decisionId": 293,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1770.8,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmZeNRF54U67jSan9fDLCyoAWaizgMBtrK9Et4vuD9bazi",
+      "recordedAt": "2026-06-04T20:54:44.058Z",
+      "settleAfter": "2026-06-04T21:54:44.058Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780606484052
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already IN_mETH since $1768.56; scale-in rule requires a fresh deeper lower-band move which has not occurred (price at 5% of channel, $1771.6 vs entry $1768.56). MNT grid confirms EXIT_RANGING with downward breakdown and TREND_DOWN hint — genuine bearish pressure. Signal consensus BEARISH + F&G=12 + yield spread -1% support caution. No contradictions ignored; anal",
+      "validatorFlaggedIssues": [
+        "No fresh lower-band move to justify scale-in",
+        "MNT TREND_DOWN breakdown adds systemic risk-off pressure",
+        "BEARISH consensus conflicts with ETH grid BUY — correctly flagged",
+        "F&G=12 Extreme Fear warrants conservative posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1e032022ff4a123c8920eea5b32d2d0464a3aa70b867c5070ec595e3f8b0cc54",
+      "combinedAnchor": "0xe35b9a794a8eb8dc2502aa995058939f3667aec760e701986f95bb67fd7c30e3",
+      "decisionLogTxHash": "0x773b118f65f4e83657705995eacf6924c9199e5e0f1d612bb5ca8aaeec767ad8",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
