@@ -147,10 +147,41 @@ it; revisit post-freeze. (Cross-ref audit 31 §"what to watch".)
 
 ---
 
+## F4 — [FIXED THIS AUDIT] GitHub schedule dropping cron slots
+
+**Surface**: `/api/health` `lastCycleAge` = 6344s (~106 min) at
+re-check, vs a 30-min cron cadence (`:17` / `:47`). GitHub Actions
+had dropped ~3 consecutive `schedule` slots — a known GH behaviour
+under runner-pool load. This pushes the dashboard feed past STALE
+(35 min badge) toward OFFLINE (90 min), which a judge could catch
+as a dead agent.
+
+**Fix shipped**: new `.github/workflows/agent-watchdog.yml`.
+- Independent `*/25` schedule (offset from the cycle slots).
+- Each run hits live `/api/health`, reads `lastCycleAge`, and ONLY
+  `gh workflow run agent-cycle.yml` when age > 3000s (50 min).
+- Condition-based by design so it does NOT add baseline cycle
+  frequency (would accelerate gas burn under F2). It only fills a
+  gap a missed scheduled slot would have left — gas-neutral in the
+  steady state.
+- Two independent schedules being dropped simultaneously is far
+  less likely than one, so feed uptime rises without extra cost.
+- Safe: dispatches a different workflow (separate concurrency
+  group); agent-cycle's own `concurrency: agent-cycle` queues a
+  dispatch if a real cycle is mid-flight → no double gas spend.
+  No recursion (watchdog never dispatches itself).
+
+NOTE: the watchdog rescues SCHEDULE gaps, not GAS exhaustion. If
+native MNT hits the reserve floor the dispatched cycle still can't
+trade. F2 top-up remains mandatory.
+
+---
+
 ## Action summary
 
 | # | Finding | Severity | Status |
 |---|---|---|---|
 | F1 | yield-meth 5-day stale (cron didn't commit rate file) | prod-path | FIXED |
-| F2 | gas runway 1.73d | operational | OPERATOR: top up MNT by ~06-06 |
+| F2 | gas runway 1.73d | operational | OPERATOR: top up MNT to 30+ TODAY |
 | F3 | regime gate over-blocking, MISSED_ALPHA 42% | tuning | DEFER post-freeze |
+| F4 | GitHub schedule dropping ~3 slots → feed near OFFLINE | reliability | FIXED (watchdog) |

@@ -1,0 +1,81 @@
+name: Agent Watchdog
+
+# Backup trigger for the Agent Cycle. GitHub's scheduled-event runner
+# regularly drops `schedule` slots under load — we have observed 3
+# consecutive missed slots (~100 min gap) which pushes the live feed
+# toward STALE/OFFLINE on the dashboard. This watchdog runs on an
+# INDEPENDENT schedule, checks the live /api/health freshness, and
+# only dispatches an Agent Cycle when the feed is actually going
+# stale. It is condition-based on purpose: it must NOT add baseline
+# cycle frequency (that would accelerate gas burn). It only fires to
+# rescue a gap a missed scheduled slot would otherwise have left.
+#
+# Two independent schedules being dropped at the same time is far
+# less likely than one, so this materially raises feed uptime without
+# extra gas cost in the steady state.
+#
+# Spec: .kiro/specs/continuous-cron-and-health
+# Audit: .kiro/audits/33-live-system-health-audit.md (F2 schedule gap)
+
+on:
+  schedule:
+    # Every 25 min, offset from the Agent Cycle slots (:17 / :47).
+    # Gives :00 / :25 / :50 — so a missed cycle slot is caught within
+    # ~25 min, before the 90-min OFFLINE threshold (badge goes STALE
+    # at 35 min). Combined with the main schedule this keeps the feed
+    # under the STALE line in the common single-miss case.
+    - cron: "*/25 * * * *"
+  workflow_dispatch: # Manual "kick it now" button
+
+# Don't let two watchdogs overlap. Separate group from agent-cycle so
+# the watchdog can run while a cycle is in flight (it'll just observe
+# fresh health and not dispatch).
+concurrency:
+  group: agent-watchdog
+  cancel-in-progress: true
+
+permissions:
+  actions: write # required to dispatch the Agent Cycle workflow
+  contents: read
+
+jobs:
+  watchdog:
+    name: Health check + conditional rescue
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check freshness and dispatch a cycle if stale
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Freshness threshold in seconds. 3000 = 50 min. The agent
+          # cron runs every 30 min, so a single dropped slot (~60 min
+          # gap) trips this; a healthy 30-min cadence never does.
+          STALE_THRESHOLD_S: "3000"
+          HEALTH_URL: "https://frontend-seven-beta-46.vercel.app/api/health"
+        run: |
+          set -euo pipefail
+
+          # Pull live health. -f makes curl exit non-zero on HTTP
+          # errors so a down API doesn't read as "fresh".
+          if ! BODY=$(curl -fsS -m 25 "$HEALTH_URL"); then
+            echo "::warning::watchdog: /api/health unreachable — not dispatching (avoid blind spam)"
+            exit 0
+          fi
+
+          # jq is preinstalled on ubuntu-latest runners.
+          AGE=$(printf '%s' "$BODY" | jq -r '.lastCycleAge // empty')
+
+          if [ -z "${AGE:-}" ] || ! printf '%s' "$AGE" | grep -Eq '^[0-9]+$'; then
+            echo "::warning::watchdog: lastCycleAge missing/non-numeric ('$AGE') — not dispatching"
+            exit 0
+          fi
+
+          echo "watchdog: lastCycleAge=${AGE}s threshold=${STALE_THRESHOLD_S}s"
+
+          if [ "$AGE" -gt "$STALE_THRESHOLD_S" ]; then
+            echo "watchdog: feed is STALE (${AGE}s > ${STALE_THRESHOLD_S}s) — dispatching Agent Cycle"
+            gh workflow run agent-cycle.yml --ref main
+            echo "watchdog: dispatched."
+          else
+            echo "watchdog: feed fresh (${AGE}s) — no action."
+          fi
