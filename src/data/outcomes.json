@@ -711,6 +711,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780568049603_278",
+      "decisionId": 278,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1752.7,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmdPEWkUz9WT6UL2JaHSzTDQxXuqGF1BPvvJ3f15stxwwF",
+      "recordedAt": "2026-06-04T10:14:09.603Z",
+      "settleAfter": "2026-06-04T11:14:09.603Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780568049598
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime with stable-heavy portfolio (61.9%) is appropriate. No action = no capital at risk. Analyst correctly identifies: CRISIS confirmed at 85%, F&G=12 Extreme Fear, ETH -6.92%, RSI 34.5 approaching but not yet oversold, neutral funding (0.377%), zero smart money flow. Yield spread -1% bearish acknowledged. No directional trade proposed, so R:R gate does not apply. Risk fa",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal slightly underweighted in reasoning",
+        "MNT -9.40% weakness more severe than ETH — monitor for forced unwind of WMNT position"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xfd4a5443ab44d9ef23d1f50af1c28a0eee347dc971feb5c0254e6654efff225a",
+      "combinedAnchor": "0xf708f1607c67706c82cb17b245a10bd9c850a3ba19bcf549055a98808a82b757",
+      "decisionLogTxHash": "0x731f351e6c8e795d6d1a8bd70bbf1d5a9cf6f9b0711e29d6a1dd815ec9afc9f4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
