@@ -175,6 +175,20 @@ NOTE: the watchdog rescues SCHEDULE gaps, not GAS exhaustion. If
 native MNT hits the reserve floor the dispatched cycle still can't
 trade. F2 top-up remains mandatory.
 
+**Validation note (2026-06-04, operator-corrected)**: an earlier
+draft claimed `GITHUB_TOKEN` cannot trigger `workflow_dispatch`
+(recursion block). That is FALSE — confirmed against GitHub Docs
+and the 2022-09-08 GitHub changelog: `workflow_dispatch` and
+`repository_dispatch` are explicit EXCEPTIONS to the
+GITHUB_TOKEN-no-recursion rule and always create runs. So the
+watchdog's `gh workflow run` under the default token is sound; no
+PAT or self-contained rewrite needed. `gh` CLI is preinstalled on
+`ubuntu-latest`. Remaining minor cosmetic: `*/25` yields 25/25/10
+intervals, not even thirds — acceptable. Open item: confirm the
+first real watchdog run via the Actions UI (operator-side; this
+environment has no gh CLI or GitHub token to query run history or
+dispatch).
+
 ---
 
 ## Action summary
