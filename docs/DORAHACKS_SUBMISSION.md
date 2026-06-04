@@ -41,7 +41,7 @@ TuringVault is an **AI-powered RWA portfolio management infrastructure layer on 
 
 The Mantle Turing Test 2026 brief calls out three defining features. We built the entire stack around them.
 
-**1 · On-chain benchmarking of AI.** Every cycle writes 4 attestation TXs to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-04 16:15 UTC snapshot shows 288 DecisionLog rows and 289 ValidationRegistry proposals logged to date, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log — judges can inspect any past or current run.
+**1 · On-chain benchmarking of AI.** Every cycle writes 4 attestation TXs to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-04 16:15 UTC snapshot shows 288 DecisionLog rows and 289 ValidationRegistry proposals logged to date, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log; judges can inspect run history and use `/api/health` for current freshness.
 
 **2 · ERC-8004 agent identity reference implementation.** Non-transferable Identity NFT (`0x6f86…28bD`), ValidationRegistry, ReputationRegistry, DecisionLog — all Sourcify-verified on Mantle Mainnet. `tokenURI(0)` returns a live IPFS CID that auto-refreshes per cycle. Drop-in compatible with the upcoming Mantle-issued Agent Identity standard; we are positioned to interop or migrate the moment that ships.
 
@@ -50,6 +50,10 @@ The Mantle Turing Test 2026 brief calls out three defining features. We built th
 ### Why Path A (Infrastructure), not Path B (Application)
 
 The features above are _verification infrastructure_, not user-facing UX. Path A scoring (40%): "completeness of asset tokenization flow + innovation of technical approach". TuringVault is one of the rare submissions that ships every component end-to-end.
+
+### Commercial path
+
+The first customer is not a retail trader. It is a DAO treasury, on-chain fund, or compliance-conscious operator that wants AI allocation but still needs governance-grade evidence. The commercial product is a white-label verification and decision-governance rail for Mantle yield/RWA portfolios: hosted agent ops, on-chain attestation, replay dashboards, and audit exports around an allocator the customer already controls.
 
 ### Architecture
 
@@ -118,6 +122,7 @@ Treat AI agents as accountable economic actors with on-chain identity, reputatio
 | `/challenge` page       | https://frontend-seven-beta-46.vercel.app/challenge                                          |
 | `/proof-explorer` page  | https://frontend-seven-beta-46.vercel.app/proof-explorer                                     |
 | Elfa snapshot           | https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH                       |
+| Judge Q&A               | `docs/judge-q-and-a-final.md` (in repo)                                                      |
 | Pitch deck (PDF)        | `docs/pitch-deck/turingvault-pitch.pdf` (in repo)                                            |
 | Demo video              | TBD — re-recording with Screen Studio at high quality                                        |
 

@@ -30,6 +30,8 @@ The core idea is Proof-of-Reasoning:
 
 This makes refusal a first-class product outcome. A blocked unsafe proposal is not a failed demo. It is the exact behavior a DAO treasury wants from an accountable AI allocator.
 
+Commercially, TuringVault is a verification and decision-governance rail for treasury teams that want AI allocation without losing auditability. The wedge is white-label infrastructure for Mantle yield and RWA portfolios: hosted agent operations, on-chain attestation, replay dashboards, and audit exports around capital the operator controls.
+
 ---
 
 ## Why This Fits AI x RWA Path A
@@ -155,3 +157,13 @@ The valuable primitive is not "the model bought the right token once." It is a r
 That is the missing infrastructure layer for AI-managed RWA portfolios.
 
 TuringVault turns AI allocation from a black-box output into a public, challengeable, reputation-bearing process on Mantle.
+
+---
+
+## Competitive Position
+
+The closest projects prove that judges care about transparency and risk controls: transparent agent logs, visible losses, and smart-contract guardrails all matter. TuringVault's difference is that those ideas are joined into one pre-execution verification stack.
+
+Before capital moves, the proposal is challenged by a separate validator model, risk-gated, logged, anchored, and then checked again by the Discipline Layer. That makes the moat less about "our model is smarter" and more about "the process is inspectable even when the model is wrong."
+
+For judge questions, use `docs/judge-q-and-a-final.md`.

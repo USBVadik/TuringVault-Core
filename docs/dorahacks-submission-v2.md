@@ -90,7 +90,7 @@ into both `DecisionLog.txHash` AND `ReputationRegistry.reasoningHash`. The manif
 2. **Daily CI Replay Validator** — picks a random recent cycle, recomputes the binding, asserts on-chain match. Green badge = system is honest.
 3. **Local `npm run replay <cycle-id>`** — full Bedrock + Vertex round-trip for full sceptics.
 
-> **No hardware vendor in the trust chain.** AgentBank V3's TEE narrative requires trusting Phala + Intel SGX. Ours requires only Mantle's chain consensus + IPFS content addressing. Hardware-independent. Permanently auditable.
+> **Hardware-independent proof surface.** AgentBank V3's TEE narrative requires trusting Phala + Intel SGX. TuringVault uses Mantle contract writes, IPFS content addressing, replay manifests, and public cron logs. The current orchestrator is still an application-level trust boundary, but the evidence it emits is public and tamper-evident after anchoring.
 
 ---
 
@@ -314,7 +314,7 @@ When `CHALLENGE_ANCHOR_ENABLED=true`, each challenge submits one `ValidationRegi
 
 ## 🎬 Demo
 
-📹 **Video walkthrough:** [`demo/demo-FINAL.mp4`](https://github.com/USBVadik/TuringVault-Core/blob/main/demo/demo-FINAL.mp4)
+📹 **Video walkthrough:** add the final YouTube/Loom URL here after recording. Keep [`demo/demo-FINAL.mp4`](https://github.com/USBVadik/TuringVault-Core/blob/main/demo/demo-FINAL.mp4) as a repo fallback, not the primary judge link.
 🌐 **Live dashboard:** [frontend-seven-beta-46.vercel.app](https://frontend-seven-beta-46.vercel.app/)
 🔗 **Replay any cycle:** [/replay](https://frontend-seven-beta-46.vercel.app/replay)
 📂 **Repository:** [github.com/USBVadik/TuringVault-Core](https://github.com/USBVadik/TuringVault-Core)

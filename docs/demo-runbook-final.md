@@ -37,6 +37,7 @@ Use this before recording the final DoraHacks video.
 6. `/discipline`: post-execution checks.
 7. `/backtest` or `/api/performance`: Decision-Quality Score, not wallet PnL.
 8. GitHub Actions: public cron log.
+9. Judge Q&A: keep `docs/judge-q-and-a-final.md` open for trust, custody, cron, and PnL questions.
 
 ---
 
@@ -48,6 +49,7 @@ Use this before recording the final DoraHacks video.
 - "Operator-funded demo capital."
 - "Full reasoning pinned off-chain, cryptographic anchor on Mantle."
 - "USDY is paper-ready and gated, not live execution."
+- "The current orchestrator is centralized, but the post-anchor evidence is public and tamper-evident."
 
 ---
 

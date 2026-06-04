@@ -84,3 +84,9 @@ GitHub Actions cron is best-effort public automation, not a guaranteed daemon.
 Full reasoning is pinned off-chain; Mantle stores the cryptographic anchor.
 
 That is the whole thesis: AI capital allocation should be auditable by default.
+
+9/ Commercial path:
+
+This starts as a Mantle hackathon build, but the customer is clear: DAO treasuries and on-chain funds that want AI allocation with governance-grade evidence.
+
+Hosted agent ops, on-chain attestation, replay dashboards, and audit exports.

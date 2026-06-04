@@ -102,7 +102,7 @@ Explorer: https://explorer.mantle.xyz · Sourcify status auto-checked via `npm r
 4. **Mantle-native asset stack** — mETH (Mantle's own LST) for risk-on real yield, USDT0 (LayerZero Treasury-collateralised) on Merchant Moe LB v2.2 for the only liquid RWA target on Mantle, USDY metadata for the wider tokenized-Treasury narrative.
 5. **Radical transparency enforced as workspace rule** — `.kiro/steering/no-lying-about-state.md` is loaded on every developer turn; misrepresentation is the project's only way to lose.
 6. **Synrail-inspired Discipline Layer** — 3-gate post-execution verification (TX proof, price freshness, drift detection) on every swap, history surfaced on `/discipline` page.
-7. **Live-stream ready** — hourly GitHub Actions cron is the natural fit for the hackathon's live-stream component; judges can drop into any past run or watch a fresh one.
+7. **Live-stream ready** — hourly GitHub Actions cron is a good fit for the hackathon's live-stream component; judges can inspect public run history and verify current freshness through `/api/health`.
 
 ---
 

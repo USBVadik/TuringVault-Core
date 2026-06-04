@@ -4,7 +4,7 @@
 
 > _"When an AI agent executes a trade, you see the transaction. You don't see the reasoning. TuringVault changes that."_
 
-We ship the **three defining features** the Mantle hackathon brief calls out — on-chain benchmarking of AI, ERC-8004 agent identity reference implementation, and radical transparency — end-to-end on Mantle Mainnet, with scheduled autonomous cycles judges can drop into at any time.
+We ship the **three defining features** the Mantle hackathon brief calls out — on-chain benchmarking of AI, ERC-8004 agent identity reference implementation, and radical transparency — end-to-end on Mantle Mainnet, with public best-effort autonomous cycles and live health checks judges can inspect.
 
 ---
 
@@ -39,7 +39,7 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 
 ## Who this is for
 
-**DAO treasuries and on-chain funds** parking capital in stablecoins because human-in-the-loop trading is too slow, but unwilling to delegate to a black-box agent. TuringVault gives them an AI portfolio manager whose every reallocation must survive an adversarial multi-model review before any DEX call — and whose reasoning is replayable from public artefacts (IPFS reasoning, on-chain anchor, manifest hash) without trusting any hardware vendor or single LLM provider.
+**DAO treasuries and on-chain funds** parking capital in stablecoins because human-in-the-loop trading is too slow, but unwilling to delegate to a black-box agent. TuringVault gives them an AI portfolio manager whose every reallocation must survive an adversarial multi-model review before any DEX call — and whose reasoning is replayable from public artefacts (IPFS reasoning, on-chain anchor, manifest hash) without making a hardware vendor or a single LLM provider the source of truth.
 
 ---
 
@@ -59,7 +59,7 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 - **Lifetime Decision-Quality / Outcome Score: +4342 bps across 196 settled outcomes.** Methodology: this is an outcome score from settled decisions, not realized wallet PnL; [`/api/performance.realizedTradingPnlBps`](https://frontend-seven-beta-46.vercel.app/api/performance) is intentionally null. Settled in [`outcomes.json`](src/data/outcomes.json), surfaced on [`/backtest`](https://frontend-seven-beta-46.vercel.app/backtest), summary on [`/api/performance`](https://frontend-seven-beta-46.vercel.app/api/performance) (winRate, cumulativePnlBps, dataScope:`agent-lifetime`)
 - **Cron status is live-only** — use [`/api/health.cyclesSucceeded24h`](https://frontend-seven-beta-46.vercel.app/api/health), `cyclesFailed24h`, and `lastCycleAge` for the current 24h window; GitHub Actions schedules are best-effort and the count changes every cycle
 - Scheduled cron via GitHub Actions (public log linked below); adaptive regime detection on each tick. Schedule is best-effort hourly — GH Actions skips slots under platform load; the `/api/health` `lastCycleAge` field always reflects ground truth.
-- Zero catastrophic losses — demo capital, custodial EOA, vault contract pattern in development
+- No catastrophic-loss event recorded in the current demo history — operator-funded demo capital, custodial EOA, vault contract pattern in development
 
 ---
 
