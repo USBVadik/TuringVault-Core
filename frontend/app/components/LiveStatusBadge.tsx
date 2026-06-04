@@ -14,7 +14,10 @@
  * judge (or future audit) can verify the rules from one file.
  */
 import { useEffect, useState } from "react";
-import { deriveLiveStatus, type HealthForLiveness } from "../lib/live-status";
+import {
+  deriveLiveStatusDisplay,
+  type HealthForLiveness,
+} from "../lib/live-status";
 
 type Variant = "compact" | "full";
 
@@ -37,6 +40,7 @@ export function LiveStatusBadge({
   const [health, setHealth] = useState<HealthForLiveness | null>(
     initialHealth
   );
+  const [hasPolled, setHasPolled] = useState(Boolean(initialHealth));
 
   useEffect(() => {
     let cancelled = false;
@@ -48,10 +52,13 @@ export function LiveStatusBadge({
         if (!cancelled) setHealth(data);
       } catch {
         /* honest degradation: keep showing whatever we had */
+      } finally {
+        if (!cancelled) setHasPolled(true);
       }
     }
     if (initialHealth) {
       setHealth(initialHealth);
+      setHasPolled(true);
     }
     // Run immediately if we have no initialHealth, then on a 30s tick.
     if (!initialHealth) {
@@ -64,7 +71,9 @@ export function LiveStatusBadge({
     };
   }, [initialHealth]);
 
-  const status = deriveLiveStatus(health);
+  const status = deriveLiveStatusDisplay(health, {
+    loading: !hasPolled && !initialHealth,
+  });
   const pulse = status.tier === "live" ? "animate-pulse" : "";
 
   if (variant === "compact") {

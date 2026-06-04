@@ -1,89 +1,134 @@
-# TuringVault Demo Script (2 min)
+# TuringVault Demo Script
 
-## Opening (0:00-0:15)
+Target length: 90-120 seconds.
 
-**Screen:** Dashboard landing page with live stats
-
-> "TuringVault — autonomous AI trading agent on Mantle L2.
-> Every decision on-chain. Every reasoning stored on IPFS. No human in the loop."
-
-**Highlight:** +1216 bps cumulative PnL, 93 decisions logged, 65.6% rejection rate
+Narrative rule: open with proof, not performance. Performance is framed as Decision-Quality / Outcome Score, not realized wallet PnL.
 
 ---
 
-## Act 1: Decision Cycle (0:15-0:45)
+## 0:00-0:12 - Proof First
 
-**Screen:** Terminal showing orchestrator running
+Screen: homepage hero.
 
-> "Watch a live decision cycle. Two AI agents debate every trade."
+Voiceover:
 
-1. Show GLM-5 analyst proposing: "swap mUSD → mETH, confidence 0.82"
-2. Show Claude Sonnet 4.6 validator challenging: "REJECT — volatility spike, insufficient margin"
-3. Show consensus result: BLOCKED → capital protected
+"TuringVault is an accountable AI RWA portfolio agent on Mantle. The important part is not that an AI can suggest trades. The important part is that every proposal is challenged, logged, replayable, and checked after execution."
 
-**Key message:** "2 out of 3 proposals get blocked. That's the point — adversarial validation."
+Show:
 
----
-
-## Act 2: On-Chain Proof (0:45-1:15)
-
-**Screen:** Proof Explorer page
-
-> "Every decision hits Mantle L1 in real-time."
-
-1. Click latest decision → show tx hash on Mantlescan
-2. Show IPFS reasoning link → full JSON with analysis, confidence, metadata
-3. Show ValidationRegistry contract → totalProposals counter incrementing
-4. Show ERC-8004 agent identity → on-chain soul with reputation score
-
-**Key message:** "Fully verifiable. Anyone can audit every decision this agent ever made."
+- LiveStatusBadge.
+- Agent wallet/operator capital label.
+- Proof-locked visual.
 
 ---
 
-## Act 3: Self-Evolution (1:15-1:40)
+## 0:12-0:28 - Live Health
 
-**Screen:** Dashboard evolution timeline
+Screen: `/api/health` or homepage Live Agent Pipeline.
 
-> "After 5 bad calls, the agent rewrites its own strategy."
+Voiceover:
 
-1. Show v2.0.4 → v2.1.1 mutation event
-2. Show before/after: defensive posture, tighter stop-loss
-3. Show PnL improvement after mutation
+"The system runs on a best-effort public GitHub Actions cron. I do not claim perpetual liveness; this `lastCycleAge` field is the truth source. In the current snapshot, the agent has 31 successful cycles and zero failed cycles in 24 hours."
 
-**Key message:** "No human intervention. Autonomous prompt evolution with on-chain audit trail."
+Show:
 
----
-
-## Act 4: Performance (1:40-1:55)
-
-**Screen:** Performance/Backtest page with real equity curve
-
-> "37 settled trades. +12.16% cumulative. Max drawdown just 1.43%."
-
-Show real equity curve — monotonically rising with small dips.
-
-**Key message:** "Not backtested fantasy — real money, real execution, verifiable on-chain."
+- `mode: cron-github-actions`
+- `cyclesSucceeded24h`
+- `cyclesFailed24h`
+- `gasRunway.status`
 
 ---
 
-## Closing (1:55-2:00)
+## 0:28-0:48 - Executed Cycle
 
-**Screen:** Architecture diagram
+Screen: `/replay/265`.
 
-> "Multi-agent consensus. On-chain accountability. Self-evolving AI.
-> Built for the Mantle Turing Test."
+Voiceover:
 
-Show GitHub link + hackathon badge.
+"Here is a pinned executed swap cycle. The analyst proposed a grid entry, the validator approved it, the decision was anchored on Mantle, and the Discipline Layer later verified the transaction proof, price freshness, and regime alignment."
+
+Show:
+
+- cycle `265`
+- `decisionTier: EXECUTED_SWAP`
+- `tx_proof PASS`
+- DecisionLog tx link
+- manifest hash / combined anchor
+
+---
+
+## 0:48-1:08 - Protected-Capital Block
+
+Screen: `/replay/266`, then `/proof-explorer`.
+
+Voiceover:
+
+"Now the opposite case: cycle 266 proposed a swap, but the validator blocked it. Settlement later marked that refusal as a correct block. This is the product: refusal-with-proof, not blind execution."
+
+Show:
+
+- cycle `266`
+- `BLOCKED_BY_VALIDATOR`
+- `CORRECT_BLOCK`
+- `+86 bps` avoided outcome score
+- no executed transaction claimed
+
+---
+
+## 1:08-1:28 - Registry And Identity
+
+Screen: Proof Explorer and Mantle contract tabs.
+
+Voiceover:
+
+"The agent is represented by an ERC-8004-style identity and active validation and reputation registries. The current snapshot shows 288 DecisionLog rows and 289 ValidationRegistry proposals. The counters are labelled separately because they are different contract surfaces."
+
+Show:
+
+- DecisionLog contract
+- ValidationRegistry contract
+- ReputationRegistry contract
+- Identity NFT contract
+
+---
+
+## 1:28-1:46 - RWA Framing
+
+Screen: homepage wallet/RWA block or `docs/rwa-live-vs-paper-ready.md`.
+
+Voiceover:
+
+"The live RWA lane is USDT0 as the Treasury-collateralised stable allocation rail, and mETH as Mantle's native LST risk-on yield leg. USDY support is implemented, but gated until Mantle liquidity returns. We label it paper-ready, not live execution."
+
+Show:
+
+- USDT0 active.
+- mETH active.
+- USDY paper-ready/gated.
+
+---
+
+## 1:46-2:00 - Outcome Score And Close
+
+Screen: `/backtest` or `/api/performance`.
+
+Voiceover:
+
+"Across 196 settled outcomes, TuringVault has a +4342 bps Decision-Quality Score and a 58.2% settled win rate. That is not claimed as wallet PnL; it is an outcome score for whether the agent made or blocked the right decisions. The real win is the audit trail."
+
+Show:
+
+- `outcomeScoreBps: 4342`
+- `realizedTradingPnlBps: null`
+- settled outcomes: `196`
+- GitHub repo + live demo URL
 
 ---
 
 ## Recording Notes
 
-- Resolution: 1920x1080, dark theme
-- Terminal font: JetBrains Mono, 14px
-- Browser: Chrome, dark mode, zoom 110%
-- Record with OBS or Screenflow
-- Add subtle background music (lo-fi, low volume)
-- Voiceover: calm, technical, confident
-- No face cam needed
-- Total target: 1:50-2:10
+- Browser at 1440px or 1920px wide; zoom 100%.
+- Use the pinned cycles from `docs/judge-verification-path.md`.
+- Do not depend on the latest live cycle during recording.
+- Keep Mantlescan tabs pre-opened.
+- Avoid positive wallet-PnL wording, perpetual-liveness wording, hardware-free absolutism, and any claim that USDY is active execution.

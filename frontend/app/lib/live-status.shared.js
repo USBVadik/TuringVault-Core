@@ -37,6 +37,12 @@ const TONES = {
     border: "border-red-500/40",
     bg: "bg-red-500/10",
   },
+  syncing: {
+    dot: "bg-cyan-300",
+    text: "text-cyan-200",
+    border: "border-cyan-500/30",
+    bg: "bg-cyan-500/10",
+  },
 };
 
 function fmtAge(seconds) {
@@ -131,6 +137,19 @@ function deriveLiveStatus(health) {
   }
 }
 
+function deriveLiveStatusDisplay(health, options = {}) {
+  if (options.loading && !health) {
+    return {
+      tier: "syncing",
+      label: "SYNCING",
+      tone: TONES.syncing,
+      detail: "loading live snapshot — no freshness claim yet",
+      modeLabel: "",
+    };
+  }
+  return deriveLiveStatus(health);
+}
+
 function isAutonomousLive(health) {
   if (!health || health.status === "degraded") return false;
   if (health.lastCycleAge == null || health.lastCycleAge >= LIVE_THRESHOLD_S)
@@ -147,6 +166,7 @@ const LIVE_THRESHOLDS = {
 
 module.exports = {
   deriveLiveStatus,
+  deriveLiveStatusDisplay,
   isAutonomousLive,
   LIVE_THRESHOLDS,
 };

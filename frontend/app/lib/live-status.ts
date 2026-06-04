@@ -10,7 +10,7 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const shared = require("./live-status.shared.js");
 
-export type LivenessTier = "live" | "idle" | "stale" | "offline";
+export type LivenessTier = "live" | "idle" | "stale" | "offline" | "syncing";
 
 export interface HealthForLiveness {
   lastCycleTimestamp?: string | null;
@@ -35,6 +35,11 @@ export interface LiveStatus {
 export const deriveLiveStatus: (
   health: HealthForLiveness | null
 ) => LiveStatus = shared.deriveLiveStatus;
+
+export const deriveLiveStatusDisplay: (
+  health: HealthForLiveness | null,
+  options?: { loading?: boolean }
+) => LiveStatus = shared.deriveLiveStatusDisplay;
 
 export const isAutonomousLive: (
   health: HealthForLiveness | null
