@@ -568,6 +568,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780557129031_276",
+      "decisionId": 276,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1780.02,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmaPcoJdE6rUvW3S4GrutSPy6dmcsPJ3HKgXUqyZ2yUmJV",
+      "recordedAt": "2026-06-04T07:12:09.031Z",
+      "settleAfter": "2026-06-04T08:12:09.031Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780557129026
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 61.2% stable/FLAT, so no new risk deployment is warranted. TREND_DOWN at 60% confidence with ETH -4.96%, Fear&Greed 12, bearish EMA cross, and negative yield spread (-1%) all support caution. RSI 39.6 approaching oversold but not yet sub-30 counter-signal. Smart money flow NEUTRAL ($0.0M outflow). No grid confirmation present. Waiting for clear",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD as no capital is deployed",
+        "Social mindshare +34% bullish signal not acknowledged by Analyst — minor omission but insufficient to override bearish regime"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x70f29b9e5c7d2ba0aa1e203255326b98fd1e507e35135d87647153d7a2852a20",
+      "combinedAnchor": "0x9b75cf2bd022c06c07ffc0cade28ef03ddeec132bf5b1129e1eb931810878c1a",
+      "decisionLogTxHash": "0x1df0b121e020f142c0663124ebe39edc9086669a05adf372d2ed2fb6390ccb37",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
