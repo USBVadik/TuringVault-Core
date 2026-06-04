@@ -1285,6 +1285,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780582808453_286",
+      "decisionId": 286,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1787.65,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmXNwp4AKziC613MPFm1cCPq5f2Gy67KryU7SREPHtsBtN",
+      "recordedAt": "2026-06-04T14:20:08.453Z",
+      "settleAfter": "2026-06-04T15:20:08.453Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780582808449
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already stable-heavy (61.5% stables, 38.5% risk). TREND_DOWN at 60% confidence is mild, not crisis-level. Analyst correctly identifies conflicting signals: bearish EMA cross vs improving MACD histogram (+4.06) and RSI 46.6 rising. Funding neutral (0.392%), smart money flow flat ($0.0M). No grid confirmation for directional action. Inventory rule suppor",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD requires no R:R gate",
+        "Yield spread -1% bearish signal slightly underweighted in reasoning",
+        "MNT RSI 29.1 falling — potential further downside not fully addressed"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x643b0f70384e1f6c4f12e01ffa3d4538a2bf3829093c6f6fa41e1df915bd8481",
+      "combinedAnchor": "0x50e4f0ecd7f239825010ff0a63d1c680876025c1b722b9988da9fee3fcf91433",
+      "decisionLogTxHash": "0xd4f43aa352f31f4fa18a4d1d159de475a41404e8fa816ca35ee78bb53786b9fd",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
