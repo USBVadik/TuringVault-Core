@@ -1573,6 +1573,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780595581686_290",
+      "decisionId": 290,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1757.33,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmNeR3xDeKZZk3bUgn5YU6MPNpgsT9Zjk5sNXTT1ui488K",
+      "recordedAt": "2026-06-04T17:53:01.686Z",
+      "settleAfter": "2026-06-04T18:53:01.686Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780595581681
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. TREND_DOWN at 60% confidence with BEARISH consensus, ETH -3.59%, F&G=12, and negative yield spread (-1%) all align. Portfolio is already 61.9% stable — no further de-risking needed. RSI at 40 (not yet oversold), NEUTRAL smart money flow, and scale-in rule blocking new risk_on entries all support waiting. Analyst correctly avoids panic selling residual risk. Risk fa",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD as no capital is deployed",
+        "MNT RSI at 28.5 approaching oversold — could signal near-term bounce risk not fully weighted",
+        "MACD histogram positive (3.25) creates mild bullish divergence against bearish regime"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x42bb68c80394ea22868d18be7606b65afb20a8a25ca7557c0533f1383d406d0a",
+      "combinedAnchor": "0x00321004fa6bf7be524573aba9280aebcb77de12c35913ff16b47ff4e014dfd4",
+      "decisionLogTxHash": "0x86f178201197ca324878f5a940a1ec0a7bf5db33e3ce545c083caec743510572",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
