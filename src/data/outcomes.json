@@ -1212,6 +1212,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780582313883_285",
+      "decisionId": 285,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1786.06,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmVF6TteNGXQtGzjrSqxAL2rcJGDDzKMUH9EXpGMJmDvLy",
+      "recordedAt": "2026-06-04T14:11:53.883Z",
+      "settleAfter": "2026-06-04T15:11:53.883Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780582313878
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 61.5% stable-heavy, de-risking is complete. TREND_DOWN at 60% confidence with NEUTRAL consensus and flat smart money flow ($0.0M) does not justify further forced risk_off. RSI 46.1 not oversold, EMA bearish but MACD improving — mixed signals correctly acknowledged. Yield spread -1% bearish noted. No hallucinated data. Inventory rule supports HO",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% is a mild bearish drag on mETH thesis",
+        "MNT -8.56% 24h adds correlated downside pressure",
+        "TREND_DOWN confidence only 60% — not high-conviction regime",
+        "Social mindshare spike (+28%) with zero smart reposts is noise, not signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x3649dc75b0b3a094b42a54561676efb29bc6d8afdf84952bedd317df5ec58009",
+      "combinedAnchor": "0x5f721cf5e6f21cc7e02b1be404ac52b3343825939ebf826bee4b815ef7d35453",
+      "decisionLogTxHash": "0x9a3355af22cf7c6bf38c694e1f10fba69ae3a96d8cb1739844a13585d6101f65",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
