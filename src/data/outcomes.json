@@ -996,6 +996,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780574545894_282",
+      "decisionId": 282,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1749.34,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmTp4ofuN6ft3og2UBgnE8FucuHRpGtdC5ViyfPVQczFRB",
+      "recordedAt": "2026-06-04T12:02:25.894Z",
+      "settleAfter": "2026-06-04T13:02:25.894Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780574545889
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime at 85% confidence is explicitly confirmed, satisfying the inventory rule exception for risk_off/hold. Portfolio at 62% stable is already defensively positioned. Funding at 0.274% NEUTRAL, smart money flow NEUTRAL $0.0M, yield spread -1% BEARISH — no signals contradict holding. RSI 36.3 rising but not yet oversold threshold. No hallucinated data detect",
+      "validatorFlaggedIssues": [
+        "MNT RSI 19.6 deep oversold — monitor for reversal signal next cycle",
+        "ETH -6.73% with $1662 support as near-term downside trigger",
+        "Yield spread -1% mildly reduces mETH attractiveness"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x009a89f2b6ab7afcab16e25bb7d70d3344f9e8757855a85aba7cce5eba5f77ad",
+      "combinedAnchor": "0xd46ccdcd97179b449409bf68ae08bcf5fab8d8b629b0097d7aa66d0be35d8a4f",
+      "decisionLogTxHash": "0x92f040565a408558f84900bfa8ba8092d4d3c0df0a2486e6931052adfd004822",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
