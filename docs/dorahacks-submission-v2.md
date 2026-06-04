@@ -32,13 +32,13 @@ DAO treasuries rebalancing into RWA need **audit-proof decisions for governance 
 
 | # | Claim | Open this |
 |---|-------|-----------|
-| 1 | **167+ live multi-agent decisions on Mantle Mainnet** | [DecisionLog events](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) |
+| 1 | **287 live multi-agent decisions on Mantle Mainnet** (2026-06-04 snapshot; live count grows every cycle) | [DecisionLog events](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) |
 | 2 | **ERC-8004 three-registry implementation** (Identity + Reputation + Validation) — **actively written every cycle**, not vestigial | [Identity](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) · [Reputation](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) · [Validation](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) |
-| 3 | **38.9% on-chain rejection rate** — adversarial validator + 4-gate AND consensus | [`totalRejected()` / `totalProposals()`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) → 65 / 167 |
+| 3 | **76 of 287 proposals blocked before execution** — adversarial validator + 4-gate AND consensus | [`totalRejected()` / `totalProposals()`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) → 76 / 287 |
 | 4 | **First RWA swap end-to-end** | [TX `0x0af2336…3e09de`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2 |
 | 5 | **Reproducible AI** — replay any past decision · cryptographic anchor verified live against Mantle Mainnet | [`/replay`](https://frontend-seven-beta-46.vercel.app/replay) — public verification page · zero AWS/GCP keys required |
 | 6 | **Daily CI Replay Validator** — random cycle re-checked autonomously | [Replay Validator workflow](https://github.com/USBVadik/TuringVault-Core/actions/workflows/replay-validator.yml) — green = system honest |
-| 7 | **Live realised PnL** — `+17.57%` across `67` settled outcomes | [`/backtest`](https://frontend-seven-beta-46.vercel.app/backtest) — equity curve from on-chain settlements |
+| 7 | **Lifetime Decision-Quality / Outcome Score** — `+4342 bps` across `196` settled outcomes | [`/backtest`](https://frontend-seven-beta-46.vercel.app/backtest) — outcome-score curve built from settled decision outcomes; not wallet PnL |
 | 8 | **Discipline Layer** — 3-gate post-execution proof | [`/discipline`](https://frontend-seven-beta-46.vercel.app/discipline) |
 | 9 | **Adversarial Challenge Arena** — probe the agent yourself | [`/challenge`](https://frontend-seven-beta-46.vercel.app/challenge) — 4 attack vectors live against the real pipeline |
 | 10 | **Native staking yield surface** — mETH LST yield labelled honestly (realised vs projected) | [`/api/yield-meth`](https://frontend-seven-beta-46.vercel.app/api/yield-meth) |
@@ -59,7 +59,7 @@ Every cycle writes **4 on-chain attestations** plus 1-3 swap legs:
 - `logDecision` (final decision with `combinedAnchor` bytes32)
 - `submitFeedback` (reputation delta) + `recordPnL` on settlement
 
-**167 on-chain decisions** logged. **65 blocked at the contract level** = **38.9% on-chain rejection rate**. _Rejection-with-proof is a first-class output, not a failure mode._
+**287 on-chain decisions** logged in the 2026-06-04 snapshot. **76 blocked at the contract level** = **26.5% blocked before execution**. _Rejection-with-proof is a first-class output, not a failure mode._
 
 ### 2️⃣ ERC-8004 Agent Identity — _actively_ written, not static metadata
 
@@ -109,18 +109,20 @@ into both `DecisionLog.txHash` AND `ReputationRegistry.reasoningHash`. The manif
 
 ---
 
-## 📊 Live State (verified on Mantle Mainnet, chain 5000, 2026-05-30)
+## 📊 Live State (observed from live API on Mantle Mainnet, chain 5000, 2026-06-04)
 
 ```
-Decisions on-chain         167 (ValidationRegistry.totalProposals)
-Approved                   102
-Rejected                    65   (38.9% rejection rate)
-Settled outcomes            67   with grading
-Realised PnL          +1757 bps  (+17.57%)
-Win rate (settled)        46.3%
+Decisions on-chain         287 (ValidationRegistry.totalProposals)
+Approved                   211
+Rejected                    76   (26.5% blocked before execution)
+Settled outcomes           196   with grading
+Decision-Quality Score +4342 bps
+Methodology          Outcome score from settled decisions; not realized wallet PnL
+realizedTradingPnlBps      null   intentionally, because wallet PnL is not claimed
+Win rate (settled)        58.2%
 Parse success (24h)        100%
-Cron uptime (24h)         27/28  (96.4%)
-NAV                      $136.98
+Cron cycles (24h)          31 ran / 0 failed  (agent cycles, not trades)
+NAV                      $151.12  operator-funded demo capital, not claimed trading profit
 Holdings split           USDT0 74% · MNT 14% · mETH 10% · WMNT 2%
 ```
 
@@ -228,16 +230,16 @@ We hold ourselves to the same accountability standard we promote. Every claim be
 
 | Claim | Status | Evidence |
 |---|---|---|
-| AI consensus pipeline | ✅ Live | 167 on-chain TXs |
+| AI consensus pipeline | ✅ Live | 287 on-chain decisions in the 2026-06-04 snapshot; live count grows every cycle |
 | ERC-8004 identity + reputation | ✅ Live · 5/6 Sourcify perfect | Active writes per cycle |
 | Replay-verifiable cryptographic anchor | ✅ Live | `combinedAnchor` in `DecisionLog.txHash` since cycle 147 ([audit 18](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/18-onchain-anchor-replay-manifest.md)) |
 | Daily CI Replay Validator | ✅ Live | [Public workflow](https://github.com/USBVadik/TuringVault-Core/actions/workflows/replay-validator.yml) |
-| Best-effort hourly cron | ✅ Live · 96.4% uptime last 24h | Honest LIVE/IDLE/STALE/OFFLINE badge gated by `lastCycleAge` |
+| Best-effort hourly cron | ✅ Live · 31 ran / 0 failed in the observed 24h window | Honest LIVE/IDLE/STALE/OFFLINE badge gated by `lastCycleAge`; cycles are decisions, not trades |
 | IPFS reasoning pins | ✅ Live | Pinata, hash-anchored on Mantle |
 | Discipline Layer 3-gate audit | ✅ Live | TX/freshness/drift gates fire each cycle |
 | Multi-source data resilience | ✅ Live | CoinGecko → Binance/Bybit → Hyperliquid → disk snapshot, provenance per cycle ([audits 19/20](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/19-blind-grid-rate-limit.md)) |
 | Smart wallet router (auto MNT-wrap) | ✅ Live · capped per cycle | [audit 21](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/21-smart-wallet-router.md) + [audit 28 cap fix](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/28-wrap-everything-bug-fix.md) |
-| Heartbeat micro-swaps | ✅ Live · gated · separate `HEARTBEAT_SWAP` tier | Never aggregates with alpha-seeking PnL ([audit 17](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/17-heartbeat-mode.md)) |
+| Heartbeat micro-swaps | ✅ Live · gated · separate `HEARTBEAT_SWAP` tier | Never aggregates with alpha-seeking outcome score ([audit 17](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/17-heartbeat-mode.md)) |
 | mETH passive yield surface | ✅ Live · "realised" vs "projected/day" labels | [`/api/yield-meth`](https://frontend-seven-beta-46.vercel.app/api/yield-meth) |
 | Self-evolving prompts | 🟡 Implemented · gated off | Default-off behind `EVOLVED_PROMPTS_ENABLED` flag while smoke tests confirm parse stability |
 | USDY allocation | 🟡 Paper-ready | Module ships; swap path gated until Mantle pool reactivates |
@@ -281,7 +283,7 @@ This is engineering culture as a feature, not a bug.
 | **Compliance** | EOA custodial documented · demo capital · explicit "this is not a security" framing · USDT0 framed as Treasury-collateralised, not yield-bearing |
 | **Asset category** (RWV) | Tokenized US Treasury exposure (USDT0) + native ETH staking (mETH) clearly delineated |
 | **Target users** (RWV) | DAO treasuries explicitly framed in homepage hero + README + agent card |
-| **Complete UX** (RWV) | 25 frontend routes · live mascot · /replay public verification · /discipline · /backtest live equity curve · /challenge arena · honest provenance pills |
+| **Complete UX** (RWV) | 25 frontend routes · live mascot · /replay public verification · /discipline · /backtest live outcome-score curve · /challenge arena · honest provenance pills |
 
 ---
 
