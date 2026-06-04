@@ -299,6 +299,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780610864812_294",
+      "decisionId": 294,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1758.07,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmbXuXA6MHS7DigAon8sF1Nvd3MgMnPiiQK5EGru5Nk6By",
+      "recordedAt": "2026-06-04T22:07:44.812Z",
+      "settleAfter": "2026-06-04T23:07:44.812Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780610864807
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate here. Portfolio is already 57.8% stable, no fresh down-break confirmed, price holds above $1670 support. Inventory rule explicitly blocks repeated risk_off without CRISIS confirmation. TREND_DOWN at 60% confidence is mild-bearish, not crisis-level. Smart money flow NEUTRAL, funding balanced at 0.364%. Analyst correctly avoids both aggressive risk_off and risk_on. Risk factors a",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD carries no directional execution risk",
+        "MNT -8.4% daily drop warrants monitoring for contagion",
+        "Fear & Greed at 12 is extreme — watch for breakdown below $1670"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9b938c0e5de45e7d81f17352410e30c0b8fda63e9821ed06af6c7f50518d1bf3",
+      "combinedAnchor": "0x0a9dfde2bbe81048e793239852a4a80004cfd745b4044e4287442d50be814710",
+      "decisionLogTxHash": "0x951908dfad54ff7afbc2355d9377b7314819cf4d79af10a949dacce4d0a6a4ce",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
