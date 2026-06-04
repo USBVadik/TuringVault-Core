@@ -9,6 +9,14 @@ import contractsData from "../data/contracts.json";
 const contractProofSummary = require("../lib/contractProofSummary.shared.js") as {
   summarizeSourcifyContracts: (contracts: unknown) => { detail: string };
 };
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const proofExplorerConsistency = require("../lib/proof-explorer-consistency.shared.js") as {
+  buildDenominatorNote: (args: {
+    totalDecisions: number;
+    validation: ValidationSummary | null;
+  }) => string;
+  validationDenominator: (validation: ValidationSummary | null) => number | null;
+};
 
 const mantleProofDetail =
   contractProofSummary.summarizeSourcifyContracts(contractsData).detail;
@@ -168,6 +176,11 @@ export function ProofExplorerClient({
   const [expandedCase, setExpandedCase] = useState<number | null>(null);
 
   const featuredCase = blockedCases[0];
+  const validationTotal = proofExplorerConsistency.validationDenominator(validation);
+  const denominatorNote = proofExplorerConsistency.buildDenominatorNote({
+    totalDecisions,
+    validation,
+  });
 
   function formatTime(ts: number) {
     return (
@@ -246,7 +259,7 @@ export function ProofExplorerClient({
               </p>
               <div className="proof-control-strip animate-[fadeIn_0.6s_ease-out_0.95s_both]">
                 <div>
-                  <span>Featured case</span>
+                  <span>Historic case</span>
                   <strong>Proposal #{featuredCase.id}</strong>
                 </div>
                 <div>
@@ -262,7 +275,7 @@ export function ProofExplorerClient({
 
             <div className="proof-verdict-card animate-[fadeIn_0.8s_ease-out_0.55s_both]">
               <div className="proof-verdict-top">
-                <span>Featured intervention</span>
+                <span>Historic intervention</span>
                 <strong>Proposal #{featuredCase.id}</strong>
               </div>
               <div className="proof-verdict-main">
@@ -426,6 +439,9 @@ export function ProofExplorerClient({
               <p className="proof-summary-copy">
                 Full audit log &middot; {totalDecisions} on-chain decisions
               </p>
+              <p className="text-[10px] text-white/25 font-mono mt-1 max-w-[520px]">
+                {denominatorNote}
+              </p>
             </div>
           </div>
           <div className="proof-summary-stats">
@@ -437,15 +453,15 @@ export function ProofExplorerClient({
             </div>
             <div className="proof-stat-danger">
               <p>
-                <AnimatedCounter value={validation?.totalRejected || 19} />
+                <AnimatedCounter value={validation?.totalRejected || 0} />
               </p>
-              <span>Blocked</span>
+              <span>Blocked proposals</span>
             </div>
             <div className="proof-stat-success">
               <p>
-                <AnimatedCounter value={validation?.totalApproved || 1} />
+                <AnimatedCounter value={validation?.totalApproved || 0} />
               </p>
-              <span>Approved</span>
+              <span>Approved proposals</span>
             </div>
           </div>
         </div>
@@ -460,7 +476,7 @@ export function ProofExplorerClient({
                 <span>Protected Capital</span>
                 <h2>Trades the validator refused to execute</h2>
               </div>
-              <em>Live proof</em>
+              <em>Historic showcase</em>
             </div>
             <h2 className="sr-only">
               Protected Capital — Trades That Would Have Lost
@@ -584,8 +600,9 @@ export function ProofExplorerClient({
             </div>
 
             <p className="proof-section-footnote">
-              All 3 cases: correct market observation → wrong action conclusion
-              → gate caught it. mETH recovered +1.2% within 12h.
+              Historic examples from the proof trail: correct market
+              observation → wrong action conclusion → gate caught it. Use the
+              audit log below for current live proposal counters.
             </p>
           </section>
         </FadeIn>
@@ -926,7 +943,7 @@ export function ProofExplorerClient({
                               >
                                 {isBlocked
                                   ? "Blocked by safety gate"
-                                  : "Consensus reached — executed"}
+                                  : "Consensus approved; execution depends on tx proof"}
                               </p>
                             </div>
                           </div>
@@ -1016,12 +1033,9 @@ export function ProofExplorerClient({
                     Risk Firewall Activation
                   </span>
                   <span className="text-xs text-red-400 font-mono font-bold">
-                    {validation
+                    {validation && validationTotal
                       ? `${Math.round(
-                          (validation.totalRejected /
-                            (validation.totalRejected +
-                              validation.totalApproved)) *
-                            100
+                          (validation.totalRejected / validationTotal) * 100
                         )}%`
                       : "—"}
                   </span>
@@ -1030,10 +1044,8 @@ export function ProofExplorerClient({
                   <div className="h-full bg-gradient-to-r from-red-600 via-red-500 to-orange-500 rounded-full animate-progress" />
                 </div>
                 <p className="text-[9px] text-white/20 mt-1">
-                  {validation
-                    ? `${validation.totalRejected} of ${
-                        validation.totalRejected + validation.totalApproved
-                      } proposals blocked`
+                  {validation && validationTotal
+                    ? `${validation.totalRejected} of ${validationTotal} proposals blocked`
                     : "—"}{" "}
                   — system working as designed
                 </p>
@@ -1121,7 +1133,7 @@ export function ProofExplorerClient({
               <pre className="text-[9px] text-white/40 font-mono leading-relaxed overflow-x-auto">
                 {`const sdk = new TuringVaultSDK();
 const stats = await sdk.getConsensusRate();
-// { approved: 1, rejected: 19 }`}
+// returns { approved, rejected, totalProposals }`}
               </pre>
               <a
                 href="https://github.com/USBVadik/TuringVault-Core/tree/main/sdk"

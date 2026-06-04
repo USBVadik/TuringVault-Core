@@ -8,7 +8,8 @@ const CONTRACTS = {
   REPUTATION: "0xC78119F3274B05046Ac7c38a14298a6cbD946e1a",
 };
 
-// Blocked would-have-lost cases with real on-chain data
+// Historic blocked-case showcase. Live proposal counters are loaded
+// separately from DecisionLog + ValidationRegistry.
 const BLOCKED_CASES = [
   {
     id: 12,
@@ -78,14 +79,7 @@ export default async function ProofExplorerPage() {
   return (
     <ProofExplorerClient
       decisions={data.decisions || []}
-      validation={
-        data.validation || {
-          totalApproved: 0,
-          totalRejected: 0,
-          totalProposals: 0,
-          consensusRate: 0,
-        }
-      }
+      validation={data.validation || null}
       totalDecisions={data.totalDecisions || 0}
       agentCard={data.agentCard}
       contracts={CONTRACTS}
