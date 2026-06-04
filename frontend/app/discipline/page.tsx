@@ -94,6 +94,8 @@ type Summary = {
   cyclesWithoutTx: number;
   txProofPassCount: number;
   txProofFailCount: number;
+  txProofWarnCount: number;
+  txProofErrorCount: number;
   txProofSkipCount: number;
   txProofPassRateExecutedOnly: number | null;
 };
@@ -142,13 +144,19 @@ function displayVerdict(status: string | undefined, checks: Check[] | undefined)
   const tx = txProofStatus(checks);
   if (verdict === "ACCEPTED" && tx === "skip") return "HOLD (no tx)";
   if (verdict === "ACCEPTED" && tx === "pass") return "SWAP VERIFIED";
+  if (verdict === "ACCEPTED" && tx === "warn") return "TX WARNING";
+  if (verdict === "ACCEPTED" && (tx === "fail" || tx === "error")) {
+    return "TX PROOF FAILED";
+  }
+  if (verdict === "ACCEPTED" && !tx) return "TX UNVERIFIED";
   return verdict;
 }
 
 function verdictTextClass(status: string | undefined, checks: Check[] | undefined): string {
   const tx = txProofStatus(checks);
   if (status === "ACCEPTED" && tx === "skip") return styles.verdictMuted;
-  if (status === "ACCEPTED") return styles.verdictAccepted;
+  if (status === "ACCEPTED" && tx === "pass") return styles.verdictAccepted;
+  if (status === "ACCEPTED") return styles.verdictWarn;
   if (status === "BLOCKED") return styles.verdictBlocked;
   if (status === "ERROR") return styles.verdictWarn;
   return styles.verdictMuted;
@@ -157,7 +165,8 @@ function verdictTextClass(status: string | undefined, checks: Check[] | undefine
 function verdictPillClass(status: string | undefined, checks: Check[] | undefined): string {
   const tx = txProofStatus(checks);
   if (status === "ACCEPTED" && tx === "skip") return styles.statusMuted;
-  if (status === "ACCEPTED") return styles.statusAccepted;
+  if (status === "ACCEPTED" && tx === "pass") return styles.statusAccepted;
+  if (status === "ACCEPTED") return styles.statusWarn;
   if (status === "BLOCKED") return styles.statusBlocked;
   if (status === "ERROR") return styles.statusWarn;
   return styles.statusMuted;
@@ -575,18 +584,20 @@ function SummaryCard({ summary }: { summary: Summary }) {
         if (g === "tx_proof") {
           const hasExecutedTx = summary.cyclesWithTx > 0;
           const rate = summary.txProofPassRateExecutedOnly;
+          const nonPassing =
+            summary.txProofFailCount + summary.txProofWarnCount;
           return (
             <Tile
               key={g}
               label="TX Proof"
               value={
                 hasExecutedTx
-                  ? `${summary.txProofPassCount}/${summary.cyclesWithTx} swaps`
+                  ? `${summary.txProofPassCount}/${summary.cyclesWithTx} tx cycles`
                   : "No swaps"
               }
               tooltip={
                 hasExecutedTx
-                  ? `${rate ?? "—"}% pass rate across cycles with a transaction; ${summary.cyclesWithoutTx} HOLD cycles had no tx to verify`
+                  ? `${rate ?? "—"}% verified across cycles with a transaction; ${nonPassing} failed/warned (${summary.txProofErrorCount} RPC errors); ${summary.cyclesWithoutTx} HOLD cycles had no tx to verify`
                   : `${summary.cyclesWithoutTx} HOLD cycles had no tx to verify`
               }
               tone={

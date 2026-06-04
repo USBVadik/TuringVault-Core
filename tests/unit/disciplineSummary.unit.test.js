@@ -57,6 +57,31 @@ describe("discipline summary", () => {
     expect(summary.gatePassRates.tx_proof).toBe(50);
   });
 
+  test("counts tx proof ERROR as an executed proof failure", () => {
+    const summary = buildSummary([
+      {
+        at: "2026-06-04T00:00:00Z",
+        decisionId: 1,
+        verdict: "ACCEPTED",
+        checks: [{ name: "tx_proof", status: "PASS" }],
+      },
+      {
+        at: "2026-06-04T00:30:00Z",
+        decisionId: 2,
+        verdict: "ACCEPTED",
+        checks: [{ name: "tx_proof", status: "ERROR" }],
+      },
+    ]);
+
+    expect(summary.cyclesWithTx).toBe(2);
+    expect(summary.cyclesWithoutTx).toBe(0);
+    expect(summary.txProofPassCount).toBe(1);
+    expect(summary.txProofFailCount).toBe(1);
+    expect(summary.txProofErrorCount).toBe(1);
+    expect(summary.txProofPassRateExecutedOnly).toBe(50);
+    expect(summary.gatePassRates.tx_proof).toBe(50);
+  });
+
   test("all skipped tx proofs produce null executed-only rate", () => {
     const summary = buildSummary([
       {
@@ -78,5 +103,14 @@ describe("discipline summary", () => {
     expect(summary.txProofSkipCount).toBe(2);
     expect(summary.txProofPassRateExecutedOnly).toBeNull();
     expect(summary.gatePassRates.tx_proof).toBeNull();
+  });
+
+  test("handles non-array history without fabricating timestamps", () => {
+    const summary = buildSummary(null);
+
+    expect(summary.totalEntries).toBe(0);
+    expect(summary.firstCycleAt).toBeNull();
+    expect(summary.latestCycleAt).toBeNull();
+    expect(summary.txProofPassRateExecutedOnly).toBeNull();
   });
 });

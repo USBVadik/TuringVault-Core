@@ -70,6 +70,8 @@ type Summary = {
   cyclesWithoutTx: number;
   txProofPassCount: number;
   txProofFailCount: number;
+  txProofWarnCount: number;
+  txProofErrorCount: number;
   txProofSkipCount: number;
   txProofPassRateExecutedOnly: number | null;
 };
