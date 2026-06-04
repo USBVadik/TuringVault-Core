@@ -782,6 +782,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780569945780_279",
+      "decisionId": 279,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1753.53,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmT1ka4RpYbXWBGt5uds63VPD15KgJJ9wShTuBpR5t8Pht",
+      "recordedAt": "2026-06-04T10:45:45.780Z",
+      "settleAfter": "2026-06-04T11:45:45.780Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780569945774
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime with stable-heavy portfolio (61.9%) is appropriate. No action = no directional risk. Analyst correctly identifies neutral funding (0.359%), flat smart money flow ($0.0M), and oversold RSI (34.7) as insufficient edge to trade. Negative yield spread (-1%) and CRISIS regime (85% confidence) support preservation. R:R gate not applicable to HOLD. Signals cross-check passe",
+      "validatorFlaggedIssues": [
+        "R:R not provided but irrelevant for HOLD action",
+        "Social attention spike (+40% mindshare) not addressed — minor omission",
+        "ETH near $1666 liquidation cluster warrants monitoring"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xcd7907533880f9ecc4e8353fba619b833304654042af4476ca87f34827bfa8c8",
+      "combinedAnchor": "0x0b26489a4e5b2108d6b7dbe1919be8143582b7a071efc23f0b3ec4373a66c3e2",
+      "decisionLogTxHash": "0xc9861e7de530a6321fd5375332d15c14f7fb25d85ca055ee3ef4d9696ea2602f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
