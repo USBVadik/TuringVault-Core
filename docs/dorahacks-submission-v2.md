@@ -32,9 +32,9 @@ DAO treasuries rebalancing into RWA need **audit-proof decisions for governance 
 
 | # | Claim | Open this |
 |---|-------|-----------|
-| 1 | **287 live multi-agent decisions on Mantle Mainnet** (2026-06-04 snapshot; live count grows every cycle) | [DecisionLog events](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) |
+| 1 | **288 DecisionLog rows on Mantle Mainnet** (2026-06-04 15:33 UTC snapshot; live count grows every cycle) | [DecisionLog events](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) |
 | 2 | **ERC-8004 three-registry implementation** (Identity + Reputation + Validation) — **actively written every cycle**, not vestigial | [Identity](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) · [Reputation](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) · [Validation](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) |
-| 3 | **76 of 287 proposals blocked before execution** — adversarial validator + 4-gate AND consensus | [`totalRejected()` / `totalProposals()`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) → 76 / 287 |
+| 3 | **76 of 289 ValidationRegistry proposals rejected before execution** — adversarial validator + 4-gate AND consensus | [`totalRejected()` / `totalProposals()`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) → 76 / 289 |
 | 4 | **First RWA swap end-to-end** | [TX `0x0af2336…3e09de`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2 |
 | 5 | **Reproducible AI** — replay any past decision · cryptographic anchor verified live against Mantle Mainnet | [`/replay`](https://frontend-seven-beta-46.vercel.app/replay) — public verification page · zero AWS/GCP keys required |
 | 6 | **Daily CI Replay Validator** — random cycle re-checked autonomously | [Replay Validator workflow](https://github.com/USBVadik/TuringVault-Core/actions/workflows/replay-validator.yml) — green = system honest |
@@ -59,7 +59,7 @@ Every cycle writes **4 on-chain attestations** plus 1-3 swap legs:
 - `logDecision` (final decision with `combinedAnchor` bytes32)
 - `submitFeedback` (reputation delta) + `recordPnL` on settlement
 
-**287 on-chain decisions** logged in the 2026-06-04 snapshot. **76 blocked at the contract level** = **26.5% blocked before execution**. _Rejection-with-proof is a first-class output, not a failure mode._
+**288 DecisionLog rows** logged in the 2026-06-04 15:33 UTC snapshot. **76 of 289 registry proposals rejected before execution** = **26.3% rejected before execution**. _Rejection-with-proof is a first-class output, not a failure mode._
 
 ### 2️⃣ ERC-8004 Agent Identity — _actively_ written, not static metadata
 
@@ -109,12 +109,13 @@ into both `DecisionLog.txHash` AND `ReputationRegistry.reasoningHash`. The manif
 
 ---
 
-## 📊 Live State (observed from live API on Mantle Mainnet, chain 5000, 2026-06-04)
+## 📊 Live State (observed from live API on Mantle Mainnet, chain 5000, 2026-06-04 15:33 UTC)
 
 ```
-Decisions on-chain         287 (ValidationRegistry.totalProposals)
-Approved                   211
-Rejected                    76   (26.5% blocked before execution)
+DecisionLog rows           288
+Validation proposals       289
+Approved                   213
+Rejected                    76   (26.3% rejected before execution)
 Settled outcomes           196   with grading
 Decision-Quality Score +4342 bps
 Methodology          Outcome score from settled decisions; not realized wallet PnL
@@ -122,8 +123,8 @@ realizedTradingPnlBps      null   intentionally, because wallet PnL is not claim
 Win rate (settled)        58.2%
 Parse success (24h)        100%
 Cron cycles (24h)          31 ran / 0 failed  (agent cycles, not trades)
-NAV                      $151.12  operator-funded demo capital, not claimed trading profit
-Holdings split           USDT0 74% · MNT 14% · mETH 10% · WMNT 2%
+NAV                      $151.55  operator-funded demo capital, not claimed trading profit
+Holdings split           USDT0 46% · MNT/WMNT 36% · mETH 18%
 ```
 
 **Wallet:** [`0xDC78…fb5a`](https://mantlescan.xyz/address/0xDC783CDBfA993f3FC299460627b204E83bf4fb5a)
@@ -230,7 +231,7 @@ We hold ourselves to the same accountability standard we promote. Every claim be
 
 | Claim | Status | Evidence |
 |---|---|---|
-| AI consensus pipeline | ✅ Live | 287 on-chain decisions in the 2026-06-04 snapshot; live count grows every cycle |
+| AI consensus pipeline | ✅ Live | 288 DecisionLog rows in the 2026-06-04 15:33 UTC snapshot; live count grows every cycle |
 | ERC-8004 identity + reputation | ✅ Live · 5/6 Sourcify perfect | Active writes per cycle |
 | Replay-verifiable cryptographic anchor | ✅ Live | `combinedAnchor` in `DecisionLog.txHash` since cycle 147 ([audit 18](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/18-onchain-anchor-replay-manifest.md)) |
 | Daily CI Replay Validator | ✅ Live | [Public workflow](https://github.com/USBVadik/TuringVault-Core/actions/workflows/replay-validator.yml) |
@@ -246,7 +247,7 @@ We hold ourselves to the same accountability standard we promote. Every claim be
 | Vault contract for public deposits | 🟠 In development | Demo capital only · custodial EOA · documented |
 | TEE attestation | ❌ Out of scope | Replaced by stronger Reproducible AI narrative (no hardware vendor) |
 
-The dashboard mascot reports `🔴 OFFLINE` when cron is paused, `🟡 IDLE` when last cycle is over an hour old. **No "always-on" copy backs claims we cannot verify.**
+The dashboard mascot reports `OFFLINE` when cron is paused and `IDLE` when the last cycle is over an hour old. The copy avoids perpetual-liveness claims we cannot verify.
 
 ---
 
