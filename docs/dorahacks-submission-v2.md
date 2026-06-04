@@ -32,7 +32,7 @@ DAO treasuries rebalancing into RWA need **audit-proof decisions for governance 
 
 | # | Claim | Open this |
 |---|-------|-----------|
-| 1 | **288 DecisionLog rows on Mantle Mainnet** (2026-06-04 15:33 UTC snapshot; live count grows every cycle) | [DecisionLog events](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) |
+| 1 | **288 DecisionLog rows on Mantle Mainnet** (2026-06-04 16:15 UTC snapshot; live count grows every cycle) | [DecisionLog events](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5) |
 | 2 | **ERC-8004 three-registry implementation** (Identity + Reputation + Validation) — **actively written every cycle**, not vestigial | [Identity](https://explorer.mantle.xyz/address/0x6f862802e0d5463DF18d267e422347BeCacc28bD) · [Reputation](https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a) · [Validation](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) |
 | 3 | **76 of 289 ValidationRegistry proposals rejected before execution** — adversarial validator + 4-gate AND consensus | [`totalRejected()` / `totalProposals()`](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6) → 76 / 289 |
 | 4 | **First RWA swap end-to-end** | [TX `0x0af2336…3e09de`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de) on Merchant Moe LB v2.2 |
@@ -59,7 +59,7 @@ Every cycle writes **4 on-chain attestations** plus 1-3 swap legs:
 - `logDecision` (final decision with `combinedAnchor` bytes32)
 - `submitFeedback` (reputation delta) + `recordPnL` on settlement
 
-**288 DecisionLog rows** logged in the 2026-06-04 15:33 UTC snapshot. **76 of 289 registry proposals rejected before execution** = **26.3% rejected before execution**. _Rejection-with-proof is a first-class output, not a failure mode._
+**288 DecisionLog rows** logged in the 2026-06-04 16:15 UTC snapshot. **76 of 289 registry proposals rejected before execution** = **26.3% rejected before execution**. _Rejection-with-proof is a first-class output, not a failure mode._
 
 ### 2️⃣ ERC-8004 Agent Identity — _actively_ written, not static metadata
 
@@ -109,7 +109,7 @@ into both `DecisionLog.txHash` AND `ReputationRegistry.reasoningHash`. The manif
 
 ---
 
-## 📊 Live State (observed from live API on Mantle Mainnet, chain 5000, 2026-06-04 15:33 UTC)
+## 📊 Live State (observed from live API on Mantle Mainnet, chain 5000, 2026-06-04 16:15 UTC)
 
 ```
 DecisionLog rows           288
@@ -122,8 +122,8 @@ Methodology          Outcome score from settled decisions; not realized wallet P
 realizedTradingPnlBps      null   intentionally, because wallet PnL is not claimed
 Win rate (settled)        58.2%
 Parse success (24h)        100%
-Cron cycles (24h)          31 ran / 0 failed  (agent cycles, not trades)
-NAV                      $151.55  operator-funded demo capital, not claimed trading profit
+Cron cycles (24h)          32 ran / 0 failed  (agent cycles, not trades)
+NAV                      $151.31  operator-funded demo capital, not claimed trading profit
 Holdings split           USDT0 46% · MNT/WMNT 36% · mETH 18%
 ```
 
@@ -231,11 +231,11 @@ We hold ourselves to the same accountability standard we promote. Every claim be
 
 | Claim | Status | Evidence |
 |---|---|---|
-| AI consensus pipeline | ✅ Live | 288 DecisionLog rows in the 2026-06-04 15:33 UTC snapshot; live count grows every cycle |
+| AI consensus pipeline | ✅ Live | 288 DecisionLog rows in the 2026-06-04 16:15 UTC snapshot; live count grows every cycle |
 | ERC-8004 identity + reputation | ✅ Live · 5/6 Sourcify perfect | Active writes per cycle |
 | Replay-verifiable cryptographic anchor | ✅ Live | `combinedAnchor` in `DecisionLog.txHash` since cycle 147 ([audit 18](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/18-onchain-anchor-replay-manifest.md)) |
 | Daily CI Replay Validator | ✅ Live | [Public workflow](https://github.com/USBVadik/TuringVault-Core/actions/workflows/replay-validator.yml) |
-| Best-effort hourly cron | ✅ Live · 31 ran / 0 failed in the observed 24h window | Honest LIVE/IDLE/STALE/OFFLINE badge gated by `lastCycleAge`; cycles are decisions, not trades |
+| Best-effort hourly cron | ✅ Live · 32 ran / 0 failed in the observed 24h window | Honest LIVE/IDLE/STALE/OFFLINE badge gated by `lastCycleAge`; cycles are decisions, not trades |
 | IPFS reasoning pins | ✅ Live | Pinata, hash-anchored on Mantle |
 | Discipline Layer 3-gate audit | ✅ Live | TX/freshness/drift gates fire each cycle |
 | Multi-source data resilience | ✅ Live | CoinGecko → Binance/Bybit → Hyperliquid → disk snapshot, provenance per cycle ([audits 19/20](https://github.com/USBVadik/TuringVault-Core/blob/main/.kiro/audits/19-blind-grid-rate-limit.md)) |

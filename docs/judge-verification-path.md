@@ -1,6 +1,6 @@
 # Judge Verification Path
 
-Observed snapshot: 2026-06-04 15:33 UTC. Refresh live counters before final video or DoraHacks paste.
+Observed snapshot: 2026-06-04 16:15 UTC. Refresh live counters before final video or DoraHacks paste.
 
 This page is intentionally practical: a judge should be able to verify the core claims in about one minute without private access.
 
@@ -19,10 +19,10 @@ What to check:
 - `cyclesSucceeded24h` and `cyclesFailed24h` describe cron cycles, not trades
 - `gasRunway.status` is `ok`
 
-Observed 2026-06-04 15:33 UTC:
+Observed 2026-06-04 16:15 UTC:
 
 ```text
-cyclesSucceeded24h  31
+cyclesSucceeded24h  32
 cyclesFailed24h      0
 parseSuccessRate24h  100%
 gasRunway.status     ok
@@ -99,7 +99,7 @@ What to check:
 - Historical showcase cards are labelled as historical, not live proof.
 - Protected-capital examples do not claim execution.
 
-Observed 2026-06-04 15:33 UTC:
+Observed 2026-06-04 16:15 UTC:
 
 ```text
 DecisionLog rows              288
@@ -145,4 +145,3 @@ Honest framing:
 - GitHub Actions is a best-effort public cron, not a guaranteed daemon.
 - `/api/health.lastCycleAge` is the source of truth for freshness.
 - Cycles are not trades; swaps are a subset of cycles.
-

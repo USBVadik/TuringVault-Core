@@ -1,6 +1,6 @@
 # TuringVault DoraHacks Final Copy
 
-Observed snapshot: 2026-06-04 15:33 UTC.
+Observed snapshot: 2026-06-04 16:15 UTC.
 Refresh before final paste from:
 - https://frontend-seven-beta-46.vercel.app/api/health
 - https://frontend-seven-beta-46.vercel.app/api/performance
@@ -39,7 +39,7 @@ TuringVault should be judged as infrastructure.
 The Mantle Turing Test brief asks for on-chain benchmarking of AI, agent identity/reputation, and radical transparency. TuringVault ships all three as one live system:
 
 1. On-chain benchmarking of AI
-   Every autonomous cycle writes proposal, validation, decision, and reputation data to Mantle Mainnet. The 2026-06-04 15:33 UTC snapshot shows 288 DecisionLog rows and 289 ValidationRegistry proposals.
+   Every autonomous cycle writes proposal, validation, decision, and reputation data to Mantle Mainnet. The 2026-06-04 16:15 UTC snapshot shows 288 DecisionLog rows and 289 ValidationRegistry proposals.
 
 2. ERC-8004-style agent identity and reputation
    The agent has a non-transferable identity NFT, active ValidationRegistry writes, active ReputationRegistry feedback, and a DecisionLog. Five production contracts are Sourcify perfect-match verified on Mantle Mainnet.
@@ -51,7 +51,7 @@ The Mantle Turing Test brief asks for on-chain benchmarking of AI, agent identit
 
 ## Live Snapshot
 
-Observed from live APIs and Mantle Mainnet on 2026-06-04 15:33 UTC:
+Observed from live APIs and Mantle Mainnet on 2026-06-04 16:15 UTC:
 
 ```text
 DecisionLog rows                 288
@@ -63,10 +63,10 @@ Win rate                         58.2%
 Decision-Quality Score        +4342 bps
 realizedTradingPnlBps            null
 Methodology                      outcome score from settled decisions, not realized wallet PnL
-Cron health, 24h                 31 ran / 0 failed
+Cron health, 24h                 32 ran / 0 failed
 Parse success, 24h               100%
-NAV                           $151.55 operator-funded demo capital
-Gas runway                       ok, about 15.4 days in the observed snapshot
+NAV                           $151.31 operator-funded demo capital
+Gas runway                       ok, about 15.42 days in the observed snapshot
 ```
 
 Denominator note: DecisionLog rows and ValidationRegistry proposals are different contract surfaces. During a fresh cycle, the two counters can differ by one. The Proof Explorer now labels that difference explicitly.

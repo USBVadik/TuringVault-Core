@@ -1,6 +1,6 @@
 # Final Submission Verification - 2026-06-04
 
-Branch: `codex/submission-hardening`
+Branch: `main` (`8c726f0 merge: submission hardening`, then refreshed snapshot docs)
 
 Purpose: verify the submission-hardening package before DoraHacks copy/video work.
 
@@ -8,17 +8,17 @@ Purpose: verify the submission-hardening package before DoraHacks copy/video wor
 
 ## Live Snapshot Used
 
-Observed from production APIs around 2026-06-04 15:33 UTC:
+Observed from production APIs around 2026-06-04 16:15 UTC:
 
 ```text
 /api/health
-cyclesSucceeded24h   31
+cyclesSucceeded24h   32
 cyclesFailed24h       0
 parseSuccessRate24h   100%
 gasRunway.status      ok
 
 /api/performance
-NAV                   $151.55
+NAV                   $151.31
 settled outcomes      196
 win rate              58.2%
 outcomeScoreBps       +4342
@@ -152,4 +152,3 @@ Then update the dated snapshot in:
 - `docs/submission-final-copy.md`
 - `docs/judge-verification-path.md`
 - `docs/demo-script.md` if metrics materially changed
-

@@ -22,7 +22,7 @@ https://frontend-seven-beta-46.vercel.app
 GitHub:
 https://github.com/USBVadik/TuringVault-Core
 
-3/ Current observed snapshot, 2026-06-04 15:33 UTC:
+3/ Current observed snapshot, 2026-06-04 16:15 UTC:
 
 - 288 DecisionLog rows
 - 289 ValidationRegistry proposals
@@ -84,4 +84,3 @@ GitHub Actions cron is best-effort public automation, not a guaranteed daemon.
 Full reasoning is pinned off-chain; Mantle stores the cryptographic anchor.
 
 That is the whole thesis: AI capital allocation should be auditable by default.
-

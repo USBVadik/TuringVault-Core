@@ -1,6 +1,6 @@
 # RWA Live Vs Paper-Ready Matrix
 
-Observed snapshot: 2026-06-04 15:33 UTC.
+Observed snapshot: 2026-06-04 16:15 UTC.
 
 This file exists to keep the RWA story strong without overclaiming. Use it for DoraHacks copy, demo narration, and judge Q&A.
 
@@ -57,4 +57,3 @@ The strongest RWA claim is infrastructure, not APY:
 7. The outcome feeds reputation.
 
 That is the Path A story: a verifiable AI allocation rail for RWA treasury management on Mantle.
-
