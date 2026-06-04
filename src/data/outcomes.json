@@ -1501,6 +1501,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780593797322_289",
+      "decisionId": 289,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1763.79,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmUfzUMGcmQNX9bGfdqzAo5WBhcWbuz1PWbUvR8AX53cjc",
+      "recordedAt": "2026-06-04T17:23:17.322Z",
+      "settleAfter": "2026-06-04T18:23:17.322Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780593797316
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 61.7% stable, TREND_DOWN at only 60% confidence does not mandate further de-risking. Funding at 0.352% is neutral, smart money flow neutral, RSI 41.5 not oversold. Yield spread -1% bearish but insufficient alone to force action. No R:R gate applies to HOLD. Signals are consistent with analyst reasoning — no hallucinated data detected. Inventory",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional edge calculation",
+        "TREND_DOWN confidence only 60% — borderline regime call",
+        "MNT -6.65% adds ecosystem pressure not fully weighted"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xece4e6062b23a86a2fb5bb1c6c0c0728949a68cd26ba55e6445f519baff1c075",
+      "combinedAnchor": "0x5f67aa0f641ead647ba80c8ccb86b47b6e2e29528035afa018e0eee600599ab0",
+      "decisionLogTxHash": "0x451f6bc13042c89285b26d367f8803535df5be9c1293f198cf696f89d235b1e8",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
