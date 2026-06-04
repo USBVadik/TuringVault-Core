@@ -23,7 +23,9 @@
   - Added `npm run audit:submission`.
 - [x] Module E - Liveness, Cron, And Gas Readiness.
   - First-render `LiveStatusBadge` now shows `SYNCING`, not `OFFLINE`, until `/api/health` has been attempted.
-- [ ] Module F - RWA Claim Matrix And Asset Copy.
+- [x] Module F - RWA Claim Matrix And Asset Copy.
+  - Added `docs/rwa-live-vs-paper-ready.md`.
+  - Removed live-sounding USDY crisis-mode wording from README.
 - [ ] Module G - Demo Script And Social Proof Pack.
 - [ ] Module H - Final Verification And Submission Freeze.
 

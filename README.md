@@ -223,7 +223,7 @@ Traditional grid bots are dumb — fixed parameters, no regime awareness. Pure A
 | Validator Veto     | Risk > threshold         | REJECT (logged on-chain)   |
 | Confidence Gate    | Score < 60%              | Skip execution             |
 | Channel Too Narrow | < 0.7% width             | HOLD (slippage protection) |
-| Crisis Mode        | ATR spike                | Flight to USDY safety      |
+| Crisis Mode        | ATR spike                | Stable/RWA risk-off; USDY route remains gated |
 | Trailing Stops     | Active position          | Adaptive R:R ≥ 1.5:1       |
 
 ### Discipline Layer (Post-Execution Verification)
@@ -276,10 +276,10 @@ through two paths, both routed through Merchant Moe Liquidity Book:
 Treasury-collateralised, 1:1 USD peg). USDT0 itself is not
 yield-bearing — the dashboard never claims an APY on it.
 
-**Paper-ready target:** USDY (Ondo Finance tokenized US Treasuries —
-~3.55% APY on Mantle, $29.5M TVL per AprScope on 2026-05-23). Mantle
-pool depth is currently zero, so the swap path throws
-`RWA_POOL_INACTIVE` until reactivated. Module is shipped, gated off.
+**Paper-ready target:** USDY (Ondo Finance tokenized US Treasuries).
+Mantle pool depth is currently zero, so the swap path throws
+`RWA_POOL_INACTIVE` until reactivated. Module is shipped, gated off; no
+live USDY execution is claimed.
 
 Per-swap and per-day caps are operator-tunable via GitHub Actions
 secrets without redeploy. See
@@ -350,7 +350,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 | Data       | CoinGecko, Nansen MCP, Byreal (aggregates Hyperliquid funding/OI), DeFiLlama, Elfa REST v2                                                       |
 | Storage    | IPFS (Pinata) for Proof-of-Reasoning blobs                                                                                                       |
 | Frontend   | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary)                                                                        |
-| RWA        | Ondo Finance USDY metadata (paper-ready) + USDT0 LayerZero (active)                                                                              |
+| RWA        | USDT0 LayerZero (active), mETH Mantle LST (active risk-on/yield leg), Ondo Finance USDY metadata (paper-ready/gated)                             |
 | Infra      | GitHub Actions cron (best-effort hourly), Vercel (frontend), Pinata (IPFS pinning)                                                              |
 
 ---
