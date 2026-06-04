@@ -9,6 +9,7 @@
  */
 const {
   deriveLiveStatus,
+  deriveLiveStatusDisplay,
   isAutonomousLive,
   LIVE_THRESHOLDS,
 } = require("../../frontend/app/lib/live-status.shared.js");
@@ -89,6 +90,21 @@ describe("deriveLiveStatus modeLabel (steering rule §2)", () => {
       deriveLiveStatus({ lastCycleAge: 60, mode: "showcase-2026-04" })
         .modeLabel
     ).toBe("Showcase mode");
+  });
+});
+
+describe("deriveLiveStatusDisplay loading honesty", () => {
+  test("first-render loading state does not claim OFFLINE", () => {
+    const s = deriveLiveStatusDisplay(null, { loading: true });
+    expect(s.tier).toBe("syncing");
+    expect(s.label).toBe("SYNCING");
+    expect(s.detail).toMatch(/loading live snapshot/i);
+  });
+
+  test("after loading, null health is still OFFLINE", () => {
+    const s = deriveLiveStatusDisplay(null, { loading: false });
+    expect(s.tier).toBe("offline");
+    expect(s.label).toBe("OFFLINE");
   });
 });
 

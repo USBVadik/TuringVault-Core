@@ -21,7 +21,8 @@
 - [x] Module D - DoraHacks And README Copy Rewrite.
   - Added `docs/submission-final-copy.md`.
   - Added `npm run audit:submission`.
-- [ ] Module E - Liveness, Cron, And Gas Readiness.
+- [x] Module E - Liveness, Cron, And Gas Readiness.
+  - First-render `LiveStatusBadge` now shows `SYNCING`, not `OFFLINE`, until `/api/health` has been attempted.
 - [ ] Module F - RWA Claim Matrix And Asset Copy.
 - [ ] Module G - Demo Script And Social Proof Pack.
 - [ ] Module H - Final Verification And Submission Freeze.
