@@ -638,6 +638,79 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780632652177_301",
+      "decisionId": 301,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1728.25,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmQHU5R5VfVtHbRFjzdgZ6uTvdNcpLE4AVzSUTHBgRFhNa",
+      "recordedAt": "2026-06-05T04:10:52.177Z",
+      "settleAfter": "2026-06-05T05:10:52.177Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780632652171
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 62% stable, satisfying de-risking intent under TREND_DOWN (60% confidence). Analyst correctly notes neutral funding (0.268%), oversold RSI(33), Fear&Greed at 12, and neutral smart money flow. Yield spread -1% bearish acknowledged. No directional swap proposed, so R:R gate and regime-swap rules do not apply. Scale-in rule correctly cited to bloc",
+      "validatorFlaggedIssues": [
+        "TREND_DOWN confidence only 60% — not high-conviction bear",
+        "MNT -7.78% steeper decline warrants monitoring for stop-loss on WMNT",
+        "No bounce catalyst identified despite oversold readings",
+        "Yield spread negative reduces mETH carry appeal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0c773bd2998c1a92a290b0136680d53a57b47c898f9ba04992fac34a86f8c14f",
+      "combinedAnchor": "0x75651520258166b53d890c7f8a84071848753a8e9ebc2300418ad919843121a0",
+      "decisionLogTxHash": "0x33dd13c0682184805e5b2f0a6f5f1ab44a16010f9f9095e9e7b643db29cb315c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
