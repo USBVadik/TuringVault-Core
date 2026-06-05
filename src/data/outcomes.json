@@ -286,6 +286,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780696350045_318",
+      "decisionId": 318,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1615.85,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmQhF1zrD8Py5xrd2daWLajAoJ6jTEXQS6wy8CywfzBnTk",
+      "recordedAt": "2026-06-05T21:52:30.045Z",
+      "settleAfter": "2026-06-05T22:52:30.045Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780696350036
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with BEARISH consensus is well-supported. Portfolio is already balanced at 63% stable / 37% risk — no new capital deployment required. Funding at -0.528% (mild short bias) noted correctly as contrarian bullish signal. Yield spread -1% bearish and ETH -8.44% confirm defensive posture. No R:R gate applies to HOLD. Analyst correctly acknowledges contrad",
+      "validatorFlaggedIssues": [
+        "R:R not provided — acceptable for HOLD but should be noted",
+        "58% confidence is modest; two confirming signals (regime + yield spread) support caution",
+        "Funding contrarian signal acknowledged but not quantified as actionable edge"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x830d3053858f0548fe2f61e732dbf105839736a01a16611cffa47bff478fc1d9",
+      "combinedAnchor": "0xf8b63d595ca10755267d9b2c8bf9868fdddeed795fda47c4e029e0c3e0a94161",
+      "decisionLogTxHash": "0x1a6eb6fbe31621304c0ff863fc955e640aa1743965b723b0442fcab1cf52f106",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
