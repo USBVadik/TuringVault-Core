@@ -783,6 +783,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780647633894_303",
+      "decisionId": 303,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1663.79,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmRaEGdEqEa4fDnbPjJoo4WWNWQecb1wy588MTpiatxBbj",
+      "recordedAt": "2026-06-05T08:20:33.894Z",
+      "settleAfter": "2026-06-05T09:20:33.894Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780647633889
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. CRISIS regime (85% confidence) is explicitly confirmed, satisfying the inventory rule exception for stable-heavy FLAT portfolios. Bearish consensus, negative yield spread (-1%), and social mindshare collapse (-40%) all support caution. RSI 26.3 oversold noted but no bounce confirmation signals present. Analyst correctly avoids forced risk_off on already-stable portfolio. No R:",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional R:R gate",
+        "Funding -0.5% is mild bearish not neutral — minor misread but immaterial to HOLD conclusion",
+        "MNT RSI 28.7 falling vs ETH RSI rising — divergence unacknowledged but not decision-critical"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6145af7923ac6fe894c9d41edf22413d6b1983ebdc31f2a5de271c81c829e0b8",
+      "combinedAnchor": "0x69a1bc177ab4d7c63becbdf6505b08f91961a4fe680d67f8e96fd1905f5c00d4",
+      "decisionLogTxHash": "0x464c19b0a3f5ed17159fa23cdec7d8f947b22241a792eabad1fea6e87c88b2b5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
