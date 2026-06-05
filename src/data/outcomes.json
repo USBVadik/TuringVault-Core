@@ -214,6 +214,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780617761788_297",
+      "decisionId": 297,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 0.555604,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "QmW6K4TjQm5DS66MuR8w4JX3jqezD8UvBuMcsgbb91ZWLV",
+      "recordedAt": "2026-06-05T00:02:41.788Z",
+      "settleAfter": "2026-06-05T01:02:41.788Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780617761782
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. ETH grid BUY_mETH at 79% confidence with 2.5:1 R:R is valid, but ALREADY_IN_POSITION at $1768.56 correctly blocks scale-in per inventory rule — no confirmed deeper lower-band move. MNT EXIT_RANGING DOWN acknowledged. Funding neutral, smart money neutral, F&G=12 extreme fear noted. No hallucinated data. All raw signals correctly read. HOLD preserves capital appro",
+      "validatorFlaggedIssues": [
+        "No R:R provided by Analyst but HOLD requires none — acceptable",
+        "MNT TREND_DOWN contagion risk to ETH is real but not yet confirmed cross-asset",
+        "F&G=12 extreme fear could precede further downside — HOLD is correct posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x318a55fcc0dbe15f730979bf783039f3459d7518ca7dab8c9b8ffce1da90ba6f",
+      "combinedAnchor": "0xe8048abc39c2dfecf9d07598f7cf115871d037e53011fa286072ca85f13d0be4",
+      "decisionLogTxHash": "0x13b6df512e21962589aa67b02ea37365e671c6e914abd284d1d5db0de60735d6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
