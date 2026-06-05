@@ -390,6 +390,80 @@
       "executedOnChain": true,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1780622916656_299",
+      "decisionId": 299,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1751.05,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmZTcwoRqFqYkgtFL4FpWvF4VFYcLrsVjgjBjG4YtSQ2Zn",
+      "recordedAt": "2026-06-05T01:28:36.656Z",
+      "settleAfter": "2026-06-05T02:28:36.656Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780622916651
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-grounded. ETH grid fires BUY_mETH at 80% confidence with R:R 2.5:1, but ALREADY_IN_POSITION override is active and scale-in rule correctly blocks adding — no confirmed deeper lower-band move, position is underwater at $1753 vs entry $1768.56. MNT EXIT_RANGING with UNKNOWN breakout direction supports patience. Funding neutral (0.39%), smart money flow neutral, yield spread bea",
+      "validatorFlaggedIssues": [
+        "Position underwater ~$15 from entry; scale-in blocked correctly",
+        "MNT breakout direction unconfirmed — HOLD appropriate",
+        "Yield spread -1% bearish signal acknowledged but not overriding",
+        "Extreme Fear F&G=12 adds downside tail risk if $1758.9 support fails"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xdf7793c1ebd565d499466dd559ee487a15f655b76ae1668cbfd5e4fc1567ce28",
+      "combinedAnchor": "0xc09370b54ae06cdc1b189d97fbfdcffe20fede79d667aec8e26fc7792c9abf8f",
+      "decisionLogTxHash": "0xea0d24e16ec7d201a36d1db505d72736017e4be9bfc1764cde196900c8ebcc22",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
