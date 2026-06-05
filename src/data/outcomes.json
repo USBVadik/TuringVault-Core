@@ -143,6 +143,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780691352061_316",
+      "decisionId": 316,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1596.92,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmQhzr6XuanJaXetEPvPRJvseujawCD28XqG7ViYcbkjCX",
+      "recordedAt": "2026-06-05T20:29:12.061Z",
+      "settleAfter": "2026-06-05T21:29:12.061Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780691352054
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime with stable-heavy portfolio (63.6%) is appropriate and low-risk. Analyst correctly identifies contrarian bullish signal from -0.683% funding rate and rising RSI(14) at 35.9, while acknowledging BEARISH consensus and -9.59% ETH drawdown. No directional swap proposed, so R:R gate does not apply. Signals cited match raw data: CRISIS 85%, Extreme Fear 12, neutral smart m",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not explicitly weighted in final reasoning",
+        "ETH price $1596.92 near $1517 liquidation cluster — downside risk non-trivial"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xbdbb0039f4416adedbf7ddcaf96c89c5b58e2152ba6509f643eea94e9c8efcfb",
+      "combinedAnchor": "0xb27c3ddee3809f8ca490db9910f4b6105c17e456ae3dd538c75b0a01fcfbcac2",
+      "decisionLogTxHash": "0x566b34a9374424d7efe27ee4475ccc7130a5143f63b7525f8ecf9bee8eb0a661",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
