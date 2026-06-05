@@ -711,6 +711,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780635627690_302",
+      "decisionId": 302,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1735,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmQMTs1e23u3rbEBPKKjoKG2Hs3e6TH8N7NSSDH3ztcRr4",
+      "recordedAt": "2026-06-05T05:00:27.690Z",
+      "settleAfter": "2026-06-05T06:00:27.690Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780635627683
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 62% stable, so no de-risk urgency. TREND_DOWN at 60% confidence is mild — not CRISIS. RSI 35.8 rising, funding neutral at 0.327%, smart money flow neutral ($0.0M). No directional swap proposed, so regime-swap gate does not apply. Analyst correctly notes no clear risk_on edge. Yield spread -1% bearish but insufficient alone to force further de-r",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD carries no execution risk",
+        "TREND_DOWN confidence only 60% — borderline regime call",
+        "Fear & Greed at 12 warrants monitoring for cascade risk near $1612 liq zone"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x4561470d8960af0834521313bc6fc01ac44115e9257c38073e86677ce9231811",
+      "combinedAnchor": "0x7af1286c5674c77319936985a0a37bdfd3b11f83da15451e2780be005698b2d3",
+      "decisionLogTxHash": "0x05dab86523035a84732c8444134b53106d21ee80c10eebecab4324862d1fb0db",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
