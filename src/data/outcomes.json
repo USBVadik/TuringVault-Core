@@ -214,6 +214,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780696264215_317",
+      "decisionId": 317,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1615.37,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmZUzB2QYEapcd8vWBYieLqd8XtcTVbxw7HzGvx9fZCseu",
+      "recordedAt": "2026-06-05T21:51:04.215Z",
+      "settleAfter": "2026-06-05T22:51:04.215Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780696264211
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with stable-heavy portfolio (63.4%) is appropriate. Analyst correctly identifies redundancy of further risk_off. CRISIS explicitly confirmed, satisfying inventory rule exception. Bearish consensus, negative yield spread (-1%), and ETH -8.49% support preservation posture. RSI 40.6 and F&G 12 insufficient for counter-trend long. No action = no R:R gate",
+      "validatorFlaggedIssues": [
+        "Funding rate annualization (-193%) is analyst extrapolation not in raw signals — minor overstatement",
+        "R:R not provided but irrelevant for HOLD",
+        "Yield spread bearish signal slightly underweighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa929fc6f420c569617d57a61d6a51101771e13b09626d29380076e4c97631faf",
+      "combinedAnchor": "0xf49770eb42e26fa29db37ff74419224158a0a0f5bef3788210f9566964da2c9a",
+      "decisionLogTxHash": "0x2811fb68a1d51d9d6aa75a0f05543edd7af8b08622ecb68b04fe588d393712d7",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
