@@ -1215,6 +1215,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780670830065_309",
+      "decisionId": 309,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1611.71,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmeihrybTMkTvNYrLf6Fft49wtS3qk1kDQd6QvbyL2Mxt4",
+      "recordedAt": "2026-06-05T14:47:10.065Z",
+      "settleAfter": "2026-06-05T15:47:10.065Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780670830060
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) is well-supported. Portfolio is already 63.2% stable, risk inventory is modest ($40.67). Inventory rule explicitly endorses HOLD over repeated risk_off when stable-heavy and FLAT unless CRISIS is confirmed — and CRISIS IS confirmed here. Bearish consensus, negative yield spread (-1%), ETH -8.79%, Fear&Greed 12 all align. No R:R gate applies to HOLD. ",
+      "validatorFlaggedIssues": [
+        "R:R not provided but irrelevant for HOLD action",
+        "RSI 24.1 oversold — minor reversal risk not fully weighted but acknowledged",
+        "Funding -0.30% is mild bearish, not extreme — correctly noted as neutral"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe0dad4fcd595490b047a4b69a9fa046e37cf630076b436183c9d6d113a032cd0",
+      "combinedAnchor": "0xac070190801c9e46203f42f93d9f70463ed0c5a0db336f01a834fa6502e5eece",
+      "decisionLogTxHash": "0x02222e3a2ffa56494e03f33904dab7429de1160461fe8de887ad4b80b309c754",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
