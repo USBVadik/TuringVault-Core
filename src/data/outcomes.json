@@ -1501,6 +1501,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780684172548_313",
+      "decisionId": 313,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1570.26,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmREE8NRFeungApfA27zfdTvhbUpED5CiUv9jAChnX548F",
+      "recordedAt": "2026-06-05T18:29:32.548Z",
+      "settleAfter": "2026-06-05T19:29:32.548Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780684172542
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. CRISIS regime confirmed at 85% confidence with BEARISH consensus, ETH -11.28%, Fear & Greed 12, MACD/EMA bearish, yield spread -1% bearish. Portfolio is already 63.8% stable — no further risk_off needed, no directional swap proposed. Analyst correctly notes no smart money inflow confirmation and falling-knife conditions. RSI oversold but insufficient to override CRISIS regime ",
+      "validatorFlaggedIssues": [
+        "Analyst states position is 'balanced, not FLAT' — portfolio rule references FLAT specifically; posture is listed as 'balanced' which aligns",
+        "R:R not provided but irrelevant for HOLD — no capital at risk",
+        "Funding rate cited as annualised but raw signal shows -0.367% per-period — minor framing imprecision, not material"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x95789d6112ac4fdd845855a7ccc6cb140d3150a59ed0cd388f793f27d448a8ec",
+      "combinedAnchor": "0x4b2aec0650b232e5480bb7d975cb5821115bcaac708a4e4c12f5078374488b78",
+      "decisionLogTxHash": "0x780b48838117db9732593d995169c4ac004791562d732458a82720866ea36fcc",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
