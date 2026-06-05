@@ -36,6 +36,8 @@ type Check = { name: string; status: string; detail?: string };
 type HistoryEntry = {
   at: string;
   decisionId: number | null;
+  decisionLogId?: number | null;
+  registryDecisionId?: number | null;
   verdict: "ACCEPTED" | "BLOCKED" | "SKIPPED" | "ERROR" | "UNKNOWN";
   checks: Check[];
   blockReason?: string | null;
@@ -99,6 +101,20 @@ function safeReadJson<T>(p: string): T | null {
   }
 }
 
+function withDisplayIds(entry: HistoryEntry): HistoryEntry {
+  const registryDecisionId = entry.decisionId ?? null;
+  const decisionLogId =
+    typeof registryDecisionId === "number" && registryDecisionId > 0
+      ? registryDecisionId - 1
+      : registryDecisionId;
+
+  return {
+    ...entry,
+    registryDecisionId,
+    decisionLogId,
+  };
+}
+
 async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
   try {
     const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
@@ -142,13 +158,15 @@ export async function GET() {
   }
   history = history ?? [];
 
-  const last30 = history.slice(-30).reverse(); // newest first for display
+  const last30 = history.slice(-30).map(withDisplayIds).reverse(); // newest first for display
   const summary = disciplineSummary.buildSummary(history);
   const latestDetail = readLatestDetail();
 
   // Best-effort: if outcomes.json has no disciplineDetail (older entries),
   // fall back to the latest history entry as a compact "latest".
-  const latestFromHistory = history[history.length - 1] ?? null;
+  const latestFromHistory = history[history.length - 1]
+    ? withDisplayIds(history[history.length - 1])
+    : null;
 
   return NextResponse.json(
     {

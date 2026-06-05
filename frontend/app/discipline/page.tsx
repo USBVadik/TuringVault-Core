@@ -67,6 +67,8 @@ type Check = { name: string; status: string; detail?: string };
 type HistoryEntry = {
   at: string;
   decisionId: number | null;
+  decisionLogId?: number | null;
+  registryDecisionId?: number | null;
   verdict: "ACCEPTED" | "BLOCKED" | "SKIPPED" | "ERROR" | "UNKNOWN";
   checks: Check[];
   blockReason?: string | null;
@@ -110,7 +112,7 @@ type ApiResponse = {
 
 const KNOWN_GATES = ["tx_proof", "price_freshness", "drift_detection"] as const;
 const GATE_LABEL: Record<string, string> = {
-  tx_proof: "TX Proof",
+  tx_proof: "Swap Proof",
   price_freshness: "Freshness",
   drift_detection: "Drift",
 };
@@ -139,16 +141,43 @@ function txProofStatus(checks: Check[] | undefined): string {
   return String(checks?.find((c) => c.name === "tx_proof")?.status ?? "").toLowerCase();
 }
 
+function displayDecisionId(entry: HistoryEntry | null | undefined): string {
+  const id = entry?.decisionLogId ?? entry?.decisionId;
+  return typeof id === "number" ? String(id) : "?";
+}
+
+function displayRegistryId(entry: HistoryEntry | null | undefined): string | null {
+  const id = entry?.registryDecisionId ?? entry?.decisionId;
+  return typeof id === "number" ? String(id) : null;
+}
+
+function displayCheckDetail(check: Check): string {
+  const status = String(check.status ?? "").toLowerCase();
+  if (check.name === "tx_proof" && status === "skip") {
+    return "No swap execution tx expected for HOLD / blocked cycle";
+  }
+  return check.detail ?? "";
+}
+
+function displayCheckTitle(gate: string, check: Check | undefined): string {
+  if (!check?.status) return "no check recorded for this cycle";
+  const status = String(check.status);
+  if (gate === "tx_proof" && status.toLowerCase() === "skip") {
+    return `${status} — No swap execution tx expected for HOLD / blocked cycle`;
+  }
+  return `${status}${check.detail ? ` — ${check.detail}` : ""}`;
+}
+
 function displayVerdict(status: string | undefined, checks: Check[] | undefined): string {
   const verdict = status ?? "UNKNOWN";
   const tx = txProofStatus(checks);
-  if (verdict === "ACCEPTED" && tx === "skip") return "HOLD (no tx)";
+  if (verdict === "ACCEPTED" && tx === "skip") return "HOLD (no swap)";
   if (verdict === "ACCEPTED" && tx === "pass") return "SWAP VERIFIED";
-  if (verdict === "ACCEPTED" && tx === "warn") return "TX WARNING";
+  if (verdict === "ACCEPTED" && tx === "warn") return "SWAP TX WARNING";
   if (verdict === "ACCEPTED" && (tx === "fail" || tx === "error")) {
-    return "TX PROOF FAILED";
+    return "SWAP PROOF FAILED";
   }
-  if (verdict === "ACCEPTED" && !tx) return "TX UNVERIFIED";
+  if (verdict === "ACCEPTED" && !tx) return "SWAP UNVERIFIED";
   return verdict;
 }
 
@@ -213,7 +242,7 @@ export default function DisciplinePage() {
               market data fresh, and did the action match the declared regime?
             </p>
             <div className={styles.gateStrip}>
-              <span>TX exists on chain</span>
+              <span>Swap tx verified when executed</span>
               <span>price data &lt; 60s</span>
               <span>regime alignment</span>
             </div>
@@ -233,8 +262,13 @@ export default function DisciplinePage() {
               </div>
               <div className={styles.verdictMeta}>
                 <span>
-                  cycle #{data.latestEntry?.decisionId ?? "?"}
+                  DecisionLog #{displayDecisionId(data.latestEntry)}
                 </span>
+                {displayRegistryId(data.latestEntry) && (
+                  <span title="ValidationRegistry / proposal id">
+                    registry #{displayRegistryId(data.latestEntry)}
+                  </span>
+                )}
                 <span>
                   {data.latestEntry?.at ? relativeTime(data.latestEntry.at) : "—"}
                 </span>
@@ -296,7 +330,7 @@ export default function DisciplinePage() {
               <div className={styles.explainerGrid}>
                 <ExplainerGate
                   icon={Receipt}
-                  title="TX Proof"
+                  title="Swap Proof"
                   oneLiner="Show me the receipt"
                   body={
                     <>
@@ -425,8 +459,11 @@ export default function DisciplinePage() {
                 <div className={styles.latestMeta}>
                   {data.latestEntry?.at && (
                     <span>
-                      {relativeTime(data.latestEntry.at)} · cycle #
-                      {data.latestEntry.decisionId ?? "?"}
+                      {relativeTime(data.latestEntry.at)} · DecisionLog #
+                      {displayDecisionId(data.latestEntry)}
+                      {displayRegistryId(data.latestEntry)
+                        ? ` · registry #${displayRegistryId(data.latestEntry)}`
+                        : ""}
                     </span>
                   )}
                 </div>
@@ -453,7 +490,7 @@ export default function DisciplinePage() {
                         {GATE_LABEL[c.name] ?? c.name}
                       </strong>
                       <em>
-                        {c.detail ?? ""}
+                        {displayCheckDetail(c)}
                       </em>
                     </div>
                   ))}
@@ -478,7 +515,7 @@ export default function DisciplinePage() {
                   <table className={styles.historyTable}>
                     <thead>
                       <tr>
-                        <th>cycle</th>
+                        <th>decision</th>
                         <th>when</th>
                         <th>verdict</th>
                         {KNOWN_GATES.map((g) => (
@@ -507,7 +544,20 @@ export default function DisciplinePage() {
                               tabIndex={0}
                               aria-expanded={isOpen}
                             >
-                              <td>{e.decisionId ?? "?"}</td>
+                              <td
+                                title={
+                                  displayRegistryId(e)
+                                    ? `DecisionLog #${displayDecisionId(e)}; registry/proposal #${displayRegistryId(e)}`
+                                    : undefined
+                                }
+                              >
+                                #{displayDecisionId(e)}
+                                {displayRegistryId(e) && (
+                                  <span className={styles.registryId}>
+                                    reg #{displayRegistryId(e)}
+                                  </span>
+                                )}
+                              </td>
                               <td>{relativeTime(e.at)}</td>
                               <td>
                                 <span
@@ -524,11 +574,7 @@ export default function DisciplinePage() {
                                 return (
                                   <td
                                     key={g}
-                                    title={
-                                      c?.status
-                                        ? `${c.status}${c.detail ? ` — ${c.detail}` : ""}`
-                                        : "no check recorded for this cycle"
-                                    }
+                                    title={displayCheckTitle(g, c)}
                                   >
                                     <span className={styles.gateIconCell}>
                                       <StatusIcon status={c?.status} />
@@ -589,16 +635,16 @@ function SummaryCard({ summary }: { summary: Summary }) {
           return (
             <Tile
               key={g}
-              label="TX Proof"
+              label="Executed swap proofs"
               value={
                 hasExecutedTx
-                  ? `${summary.txProofPassCount}/${summary.cyclesWithTx} tx cycles`
+                  ? `${summary.txProofPassCount}/${summary.cyclesWithTx} swaps`
                   : "No swaps"
               }
               tooltip={
                 hasExecutedTx
-                  ? `${rate ?? "—"}% verified across cycles with a transaction; ${nonPassing} failed/warned (${summary.txProofErrorCount} RPC errors); ${summary.cyclesWithoutTx} HOLD cycles had no tx to verify`
-                  : `${summary.cyclesWithoutTx} HOLD cycles had no tx to verify`
+                  ? `${rate ?? "—"}% verified across executed swap cycles; ${nonPassing} failed/warned (${summary.txProofErrorCount} RPC errors); ${summary.cyclesWithoutTx} HOLD / blocked cycles had no swap execution tx to verify`
+                  : `${summary.cyclesWithoutTx} HOLD / blocked cycles had no swap execution tx to verify`
               }
               tone={
                 !hasExecutedTx
