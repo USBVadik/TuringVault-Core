@@ -1287,6 +1287,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780675095686_310",
+      "decisionId": 310,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1583.98,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "Qme6uyFJ8EXYbUVVr93PhqBDcv3tybofFRPYQmQy4vFcKb",
+      "recordedAt": "2026-06-05T15:58:15.686Z",
+      "settleAfter": "2026-06-05T16:58:15.686Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780675095680
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. CRISIS regime confirmed at 85% confidence with BEARISH consensus, ETH -10.84%, Fear & Greed at 12. Portfolio is already 63.5% stable — no further de-risking needed per inventory rule. Analyst correctly identifies short-squeeze risk from -0.399% funding but defers action pending confirmation. RSI 21.1 oversold yet momentum falling; yield spread -1% bearish. No",
+      "validatorFlaggedIssues": [
+        "Analyst states funding is '-0.399% annualized (~-145%)' — this annualization math is inconsistent; raw signal shows -0.399% with no annualized figure provided",
+        "Yield spread -1% bearish signal not explicitly weighted in final reasoning",
+        "No defined re-entry trigger price specified for actionability"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf6eaf4298c7e8aef0ff84aaa32839c2ea220f22431436977c495e1abbd38ff8b",
+      "combinedAnchor": "0xf6849b2cb884e73e9d39e8eea6349bb178ee18381d07f8e8efb4b2f61505fc3d",
+      "decisionLogTxHash": "0x4d908561cce3fe5beacec8e5a08b9dca627421c497d352357082bb8638a7289b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
