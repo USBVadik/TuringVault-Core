@@ -1143,6 +1143,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780667178227_308",
+      "decisionId": 308,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1654.94,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmRwbtA3ti9Ta6qTozh224pP3LrC4ujEc76DufYovkjgao",
+      "recordedAt": "2026-06-05T13:46:18.227Z",
+      "settleAfter": "2026-06-05T14:46:18.227Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780667178221
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is the correct low-risk action here. CRISIS regime at 85% confidence is explicitly confirmed, satisfying the inventory rule exception for stable-heavy FLAT portfolios. Signal consensus is BEARISH, yield spread -1% BEARISH, ETH -6.93% with RSI 30.1 falling. Portfolio already 62.8% stable — no further de-risking needed, no directional swap proposed. Analyst correctly avoids selling tiny risk re",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional edge — acceptable",
+        "Funding -0.199% cited as annualised but raw signal shows n/a annualised — minor inconsistency, not material",
+        "RSI oversold could signal near-term bounce but CRISIS regime overrides"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb30a01010f0f0201c164e84f0a3f3bc6161e626e18b57666f8a6d35b2d918b9f",
+      "combinedAnchor": "0xeb4867a24aefcd082816e0fa5ac9f28dd5ff52a7ffad5ea5ee7d22d58da03a77",
+      "decisionLogTxHash": "0x0ed536c3a2eae83632e81079c6aa21088eb57d6e5c41b81c71334f00e32a9843",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
