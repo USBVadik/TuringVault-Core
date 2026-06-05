@@ -47,6 +47,7 @@ jobs:
       - name: Check freshness and dispatch a cycle if stale
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           # Freshness threshold in seconds. 3000 = 50 min. The agent
           # cron runs every 30 min, so a single dropped slot (~60 min
           # gap) trips this; a healthy 30-min cadence never does.
@@ -74,7 +75,7 @@ jobs:
 
           if [ "$AGE" -gt "$STALE_THRESHOLD_S" ]; then
             echo "watchdog: feed is STALE (${AGE}s > ${STALE_THRESHOLD_S}s) — dispatching Agent Cycle"
-            gh workflow run agent-cycle.yml --ref main
+            gh workflow run agent-cycle.yml --repo "$GH_REPO" --ref main
             echo "watchdog: dispatched."
           else
             echo "watchdog: feed fresh (${AGE}s) — no action."
