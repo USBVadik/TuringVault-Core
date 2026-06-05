@@ -3,6 +3,7 @@ const {
     buildPositionEntryState,
     getSettlementSnapshot,
     inferSettlementSourceAsset,
+    shouldRefreshAgentCard,
   },
 } = require("../../src/orchestrator/multiAgentLoop");
 
@@ -226,5 +227,59 @@ describe("multiAgentLoop position entry state", () => {
       stopLoss: 0.61,
       allocationPct: 30,
     });
+  });
+});
+
+describe("multiAgentLoop Agent Card refresh policy", () => {
+  const now = Date.parse("2026-06-05T08:00:00.000Z");
+
+  test("refreshes when no previous Agent Card snapshot exists", () => {
+    expect(
+      shouldRefreshAgentCard({
+        previousStats: null,
+        nextStats: { totalDecisions: 302 },
+        nowMs: now,
+      }).refresh
+    ).toBe(true);
+  });
+
+  test("skips fresh snapshots with only routine per-cycle stat drift", () => {
+    expect(
+      shouldRefreshAgentCard({
+        previousStats: {
+          totalDecisions: 300,
+          snapshotAt: "2026-06-05T07:30:00.000Z",
+        },
+        nextStats: { totalDecisions: 302 },
+        nowMs: now,
+      })
+    ).toEqual({
+      refresh: false,
+      reason: "fresh-routine-drift",
+    });
+  });
+
+  test("refreshes after enough decision drift or stale snapshot age", () => {
+    expect(
+      shouldRefreshAgentCard({
+        previousStats: {
+          totalDecisions: 260,
+          snapshotAt: "2026-06-05T07:30:00.000Z",
+        },
+        nextStats: { totalDecisions: 302 },
+        nowMs: now,
+      }).refresh
+    ).toBe(true);
+
+    expect(
+      shouldRefreshAgentCard({
+        previousStats: {
+          totalDecisions: 300,
+          snapshotAt: "2026-06-04T07:00:00.000Z",
+        },
+        nextStats: { totalDecisions: 302 },
+        nowMs: now,
+      }).refresh
+    ).toBe(true);
   });
 });

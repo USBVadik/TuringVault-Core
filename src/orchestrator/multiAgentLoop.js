@@ -269,6 +269,47 @@ function compactPortfolioGuardResult(result) {
   };
 }
 
+const AGENT_CARD_REFRESH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const AGENT_CARD_REFRESH_DECISION_DELTA = 24;
+
+function shouldRefreshAgentCard({
+  previousStats,
+  nextStats,
+  nowMs = Date.now(),
+  maxAgeMs = AGENT_CARD_REFRESH_MAX_AGE_MS,
+  decisionDelta = AGENT_CARD_REFRESH_DECISION_DELTA,
+} = {}) {
+  if (!previousStats) {
+    return { refresh: true, reason: "missing-previous-stats" };
+  }
+
+  const previousTotal = Number(
+    previousStats.totalDecisions ?? previousStats.proposalsValidated
+  );
+  const nextTotal = Number(
+    nextStats?.totalDecisions ?? nextStats?.proposalsValidated
+  );
+
+  if (!Number.isFinite(previousTotal) || !Number.isFinite(nextTotal)) {
+    return { refresh: true, reason: "missing-decision-count" };
+  }
+
+  if (Math.abs(nextTotal - previousTotal) >= decisionDelta) {
+    return { refresh: true, reason: "decision-delta" };
+  }
+
+  const snapshotMs = Date.parse(previousStats.snapshotAt || "");
+  if (!Number.isFinite(snapshotMs)) {
+    return { refresh: true, reason: "missing-snapshotAt" };
+  }
+
+  if (nowMs - snapshotMs >= maxAgeMs) {
+    return { refresh: true, reason: "stale-snapshot" };
+  }
+
+  return { refresh: false, reason: "fresh-routine-drift" };
+}
+
 function finitePositiveNumber(value) {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? n : null;
@@ -1975,10 +2016,11 @@ async function runMultiAgentCycle(opts = {}) {
         ? ((Number(rejected) / Number(total)) * 100).toFixed(1)
         : "0";
 
-    // Update stats in card
-    agentCard.stats = {
+    const nowIso = new Date().toISOString();
+    const nextStats = {
       totalDecisions: Number(total),
       proposalsValidated: Number(total),
+      snapshotAt: nowIso,
       safetyBlockedActions: Number(rejected),
       approvedExecutions: Number(approved),
       blockRate: `${blockRate}%`,
@@ -1989,32 +2031,48 @@ async function runMultiAgentCycle(opts = {}) {
         total
       )} unsafe proposals — 3-model consensus ensures safety-first execution`,
     };
-    agentCard.systemPrompt.lastUpdated = new Date().toISOString();
 
-    // Pin updated card
-    const cardResult = await pinJSON(
-      agentCard,
-      `TuringVault-AgentCard-v${agentCard.systemPrompt.version}-${Date.now()}`
-    );
-    console.log(`   ✅ New Agent Card CID: ${cardResult.cid}`);
+    const refreshPolicy = shouldRefreshAgentCard({
+      previousStats: agentCard.stats,
+      nextStats,
+      nowMs: Date.parse(nowIso),
+    });
 
-    // Update tokenURI on-chain
-    const identityContract = new ethers.Contract(
-      "0x6f862802e0d5463DF18d267e422347BeCacc28bD",
-      [
-        "function setAgentURI(uint256 agentId, string calldata newURI) external",
-      ],
-      wallet
-    );
-    const uriTx = await identityContract.setAgentURI(0, cardResult.uri);
-    await uriTx.wait();
-    console.log(
-      `   ✅ tokenURI updated on-chain (tx: ${uriTx.hash.slice(0, 18)}...)`
-    );
+    if (!refreshPolicy.refresh) {
+      console.log(
+        `   ↷ Agent Card refresh skipped (${refreshPolicy.reason}; total=${Number(
+          total
+        )})`
+      );
+    } else {
+      agentCard.stats = nextStats;
+      agentCard.systemPrompt.lastUpdated = nowIso;
 
-    // Write updated card locally too
-    const fs = require("fs");
-    fs.writeFileSync(agentCardPath, JSON.stringify(agentCard, null, 2));
+      // Pin updated card
+      const cardResult = await pinJSON(
+        agentCard,
+        `TuringVault-AgentCard-v${agentCard.systemPrompt.version}-${Date.now()}`
+      );
+      console.log(`   ✅ New Agent Card CID: ${cardResult.cid}`);
+
+      // Update tokenURI on-chain
+      const identityContract = new ethers.Contract(
+        "0x6f862802e0d5463DF18d267e422347BeCacc28bD",
+        [
+          "function setAgentURI(uint256 agentId, string calldata newURI) external",
+        ],
+        wallet
+      );
+      const uriTx = await identityContract.setAgentURI(0, cardResult.uri);
+      await uriTx.wait();
+      console.log(
+        `   ✅ tokenURI updated on-chain (tx: ${uriTx.hash.slice(0, 18)}...)`
+      );
+
+      // Write updated card locally too
+      const fs = require("fs");
+      fs.writeFileSync(agentCardPath, JSON.stringify(agentCard, null, 2));
+    }
   } catch (cardErr) {
     console.log(
       `   ⚠️  Agent Card auto-update failed: ${cardErr.message?.slice(0, 80)}`
@@ -2143,6 +2201,7 @@ module.exports = {
     normalizePositionTargetAsset,
     positionEntryPriceForTarget,
     selectPositionGridSignal,
+    shouldRefreshAgentCard,
     sourceUsdPriceForToken,
   },
 };

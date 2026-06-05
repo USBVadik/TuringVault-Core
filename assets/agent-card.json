@@ -7,7 +7,7 @@
     "role": "reference-implementation",
     "deployedOn": "Mantle Mainnet (5000)",
     "components": [
-      "Identity NFT (non-transferable, auto-updating tokenURI per cycle)",
+      "Identity NFT (non-transferable, periodically refreshed tokenURI on material updates)",
       "ValidationRegistry (pre-execution attestation)",
       "ReputationRegistry (settled-outcome accumulation)",
       "DecisionLog (full reasoning hash anchor)"
@@ -92,7 +92,7 @@
     "8. RWA allocator (Path A LLM-driven OR Path B deterministic idle-parking)",
     "9. Swap execution via Merchant Moe LB v2.2 (gated by RWA_EXECUTE_ENABLED)",
     "10. Discipline Layer post-execution verification (3 gates: tx_proof, price_freshness, drift_detection)",
-    "11. Agent Card auto-update on IPFS + on-chain tokenURI refresh"
+    "11. Agent Card periodic material update on IPFS + on-chain tokenURI refresh"
   ],
   "infrastructure": {
     "cron": "GitHub Actions hourly schedule (public verifiable log)",
@@ -117,6 +117,6 @@
     "parseSuccessRate24h": "100% (over measured 24h window, N=31 cycles)",
     "avgVaR": "~100 bps (illustrative — no formal VaR model)",
     "gasEfficiency": "~0.0098 MNT per TX (~$0.007 at MNT=$0.65; verified gas sample at .kiro/audits/raw/gas-samples/cycle-123.json)",
-    "narrative": "Trust Firewall blocked 65/158 unsafe proposals — 3-model consensus ensures safety-first execution. Across 67 settled outcomes the agent realised +1757 bps cumulative on-chain PnL. NOTE: this file is a snapshot (2026-05-29T19:42Z); live numbers are auto-refreshed on IPFS and on-chain tokenURI every cron cycle. Source of truth: ValidationRegistry contract at 0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6, realised PnL at /api/performance."
+    "narrative": "Trust Firewall blocked 65/158 unsafe proposals — 3-model consensus ensures safety-first execution. Across 67 settled outcomes the agent realised +1757 bps cumulative on-chain PnL. NOTE: this file is a snapshot (2026-05-29T19:42Z); live numbers are periodically refreshed on IPFS and on-chain tokenURI after daily or material stat changes. Source of truth: ValidationRegistry contract at 0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6, realised PnL at /api/performance."
   }
 }
