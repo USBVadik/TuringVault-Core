@@ -430,6 +430,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780702569050_320",
+      "decisionId": 320,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1562.86,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmYgsyLbgovgQ4GGUnARfBwFDUwnZyUMKH7o84EJr7dbiP",
+      "recordedAt": "2026-06-05T23:36:09.050Z",
+      "settleAfter": "2026-06-06T00:36:09.050Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780702569045
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime confirmed at 85% confidence. Portfolio already 64% stable-heavy with only $39.41 risk exposure — no repeated risk_off trigger applies. Funding at -0.414% is mildly contrarian bullish but insufficient alone to override CRISIS regime. Smart money flow NEUTRAL, yield spread BEARISH (-1%), intraday vol low. No directional edge justifies adding risk. HOLD ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD requires no R:R gate",
+        "Yield spread BEARISH signal slightly underweighted in reasoning",
+        "Social attention bullish signal (60% strength) acknowledged implicitly but not named"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x28ae8e00157174823ee0fb873125f3c6319a9108a417e8ff62a88103143ebd14",
+      "combinedAnchor": "0x1ace62c4cde03fb885459d16ce4d7bacfc76e09c48dd256b26f39179507ff6e5",
+      "decisionLogTxHash": "0x1a23b2f2cc8b5a364c3e7ea21573786b9249c9d9765b4ce032fe0efc01a7f6b6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
