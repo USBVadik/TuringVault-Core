@@ -1071,6 +1071,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780658918456_307",
+      "decisionId": 307,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1672.75,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmQ8HCShYyHMZsTcr2gWojuMCBfRiQ3LNGfCG9nd7ngfK9",
+      "recordedAt": "2026-06-05T11:28:38.456Z",
+      "settleAfter": "2026-06-05T12:28:38.456Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780658918450
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. TREND_DOWN confirmed at 60% with BEARISH consensus, ETH -4.24%, Fear&Greed 12. Portfolio already 62.6% stable — no further de-risking needed. Funding -0.079% neutral, smart money flow NEUTRAL $0.0M, RSI 33.5 rising (oversold but no institutional inflow confirmation). Inventory rule correctly applied: stable-heavy+FLAT = HOLD not repeated risk_off. No CRISIS signal ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD requires no directional commitment",
+        "Yield spread -1% bearish signal acknowledged implicitly but not cited directly",
+        "RSI rising from oversold warrants monitoring for contrarian entry signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1219407101de92826d20a1f36cb3c32ab0ea1558d2c3b00a06d3a1bf69538133",
+      "combinedAnchor": "0x228e52132d625fdaa56f0c55150dd58b289ce6cd0ef4ec92a5b45b3fa3143988",
+      "decisionLogTxHash": "0x37dc4ca759c5a27a120115fd5792ed83bc931eb7bc025e3f4bcef16cbca256b6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
