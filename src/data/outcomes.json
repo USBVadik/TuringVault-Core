@@ -999,6 +999,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780656913219_306",
+      "decisionId": 306,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1673.55,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "Qma14opRU178HXXFfdxxUNCG6C316f3AmQyfCQH39iucZV",
+      "recordedAt": "2026-06-05T10:55:13.219Z",
+      "settleAfter": "2026-06-05T11:55:13.219Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780656913213
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 62.6% stable-heavy with FLAT posture — inventory rule explicitly favors HOLD over repeated risk_off absent CRISIS confirmation. TREND_DOWN at 60% confidence is mild, not crisis-grade. Funding neutral (-0.060%), smart money flow neutral ($0.0M), RSI 33.2 approaching oversold — no clear edge to add or reduce risk. Analyst correctly identifies lac",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional trade — R:R gate not applicable",
+        "TREND_DOWN 60% confidence is borderline; watch for breakdown below $1590 liq level",
+        "Yield spread -1% is bearish but already reflected in stable-heavy posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2ecd3739fabc7304b3ea69edea3e17850b5db31ca54d1270dddf130a37f3691d",
+      "combinedAnchor": "0x38f7070204e4f82f364a203494dbcffebdc2b76d3cbfca3cc7beff327fd0fcd4",
+      "decisionLogTxHash": "0x39ad93954c839f01f3e655dce98f527bba534d94ccf1dc3b69ebf4e3e7220e8d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
