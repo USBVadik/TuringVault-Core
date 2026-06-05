@@ -1430,6 +1430,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780681189132_312",
+      "decisionId": 312,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1592.75,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmbMXWX45wN3R1dyNaVWTjjtKsyfos6GAAac8FQSRP8K3t",
+      "recordedAt": "2026-06-05T17:39:49.132Z",
+      "settleAfter": "2026-06-05T18:39:49.132Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780681189126
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. CRISIS regime confirmed at 85% with ETH -9.31%, Fear & Greed at 12, bearish signal consensus, and negative yield spread. Portfolio is already 63.5% stable — no further de-risking needed. Analyst correctly notes RSI oversold but lacks inflow confirmation. Funding at -0.281% is not extreme enough for counter-trend entry. HOLD preserves capital without unnecessa",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional edge — acceptable",
+        "Funding cited as annualized but raw signal shows per-period rate — minor framing imprecision"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xaadf78edf645990be3c0595488633f4bfbed1f0ac67aa5cf8fc9d5feefb2aba9",
+      "combinedAnchor": "0x8db090af2377fda90f7841afef1ab57af29054128d4a9246129c88bc30e3827e",
+      "decisionLogTxHash": "0xfc3fa5b67614b62369e0e0e319112514a88651c6e2ed22ecadb92ee65b3a3801",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
