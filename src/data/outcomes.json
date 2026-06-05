@@ -855,6 +855,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780650369889_304",
+      "decisionId": 304,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1667.49,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmbaMCCfeC9en3VzdCmxwsxmxFwbvVrPw3zZFwNw6XHWJ5",
+      "recordedAt": "2026-06-05T09:06:09.889Z",
+      "settleAfter": "2026-06-05T10:06:09.889Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780650369884
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in confirmed CRISIS regime (85% confidence) is appropriate. Portfolio is already 62.7% stable — no new directional trade proposed. BEARISH consensus (EMA cross SELL, MACD SELL, yield spread -1%, social mindshare -39%) supports preservation posture. RSI at 29.1 and Bollinger BUY are contrarian but insufficient to override CRISIS regime. Funding -0.341% noted correctly. No R:R gate req",
+      "validatorFlaggedIssues": [
+        "Analyst states funding is '-0.341% annualized' but raw data shows this is the periodic rate — annualized figure would be far larger; minor misrepresentation",
+        "No explicit stop-loss level defined for existing mETH/WMNT positions near $1546 liquidation cluster",
+        "MNT -9.04% intraday weakness not fully weighted in risk assessment"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa17972a4727d51eebffa7b3bc4ed9b8a658e395b9e4cf7c5853f25bab6eaee54",
+      "combinedAnchor": "0xba751f1ed87a03b0b2a44132a025334dc43cdfd4bb393d3e96f03380b356814a",
+      "decisionLogTxHash": "0xed3adc1d5b5fe71bbf192214d04f349eb4ead64de9250e524371de40542f936f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
