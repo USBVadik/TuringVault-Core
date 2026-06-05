@@ -927,6 +927,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780654594601_305",
+      "decisionId": 305,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1675.59,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmUh5MzygUyiw6gKkYdbg5zsqNtxu4jkFF3wa2CE9rUEhQ",
+      "recordedAt": "2026-06-05T10:16:34.601Z",
+      "settleAfter": "2026-06-05T11:16:34.601Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780654594595
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is the correct low-risk action here. Portfolio is already 62.6% stable, TREND_DOWN regime (60% confidence) is confirmed with BEARISH consensus, yield spread -1% bearish, and social attention declining 40%. RSI(14)=33 rising and F&G=12 create conflicting signals that the Analyst correctly acknowledges — no clear edge to act. Funding neutral, smart money flow neutral ($0.0M), no grid confirmati",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD requires no directional commitment",
+        "TREND_DOWN confidence only 60% — moderate conviction",
+        "Rising RSI and extreme fear could signal near-term bounce but insufficient for action"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf276998d394516c01781970ac4bb32f82005b483f0112624163d94f082b4d4a0",
+      "combinedAnchor": "0x37354a20a8a1f0edec8e7c5103246edd2cfc7d7cdc896526f393e035449ed776",
+      "decisionLogTxHash": "0xa4af63556efd01962ff4507d5a69c902578cfac6a1825e82412ca74daedb93e6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
