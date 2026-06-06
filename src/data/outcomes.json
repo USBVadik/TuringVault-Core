@@ -356,6 +356,75 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1780724619283_327",
+      "decisionId": 327,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1557.3,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmcFPmPnWVA9JDNBXQj6DgieuAa7gRv8DTKDPUxXWaAMnL",
+      "recordedAt": "2026-06-06T05:43:39.283Z",
+      "settleAfter": "2026-06-06T06:43:39.283Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780724619278
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "CRISIS regime (85% confidence) mandates capital preservation. Analyst invokes 'short-squeeze protocol override' — no such override exists in validation rules; CRISIS explicitly requires HOLD or mUSD defensive. R:R not provided = automatic reject. Funding signal is contrarian-bullish but stands alone: smart money NEUTRAL, yield spread BEARISH, EMA bearish, no institutional flow confirmation. Only 1",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory reject trigger",
+        "CRISIS regime (85%) prohibits directional swap without explicit override evidence",
+        "Analyst claims 'short-squeeze protocol override' — no such rule exists in validation framework",
+        "Only 1 confirming signal (funding); smart money NEUTRAL, yield spread BEARISH, EMA SELL",
+        "Portfolio already 35.9% risk inventory — adding 20% allocation increases exposure in confirmed CRISIS"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x199a8abee4938cc477cfe48457fec864d18fd13b65beefa5ab13418ac56a2a3a",
+      "combinedAnchor": "0xbc0d491fb437fc0e103a65ba106c92e6abae88bca4082023fdbde2f7c35add5c",
+      "decisionLogTxHash": "0x38b1f58f62a000d473898ad44641a4854633d8b12d94881e84396a133fd6fb16",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
