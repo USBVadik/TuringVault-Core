@@ -1504,6 +1504,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780786864406_346",
+      "decisionId": 346,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1558.72,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmUaU8sUXFf8gNczkbeFe4jecxNSFz4uMSthGGsw9CYjFc",
+      "recordedAt": "2026-06-06T23:01:04.406Z",
+      "settleAfter": "2026-06-07T00:01:04.406Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780786864400
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Position is already IN_mETH at $1563.54; Override=ALREADY_IN_POSITION blocks new entry. Scale-in rule requires a fresh deeper lower-band move — current price at 2% of channel ($1557.1) has not decisively tested $1553.7 support. F&G=12 Extreme Fear and -0.328% funding are mildly contrarian-bullish but insufficient alone to justify scale-in. Smart money flow NEUTRAL. No contradi",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly stated for HOLD — acceptable since no new capital deployed",
+        "Scale-in threshold not yet triggered per rule"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9f5548e82ef7a743cfd35bf9e86f598d165d6e051aac2b4dca035ac65f8d117c",
+      "combinedAnchor": "0x1d894470c867f933c722d056b745dabc00d4b1585b6ff3aff9a28dd5c1b4aecf",
+      "decisionLogTxHash": "0xe5867fd85596e96c6ddfffaff400ac292f6abaa1823d5f74db26f63991242567",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
