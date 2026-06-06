@@ -869,6 +869,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780764813502_338",
+      "decisionId": 338,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1563.82,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmUcB2wkY4HLxtS7KKAp66PLG3rid4Q5iZAS7pqU8FgXZS",
+      "recordedAt": "2026-06-06T16:53:33.502Z",
+      "settleAfter": "2026-06-06T17:53:33.502Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780764813496
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on existing mETH position is well-justified. Price at $1563.82 vs entry $1563.54 — essentially flat, no edge to scale in. Grid BUY confidence 79% with R:R 2.5:1 is valid but scale-in rule requires deeper lower-band move not yet observed. Funding -0.031% neutral, smart money flow neutral, F&G=12 extreme fear without negative funding spike removes contrarian squeeze trigger. BEARISH consensus +",
+      "validatorFlaggedIssues": [
+        "Scale-in threshold ~$1557 support not yet reached",
+        "BEARISH signal consensus warrants caution on adding exposure",
+        "Yield spread -1% mETH vs USDY is a mild headwind"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2a8f2f2390de2f950073e0de44d3c15adac3a687b4030afe162fe82b504832b7",
+      "combinedAnchor": "0x409f9bddd61ed2e62c007117cbed6fe961a225be3746323c004acbf6d1a93169",
+      "decisionLogTxHash": "0x396e59bbf301bea4245ee804167d9909c6b0a78f9fe15f4e368667590644b5dc",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
