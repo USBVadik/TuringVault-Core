@@ -1431,6 +1431,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780783349118_345",
+      "decisionId": 345,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1557.94,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmakoPERmuuPRtLoqL7QbqNYitH7q1kLbRYEPzax3f8otm",
+      "recordedAt": "2026-06-06T22:02:29.118Z",
+      "settleAfter": "2026-06-06T23:02:29.118Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780783349112
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Position IN_mETH since $1563.54; current price $1558.4 is only 0.3% below entry — no meaningful scale-in edge. Grid BUY signals at 79%/76% confidence are noted but scale-in rule requires a fresh deeper lower-band move, which has not occurred. Funding neutral at -0.291%, smart money flow neutral, regime RANGING at 55% confidence. Extreme Fear (F&G=12) and negative yield spread ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly stated but HOLD carries no directional risk — exemption applies",
+        "Extreme Fear environment warrants monitoring for support break at $1507.54 stop level",
+        "Negative yield spread (-1%) is a mild drag on existing mETH position"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9c06731b7a2cd823fe713a33baa2833c270ead1fbe39f6f1439dcacfc5d4293f",
+      "combinedAnchor": "0x55783d0269566fb9dda6e3f2599236b3c836e933c82bb94f825ec4698cd6925a",
+      "decisionLogTxHash": "0xaf4bead8cd46f340404daeee1745852e6122feb528e7286b70cde4afebe79fd6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
