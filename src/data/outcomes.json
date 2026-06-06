@@ -1014,6 +1014,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780770088790_340",
+      "decisionId": 340,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1551.48,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmPXcwGJa5wtmexk27ybR65PCWgy7Quq6y1RA39FGppkN4",
+      "recordedAt": "2026-06-06T18:21:28.790Z",
+      "settleAfter": "2026-06-06T19:21:28.790Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780770088784
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-justified. Portfolio is already IN_mETH at $1563.54; scale-in rule explicitly blocks additional buying without a fresh deeper lower-band move. Current price $1551.48 is only ~$12 below entry — insufficient pullback to trigger scale-in. Grid BUY_mETH signal at 80% confidence is noted but overridden by existing position logic. Bearish consensus + F&G=12 + yield spread -1% s",
+      "validatorFlaggedIssues": [
+        "No R:R provided — acceptable for HOLD action",
+        "Price marginally below entry $1563.54 warrants monitoring for stop-loss breach at $1490.39",
+        "Bearish signal consensus conflicts with grid BUY — analyst correctly acknowledges tension"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc2e53d05e55ef13c71788a6f952a909a82c35fa27d5557fc0fa7f3c059b7a670",
+      "combinedAnchor": "0xd0ea23974446cb1e13200b3f8fc56363c0876daf34fdf547ff32d8f92730dd00",
+      "decisionLogTxHash": "0x2b7c2967ef11b864c66622f3300717cef257080f026ede345d5a4c1d826038e4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
