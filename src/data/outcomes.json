@@ -140,6 +140,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780731510683_329",
+      "decisionId": 329,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1572.74,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmZd1Bo9WUzttBXG2vx6BP1pFbqcXSm6ScFekEySXTHiBE",
+      "recordedAt": "2026-06-06T07:38:30.683Z",
+      "settleAfter": "2026-06-06T08:38:30.683Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780731510678
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate and low-risk. CRISIS regime (85%) confirmed with ETH -5.56%, Fear&Greed 12, bearish consensus, and yield spread -1% BEARISH. Portfolio already 63.8% stable — no further de-risking needed. Analyst correctly notes funding at -0.501% (short crowding) as contrarian bullish signal, RSI 41.8 rising, MACD histogram improving. Smart money flow NEUTRAL ($0.0M) — no institutional selling",
+      "validatorFlaggedIssues": [
+        "R:R not provided but irrelevant for HOLD action",
+        "Funding annualization math (-183%) is illustrative only — raw signal is -0.501%",
+        "Conflicting regime vs funding signals acknowledged but not fully weighted"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9fa66c5a2e7eeb9bb13893828768f6516df31f238633b5c4009e68c9c0e50df3",
+      "combinedAnchor": "0x5c176563e578e0da58430b6ce290a08d8bd312f655daf77121be6d5b7ae7f26d",
+      "decisionLogTxHash": "0xdb2a032d8db3a552378f735247e36e3b80c4eeda5b7dbc4ab822016f5d7c10ab",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
