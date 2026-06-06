@@ -571,6 +571,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780755025063_335",
+      "decisionId": 335,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1561.73,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmYSobFdaSSe9dK7X7KtTnkBVFg7tqPFoYxSX7SBZURn5P",
+      "recordedAt": "2026-06-06T14:10:25.063Z",
+      "settleAfter": "2026-06-06T15:10:25.063Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780755025057
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-grounded. Portfolio is already 63.8% stable, risk exposure only $39.59. TREND_DOWN at 60% confidence with bearish EMA cross and negative yield spread (-1%) support caution. Funding at -0.204% is neutral — no crowded short squeeze risk. RSI 42.2 not oversold, no grid lower-band trigger present. Scale-in rule correctly blocks risk_on. No hallucinated data detected. HOLD is the ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided, but HOLD carries no directional execution risk",
+        "Fear & Greed at 12 could signal capitulation bounce — monitor RSI for sub-30 entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime TREND_DOWN does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf7fa7065aaf1ad1b884b5a156659540e471bb39b3bf516d5de65501391cb3e9c",
+      "combinedAnchor": "0x2502152b9ad6a4257ab3b9dc95811a1f667b2487d0d621f99591e78bdbfc2d7f",
+      "decisionLogTxHash": "0x4821f08c9ef3894cb23fae3acd1b09ef4b07f1256f03ea4a9b9cbb505b919893",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
