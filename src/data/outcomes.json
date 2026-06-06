@@ -1576,6 +1576,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780788907016_347",
+      "decisionId": 347,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1560.35,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmbdumQJWt6AJbAAYmD9DpdXCsgbPovAPjLGg5mwnVCcup",
+      "recordedAt": "2026-06-06T23:35:07.016Z",
+      "settleAfter": "2026-06-07T00:35:07.016Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780788907011
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate: portfolio is already IN_mETH since $1563.54, current ETH at $1560.35 is marginally below entry — no confirmed down-break, channel integrity INTACT, grid BUY_mETH at 78% confidence with R:R 2.5:1. Scale-in rule requires a fresh deeper lower-band move not yet present. Extreme Fear (F&G=12) and bearish consensus justify caution over adding. HOLD preserves capital while maintainin",
+      "validatorFlaggedIssues": [
+        "Analyst provided no explicit R:R — acceptable for HOLD but should be stated",
+        "Signal consensus BEARISH conflicts with grid BUY — acknowledged implicitly via HOLD",
+        "Yield spread -1% bearish signal not explicitly cited in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa1ff4367d9256710ea0f4c5d43464333f8f10119f13fcdbc100716a7b0a4a822",
+      "combinedAnchor": "0x30f772caf2a18dd0659b4052d4b2b40afe0a35caedc656652b8077662628dd63",
+      "decisionLogTxHash": "0xa7961e57e954a1579d1e8b98e2161f4eaa65e1d9f4ea1e11131b6cf67bd899b0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
