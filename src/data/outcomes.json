@@ -1182,11 +1182,6 @@
         "status": "ACCEPTED",
         "checks": [
           {
-            "name": "tx_proof",
-            "status": "SKIP",
-            "detail": "Hold action — no tx to verify"
-          },
-          {
             "name": "price_freshness",
             "status": "PASS",
             "detail": "Price data was 5s old"
@@ -1195,11 +1190,37 @@
             "name": "drift_detection",
             "status": "PASS",
             "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Re-proof: block 96322617"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Re-proof: sender 0xDC783CDBfA993f3FC299460627b204E83bf4fb5a"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "Re-proof: 2997 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "Re-proof: TX successful"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Re-proofed during outcome settlement"
           }
         ],
         "blockReason": null,
         "repairStep": null,
-        "timestamp": 1780775547956
+        "timestamp": 1780775547956,
+        "reproofedAt": "2026-06-06T21:32:20.096Z"
       },
       "decisionTier": "HEARTBEAT_SWAP",
       "tierSource": "live",
@@ -1261,7 +1282,7 @@
       "candleFromSnapshot": false,
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
-      "executionProofStatus": "SKIPPED",
+      "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
     },
     {
@@ -1328,6 +1349,79 @@
       "manifestHash": "0x1ac21bdd52c923630d4fae51559b2bd062a37736e05823f5ec414f9867340519",
       "combinedAnchor": "0xcb58fdf89677be1579edcb48f35a8a56c0bf48cefa6fd55fcea5ab4e91068952",
       "decisionLogTxHash": "0x9d1e90f03b419f76121b261a2b723a80833f28fb55ac6c2876a40aa68f935d32",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780781600032_344",
+      "decisionId": 344,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1561.78,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmYa2kXjztSJBSZz7giaMdbvrGFiq8PsXgFX9kFZacRdNA",
+      "recordedAt": "2026-06-06T21:33:20.032Z",
+      "settleAfter": "2026-06-06T22:33:20.032Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780781600026
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-reasoned. Portfolio is already IN_mETH at $1563.54; current price $1562 offers no fresh lower-band entry edge. Grid BUY signals (ETH 78%, MNT 75%) are noted but scale-in rule requires deeper lower-band move — not present. Bearish consensus, -1% yield spread, and 46% social attention decline support caution. Funding -0.188% neutral. No capital at risk; HOLD preserves existing ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD carries no new capital deployment risk",
+        "Signal consensus BEARISH conflicts with grid BUY — acknowledged by analyst",
+        "Yield spread negative (-1%) adds mild bearish weight"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xdb2caa97922e64418c70524ca3843b9e587f12a7d6a4261469a3dbf5bbe2d3f2",
+      "combinedAnchor": "0x7383b890aa0276e1ce585f623052efacfaa2196c67f9476ec769f709dbcbfad5",
+      "decisionLogTxHash": "0x95f5eeed4b989b3ee777036dc27143ea833f803f723074f36e9cdfe40226c093",
       "priceSource": "coingecko",
       "priceFromSnapshot": false,
       "priceSnapshotAgeSec": null,
