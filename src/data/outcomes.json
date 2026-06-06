@@ -942,6 +942,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780766892712_339",
+      "decisionId": 339,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1558.93,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmTYgKHzMBLX67Y7g955677GXhykQDYbeqz3B1SpeSwh2c",
+      "recordedAt": "2026-06-06T17:28:12.712Z",
+      "settleAfter": "2026-06-06T18:28:12.712Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780766892707
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. ALREADY_IN_POSITION override correctly blocks new entry. Current price $1558.93 vs entry $1563.54 is flat — scale-in rule requires a fresh deeper lower-band move, not met. Grid BUY_mETH at 80% conf with 2.5:1 R:R supports holding existing position. Funding -0.126% avg is mildly bearish (not crisis). Analyst correctly acknowledged yield spread -1% and F&G=12. No hallucinated da",
+      "validatorFlaggedIssues": [
+        "Analyst cited funding as '-0.126% annualized (~-46%)' — annualization math is incorrect but does not change HOLD conclusion",
+        "Signal consensus BEARISH noted but not deeply reconciled with grid BUY signal — contradictory signals present but acknowledged implicitly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc12205c9ba524c2ca3f12e799794555c2b15d92fed89864f9cd0dd3db79c96ef",
+      "combinedAnchor": "0xef0967018953ce908ecf469303b579504fc10a03bd961f61f1ad6d600cf2b4b2",
+      "decisionLogTxHash": "0x6f8783907b8e78dc0cd5812fb38be30d1c5b69c366a9ce8a3b1447c5873e7384",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
