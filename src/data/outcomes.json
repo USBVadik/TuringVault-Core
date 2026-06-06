@@ -284,6 +284,77 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780737928216_331",
+      "decisionId": 331,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1577.49,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmSsupq5etxd3rdTxq8xWitKPfPPXc3LMfGezMyrtG26Ue",
+      "recordedAt": "2026-06-06T09:25:28.216Z",
+      "settleAfter": "2026-06-06T10:25:28.216Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780737928210
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with BEARISH consensus is fully consistent with raw signals. Portfolio is already 63.8% stable — no forced action needed. RSI 42.9 not oversold, EMA bearish, yield spread -1% bearish. Funding neutral at 0.046% provides no contrarian edge. No hallucinated data. Inventory rule supports HOLD over repeated risk_off given stable-heavy FLAT posture. All si",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD requires no directional R:R gate",
+        "MACD histogram improving (6.17) is a mild bullish divergence — Analyst acknowledged via 'no confirmation' logic"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6192835b1dbd7d28f710bd8e3cb60bac996fa0ed2c01075e98c3dadf051acd25",
+      "combinedAnchor": "0x46f9332ded36866181e02b3c9abd43eb83a85f0f7dda08909be642875c03507e",
+      "decisionLogTxHash": "0x034d697871c240b79d1f48b355756002cba36aceeedbdfac9192377d5b1c50a7",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
