@@ -426,6 +426,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780744948553_333",
+      "decisionId": 333,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1556.62,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmQrakhSJqo78GWe979Bo9nZctyXm5SHYsfcwZLct2LmJY",
+      "recordedAt": "2026-06-06T11:22:28.553Z",
+      "settleAfter": "2026-06-06T12:22:28.553Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780744948547
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime confirmed at 85% confidence with ETH -7.19% and Fear & Greed at 12. Portfolio already 63.9% stable — no further de-risking needed. Analyst correctly identifies neutral funding (-0.051%) and neutral smart money flow ($0.0M) as insufficient edge for directional action. Yield spread -1% bearish but no new catalyst to act on. HOLD is the appropriate capit",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD carries no directional exposure so ratio gate is not applicable",
+        "RSI rising from 40.3 could signal early recovery — worth monitoring for regime shift",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning but does not change HOLD conclusion"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x3e72393d90aaf6760c83b996cb1948aa667d353586dd1f634e511fcf94af51d0",
+      "combinedAnchor": "0xd6a823954b93dc462e5e6ba7e8e370622c0e7b1d2af639b1ffdc3ce7d7718756",
+      "decisionLogTxHash": "0x667df581382cb4f3bad182ee70474394a3836de69c4facc32b8d75012ebbd572",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
