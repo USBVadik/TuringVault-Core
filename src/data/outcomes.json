@@ -498,6 +498,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780748780746_334",
+      "decisionId": 334,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1557,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmZFdeEtNjGoA3B6VN376SPaExwB99EjD7qiHSiptUqhVf",
+      "recordedAt": "2026-06-06T12:26:20.746Z",
+      "settleAfter": "2026-06-06T13:26:20.746Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780748780740
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. CRISIS regime (85% confidence) confirmed with BEARISH consensus, negative yield spread (-1%), and Extreme Fear (12). Portfolio already 63.9% stable — inventory rule explicitly supports HOLD over repeated risk_off when stable-heavy and FLAT. Funding at -0.286% is NEUTRAL, no directional crowding. Smart money flow neutral ($0.0M). No contradictory signals ignored. HOLD preserves",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional edge — acceptable",
+        "Liquidation zone at $1449 is 6.9% below current price — monitor closely",
+        "Negative yield spread (-1%) correctly noted as bearish for mETH",
+        "Extreme Fear index at 12 warrants continued defensive posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x85a5d9b4d0037fe78dd08a7623b5f863edc47c3d1b188d3614433c97165d84c0",
+      "combinedAnchor": "0x33f9201bb0b7b68ad2959073c2665d03b513b813f25238472e23aff9a7ef22be",
+      "decisionLogTxHash": "0xf88f2b12df71642e890b8768935e32f4bba149e64138aaead91b6419fd4395a1",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
