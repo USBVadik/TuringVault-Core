@@ -796,6 +796,79 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1780760834398_337",
+      "decisionId": 337,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1563.08,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmZ4jSabaDEMoQKYV1hrx2sufz1H6mujWbkWvr2LVMdwiC",
+      "recordedAt": "2026-06-06T15:47:14.398Z",
+      "settleAfter": "2026-06-06T16:47:14.398Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780760834391
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already IN_mETH at $1563.54 with current price $1563.08 — essentially flat entry, no meaningful unrealized loss. Scale-in rule correctly blocks adding without a deeper lower-band move. Grid BUY_mETH at 79% confidence and 2.5:1 R:R is noted but ALREADY_IN_POSITION override applies. Funding -0.135% is mildly bearish, F&G=12 extreme fear warrants patience. No contrad",
+      "validatorFlaggedIssues": [
+        "Signal consensus is BEARISH — analyst correctly notes this but confidence 60% is modest",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "No stop-loss action proposed if $1557.92 support breaks — monitoring needed"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x815098385526c5d3ac404b4e52f98741a22e4e7c9ce3f41cd931f459f1db2006",
+      "combinedAnchor": "0xe71b03d72b44e2a32503bd22a0ba3f1c2b7f2a0df98ac9209c073c9c34dbfa1b",
+      "decisionLogTxHash": "0xdd6f2957592fa5d943dfec0e8865aa24d29e22c1c36e7ada3eb7675fc9959564",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
