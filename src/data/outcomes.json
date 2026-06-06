@@ -143,6 +143,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780713264956_324",
+      "decisionId": 324,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1574.88,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmZjoU5XrWjut6kAAQB8X6awozFSwdQBTnmvN2ywmDVVee",
+      "recordedAt": "2026-06-06T02:34:24.956Z",
+      "settleAfter": "2026-06-06T03:34:24.956Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780713264950
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with stable-heavy portfolio (63.7%) is appropriate capital preservation. Analyst correctly identifies: ETH -9.30%, F&G=12, RSI=35.1 falling, EMA bearish, funding -0.697% (short crowding), NEUTRAL smart money flow, yield spread BEARISH at -1%. No action = no R:R gate required. Reasoning matches raw signals; no hallucinated data detected. HOLD avoids f",
+      "validatorFlaggedIssues": [
+        "Funding rate annualization math not shown but directional read is correct",
+        "Social mindshare +38% bullish signal not addressed in reasoning",
+        "MACD histogram 2.9981 weakening — minor inconsistency with BUY label"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x72984cc4e67bc329de6cba4d4f121f9e3a3e8f7a0c97616dcad53eff6d649db8",
+      "combinedAnchor": "0xe6e0abc37ec1b216f53b2ecc27a83d92aff866c545a1a7384efc5fb85aa56b15",
+      "decisionLogTxHash": "0xb71f4c45cb363bed957eba9bcae4ebef0599108df3e50410d1226b442a3d8add",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
