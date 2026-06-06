@@ -1160,6 +1160,109 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780775547963_342",
+      "decisionId": 342,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1554.63,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "QmPYybEsESmA5NWE2LDtAoSQdjK1pkXUaLsd9ENQAU1Hyv",
+      "recordedAt": "2026-06-06T19:52:27.963Z",
+      "settleAfter": "2026-06-06T20:52:27.963Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780775547956
+      },
+      "decisionTier": "HEARTBEAT_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. Portfolio is already IN_mETH since $1563.54; current price $1554.63 is only 0.57% below entry — scale-in rule explicitly requires a fresh deeper lower-band move, which this marginal dip does not satisfy. Grid BUY_mETH fires at 80% confidence with 2.5:1 R:R, but the override ALREADY_IN_POSITION correctly blocks redundant entry. Funding -0.207% is neutral, consens",
+      "validatorFlaggedIssues": [
+        "Scale-in threshold not met — 0.57% dip insufficient per inventory rule",
+        "Signal consensus BEARISH conflicts with grid BUY — acknowledged by analyst",
+        "F&G=12 extreme fear raises downside tail risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 0.8,
+        "amountUsd": 0.8,
+        "tier": "HEARTBEAT_SWAP",
+        "rationale": "Heartbeat micro-swap to maintain on-chain liveness during a passive window. NOT alpha-seeking. Quiet cycles: 6. Direction: risk-on. Cap: $0.80.",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0x23afa8b69059b3621ae42b51c534b1d31915b3a660b042a874aaeabbffea38ec",
+            "blockNumber": 96322610,
+            "amountIn": 0.8,
+            "amountOut": 0.800079
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0xce148ac0e51ebd224be8aa049efcff9e72a1c8bf65a34e16adc2f6e2b9bf0996",
+            "blockNumber": 96322617,
+            "amountIn": 0.799278921,
+            "amountOut": 1.5404617199145154
+          }
+        ],
+        "txHash": "0xce148ac0e51ebd224be8aa049efcff9e72a1c8bf65a34e16adc2f6e2b9bf0996"
+      },
+      "manifestHash": "0x47d4192c70a8f9ea58170498841ffa23cc9c3f577a32eb27040567435bb90009",
+      "combinedAnchor": "0xc72dbdf197cc57ad6b90cd389bfa12655965a89d5398ee52b021fc0a1ccb90db",
+      "decisionLogTxHash": "0x04cd41838688cb5086dbdbf06311a1e41180867f28c7ea3eef0acace84be90f3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HEARTBEAT_SWAP"
     }
   ],
   "settled": [
