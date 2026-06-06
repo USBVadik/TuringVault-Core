@@ -212,6 +212,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780734959774_330",
+      "decisionId": 330,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1586.52,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmUUigfaxFe2XXt2UZyJaiSDhbrrw3tsyf92PWjdRGYbMc",
+      "recordedAt": "2026-06-06T08:35:59.774Z",
+      "settleAfter": "2026-06-06T09:35:59.774Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780734959768
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime (85% confidence) confirmed with Extreme Fear 12, ETH -5.01%, bearish signal consensus, and negative yield spread (-1%). Portfolio already 63.7% stable — further risk_off would be redundant. Analyst correctly notes RSI 44.7 rising and MACD improving as mixed signals preventing confident risk_on. Smart money flow neutral ($0.0M). No grid confirmation pr",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided but HOLD carries no directional exposure risk",
+        "Analyst references USDT0 stable inventory — confirm no APY claim on USDT0 (none made, acceptable)",
+        "Social mindshare +18% but only 2% smart-share — correctly weighted as NEUTRAL"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x31d3502bd267c8c63493b9cada2eec07ab7834fae9017e99d55717070c779901",
+      "combinedAnchor": "0xc7711925619bb0b13e164c5a005e092a80654946396d328a1c710a6e241594e0",
+      "decisionLogTxHash": "0x32c79f145449bfee2d553757c810a34c3df78f68c001a3533c7f8a78b38e1a8b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
