@@ -215,6 +215,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780717736620_325",
+      "decisionId": 325,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1560.62,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmdmQ54juMtusknfr8mq5CSeRkDVm59YvrxcSVyCw95CCy",
+      "recordedAt": "2026-06-06T03:48:56.620Z",
+      "settleAfter": "2026-06-06T04:48:56.620Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780717736614
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) is appropriate. Portfolio is already 63.8% stable-heavy and FLAT — inventory rule explicitly supports HOLD over repeated risk_off. ETH -9.88%, Fear&Greed 12, yield spread -1% BEARISH, and NEUTRAL smart money flow all align with capital preservation. Funding -0.568% is contrarian bullish but lacks inflow confirmation — Analyst correctly notes this. No",
+      "validatorFlaggedIssues": [
+        "No R:R provided — acceptable for HOLD action only",
+        "Funding annualization math (~-207%) is illustrative but not material to decision",
+        "Social attention +40% mindshare is mildly bullish — could warrant monitoring for re-entry signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xfdb69e719fd38cec62509f67b9fc3dd7193bbb0815bc644882f464466b8dbb0a",
+      "combinedAnchor": "0xe2b43f5149d1a41e01cd981a9eb6bd4369a03b2c1f7a21644efa8c9b997faf2f",
+      "decisionLogTxHash": "0x96820899688ca0d637f7316fb13733d445cb880aaf21233d03abbc2245f8584b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
