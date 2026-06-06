@@ -287,6 +287,75 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780720580609_326",
+      "decisionId": 326,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1520.77,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmaL7ktg21iwKdCcxJ9HfUS1knhBuzMQPGcnCQ8YXvfmH7",
+      "recordedAt": "2026-06-06T04:36:20.609Z",
+      "settleAfter": "2026-06-06T05:36:20.609Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780720580603
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "CRISIS regime (85% confidence) is explicitly confirmed, satisfying the rejection trigger override — but R:R is not provided, which is a mandatory rejection condition. Analyst cites 'price NOT making new 7-day lows on rising volume' — this is unverifiable/hallucinated; no volume trend data is present in raw signals. Yield spread is BEARISH (-1%), smart money is NEUTRAL (not bullish), EMA and MACD b",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory rejection",
+        "Hallucinated claim: 'not making new 7-day lows on rising volume' — no volume data in raw signals",
+        "CRISIS regime confirmed at 85% — directional swap requires overwhelming evidence not present",
+        "Yield spread BEARISH (-1%) ignored in bullish framing",
+        "Scale-in into existing mETH position without confirmed lower-band re-entry or fresh deeper low"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime CRISIS does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb0f9f3f36e73f86234f33a2322c82124963905c41b3104ff352d15ff6659c800",
+      "combinedAnchor": "0x46f34a81eaaf827aac67af0e6c4930f19b666ac5e531b60fe0d64d6445956b70",
+      "decisionLogTxHash": "0x5472c08962fa6dc96f6d3c0f8d7239d99bc4fdbe8708da6562dd6151f843b87c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
