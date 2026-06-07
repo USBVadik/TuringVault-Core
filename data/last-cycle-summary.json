@@ -1,23 +1,26 @@
 {
-  "cycleStartedAt": "2026-06-07T08:03:19.841Z",
-  "cycleEndedAt": "2026-06-07T08:04:21.150Z",
-  "durationSeconds": 61.31,
+  "cycleStartedAt": "2026-06-07T08:56:56.797Z",
+  "cycleEndedAt": "2026-06-07T09:01:53.382Z",
+  "durationSeconds": 296.59,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 2626,
-    "validatorMs": 6279,
+    "analystMs": 10184,
+    "validatorMs": 6143,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 356,
-  "decisionTier": "BLOCKED_BY_REGIME",
+  "decisionId": 357,
+  "decisionTier": "HEARTBEAT_SWAP",
   "consensus": false,
-  "txHashes": [],
+  "txHashes": [
+    "0xc4269225c76322120bc641c9836ebf7a7207e0941ca3ef2022c7aec5346a7ba8",
+    "0x62c47fa1a94f1f551a5693b6821be5354229315805d3570c55762af2fed03bc8"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27086841258",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27087967490",
   "errors": [],
   "gridTradeCandidate": {
     "active": false,
@@ -28,8 +31,40 @@
     "sourceAsset": null,
     "allocationPct": null,
     "confidence": null,
-    "reason": "not stable-heavy FLAT inventory",
+    "reason": "regime HOLD does not allow grid risk-on",
     "routeHint": null
   },
-  "executionStatus": "BLOCKED_BY_REGIME"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 0.8,
+    "amountOut": null,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "USDT",
+        "txHash": "0xc4269225c76322120bc641c9836ebf7a7207e0941ca3ef2022c7aec5346a7ba8",
+        "blockNumber": 96346288,
+        "amountIn": 0.8,
+        "amountOut": 0.800079,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "WMNT",
+        "txHash": "0x62c47fa1a94f1f551a5693b6821be5354229315805d3570c55762af2fed03bc8",
+        "blockNumber": 96346294,
+        "amountIn": 0.799278921,
+        "amountOut": 1.5062230873195783,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
