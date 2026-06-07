@@ -621,6 +621,75 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780865542528_372",
+      "decisionId": 372,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1625.41,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmScComKyEt5MrcHnEwwmYVkE3GU9zchAzm3xj4V5iMGiu",
+      "recordedAt": "2026-06-07T20:52:22.528Z",
+      "settleAfter": "2026-06-07T21:52:22.528Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780865542522
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Regime is HOLD (35% confidence) — directional SWAP to mETH requires grid confirmation which is absent. Signal consensus is explicitly BEARISH. R:R not provided, failing mandatory >=1.5:1 gate. Analyst cites funding as bullish contrarian but ignores BEARISH consensus, negative yield spread (-1%), and zero smart-money inflow. MACD selling. Multiple rejection triggers fire simultaneously.",
+      "validatorFlaggedIssues": [
+        "R:R not provided — mandatory 1.5:1 gate fails automatically",
+        "Directional SWAP proposed in HOLD/unclear regime without grid confirmation",
+        "Signal consensus is BEARISH — directly contradicts bullish thesis",
+        "Yield spread -1% BEARISH ignored by Analyst",
+        "Smart money flow NEUTRAL with zero institutional confirmation for entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xda1f02a2a8c0d9ac8c483d45b33c42e82d1ee5122d2f244f6af4bab3e64d7d31",
+      "combinedAnchor": "0xeb208f46f46ff1e20eee03bb8f6d49b34c48540806d90d3ac11a6138668867d5",
+      "decisionLogTxHash": "0x867ba01566abee25acc84c176630bbd108e76ec22bf3bf1d24d923cebe109cc2",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
