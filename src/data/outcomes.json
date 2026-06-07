@@ -2171,6 +2171,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780811186241_354",
+      "decisionId": 354,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1605.4,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmdNto4BC8Ko1jPAFXGbEu2X7ygnx26QaXfd3T5mzyQCsZ",
+      "recordedAt": "2026-06-07T05:46:26.241Z",
+      "settleAfter": "2026-06-07T06:46:26.241Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780811186235
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with genuinely mixed signals: funding -0.813% (mild contrarian bullish) conflicts with bearish yield spread (-1%) and social attention collapse (-58%). Portfolio is already balanced at 57.6% stable / 42.4% risk — no urgent rebalance trigger. Smart money flow NEUTRAL with zero inflow confirmation. Fear & Greed at 12 is extreme but witho",
+      "validatorFlaggedIssues": [
+        "Bollinger at 105% band position signals potential overextension — worth monitoring",
+        "RSI and Bollinger both SELL while EMA/MACD BUY — unresolved contradiction",
+        "Yield spread -1% mETH vs USDY is a persistent drag on risk inventory"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xad1e526da50f4dd63abaae17e588e6484e206a7cc07de9824aa6c8cd75dd66f1",
+      "combinedAnchor": "0x46d485c68ff0ef7927c030c0936ed9f057c62e16fff0b87e8272901f21fa4c22",
+      "decisionLogTxHash": "0xab855ab73f4b665ba3f8a3d3abfac26b9f960b871fb958e27fd0b2fdeff7c50e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
