@@ -337,6 +337,78 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780832041902_360",
+      "decisionId": 360,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1628.89,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmZaFDwe6oQvmSnxR6554zoiRTqjTKDohf2EFwdZZAhV3G",
+      "recordedAt": "2026-06-07T11:34:01.902Z",
+      "settleAfter": "2026-06-07T12:34:01.902Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780832041896
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but lacks strong confirmation: smart money flow is neutral ($0.0M), funding at -0.404% is within neutral bounds, and no grid strategy is active. Portfolio is already balanced at 56% stable / 44% risk — no rebalancing urgency. ETH technicals show mixed signals (RSI=SELL vs EMA/MAC",
+      "validatorFlaggedIssues": [
+        "Analyst states funding is '-0.404% annualized' but raw data shows it as a periodic rate — minor framing imprecision",
+        "Signal consensus is BEARISH yet Analyst frames conditions as merely 'mixed' — slight underweighting of bearish tilt",
+        "MNT RSI 70.1 overbought risk not fully weighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc9a723b0e49c6420a4269834be1c57c42b7ba845b253ccbd5064e751175eea27",
+      "combinedAnchor": "0xfd786b1956d6da8274374dfaf3d627d18579f4d33760fa3e1afba7e9a161c318",
+      "decisionLogTxHash": "0x251a1e539dbc2c529fc8b5d71649bd07aeee2af0935b895e0458fdb6a937a5c0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
