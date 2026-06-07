@@ -1733,6 +1733,79 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1780792667026_349",
+      "decisionId": 349,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1569.96,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmWNH3UTRUc5pekujbcQBu2e94gRK2hhBRELeLjHANZtqi",
+      "recordedAt": "2026-06-07T00:37:47.026Z",
+      "settleAfter": "2026-06-07T01:37:47.026Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780792667020
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-justified. Portfolio is already IN_mETH at $1563.54; ALREADY_IN_POSITION override correctly blocks a redundant scale-in. No fresh deeper lower-band move has occurred ($1569.96 vs entry $1553.7 support). Grid BUY_mETH at 74% confidence supports holding, not exiting. Extreme Fear F&G=12 + negative funding (-0.384%) are contrarian-bullish but insufficient alone to force scal",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% mildly bearish — monitor for deterioration",
+        "Social mindshare down 53% limits near-term catalyst",
+        "Signal consensus BEARISH conflicts with grid BUY — acknowledged but warrants watch"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa17bb017420528548929df0c4bf03ee0fe566fd7887a41d5e1455ec663184c86",
+      "combinedAnchor": "0xd50194b1d61cc9dd05d3417039fe60a40bd8bc6384ce0543acde448a785986ff",
+      "decisionLogTxHash": "0xcaeab4f6a8d162174c2b1c354931312db497c43163c6855c8cfabf6e4a927e31",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
