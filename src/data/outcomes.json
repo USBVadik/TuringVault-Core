@@ -481,6 +481,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780835878241_362",
+      "decisionId": 362,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1613.17,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmPQ35ypGCr1xsrFeTeLLgrRZfbWWHKKbYq5JcqgNNpryc",
+      "recordedAt": "2026-06-07T12:37:58.241Z",
+      "settleAfter": "2026-06-07T13:37:58.241Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780835878235
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but lacks strong confirmation: smart money flow is NEUTRAL at $0.0M, funding at -0.385% is not extreme, and RSI 55.9 is far from oversold. Portfolio is already balanced at 56.6% stable / 43.4% risk — no urgent rebalancing required. No hallucinated data detected. Risk factors are ",
+      "validatorFlaggedIssues": [
+        "MACD histogram weakening (5.38) may signal momentum fade — worth monitoring",
+        "Yield spread -1% BEARISH signal not explicitly weighted in reasoning",
+        "Social mindshare drop -48% is a notable bearish signal acknowledged only implicitly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb1b0c7124bbaadab7ce0b5091485ed9cf4f2b4bda57681b1489e459ccdf33e2a",
+      "combinedAnchor": "0xfdb5d816ac5b40605f1b06ab125dc20ff0addaae1ddc2bbd9e0cb2b0076338cd",
+      "decisionLogTxHash": "0xa4ba1e1cbb53957a18805ba4b6a29ea08fa13d8b5d4f102a8d1955ab0443853d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
