@@ -409,6 +409,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780834395948_361",
+      "decisionId": 361,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1618.58,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmSFBCmxyk6mCW69ebVy59EpHiJYprPsBYjWaXGsEteAqP",
+      "recordedAt": "2026-06-07T12:13:15.948Z",
+      "settleAfter": "2026-06-07T13:13:15.948Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780834395941
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal with 35% regime confidence is appropriate. Portfolio is balanced at 43.5% risk / 56.5% stable — no forced action needed. Bearish consensus is acknowledged but not confirmed by strong outflow or crisis signals. ETH technicals show BUY (EMA cross, MACD positive) but weakening momentum (RSI 59.2 falling, MACD histogram declining) — mixed, not actionable. Funding -0.26% is near neutral. ",
+      "validatorFlaggedIssues": [
+        "Regime confidence only 35% — clarity may not arrive soon",
+        "Social mindshare -48% decline warrants monitoring for accelerating bearish shift",
+        "MACD weakening while price near Bollinger 77% — potential pullback risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x26057875fd2b06e09961c0232817e5823f1d85951dc1b0d757d09d5bcfb64db0",
+      "combinedAnchor": "0x5fa2dd45145d436030a3e8c981c95a68470ed874382f4ceed8ae6319528378bf",
+      "decisionLogTxHash": "0xedbf43ea5be257ef0e521e5deae32a5ce3f840d66263ccaab78759d7407e51c9",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
