@@ -552,6 +552,75 @@
       "executedOnChain": null,
       "executionProofStatus": "UNKNOWN",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780862076210_371",
+      "decisionId": 371,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1614.14,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmQv2GRZVizk5nVGekZcgrAEZr9xRPTSmWMTfup6GLMQoW",
+      "recordedAt": "2026-06-07T19:54:36.210Z",
+      "settleAfter": "2026-06-07T20:54:36.210Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780862076204
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Regime is HOLD (35% confidence) with BEARISH signal consensus. A directional SWAP into mETH requires grid confirmation per rules — none present (grid NOT active). R:R not provided, failing mandatory >=1.5:1 gate. Funding squeeze is one bullish signal but contradicted by: falling RSI, negative MACD, bearish yield spread (-1%), zero smart-money inflow, and 60%-strength bearish social signal. Only 1 ",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — automatic reject",
+        "Directional SWAP in HOLD/unconfirmed regime without grid signal confirmation",
+        "Signal consensus explicitly BEARISH — analyst leads with single contrarian signal",
+        "Yield spread -1% and falling RSI ignored in bullish framing",
+        "Confidence 62% not backed by 2+ confirming signals as required"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x79ec757274b09ad5efea626f145e573f6f10ddb24587db294465e2ef024babb6",
+      "combinedAnchor": "0x279e6ab22f47084fcda3c67f98131a78e966022e16d21e79b7660a66a2b3e8d8",
+      "decisionLogTxHash": "0xb7757f054333d80557a837915dca742bd75f7588ed0ab03cf82250206637d790",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
