@@ -174,6 +174,79 @@
       "executedOnChain": true,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1780824723695_358",
+      "decisionId": 358,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1640.34,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmRTRxkNB3YUH1nh3KkUR92zp8xXX2qYWE6J8H5vT4jt5x",
+      "recordedAt": "2026-06-07T09:32:03.695Z",
+      "settleAfter": "2026-06-07T10:32:03.695Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780824723688
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal with 0% allocation change is low-risk by default. Portfolio is balanced (56% stable, 44% risk) — inventory rule supports HOLD over repeated risk_off. Analyst correctly identifies conflicting signals: RSI 70.1 overbought vs Fear&Greed 12 extreme fear, EMA bullish cross vs Bollinger SELL. Funding -0.74% mild contrarian bullish but below action threshold. No hallucinated data. Signal co",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no R:R gate",
+        "RSI 70.1 overbought conflicts with EMA bullish cross — acknowledged by Analyst",
+        "Social mindshare -50% drop adds bearish weight not fully emphasized",
+        "Yield spread -1% bearish signal noted but not weighted heavily in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x57a7fd141503baefd2dbcbdaac963e64d0a306699050a2b4ee6f770eb7bf2e5f",
+      "combinedAnchor": "0x00288e14f49337989fb1257988074b06219dc659e2832550ec3d6aef21a27195",
+      "decisionLogTxHash": "0x39d2fdb5a44d0fdc6fc994f9def47adf2006e8dd94fb00350b8f360381c894a5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
