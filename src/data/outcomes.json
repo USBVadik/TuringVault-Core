@@ -2027,6 +2027,78 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1780802823266_352",
+      "decisionId": 352,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1594.48,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmYzHqSV2ZgRexQ3nGDwnPaXuoHR99joGKrRjYbuU7pLka",
+      "recordedAt": "2026-06-07T03:27:03.266Z",
+      "settleAfter": "2026-06-07T04:27:03.266Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780802823260
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. RANGING regime (55%) confirmed with both grids mid-channel (ETH 32%, MNT 44%) — no edge near support or resistance. Funding -0.599% is mildly contrarian bullish but insufficient to override grid inaction. Portfolio is already balanced (57.7% stable, 42.3% risk). No directional swap proposed, so regime-mismatch rejection trigger does not apply. Risk factors acknowle",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH not explicitly weighted against contrarian funding signal",
+        "Yield spread -1% weakens mETH carry case but position already held since $1563.54"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x4c1a12e81d1225b8df07c206bb915d45ad8330b9c21fc18eae72929b84cb9d6a",
+      "combinedAnchor": "0xfe33a9e5b3eba21714d54a81a9e2ca54d30659826d57a1a7f395cc6c859c5a5a",
+      "decisionLogTxHash": "0xbb8402d83f8dddf2ff42b09021dfa651f167ebbd9c4c1f9feaea158bc414d09f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
