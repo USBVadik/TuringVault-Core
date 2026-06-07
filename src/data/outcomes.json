@@ -411,6 +411,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780856882644_369",
+      "decisionId": 369,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1631.52,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmZ4FnncModFQj2zAyw5Ftb15haocbip9HFR8bL3oAwVxF",
+      "recordedAt": "2026-06-07T18:28:02.644Z",
+      "settleAfter": "2026-06-07T19:28:02.644Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780856882637
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is low-risk and well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but lacks smart money inflow confirmation (NEUTRAL flow, $0.0M). RSI at 62.6 is not oversold — Analyst correctly notes this. Portfolio is already balanced at 44.4% risk. Inventory rule explicitly discourages repeated risk_off when stable-heavy and FLAT without CRISIS",
+      "validatorFlaggedIssues": [
+        "Analyst labels RSI 62.6 as 'not yet oversold' — correct, but RSI=SELL signal per TA block warrants mention",
+        "MACD histogram weakening despite BUY signal — directional uncertainty acknowledged but could be more explicit",
+        "Yield spread -1% bearish signal slightly underweighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x982818b5ad15ff00938b2f856dd40005072b7b3e1993aafc89002b0b7c9b74e7",
+      "combinedAnchor": "0x49685239d051e6ef9536b6e05844d316f90c03b006eac200b43d627d6bfcc502",
+      "decisionLogTxHash": "0x7d95efdd3cbcdaacabbbbec4c122e7a36cad0433d1197a30652c89c6a11a299f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
