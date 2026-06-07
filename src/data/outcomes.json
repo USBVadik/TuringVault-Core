@@ -483,6 +483,75 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780860278178_370",
+      "decisionId": 370,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1611.12,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmTPUy82ukWk6PbL68QudDDkuxUSGKEYYEF5BTcMocouwC",
+      "recordedAt": "2026-06-07T19:24:38.178Z",
+      "settleAfter": "2026-06-07T20:24:38.178Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780860278172
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Regime is HOLD (35% confidence) with BEARISH signal consensus. A directional SWAP into mETH requires grid confirmation which is explicitly absent ('Grid strategy NOT active'). R:R not provided — mandatory rejection trigger. Yield spread -1% BEARISH, social mindshare -34%, zero smart reposts. Funding squeeze is a single contrarian signal insufficient to override 3 bearish signals and unclear regime",
+      "validatorFlaggedIssues": [
+        "R:R not provided — automatic rejection trigger",
+        "Directional SWAP in HOLD/unclear regime without grid confirmation",
+        "Signal consensus explicitly BEARISH — analyst underweights this",
+        "Social mindshare -34% and zero smart reposts ignored",
+        "Single funding signal insufficient to override multi-signal bearish consensus"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa105e4863f9f3da4c49d2d4d6ef657619c63db5f7c32c8c05a7d56a1b87dba4b",
+      "combinedAnchor": "0x32f19aff1da9ee3da71ea46d2cf4950ec4447ad1cb0144fdc8bf027a59596c56",
+      "decisionLogTxHash": "0xfab45c02db18b00e1a2b837ed9c60582ef2a157281840350650d63a2c1fcc3c7",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
