@@ -339,6 +339,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780855024020_368",
+      "decisionId": 368,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1630.97,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmP7ejK1Tj7ngmmjBCV2buW1gsJCD37D69D2dxUBVBurMj",
+      "recordedAt": "2026-06-07T17:57:04.020Z",
+      "settleAfter": "2026-06-07T18:57:04.020Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780855024013
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but not extreme enough to justify de-risking: portfolio is already 55.6% stable and FLAT — inventory rule explicitly prohibits repeated risk_off without CRISIS/TREND_DOWN confirmation. RSI 62.4 is not oversold, funding -0.786% is mild, smart money flow NEUTRAL. No hallucinated da",
+      "validatorFlaggedIssues": [
+        "MACD histogram weakening — momentum fading, watch for reversal",
+        "MNT RSI 69.6 approaching overbought — mild concern for risk inventory",
+        "Social mindshare -39% decline warrants monitoring next cycle"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8b8363dd61a5ab7c8f7da0c405c7738d629163da4ce2a1ad63e358f40c81be6b",
+      "combinedAnchor": "0x792677f38e2376e9b8d820a161789bb662a69519e782994ef74aedcd8bf509a4",
+      "decisionLogTxHash": "0x63e9b7d64c47afb101efd8da473970ee036173285bc3cc555afe2149de0f6db9",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
