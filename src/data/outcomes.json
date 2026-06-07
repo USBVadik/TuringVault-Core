@@ -94,11 +94,6 @@
         "status": "ACCEPTED",
         "checks": [
           {
-            "name": "tx_proof",
-            "status": "SKIP",
-            "detail": "Hold action — no tx to verify"
-          },
-          {
             "name": "price_freshness",
             "status": "PASS",
             "detail": "Price data was 5s old"
@@ -107,11 +102,37 @@
             "name": "drift_detection",
             "status": "PASS",
             "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Re-proof: block 96346294"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Re-proof: sender 0xDC783CDBfA993f3FC299460627b204E83bf4fb5a"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "Re-proof: 2948 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "Re-proof: TX successful"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Re-proofed during outcome settlement"
           }
         ],
         "blockReason": null,
         "repairStep": null,
-        "timestamp": 1780822902621
+        "timestamp": 1780822902621,
+        "reproofedAt": "2026-06-07T10:39:56.523Z"
       },
       "decisionTier": "HEARTBEAT_SWAP",
       "tierSource": "live",
@@ -172,7 +193,7 @@
       "candleFromSnapshot": false,
       "candleSnapshotAgeSec": null,
       "executedOnChain": true,
-      "executionProofStatus": "SKIPPED",
+      "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
     },
     {
@@ -247,6 +268,75 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780828857207_359",
+      "decisionId": 359,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1630.43,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmPf2DcDbnYvAtVEcqzz5xfWq8o848qY6ufcncPakNrzJj",
+      "recordedAt": "2026-06-07T10:40:57.207Z",
+      "settleAfter": "2026-06-07T11:40:57.207Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780828857201
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst claims -302% annualized funding rate but raw data shows only -0.827% (periodic) — this is a significant hallucination/misread. Regime is HOLD (35% confidence) with BEARISH signal consensus. No R:R ratio provided, failing mandatory gate. Price at 90% Bollinger band with RSI falling from 65.2 and MACD weakening. Portfolio already 43.6% risk-exposed. Bearish yield spread and social outflow co",
+      "validatorFlaggedIssues": [
+        "Hallucinated funding rate: claimed -302% annualized vs actual -0.827% periodic",
+        "R:R ratio not provided — mandatory rejection trigger",
+        "BEARISH signal consensus contradicts bullish directional swap",
+        "Price at 90% Bollinger band — overbought entry risk",
+        "Regime HOLD at only 35% confidence with no grid confirmation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x3916bd9edf4fe250a88fdb03d5cb5f3d357676aae843f8b3f861e681507c771d",
+      "combinedAnchor": "0x53f28afaeee77da0a659e25c9b75bc91ee17dbc026f7f09ec5dafc2e6b2d6f89",
+      "decisionLogTxHash": "0xde55974630c34d26729c7d62d323587eb1eaa8706e9fdd8067df59f289bb120b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "UNKNOWN",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
