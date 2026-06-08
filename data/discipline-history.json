@@ -1,28 +1,5 @@
 [
   {
-    "at": "2026-06-04T23:27:31.204Z",
-    "decisionId": 296,
-    "verdict": "ACCEPTED",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "Hold action — no tx to verify"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-05T00:02:41.783Z",
     "decisionId": 297,
     "verdict": "ACCEPTED",
@@ -2548,6 +2525,35 @@
         "name": "tx_proof",
         "status": "PASS",
         "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-08T23:15:18.765Z",
+    "decisionId": 396,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_VALIDATOR",
+    "displayTier": "BLOCKED_BY_VALIDATOR",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mETH",
+    "sourceAsset": "USDT0",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
       }
     ],
     "blockReason": null
