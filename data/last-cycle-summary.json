@@ -1,70 +1,47 @@
 {
-  "cycleStartedAt": "2026-06-08T10:09:04.071Z",
-  "cycleEndedAt": "2026-06-08T10:10:51.084Z",
-  "durationSeconds": 107.01,
+  "cycleStartedAt": "2026-06-08T11:20:32.208Z",
+  "cycleEndedAt": "2026-06-08T11:22:32.131Z",
+  "durationSeconds": 119.92,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 16739,
-    "validatorMs": 6482,
+    "analystMs": 4665,
+    "validatorMs": 6138,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 383,
-  "decisionTier": "EXECUTED_SWAP",
-  "consensus": true,
+  "decisionId": 384,
+  "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+  "consensus": false,
   "txHashes": [
-    "0xc2a9e31de76a219f00bf0b21da2dcfaf0e2335aa7af9a1cb25cf49b964be6412",
-    "0x3bf7d763bea401334c2588423387379586fdde9d5aac96195c426afbf71f1043"
+    "0x577a441ecc5a4ef3bf0890353a097e1ec85dfb1229cd97d956b7eee3905bee7f"
   ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27130565211",
-  "errors": [],
-  "gridTradeCandidate": {
-    "active": true,
-    "kind": "grid-sell",
-    "action": "swap",
-    "direction": "risk_off",
-    "targetAsset": "mUSD",
-    "sourceAsset": "WMNT",
-    "allocationPct": 20,
-    "confidence": 0.7919999999999989,
-    "reason": null,
-    "routeHint": null
-  },
-  "directionalSwap": {
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27134120961",
+  "errors": [
+    "outcome-not-persisted: cycle 384 missing from src/data/outcomes.json after Step 6"
+  ],
+  "rwa": {
+    "source": "conservative",
     "executed": true,
-    "direction": "risk-off",
-    "from": "WMNT",
+    "amountInUsd": 2.0919069,
+    "from": "USDT",
     "to": "USDT0",
-    "amountIn": 4.464279698616005,
-    "amountOut": 2.437811,
-    "reason": null,
-    "error": null,
-    "legs": [
-      {
-        "leg": 1,
-        "from": "WMNT",
-        "to": "USDT",
-        "txHash": "0xc2a9e31de76a219f00bf0b21da2dcfaf0e2335aa7af9a1cb25cf49b964be6412",
-        "blockNumber": 96391556,
-        "amountIn": 4.464279698616005,
-        "amountOut": 2.440984,
-        "reason": null
-      },
-      {
-        "leg": 2,
-        "from": "USDT",
-        "to": "USDT0",
-        "txHash": "0x3bf7d763bea401334c2588423387379586fdde9d5aac96195c426afbf71f1043",
-        "blockNumber": 96391562,
-        "amountIn": 2.4385430159999983,
-        "amountOut": 2.437811,
-        "reason": null
-      }
-    ]
+    "blockedReason": null
+  },
+  "gridTradeCandidate": {
+    "active": false,
+    "kind": null,
+    "action": null,
+    "direction": null,
+    "targetAsset": null,
+    "sourceAsset": null,
+    "allocationPct": null,
+    "confidence": null,
+    "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+    "routeHint": null
   },
   "executionStatus": "EXECUTED"
 }
