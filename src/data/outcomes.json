@@ -217,6 +217,108 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780895267036_380",
+      "decisionId": 380,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1657.3,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmPttwyi6LtyU6JjCDVERpyzmSPnfcgnqhkWUs7asKU4AX",
+      "recordedAt": "2026-06-08T05:07:47.037Z",
+      "settleAfter": "2026-06-08T06:07:47.037Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780895267029
+      },
+      "decisionTier": "HEARTBEAT_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but lacks conviction: smart money flow is NEUTRAL at $0.0M, funding at -0.388% is mild, and intraday vol is 0.54% (LOW). Portfolio is already balanced at 61.7% stable / 38.3% risk — inventory rule explicitly favors HOLD over repeated risk_off when stable-heavy and FLAT without CR",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal acknowledged but not decisive alone",
+        "RSI 56.8 falling — mild weakening, not confirmed breakdown",
+        "Grid NOT active — no grid confirmation available for any directional trade"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 0.8,
+        "amountUsd": 0.8,
+        "tier": "HEARTBEAT_SWAP",
+        "rationale": "Heartbeat micro-swap to maintain on-chain liveness during a passive window. NOT alpha-seeking. Quiet cycles: 30. Direction: risk-on. Cap: $0.80.",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0xd6bfc4ce57fe97697db2d73bb4915c8708a74f91f03c2e68a4cbd2df29f64328",
+            "blockNumber": 96382471,
+            "amountIn": 0.8,
+            "amountOut": 0.800079
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0xb7dbdec5a0da85d43c0f4a8b107d0444c20db9621e72349cd834a702b1ba55de",
+            "blockNumber": 96382476,
+            "amountIn": 0.799278921,
+            "amountOut": 1.4654202730227448
+          }
+        ],
+        "txHash": "0xb7dbdec5a0da85d43c0f4a8b107d0444c20db9621e72349cd834a702b1ba55de"
+      },
+      "manifestHash": "0xfd077492aa013e8855dd8a784c710315f83a53ab7b7af0a54372306136ec3a3f",
+      "combinedAnchor": "0x4e207962850b0b82beb4df5f93fcf1ba7d964f84677d623b856726e19ebcb7e7",
+      "decisionLogTxHash": "0x0f3f4991263e9764bed2702b629da0774f78d2ec82dd99a622ee99f14b9f43bc",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HEARTBEAT_SWAP"
     }
   ],
   "settled": [
