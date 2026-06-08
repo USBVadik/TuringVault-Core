@@ -960,6 +960,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780878781645_376",
+      "decisionId": 376,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1700.81,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmQ5g6iwPBXKYeGBcxFhM2UAoCwXCJ13uLmqsVDhbcqxWT",
+      "recordedAt": "2026-06-08T00:33:01.645Z",
+      "settleAfter": "2026-06-08T01:33:01.645Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780878781638
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is appropriate. Regime is HOLD at 35% confidence with no grid active. Signal consensus BEARISH, yield spread -1% BEARISH, RSI 76.4 overbought after 8.35% rally — no clear long edge. Portfolio at 42.3% risk is balanced per inventory rule. Funding annualized figure differs from raw data (-0.722% per period vs analyst's -8.7% annualized) but directional read is consistent. No action is ",
+      "validatorFlaggedIssues": [
+        "Analyst states funding -8.7% annualized; raw data shows -0.722% per period — minor discrepancy but directional conclusion unchanged",
+        "Fear & Greed at 8 (Extreme Fear) not explicitly cited but does not contradict HOLD",
+        "ETH Bollinger at 119% band position signals overextension — supports HOLD"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb641d1161238a2dfec4f9c72f0629b1989cea7fe5c48263712e5f973dbfcf357",
+      "combinedAnchor": "0x0027e17f00827ab6dab5755be63d1c38886b4c3d75f4d1d8363d10f19ad797a4",
+      "decisionLogTxHash": "0xde43696715d6f1fab2824060d2bee8e1867457df1cc52cacb8fc4c209d7d4b69",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
