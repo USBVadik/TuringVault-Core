@@ -72,6 +72,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780886293895_378",
+      "decisionId": 378,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1679.76,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmNQ6Lb67CZwFym1DQw8bTSt7ykqbwYiy9XtQCSafQ8YSt",
+      "recordedAt": "2026-06-08T02:38:13.895Z",
+      "settleAfter": "2026-06-08T03:38:13.895Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780886293888
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH, yield spread -1% is BEARISH, smart money flow NEUTRAL — insufficient edge for risk_on. Portfolio is already stable-heavy (57.9%) so risk_off is blocked by inventory rules. Funding -0.78% contrarian signal is acknowledged but correctly weighted as insufficient alone. RSI 67.4 fal",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no R:R gate",
+        "Regime confidence 35% is very low — clarity may take multiple cycles",
+        "MACD histogram weakening despite BUY signal — momentum fading",
+        "Bollinger at 87% band width suggests stretched conditions"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x7f9aface89e54a54a32d5babad0a6850488ace9bdc7a2deb679756c2b9ad0de0",
+      "combinedAnchor": "0xb62bd298b48193c39856ffed8c3b434a638c46468ba93a2f44b1436d4a17b35e",
+      "decisionLogTxHash": "0x9e5f8de2fd00c5f353d824cb7478af5b8e3b3963be4eba9272888ba995be1deb",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
