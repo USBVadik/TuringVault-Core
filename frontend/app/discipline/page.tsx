@@ -69,6 +69,12 @@ type HistoryEntry = {
   decisionId: number | null;
   decisionLogId?: number | null;
   registryDecisionId?: number | null;
+  decisionTier?: string | null;
+  displayTier?: string | null;
+  executedOnChain?: boolean | null;
+  action?: string | null;
+  targetAsset?: string | null;
+  sourceAsset?: string | null;
   verdict: "ACCEPTED" | "BLOCKED" | "SKIPPED" | "ERROR" | "UNKNOWN";
   checks: Check[];
   blockReason?: string | null;
@@ -94,6 +100,9 @@ type Summary = {
   latestCycleAt: string | null;
   cyclesWithTx: number;
   cyclesWithoutTx: number;
+  decisionBlockedCount: number;
+  executedSwapCount: number;
+  holdNoSwapCount: number;
   txProofPassCount: number;
   txProofFailCount: number;
   txProofWarnCount: number;
@@ -141,6 +150,24 @@ function txProofStatus(checks: Check[] | undefined): string {
   return String(checks?.find((c) => c.name === "tx_proof")?.status ?? "").toLowerCase();
 }
 
+function entryDisplayTier(entry: Pick<HistoryEntry, "displayTier" | "decisionTier"> | null | undefined): string | null {
+  return entry?.displayTier || entry?.decisionTier || null;
+}
+
+function isBlockedTier(tier: string | null | undefined): boolean {
+  const t = String(tier || "").toUpperCase();
+  return (
+    t.startsWith("BLOCKED") ||
+    t === "INTENT_SWAP_NO_EXEC" ||
+    t === "EXECUTION_PROOF_PENDING"
+  );
+}
+
+function isExecutedTier(tier: string | null | undefined): boolean {
+  const t = String(tier || "").toUpperCase();
+  return t === "EXECUTED_SWAP" || t === "HEARTBEAT_SWAP";
+}
+
 function displayDecisionId(entry: HistoryEntry | null | undefined): string {
   const id = entry?.decisionLogId ?? entry?.decisionId;
   return typeof id === "number" ? String(id) : "?";
@@ -168,9 +195,18 @@ function displayCheckTitle(gate: string, check: Check | undefined): string {
   return `${status}${check.detail ? ` — ${check.detail}` : ""}`;
 }
 
-function displayVerdict(status: string | undefined, checks: Check[] | undefined): string {
-  const verdict = status ?? "UNKNOWN";
-  const tx = txProofStatus(checks);
+function displayVerdict(entryOrStatus: HistoryEntry | string | undefined, checks?: Check[] | undefined): string {
+  const entry =
+    typeof entryOrStatus === "object" && entryOrStatus !== null
+      ? entryOrStatus
+      : null;
+  const verdict = entry?.verdict ?? (entryOrStatus as string | undefined) ?? "UNKNOWN";
+  const tier = entryDisplayTier(entry);
+  const tx = txProofStatus(entry?.checks ?? checks);
+  if (isBlockedTier(tier)) return tier!;
+  if (tier === "HEARTBEAT_SWAP" && tx === "pass") return "HEARTBEAT VERIFIED";
+  if (tier === "HEARTBEAT_SWAP") return "HEARTBEAT PENDING";
+  if (tier === "EXECUTED_SWAP" && tx === "pass") return "SWAP VERIFIED";
   if (verdict === "ACCEPTED" && tx === "skip") return "HOLD (no swap)";
   if (verdict === "ACCEPTED" && tx === "pass") return "SWAP VERIFIED";
   if (verdict === "ACCEPTED" && tx === "warn") return "SWAP TX WARNING";
@@ -181,8 +217,17 @@ function displayVerdict(status: string | undefined, checks: Check[] | undefined)
   return verdict;
 }
 
-function verdictTextClass(status: string | undefined, checks: Check[] | undefined): string {
-  const tx = txProofStatus(checks);
+function verdictTextClass(entryOrStatus: HistoryEntry | string | undefined, checks?: Check[] | undefined): string {
+  const entry =
+    typeof entryOrStatus === "object" && entryOrStatus !== null
+      ? entryOrStatus
+      : null;
+  const status = entry?.verdict ?? (entryOrStatus as string | undefined);
+  const tier = entryDisplayTier(entry);
+  const tx = txProofStatus(entry?.checks ?? checks);
+  if (isBlockedTier(tier)) return styles.verdictBlocked;
+  if (isExecutedTier(tier) && tx === "pass") return styles.verdictAccepted;
+  if (isExecutedTier(tier)) return styles.verdictWarn;
   if (status === "ACCEPTED" && tx === "skip") return styles.verdictMuted;
   if (status === "ACCEPTED" && tx === "pass") return styles.verdictAccepted;
   if (status === "ACCEPTED") return styles.verdictWarn;
@@ -191,8 +236,17 @@ function verdictTextClass(status: string | undefined, checks: Check[] | undefine
   return styles.verdictMuted;
 }
 
-function verdictPillClass(status: string | undefined, checks: Check[] | undefined): string {
-  const tx = txProofStatus(checks);
+function verdictPillClass(entryOrStatus: HistoryEntry | string | undefined, checks?: Check[] | undefined): string {
+  const entry =
+    typeof entryOrStatus === "object" && entryOrStatus !== null
+      ? entryOrStatus
+      : null;
+  const status = entry?.verdict ?? (entryOrStatus as string | undefined);
+  const tier = entryDisplayTier(entry);
+  const tx = txProofStatus(entry?.checks ?? checks);
+  if (isBlockedTier(tier)) return styles.statusBlocked;
+  if (isExecutedTier(tier) && tx === "pass") return styles.statusAccepted;
+  if (isExecutedTier(tier)) return styles.statusWarn;
   if (status === "ACCEPTED" && tx === "skip") return styles.statusMuted;
   if (status === "ACCEPTED" && tx === "pass") return styles.statusAccepted;
   if (status === "ACCEPTED") return styles.statusWarn;
@@ -226,6 +280,18 @@ export default function DisciplinePage() {
 
   if (loading) return <DisciplineSkeleton />;
 
+  const latestDisplayEntry: HistoryEntry | null = data?.latestEntry
+    ? {
+        ...data.latestEntry,
+        verdict:
+          (data.latest?.status as HistoryEntry["verdict"] | undefined) ??
+          data.latestEntry.verdict,
+        checks: data.latest?.checks ?? data.latestEntry.checks,
+        blockReason:
+          data.latest?.blockReason ?? data.latestEntry.blockReason ?? null,
+      }
+    : null;
+
   return (
     <div className={styles.page}>
       <div className={`${styles.shell} anim-fade-up`}>
@@ -254,10 +320,16 @@ export default function DisciplinePage() {
                 <div className={styles.verdictLabel}>Latest verdict</div>
                 <div
                   className={`${styles.verdictValue} ${
-                    verdictTextClass(data.latest?.status, data.latest?.checks)
+                    verdictTextClass(
+                      latestDisplayEntry ?? data.latest?.status,
+                      data.latest?.checks
+                    )
                   }`}
                 >
-                  {displayVerdict(data.latest?.status, data.latest?.checks)}
+                  {displayVerdict(
+                    latestDisplayEntry ?? data.latest?.status,
+                    data.latest?.checks
+                  )}
                 </div>
               </div>
               <div className={styles.verdictMeta}>
@@ -379,13 +451,19 @@ export default function DisciplinePage() {
 
               <div className={styles.explainerNote}>
                 <p>
-                  Verdict on every cycle is one of two things:{" "}
+                  Post-check status on every cycle is one of two things:{" "}
                   <span className="text-emerald-400/80 font-mono">
                     ACCEPTED
                   </span>{" "}
                   or{" "}
                   <span className="text-red-400/80 font-mono">BLOCKED</span>.
-                  Blocks come with a{" "}
+                  The trading decision tier is tracked separately as{" "}
+                  <span className="text-white/70 font-mono">EXECUTED_SWAP</span>
+                  ,{" "}
+                  <span className="text-white/70 font-mono">HEARTBEAT_SWAP</span>
+                  , or{" "}
+                  <span className="text-white/70 font-mono">BLOCKED_BY_*</span>
+                  . Post-check blocks come with a{" "}
                   <span className="text-white/70 font-mono">blockReason</span>{" "}
                   (what failed) and a{" "}
                   <span className="text-white/70 font-mono">repairStep</span>{" "}
@@ -449,11 +527,14 @@ export default function DisciplinePage() {
                   </div>
                   <span
                     className={`${styles.statusPill} ${verdictPillClass(
-                      data.latest.status,
+                      latestDisplayEntry ?? data.latest.status,
                       data.latest.checks
                     )}`}
                   >
-                    {displayVerdict(data.latest.status, data.latest.checks)}
+                    {displayVerdict(
+                      latestDisplayEntry ?? data.latest.status,
+                      data.latest.checks
+                    )}
                   </span>
                 </div>
                 <div className={styles.latestMeta}>
@@ -562,11 +643,10 @@ export default function DisciplinePage() {
                               <td>
                                 <span
                                   className={`${styles.statusPill} ${verdictPillClass(
-                                    e.verdict,
-                                    e.checks
+                                    e
                                   )}`}
                                 >
-                                  {displayVerdict(e.verdict, e.checks)}
+                                  {displayVerdict(e)}
                                 </span>
                               </td>
                               {KNOWN_GATES.map((g) => {
@@ -583,7 +663,11 @@ export default function DisciplinePage() {
                                 );
                               })}
                               <td className={styles.reasonCell}>
-                                {e.blockReason ?? e.error ?? ""}
+                                {e.blockReason ??
+                                  e.error ??
+                                  (isBlockedTier(entryDisplayTier(e))
+                                    ? `${e.targetAsset ?? "asset"} blocked by ${entryDisplayTier(e)}`
+                                    : "")}
                               </td>
                             </tr>
                             {isOpen && (
@@ -618,6 +702,18 @@ function SummaryCard({ summary }: { summary: Summary }) {
   return (
     <div className={styles.summaryGrid}>
       <Tile label="Cycles tracked" value={String(summary.totalEntries)} />
+      <Tile
+        label="Decision blocked"
+        value={String(summary.decisionBlockedCount)}
+        tone={summary.decisionBlockedCount > 0 ? "amber" : "muted"}
+        tooltip="Policy/validator/portfolio tiers such as BLOCKED_BY_REGIME. This is separate from Discipline post-check pass/fail."
+      />
+      <Tile
+        label="Executed swaps"
+        value={String(summary.executedSwapCount)}
+        tone={summary.executedSwapCount > 0 ? "emerald" : "muted"}
+        tooltip="Cycles with EXECUTED_SWAP or HEARTBEAT_SWAP tier, enriched from outcomes.json."
+      />
       <Tile
         label="Post-check passed"
         value={String(summary.acceptedCount)}

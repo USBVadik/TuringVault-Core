@@ -1713,10 +1713,30 @@ async function runMultiAgentCycle(opts = {}) {
   try {
     const disciplineLayer = require("./disciplineLayer");
     const disciplineHistory = require("./disciplineHistory");
-    const action = decision.analyst?.action || "hold";
+    const legTxHash = Array.isArray(directionalSwapResult?.legs)
+      ? directionalSwapResult.legs
+          .slice()
+          .reverse()
+          .find((leg) => leg && leg.txHash)?.txHash || null
+      : null;
+    const executionTxHash =
+      decision.executionTxHash ||
+      directionalSwapResult?.txHash ||
+      legTxHash ||
+      rwaIntent?.txHash ||
+      null;
+    const executionExpected =
+      Boolean(executionTxHash) ||
+      directionalSwapResult?.executed === true ||
+      rwaIntent?.executed === true;
+    const action = executionTxHash
+      ? "swap"
+      : decision.analyst?.action || "hold";
     const proofResult = await disciplineLayer.verify({
-      txHash: decision.executionTxHash || null,
+      txHash: executionTxHash,
       action,
+      executionExpected,
+      decisionTier,
       priceAtDecision: market.ethPrice,
       decisionTimestamp: Date.now(),
       priceTimestamp: market.timestamp || Date.now() - 5000,
@@ -1737,6 +1757,13 @@ async function runMultiAgentCycle(opts = {}) {
         decisionId:
           typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
         proofResult,
+        decisionTier,
+        displayTier: decisionTier,
+        executedOnChain: executionExpected,
+        action,
+        targetAsset: decision.analyst?.targetAsset || null,
+        sourceAsset:
+          directionalSwapResult?.from || decision.analyst?.sourceAsset || null,
       });
     } catch (histErr) {
       console.log(
@@ -1754,6 +1781,7 @@ async function runMultiAgentCycle(opts = {}) {
         decisionId:
           typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
         error: discErr,
+        decisionTier,
       });
     } catch {
       /* best-effort */

@@ -22,6 +22,11 @@ import path from "node:path";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const disciplineSummary = require("../../lib/discipline-summary.shared.js") as {
   buildSummary: (history: HistoryEntry[]) => Summary;
+  enrichHistoryWithOutcomes: (
+    history: HistoryEntry[],
+    outcomeRows: OutcomeRow[],
+    cycleRows?: CycleRow[]
+  ) => HistoryEntry[];
   KNOWN_GATES: string[];
 };
 
@@ -39,6 +44,12 @@ type HistoryEntry = {
   decisionLogId?: number | null;
   registryDecisionId?: number | null;
   verdict: "ACCEPTED" | "BLOCKED" | "SKIPPED" | "ERROR" | "UNKNOWN";
+  decisionTier?: string | null;
+  displayTier?: string | null;
+  executedOnChain?: boolean | null;
+  action?: string | null;
+  targetAsset?: string | null;
+  sourceAsset?: string | null;
   checks: Check[];
   blockReason?: string | null;
   error?: string;
@@ -54,9 +65,22 @@ type DisciplineDetail = {
 
 type OutcomeRow = {
   decisionId?: number;
+  action?: string;
+  targetAsset?: string;
+  sourceAsset?: string | null;
+  settlementSourceAsset?: string | null;
+  decisionTier?: string;
+  _displayTier?: string;
+  displayTier?: string;
+  executedOnChain?: boolean;
   recordedAt?: string;
   settledAt?: string;
   disciplineDetail?: DisciplineDetail;
+};
+
+type CycleRow = {
+  cycleEndedAt?: string;
+  decisionTier?: string;
 };
 
 type Summary = {
@@ -70,6 +94,9 @@ type Summary = {
   latestCycleAt: string | null;
   cyclesWithTx: number;
   cyclesWithoutTx: number;
+  decisionBlockedCount: number;
+  executedSwapCount: number;
+  holdNoSwapCount: number;
   txProofPassCount: number;
   txProofFailCount: number;
   txProofWarnCount: number;
@@ -115,6 +142,29 @@ function withDisplayIds(entry: HistoryEntry): HistoryEntry {
   };
 }
 
+async function readOutcomeRows(): Promise<OutcomeRow[]> {
+  const local = safeReadJson<{
+    pending?: OutcomeRow[];
+    settled?: OutcomeRow[];
+  }>(backendPath("src", "data", "outcomes.json"));
+  const db =
+    local ??
+    (await fetchFromGitHub<{
+      pending?: OutcomeRow[];
+      settled?: OutcomeRow[];
+    }>("src/data/outcomes.json"));
+  return [...(db?.pending ?? []), ...(db?.settled ?? [])];
+}
+
+async function readCycleRows(): Promise<CycleRow[]> {
+  const local = safeReadJson<CycleRow[]>(backendPath("data", "cycle-history.json"));
+  return (
+    local ??
+    (await fetchFromGitHub<CycleRow[]>("data/cycle-history.json")) ??
+    []
+  );
+}
+
 async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
   try {
     const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
@@ -157,6 +207,13 @@ export async function GET() {
     history = await fetchFromGitHub<HistoryEntry[]>("data/discipline-history.json");
   }
   history = history ?? [];
+  const outcomeRows = await readOutcomeRows();
+  const cycleRows = await readCycleRows();
+  history = disciplineSummary.enrichHistoryWithOutcomes(
+    history,
+    outcomeRows,
+    cycleRows
+  );
 
   const last30 = history.slice(-30).map(withDisplayIds).reverse(); // newest first for display
   const summary = disciplineSummary.buildSummary(history);

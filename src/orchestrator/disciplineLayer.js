@@ -27,6 +27,12 @@ const MAX_DRIFT_STREAK = 3;
 let driftStreak = 0;
 let lastDriftRegime = null;
 
+function resolveTxProofMode(params = {}) {
+  if (params.txHash) return "verify";
+  if (params.executionExpected === true) return "fail-missing-tx";
+  return "skip";
+}
+
 /**
  * Verify a swap execution claim against on-chain reality.
  *
@@ -47,7 +53,8 @@ async function verify(params) {
   let repairStep = "";
 
   // === CHECK 1: TX Proof Gate ===
-  if (params.action === "swap" && params.txHash) {
+  const txProofMode = resolveTxProofMode(params);
+  if (txProofMode === "verify") {
     try {
       const provider = new ethers.JsonRpcProvider(MANTLE_RPC);
       const tx = await provider.getTransaction(params.txHash);
@@ -167,11 +174,22 @@ async function verify(params) {
       repairStep =
         "Retry tx proof with a healthy Mantle RPC before accepting the execution";
     }
-  } else if (params.action === "hold") {
+  } else if (txProofMode === "fail-missing-tx") {
+    checks.push({
+      name: "tx_proof",
+      status: "FAIL",
+      detail: "Execution was expected but no transaction hash was recorded",
+    });
+    blocked = true;
+    blockReason = "Execution proof missing";
+    repairStep =
+      "Do not mark this cycle as executed until the swap transaction hash is recorded and verified";
+  } else {
+    const tier = params.decisionTier ? `${params.decisionTier} — ` : "";
     checks.push({
       name: "tx_proof",
       status: "SKIP",
-      detail: "Hold action — no tx to verify",
+      detail: `${tier}No execution transaction expected for this cycle`,
     });
   }
 
@@ -341,4 +359,4 @@ function getStats() {
   };
 }
 
-module.exports = { verify, getStats, detectDrift };
+module.exports = { verify, getStats, detectDrift, resolveTxProofMode };

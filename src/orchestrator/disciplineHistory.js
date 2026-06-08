@@ -45,9 +45,19 @@ function writeSafe(list) {
  * @param {object} args
  * @param {number|null} args.decisionId   — proposalId of the cycle, if any
  * @param {object} args.proofResult       — return value of disciplineLayer.verify()
+ * @param {string|null} args.decisionTier — execution/policy tier for this cycle
  * @returns the new entry
  */
-function append({ decisionId, proofResult }) {
+function append({
+  decisionId,
+  proofResult,
+  decisionTier = null,
+  displayTier = null,
+  executedOnChain = null,
+  action = null,
+  targetAsset = null,
+  sourceAsset = null,
+}) {
   const list = readSafe();
   const checks = Array.isArray(proofResult?.checks)
     ? proofResult.checks.map((c) => ({
@@ -65,6 +75,12 @@ function append({ decisionId, proofResult }) {
     at: new Date().toISOString(),
     decisionId: decisionId ?? null,
     verdict: proofResult?.status ?? "UNKNOWN",
+    decisionTier,
+    displayTier: displayTier ?? decisionTier,
+    executedOnChain,
+    action,
+    targetAsset,
+    sourceAsset,
     checks,
     blockReason: proofResult?.blockReason ?? null,
   };
@@ -78,12 +94,14 @@ function append({ decisionId, proofResult }) {
  * Append an error placeholder when the verifier itself crashed.
  * Honesty rule: judges should see degraded states, not silent skips.
  */
-function appendError({ decisionId, error }) {
+function appendError({ decisionId, error, decisionTier = null }) {
   const list = readSafe();
   const entry = {
     at: new Date().toISOString(),
     decisionId: decisionId ?? null,
     verdict: "ERROR",
+    decisionTier,
+    displayTier: decisionTier,
     checks: [],
     error: String(error?.message ?? error).slice(0, 200),
   };
