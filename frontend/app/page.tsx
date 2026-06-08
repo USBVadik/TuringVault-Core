@@ -247,7 +247,6 @@ export default function Home() {
 
   const totalDecisions = chainData?.totalDecisions;
   const totalProposals = chainData?.totalProposals;
-  const totalApproved = chainData?.totalApproved;
   const totalRejected = chainData?.totalRejected;
   const recentDecisions = chainData?.decisions;
 
@@ -1097,7 +1096,7 @@ export default function Home() {
               {totalRejected && totalProposals
                 ? `${totalRejected}/${totalProposals}`
                 : "Validator"}{" "}
-              proposals were blocked before execution. Liveness-only heartbeat
+              validator proposals were rejected before execution. Liveness-only heartbeat
               swaps stay tagged as <code>HEARTBEAT_SWAP</code>.
             </p>
             <div className="trust-partners" aria-label="Powered by">
@@ -1122,17 +1121,17 @@ export default function Home() {
               <strong>{totalProposals || totalDecisions || "—"}</strong>
               <span>On-chain proofs</span>
             </div>
-            <div title="Proposals rejected by Validator before any swap executed (ValidationRegistry.totalRejected)">
+            <div title="Proposals rejected by Validator before any swap execution decision (ValidationRegistry.totalRejected)">
               <strong className="text-red-300/90">
                 {totalRejected ?? "—"}
               </strong>
-              <span>Trades blocked</span>
+              <span>Validator rejections</span>
             </div>
             <div title="Percentage of proposals blocked by adversarial validation (totalRejected / totalProposals)">
               <strong className="text-emerald-300/90">
                 {safetyPct != null ? `${safetyPct}%` : "—"}
               </strong>
-              <span>Safety rate</span>
+              <span>Rejection rate</span>
             </div>
           </div>
         </section>

@@ -5,6 +5,9 @@ const STABLE_REENTRY_ALLOCATION_PCT = 12;
 const GRID_BUY_ALLOCATION_PCT = 15;
 const GRID_SELL_ALLOCATION_PCT = 20;
 const MIN_GRID_SELL_SOURCE_USD = 1.0;
+const {
+  buildInventoryAwareGridCandidate,
+} = require("./inventoryAwareGrid");
 
 function num(v, fallback = 0) {
   const n = Number(v);
@@ -195,6 +198,8 @@ function activeCandidate({
   riskFactors = [],
   signal,
   riskReward,
+  edge,
+  quote,
 }) {
   return {
     active: true,
@@ -211,6 +216,7 @@ function activeCandidate({
     routeHint: targetAsset === "mUSD" ? null : routeForTarget(targetAsset),
     gridSignal: compactSignal(signal),
     riskReward: riskReward || null,
+    inventoryAware: edge || quote ? { edge: edge || null, quote: quote || null } : null,
   };
 }
 
@@ -298,7 +304,27 @@ function buildGridTradeCandidate({
   }
 
   if (!riskOnRegimeAllowed) {
-    return inactive(`regime ${regime || "UNKNOWN"} does not allow grid risk-on`);
+    const inventoryAware = buildInventoryAwareGridCandidate({
+      structuredSignals,
+      portfolioSummary,
+      positionState,
+      gridSignals: signals,
+    });
+    if (inventoryAware.active) {
+      const riskReward = buildLongRiskReward(inventoryAware.signal);
+      return activeCandidate({
+        ...inventoryAware,
+        riskReward,
+      });
+    }
+    return inactive(
+      inventoryAware.reason ||
+        `regime ${regime || "UNKNOWN"} does not allow grid risk-on`,
+      {
+        sellCandidateBlocked: blockedSell?.reason || null,
+        inventoryAwareGrid: inventoryAware,
+      }
+    );
   }
 
   if (!portfolioSummary.stableHeavy || !isFlat(positionState)) {
@@ -421,6 +447,12 @@ function formatGridTradeCandidateForPrompt(candidate) {
       : "",
     candidate.riskReward
       ? `Risk/reward: ${candidate.riskReward.ratio}:1`
+      : "",
+    candidate.inventoryAware?.edge
+      ? `Inventory-aware edge score: ${candidate.inventoryAware.edge.score.toFixed(2)}`
+      : "",
+    candidate.inventoryAware?.quote
+      ? `Reservation bid: ${candidate.inventoryAware.quote.buyTrigger.toFixed(6)} (reservation ${candidate.inventoryAware.quote.reservationPrice.toFixed(6)})`
       : "",
     `Reasoning: ${candidate.reasoning}`,
     `Risk factors: ${(candidate.riskFactors || []).join("; ") || "none"}`,

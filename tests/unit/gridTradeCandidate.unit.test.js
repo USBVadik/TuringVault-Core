@@ -104,6 +104,55 @@ describe("gridTradeCandidate", () => {
     expect(candidate.reason).toMatch(/down/i);
   });
 
+  test("emits a tiny inventory-aware contrarian buy in TREND_DOWN only when external evidence confirms capitulation", () => {
+    const s = structuredSignals({
+      regime: { regime: "TREND_DOWN", confidence: 0.6 },
+      consensus: "BEARISH",
+    });
+    s.signals.funding = {
+      signal: "BULLISH",
+      strength: 0.86,
+      value: -28,
+      rsi: 24,
+      source: "coinglass",
+    };
+    s.signals.fearGreed = { value: 11, signal: "EXTREME_FEAR" };
+    s.signals.onChainFlow = { signal: "NEUTRAL", netUsd: 0 };
+    s.signals.ranging.multiAsset.mantle = {
+      action: "HOLD",
+      confidence: 0.68,
+      breakoutDirection: "UNKNOWN",
+      regimeHint: "HOLD",
+      channel: {
+        support: 0.53,
+        resistance: 0.61,
+        currentPrice: 0.532,
+        channelPosition: 0.03,
+        channelWidthPct: 14,
+      },
+    };
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 120,
+        tradableRiskUsd: 18,
+        stableShare: 0.87,
+        riskShare: 0.13,
+        stableHeavy: true,
+      }),
+      positionState: { status: "FLAT" },
+    });
+
+    expect(candidate.active).toBe(true);
+    expect(candidate.kind).toBe("inventory-aware-contrarian-buy");
+    expect(candidate.direction).toBe("risk_on");
+    expect(candidate.targetAsset).toBe("MNT");
+    expect(candidate.allocationPct).toBeLessThanOrEqual(6);
+    expect(candidate.reasoning).toMatch(/reservation/i);
+    expect(candidate.riskFactors.join(" ")).toMatch(/counter-trend/i);
+  });
+
   test("emits a risk-off sell candidate when an existing mETH position reaches the upper band", () => {
     const s = structuredSignals();
     s.signals.ranging.multiAsset.ethereum = {

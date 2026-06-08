@@ -46,8 +46,9 @@ for (const f of files) {
     const action = parsed.action || "-";
     const targetAsset = parsed.targetAsset || "-";
     const direction = parsed.direction || "-";
-    if (direction === "risk-off") tally["risk-off"] += 1;
-    else if (direction === "risk-on") tally["risk-on"] += 1;
+    const normalizedDirection = String(direction).replace(/_/g, "-");
+    if (normalizedDirection === "risk-off") tally["risk-off"] += 1;
+    else if (normalizedDirection === "risk-on") tally["risk-on"] += 1;
     else tally["no-swap"] += 1;
     directions.push({ cycle, action, target: targetAsset, direction });
     console.log(

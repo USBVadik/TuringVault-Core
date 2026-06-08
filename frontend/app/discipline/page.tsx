@@ -177,7 +177,7 @@ function displayVerdict(status: string | undefined, checks: Check[] | undefined)
   if (verdict === "ACCEPTED" && (tx === "fail" || tx === "error")) {
     return "SWAP PROOF FAILED";
   }
-  if (verdict === "ACCEPTED" && !tx) return "SWAP UNVERIFIED";
+  if (verdict === "ACCEPTED" && !tx) return "HOLD (no swap)";
   return verdict;
 }
 
@@ -619,12 +619,12 @@ function SummaryCard({ summary }: { summary: Summary }) {
     <div className={styles.summaryGrid}>
       <Tile label="Cycles tracked" value={String(summary.totalEntries)} />
       <Tile
-        label="Accepted"
+        label="Post-check passed"
         value={String(summary.acceptedCount)}
         tone="emerald"
       />
-      <Tile label="Blocked" value={String(summary.blockedCount)} tone="red" />
-      <Tile label="Skipped" value={String(summary.skippedCount)} tone="muted" />
+      <Tile label="Post-check failed" value={String(summary.blockedCount)} tone="red" />
+      <Tile label="Post-check skipped" value={String(summary.skippedCount)} tone="muted" />
 
       {KNOWN_GATES.map((g) => {
         if (g === "tx_proof") {

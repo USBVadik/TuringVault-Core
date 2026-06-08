@@ -15,6 +15,19 @@ const proofExplorerConsistency = require("../lib/proof-explorer-consistency.shar
     totalDecisions: number;
     validation: ValidationSummary | null;
   }) => string;
+  buildValidationStatCopy: (validation: ValidationSummary | null) => {
+    approvedLabel: string;
+    rejectedLabel: string;
+    rateLabel: string;
+    note: string;
+  };
+  classifyDecisionForDisplay: (decision: Decision) => {
+    label: string;
+    blocked: boolean;
+    executed: boolean;
+    validatorStatus: string | null;
+    tier: string | null;
+  };
   validationDenominator: (validation: ValidationSummary | null) => number | null;
 };
 
@@ -177,6 +190,7 @@ export function ProofExplorerClient({
 
   const featuredCase = blockedCases[0];
   const validationTotal = proofExplorerConsistency.validationDenominator(validation);
+  const validationCopy = proofExplorerConsistency.buildValidationStatCopy(validation);
   const denominatorNote = proofExplorerConsistency.buildDenominatorNote({
     totalDecisions,
     validation,
@@ -455,13 +469,13 @@ export function ProofExplorerClient({
               <p>
                 <AnimatedCounter value={validation?.totalRejected || 0} />
               </p>
-              <span>Blocked proposals</span>
+              <span>{validationCopy.rejectedLabel}</span>
             </div>
             <div className="proof-stat-success">
               <p>
                 <AnimatedCounter value={validation?.totalApproved || 0} />
               </p>
-              <span>Approved proposals</span>
+              <span>{validationCopy.approvedLabel}</span>
             </div>
           </div>
         </div>
@@ -826,8 +840,8 @@ export function ProofExplorerClient({
               ) : (
                 decisions.map((d, i) => {
                   const decisionNum = totalDecisions - i;
-                  const isBlocked =
-                    d.status === "Rejected" || d.status === "Pending";
+                  const display = proofExplorerConsistency.classifyDecisionForDisplay(d);
+                  const isBlocked = display.blocked;
                   const confidencePct = d.confidence / 100;
                   const riskScore = d.riskScore
                     ? Math.round(d.riskScore / 100)
@@ -862,7 +876,7 @@ export function ProofExplorerClient({
                                 : "bg-green-500/10 text-green-400 border border-green-500/20"
                             }`}
                           >
-                            {isBlocked ? "BLOCKED" : "APPROVED"}
+                            {display.label}
                           </span>
 
                           <span className="text-xs text-white/60">
@@ -1030,7 +1044,7 @@ export function ProofExplorerClient({
               <div className="mb-4">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-[10px] text-white/30">
-                    Risk Firewall Activation
+                    {validationCopy.rateLabel}
                   </span>
                   <span className="text-xs text-red-400 font-mono font-bold">
                     {validation && validationTotal
@@ -1045,9 +1059,9 @@ export function ProofExplorerClient({
                 </div>
                 <p className="text-[9px] text-white/20 mt-1">
                   {validation && validationTotal
-                    ? `${validation.totalRejected} of ${validationTotal} proposals blocked`
+                    ? `${validation.totalRejected} of ${validationTotal} validator proposals rejected`
                     : "—"}{" "}
-                  — system working as designed
+                  — proposal verdicts, not executed trades
                 </p>
               </div>
 
