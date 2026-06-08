@@ -1,5 +1,83 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "id": "1780938263874_389",
+      "decisionId": 389,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1680.2,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmZrqDPowoUY5PHf2N67vLLpc3U3F54bpHi3aWh1Fh3qvR",
+      "recordedAt": "2026-06-08T17:04:23.874Z",
+      "settleAfter": "2026-06-08T18:04:23.874Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780938263863
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime is HOLD at only 35% confidence with NEUTRAL consensus — no directional edge exists. Portfolio is already 72% stable-heavy and FLAT, so risk_off would violate inventory rule. Analyst correctly identifies RSI 57.4 as non-oversold, yield spread -1% as bearish on mETH, and flat smart money flow. Fear & Greed at 8 is noted but not sufficient alone without confirm",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish on mETH warrants monitoring",
+        "Social attention +32% is retail-driven (0% smart-share) — low conviction signal",
+        "MACD histogram negative and falling RSI suggest weakening momentum"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x7ac55d298273c609a77d4532eb101230cef31ff0635bfa98c35289efa742dcb7",
+      "combinedAnchor": "0xbc4e2e1023f6d9278b1f85a482dd7288aac7762deac8ef85f5aea2042927a0ec",
+      "decisionLogTxHash": "0xa1c94db8ba7be6fa0e9a499db05bd3a85edc73c5c4ef84332003f9aba898ec5f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    }
+  ],
   "settled": [
     {
       "id": "1779427651480_9999",
