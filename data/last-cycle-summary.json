@@ -1,70 +1,47 @@
 {
-  "cycleStartedAt": "2026-06-08T05:06:11.201Z",
-  "cycleEndedAt": "2026-06-08T05:07:57.778Z",
-  "durationSeconds": 106.58,
+  "cycleStartedAt": "2026-06-08T05:36:44.740Z",
+  "cycleEndedAt": "2026-06-08T05:37:56.763Z",
+  "durationSeconds": 72.02,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 25489,
-    "validatorMs": 6568,
+    "analystMs": 4076,
+    "validatorMs": 7403,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 380,
-  "decisionTier": "HEARTBEAT_SWAP",
+  "decisionId": 381,
+  "decisionTier": "BLOCKED_BY_REGIME",
   "consensus": false,
   "txHashes": [
-    "0xd6bfc4ce57fe97697db2d73bb4915c8708a74f91f03c2e68a4cbd2df29f64328",
-    "0xb7dbdec5a0da85d43c0f4a8b107d0444c20db9621e72349cd834a702b1ba55de"
+    "0xc5d7d5fbd3823219c51c0b3cf99087b9211f3e2e3ab2227795ffd81346932a46"
   ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27117171442",
-  "errors": [],
-  "gridTradeCandidate": {
-    "active": false,
-    "kind": null,
-    "action": null,
-    "direction": null,
-    "targetAsset": null,
-    "sourceAsset": null,
-    "allocationPct": null,
-    "confidence": null,
-    "reason": "regime HOLD does not allow grid risk-on",
-    "routeHint": null
-  },
-  "directionalSwap": {
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27118171433",
+  "errors": [
+    "outcome-not-persisted: cycle 381 missing from src/data/outcomes.json after Step 6"
+  ],
+  "rwa": {
+    "source": "conservative",
     "executed": true,
-    "direction": "risk-on",
-    "from": "USDT0",
-    "to": "WMNT",
-    "amountIn": 0.8,
-    "amountOut": null,
+    "amountInUsd": 2.015265,
+    "from": "USDT",
+    "to": "USDT0",
+    "blockedReason": null
+  },
+  "gridTradeCandidate": {
+    "active": true,
+    "kind": "grid-sell",
+    "action": "swap",
+    "direction": "risk_off",
+    "targetAsset": "mUSD",
+    "sourceAsset": "WMNT",
+    "allocationPct": 20,
+    "confidence": 0.7,
     "reason": null,
-    "error": null,
-    "legs": [
-      {
-        "leg": 1,
-        "from": "USDT0",
-        "to": "USDT",
-        "txHash": "0xd6bfc4ce57fe97697db2d73bb4915c8708a74f91f03c2e68a4cbd2df29f64328",
-        "blockNumber": 96382471,
-        "amountIn": 0.8,
-        "amountOut": 0.800079,
-        "reason": null
-      },
-      {
-        "leg": 2,
-        "from": "USDT",
-        "to": "WMNT",
-        "txHash": "0xb7dbdec5a0da85d43c0f4a8b107d0444c20db9621e72349cd834a702b1ba55de",
-        "blockNumber": 96382476,
-        "amountIn": 0.799278921,
-        "amountOut": 1.4654202730227448,
-        "reason": null
-      }
-    ]
+    "routeHint": null
   },
   "executionStatus": "EXECUTED"
 }
