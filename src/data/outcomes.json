@@ -153,6 +153,85 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1780945948380_391",
+      "decisionId": 391,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1682.28,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmYG7foEi1uMxiipHtZkHzd3jGUq7wwF8pzAHrjMLgVtFF",
+      "recordedAt": "2026-06-08T19:12:28.380Z",
+      "settleAfter": "2026-06-08T20:12:28.380Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780945948372
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Regime is HOLD at only 35% confidence — no confirmed directional regime. Analyst proposes a directional SWAP into mETH without grid signal confirmation, violating the RANGING/unclear regime rule. R:R not provided, which is an automatic disqualifier. Yield spread -1% is BEARISH, MACD is SELL, RSI falling — three bearish signals vs. contrarian fear/funding which are weak positives. Social attention ",
+      "validatorFlaggedIssues": [
+        "R:R not provided — mandatory rejection trigger",
+        "Directional SWAP in unconfirmed HOLD regime without grid confirmation",
+        "Yield spread -1% BEARISH ignored in bullish framing",
+        "Social attention signal has 0% smart-money share — low quality",
+        "MACD SELL + RSI falling contradict bullish entry thesis"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1c0a94ce31a8dd8a8198e0d54054c6f88f2483e80d45cfdb6fe9f106283bfa57",
+      "combinedAnchor": "0x98cd60f4a99f0013f07555d5cc7d10d99f4e85658233b5a257151c54897a9cb2",
+      "decisionLogTxHash": "0xc67228af93ce407d8242c8b6277e62a48fdd525326ef799c671ba6e85592e6fd",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
