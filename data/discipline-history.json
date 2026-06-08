@@ -1,28 +1,5 @@
 [
   {
-    "at": "2026-06-04T14:11:53.878Z",
-    "decisionId": 285,
-    "verdict": "ACCEPTED",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "Hold action — no tx to verify"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-04T14:20:08.449Z",
     "decisionId": 286,
     "verdict": "ACCEPTED",
@@ -2402,6 +2379,35 @@
         "name": "tx_proof",
         "status": "PASS",
         "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-08T12:36:35.660Z",
+    "decisionId": 385,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+    "displayTier": "BLOCKED_BY_LOW_CONFIDENCE",
+    "executedOnChain": false,
+    "action": "hold",
+    "targetAsset": "mUSD",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
       }
     ],
     "blockReason": null

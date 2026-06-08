@@ -1,5 +1,83 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "id": "1780922195667_385",
+      "decisionId": 385,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1679.36,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmNi62wckt2NwwvGTCr1yzr6FZyy4iStUe3KSQeA1333Sy",
+      "recordedAt": "2026-06-08T12:36:35.667Z",
+      "settleAfter": "2026-06-08T13:36:35.667Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780922195659
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no active grid strategy, making inaction the correct default. Portfolio is already 69.9% stable — additional risk_off would be redundant per inventory rules. RSI at 61.4 is not oversold, so no counter-trend buy signal. Funding neutral at 0.037%, smart money flow flat at $0.0M. Bearish consensus (yield spread -1%, falling RSI) does",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% is a mild bearish drag worth monitoring",
+        "Fear & Greed at 8 with RSI 61.4 is a contradictory pair — not yet resolved",
+        "Liquidation cluster at $1595/$1511 poses tail risk if macro deteriorates"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8f29f4ffbb696cc2561b94c4b08ef395b0c32084693801f4ae6aab94fb5226d8",
+      "combinedAnchor": "0x66199e8b8d7f37837670a5b2c08258a852c04e3874e746b15a5d62b64ff0d7aa",
+      "decisionLogTxHash": "0x36235449fbd73202f3d583666e090e54190cc51e96335f19b060823d58161907",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    }
+  ],
   "settled": [
     {
       "id": "1779427651480_9999",
