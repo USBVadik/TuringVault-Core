@@ -128,6 +128,84 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1780955872701_394",
+      "decisionId": 394,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1705.42,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmPFyd3dc1BfpCTzKg6uYzRxaFCKzM9F3j9wFfdHUiGPqb",
+      "recordedAt": "2026-06-08T21:57:52.701Z",
+      "settleAfter": "2026-06-08T22:57:52.701Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780955872693
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with NEUTRAL consensus — no directional edge confirmed. Funding -0.710% is mildly contrarian bullish but insufficient alone. F&G=8 extreme fear noted but smart money flow is NEUTRAL with zero inflow confirmation. Yield spread -1% bearish for mETH. Technicals mixed: SELL overall despite bullish EMA. Portfolio is already stable-heavy (71",
+      "validatorFlaggedIssues": [
+        "R:R not formally provided — acceptable for HOLD as no capital at risk",
+        "Regime confidence 35% too low for any directional action",
+        "Yield spread -1% adds bearish drag on mETH thesis",
+        "No smart money inflow to confirm contrarian long"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xfe0bbb9ffd942f34dfb8519e767022b54cf4aba0bfa55e819c22078393404788",
+      "combinedAnchor": "0x11343520d52bf8a1c2c9017efc02a6f854e0b5d182f3def217132b4ccd935109",
+      "decisionLogTxHash": "0x024f4ea2d46669bb437161fd1dce15a5599c32346cb597d9ced79ed022cf1234",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
