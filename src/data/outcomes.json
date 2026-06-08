@@ -145,6 +145,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780890749541_379",
+      "decisionId": 379,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1677.06,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "QmQNiTvPF1CuSThd1qHhDvT675q9sveYYaW2vtSeRj7M1J",
+      "recordedAt": "2026-06-08T03:52:29.541Z",
+      "settleAfter": "2026-06-08T04:52:29.541Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "Hold action — no tx to verify"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780890749534
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but not extreme — funding at -0.81% is mildly contrarian bullish, RSI 65.9 is elevated not oversold, MACD histogram weakening. Portfolio is already balanced (61.4% stable, 38.6% risk). Inventory rule explicitly supports HOLD over repeated risk_off when stable-heavy and FLAT witho",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% BEARISH signal not explicitly weighted in reasoning",
+        "RSI 65.9 with Bollinger at 81% suggests mild overbought — downside risk present",
+        "Fear & Greed at 8 extreme fear warrants monitoring for capitulation signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "regime HOLD does not allow grid risk-on"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9dd6e2a7ad177e3dc5d7364a9b0b71dc37ee7972b45f1648c23dd6ccc651fc7c",
+      "combinedAnchor": "0xb38b9cb73c199c3c0ae60a3c00346114c8eb83ac4f68d6909a2a52a2145b8b60",
+      "decisionLogTxHash": "0x5e4c83e6cd49003a20dc74318bf3953bb239d88863b6a818f7d0e8ddb83dc34f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
