@@ -241,6 +241,102 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1780998265128_408",
+      "decisionId": 408,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 0.539808,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "QmRzr78Ed4xSsL2FthUN8PRFH1eqDbWZ1NgKxEUqyyvgLR",
+      "recordedAt": "2026-06-09T09:44:25.128Z",
+      "settleAfter": "2026-06-09T10:44:25.128Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780998265120
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is 81.2% stable-heavy and FLAT — inventory rule explicitly favors HOLD over repeated risk_off. ETH grid EXIT_RANGING with UNKNOWN breakout direction and MNT grid showing DOWN breakdown both argue against new directional entries. F&G=10 extreme fear, MACD weakening, RSI falling at 46.4 — no multi-signal confirmation for risk_on. Analyst correctly acknowled",
+      "validatorFlaggedIssues": [
+        "MNT confirmed downward breakdown — WMNT $2.99 residual exposure warrants monitoring",
+        "Yield spread -1% bearish adds mild headwind to mETH thesis",
+        "Volatility expanding in both channels elevates whipsaw risk on any future entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no actionable lower-band or grid edge",
+        "inspectedSignals": [
+          {
+            "asset": "ethereum",
+            "action": "EXIT_RANGING",
+            "confidence": 0.65,
+            "breakoutDirection": "UNKNOWN",
+            "regimeHint": "HOLD",
+            "channelPosition": 0.64,
+            "support": 1627.1,
+            "resistance": 1690.6,
+            "currentPrice": 1667.6
+          },
+          {
+            "asset": "mantle",
+            "action": "EXIT_RANGING",
+            "confidence": 0.7,
+            "breakoutDirection": "DOWN",
+            "regimeHint": "TREND_DOWN",
+            "channelPosition": 0.29,
+            "support": 0.54,
+            "resistance": 0.55,
+            "currentPrice": 0.53968
+          }
+        ]
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa9a554b2c98656918fac5d4efd869342bd6612a13a67e6a049bb20b3d4fd130c",
+      "combinedAnchor": "0x8a186edd63e6d43d304eda3e73e30f9dd3b0d4fd285fb5913a9bd25e3fe50ee7",
+      "decisionLogTxHash": "0x898ef0e9bdcde5b1f9951aadf749d25901f429790c100de1ba302f47aa7af2ae",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
