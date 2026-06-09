@@ -1,28 +1,5 @@
 [
   {
-    "at": "2026-06-06T01:18:23.440Z",
-    "decisionId": 322,
-    "verdict": "ACCEPTED",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "Hold action — no tx to verify"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-06T01:55:02.633Z",
     "decisionId": 323,
     "verdict": "ACCEPTED",
@@ -2782,6 +2759,35 @@
   {
     "at": "2026-06-09T21:05:59.272Z",
     "decisionId": 421,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_REGIME",
+    "displayTier": "BLOCKED_BY_REGIME",
+    "executedOnChain": false,
+    "action": "hold",
+    "targetAsset": "mUSD",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-09T21:54:25.818Z",
+    "decisionId": 422,
     "verdict": "ACCEPTED",
     "decisionTier": "BLOCKED_BY_REGIME",
     "displayTier": "BLOCKED_BY_REGIME",
