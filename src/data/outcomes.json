@@ -1873,6 +1873,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781044145137_423",
+      "decisionId": 423,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1647.7,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreie5f2e06a3fc5a585306ddd052984bcfe996f03cbfd4c6b080613",
+      "recordedAt": "2026-06-09T22:29:05.137Z",
+      "settleAfter": "2026-06-09T23:29:05.137Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781044145130
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both grids signal EXIT_RANGING with UNKNOWN breakout direction — no directional trade is warranted. Regime is RANGING (55% conf), consensus BEARISH, funding neutral, smart money flow neutral. Analyst correctly identifies no actionable edge. STOP_LOSS active but not triggered. Extreme Fear (F&G=10) noted but not sufficient alone for contrarian entry without flow/fun",
+      "validatorFlaggedIssues": [
+        "R:R not provided but irrelevant for HOLD — no capital at new risk",
+        "STOP_LOSS override active on underwater mETH position — monitor closely",
+        "Volatility expanding with UNKNOWN breakout direction increases whipsaw risk",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xec968d8572b01c09c4fc938c4e63dcb4e4d05b28042db6497fe358e02c48a324",
+      "combinedAnchor": "0x0c0e73be03a1bcdb82f407b6b13fc9843cabb86469d1e3764436a013a956d342",
+      "decisionLogTxHash": "0xb306625560d3ad829d5d259b4f3e329921d21b22c54d487fccf2c1dc0cbe3f15",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
