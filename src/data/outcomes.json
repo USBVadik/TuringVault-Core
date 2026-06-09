@@ -789,6 +789,104 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1780974521461_400",
+      "decisionId": 400,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1666.32,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "QmZpADom1LxNmETtv6c8iE6VwgrCJNm74mZn5WTBFAMBYM",
+      "recordedAt": "2026-06-09T03:08:41.461Z",
+      "settleAfter": "2026-06-09T04:08:41.461Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1780974521453
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "ETH grid explicitly signals HOLD at 69% channel position (confidence 50%) — not a lower-band re-entry. No grid confirmation for directional swap. Funding -0.625% is mild short bias, not extreme enough to override neutral grid alone. R:R not provided — mandatory reject. Yield spread BEARISH (-1%). RANGING regime with no confirmed directional edge. Portfolio already 18% risk; adding 15% approaches c",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory rejection trigger",
+        "ETH grid at 69% channel position signals HOLD, not buy entry",
+        "RANGING regime with no grid confirmation for directional swap",
+        "Funding -0.625% is mild, not extreme — insufficient single-signal override",
+        "Yield spread -1% BEARISH ignored in bullish framing"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no actionable lower-band or grid edge",
+        "inspectedSignals": [
+          {
+            "asset": "ethereum",
+            "action": "HOLD",
+            "confidence": 0.5,
+            "breakoutDirection": null,
+            "regimeHint": null,
+            "channelPosition": 0.69,
+            "support": 1614.4,
+            "resistance": 1690.6,
+            "currentPrice": 1667.3
+          },
+          {
+            "asset": "mantle",
+            "action": "EXIT_RANGING",
+            "confidence": 0.65,
+            "breakoutDirection": "UNKNOWN",
+            "regimeHint": "HOLD",
+            "channelPosition": 0.37,
+            "support": 0.53,
+            "resistance": 0.55,
+            "currentPrice": 0.53905
+          }
+        ]
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x253be9d6338405785a7f814ee5d473ed36c1f9fed09d94cb6b2b280a419ee307",
+      "combinedAnchor": "0x68b1a4c4a7d3f87336a2fca88ad5c152bdf0e5de38a89cce97427d22afcd0359",
+      "decisionLogTxHash": "0xe4b1b84e410866ddd08b1c093ffbe9026d12c0b02c82451c8d4b621da202de94",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [

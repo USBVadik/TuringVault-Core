@@ -1,48 +1,5 @@
 [
   {
-    "at": "2026-06-05T03:03:35.014Z",
-    "decisionId": 300,
-    "verdict": "ACCEPTED",
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 96249149"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "2 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-05T04:10:52.172Z",
     "decisionId": 301,
     "verdict": "ACCEPTED",
@@ -2602,6 +2559,35 @@
         "name": "tx_proof",
         "status": "SKIP",
         "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-09T03:08:41.454Z",
+    "decisionId": 400,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_VALIDATOR",
+    "displayTier": "BLOCKED_BY_VALIDATOR",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mETH",
+    "sourceAsset": "USDT0",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
       },
       {
         "name": "price_freshness",
