@@ -1,35 +1,50 @@
 {
-  "cycleStartedAt": "2026-06-09T12:53:41.396Z",
-  "cycleEndedAt": "2026-06-09T12:54:53.957Z",
-  "durationSeconds": 72.56,
+  "cycleStartedAt": "2026-06-09T14:03:53.005Z",
+  "cycleEndedAt": "2026-06-09T14:04:55.208Z",
+  "durationSeconds": 62.2,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 17776,
-    "validatorMs": 7687,
+    "analystMs": 16142,
+    "validatorMs": 8982,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 411,
-  "decisionTier": "BLOCKED_BY_PORTFOLIO",
-  "consensus": false,
+  "decisionId": 412,
+  "decisionTier": "INTENT_SWAP_NO_EXEC",
+  "consensus": true,
   "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27207454448",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27211655098",
   "errors": [],
   "gridTradeCandidate": {
     "active": true,
-    "kind": "grid-sell",
+    "kind": "grid-buy",
     "action": "swap",
-    "direction": "risk_off",
-    "targetAsset": "mUSD",
-    "sourceAsset": "mETH",
-    "allocationPct": 20,
-    "confidence": 0.6550955414012753,
+    "direction": "risk_on",
+    "targetAsset": "MNT",
+    "sourceAsset": "USDT0",
+    "allocationPct": 15,
+    "confidence": 0.8,
     "reason": null,
-    "routeHint": null
+    "routeHint": [
+      "USDT0",
+      "USDT",
+      "WMNT"
+    ]
   },
-  "executionStatus": "BLOCKED_BY_PORTFOLIO"
+  "directionalSwap": {
+    "executed": false,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 5,
+    "amountOut": null,
+    "reason": "preflight-failed: leg2 USDT->WMNT not viable: No liquidity path found",
+    "error": null,
+    "legs": null
+  },
+  "executionStatus": "INTENT_ONLY"
 }
