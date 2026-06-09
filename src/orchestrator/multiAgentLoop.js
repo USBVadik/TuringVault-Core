@@ -45,6 +45,10 @@ const {
   buildGridTradeCandidate,
   formatGridTradeCandidateForPrompt,
 } = require("./gridTradeCandidate");
+const {
+  deriveDisplayTier,
+  deriveExecutionProofStatus,
+} = require("./executionProofStatus");
 
 // Contract ABIs (minimal)
 const REGISTRY_ABI = [
@@ -78,6 +82,37 @@ const VALIDATION_ABI = [
   "function isActionApproved(bytes32 requestHash) view returns (bool approved, uint8 score, bool expired)",
   "function authorizedValidators(address) view returns (bool)",
 ];
+
+function resolveCycleDisplayTier({
+  decisionTier = null,
+  executedOnChain = false,
+  disciplineDetail = null,
+} = {}) {
+  const executionProofStatus = deriveExecutionProofStatus(disciplineDetail || {});
+  return deriveDisplayTier({
+    decisionTier,
+    executedOnChain,
+    executionProofStatus,
+  });
+}
+
+function retagSkippedTxProofChecks(checks = [], displayTier = null) {
+  if (!Array.isArray(checks)) return [];
+  return checks.map((check) => {
+    if (
+      check?.name !== "tx_proof" ||
+      String(check?.status || "").toUpperCase() !== "SKIP"
+    ) {
+      return check;
+    }
+    return {
+      ...check,
+      detail: `${
+        displayTier ? `${displayTier} — ` : ""
+      }No execution transaction expected for this cycle`,
+    };
+  });
+}
 
 function buildPortfolioPrices(market = {}) {
   const mntPrice = Number(market.mntPrice) || 0.65;
@@ -934,7 +969,6 @@ async function runMultiAgentCycle(opts = {}) {
 
     // Read live wallet balances for allocator gates.
     const probeDex = new MerchantMoeDEX({
-      rpcUrl: "https://rpc.mantle.xyz",
       dryRun: true,
     });
     const balances = await probeDex.getBalances(wallet.address);
@@ -1529,7 +1563,6 @@ async function runMultiAgentCycle(opts = {}) {
       // Refresh wallet balances for the heartbeat decision.
       const { MerchantMoeDEX } = require("../dex/merchantMoe");
       const probeDex = new MerchantMoeDEX({
-        rpcUrl: "https://rpc.mantle.xyz",
         dryRun: true,
       });
       const hbBalances = await probeDex.getBalances(wallet.address);
@@ -1742,10 +1775,23 @@ async function runMultiAgentCycle(opts = {}) {
       priceTimestamp: market.timestamp || Date.now() - 5000,
       regime: market.structuredSignals?.signals?.ranging?.regime || "RANGING",
     });
+    const cycleDisplayTier = resolveCycleDisplayTier({
+      decisionTier,
+      executedOnChain: executionExpected,
+      disciplineDetail: proofResult,
+    });
+    const retaggedChecks = retagSkippedTxProofChecks(
+      proofResult.checks ?? [],
+      cycleDisplayTier
+    );
+    const proofResultForHistory = {
+      ...proofResult,
+      checks: retaggedChecks,
+    };
     disciplineStatus = proofResult.status;
     disciplineDetail = {
       status: proofResult.status,
-      checks: proofResult.checks ?? [],
+      checks: retaggedChecks,
       blockReason: proofResult.blockReason ?? null,
       repairStep: proofResult.repairStep ?? null,
       timestamp: proofResult.timestamp ?? Date.now(),
@@ -1756,9 +1802,9 @@ async function runMultiAgentCycle(opts = {}) {
       disciplineHistory.append({
         decisionId:
           typeof proposalId === "bigint" ? Number(proposalId) : proposalId,
-        proofResult,
+        proofResult: proofResultForHistory,
         decisionTier,
-        displayTier: decisionTier,
+        displayTier: cycleDisplayTier,
         executedOnChain: executionExpected,
         action,
         targetAsset: decision.analyst?.targetAsset || null,
@@ -2239,6 +2285,8 @@ module.exports = {
     isStableTargetAsset,
     normalizePositionTargetAsset,
     positionEntryPriceForTarget,
+    resolveCycleDisplayTier,
+    retagSkippedTxProofChecks,
     selectPositionGridSignal,
     shouldRefreshAgentCard,
     sourceUsdPriceForToken,

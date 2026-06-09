@@ -62,4 +62,32 @@ describe("proof explorer denominator honesty", () => {
     expect(display.blocked).toBe(true);
     expect(display.validatorStatus).toBe("Approved");
   });
+
+  test("prefers API displayTier over stale reasoning prefix", () => {
+    const display = classifyDecisionForDisplay({
+      status: "Approved",
+      action: "swap",
+      displayTier: "INTENT_SWAP_NO_EXEC",
+      executedOnChain: false,
+      reasoningHash:
+        "[EXECUTED_SWAP] Analyst: grid wanted a buy | Validator: APPROVED",
+    });
+
+    expect(display.label).toBe("INTENT_SWAP_NO_EXEC");
+    expect(display.blocked).toBe(true);
+    expect(display.executed).toBe(false);
+  });
+
+  test("demotes legacy EXECUTED_SWAP when API says no execution happened", () => {
+    const display = classifyDecisionForDisplay({
+      action: "swap",
+      executedOnChain: false,
+      reasoningHash:
+        "[EXECUTED_SWAP] Analyst: grid wanted a buy | Validator: APPROVED",
+    });
+
+    expect(display.label).toBe("INTENT_SWAP_NO_EXEC");
+    expect(display.blocked).toBe(true);
+    expect(display.executed).toBe(false);
+  });
 });

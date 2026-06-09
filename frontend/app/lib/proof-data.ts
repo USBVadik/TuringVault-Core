@@ -1,4 +1,6 @@
 import { ethers } from "ethers";
+import fs from "node:fs";
+import path from "node:path";
 
 const RPC_URL = "https://rpc.mantle.xyz";
 
@@ -27,6 +29,92 @@ const IDENTITY_ABI = [
   "function tokenURI(uint256 tokenId) view returns (string)",
 ];
 
+type OutcomeRow = {
+  decisionId?: number;
+  decisionTier?: string;
+  _displayTier?: string;
+  displayTier?: string;
+  executedOnChain?: boolean;
+};
+
+function extractDecisionTier(reasoningHash: string | null | undefined) {
+  const match = String(reasoningHash || "").match(/^\[([A-Z0-9_]+)\]/);
+  return match?.[1] || null;
+}
+
+function deriveDisplayTier(input: {
+  decisionTier?: string | null;
+  displayTier?: string | null;
+  executedOnChain?: boolean;
+}) {
+  const explicit = input.displayTier || null;
+  const tier = explicit || input.decisionTier || null;
+  if (tier === "EXECUTED_SWAP" && input.executedOnChain === false) {
+    return "INTENT_SWAP_NO_EXEC";
+  }
+  return tier;
+}
+
+async function fetchJsonFromGitHub<T>(filePath: string): Promise<T | null> {
+  try {
+    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
+    const res = await fetch(url, { next: { revalidate: 30 } });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function loadOutcomesIndex() {
+  const out = new Map<
+    number,
+    {
+      displayTier: string | null;
+      decisionTier: string | null;
+      executedOnChain: boolean;
+    }
+  >();
+
+  try {
+    const localPath = path.resolve(
+      process.cwd(),
+      "..",
+      "src",
+      "data",
+      "outcomes.json"
+    );
+    const db = fs.existsSync(localPath)
+      ? (JSON.parse(fs.readFileSync(localPath, "utf8")) as {
+          pending?: OutcomeRow[];
+          settled?: OutcomeRow[];
+        })
+      : await fetchJsonFromGitHub<{
+          pending?: OutcomeRow[];
+          settled?: OutcomeRow[];
+        }>("src/data/outcomes.json");
+
+    for (const row of [...(db?.pending ?? []), ...(db?.settled ?? [])]) {
+      if (typeof row?.decisionId !== "number") continue;
+      const executedOnChain = row.executedOnChain === true;
+      const decisionTier = row.decisionTier ?? null;
+      out.set(row.decisionId, {
+        displayTier: deriveDisplayTier({
+          decisionTier,
+          displayTier: row._displayTier ?? row.displayTier ?? null,
+          executedOnChain,
+        }),
+        decisionTier,
+        executedOnChain,
+      });
+    }
+  } catch {
+    /* best-effort enrichment only */
+  }
+
+  return out;
+}
+
 export async function fetchProofDataDirect() {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
 
@@ -52,12 +140,14 @@ export async function fetchProofDataDirect() {
     tokenURI,
     consensusRate,
     recentProposals,
+    outcomesIndex,
   ] = await Promise.all([
     decisionLog.totalDecisions(),
     decisionLog.getRecentDecisions(20),
     identity.tokenURI(0),
     validationRegistry.getConsensusRate().catch(() => null),
     validationRegistry.getRecentProposals(20).catch(() => []),
+    loadOutcomesIndex(),
   ]);
 
   // Parse proposals
@@ -75,22 +165,38 @@ export async function fetchProofDataDirect() {
   );
 
   // Parse decisions
-  const decisions = (recentDecisions as ethers.Result[]).map(
-    (d: ethers.Result) => {
+  const recentDecisionRows = recentDecisions as ethers.Result[];
+  const totalDecisionCount = Number(totalDecisions);
+  const startId = Math.max(0, totalDecisionCount - recentDecisionRows.length);
+  const decisions = recentDecisionRows.map(
+    (d: ethers.Result, index: number) => {
       const ts = Number(d[0]);
+      const decisionLogId = startId + index;
+      const outcomeRow =
+        outcomesIndex.get(decisionLogId + 1) || outcomesIndex.get(decisionLogId);
       const matchingProposal = proposals.find(
         (p) => Math.abs(p.timestamp - ts) < 60
       );
+      const reasoningHash = d[6];
+      const fallbackDecisionTier = extractDecisionTier(reasoningHash);
 
       return {
+        id: decisionLogId,
         timestamp: ts,
         action: d[1],
         targetAsset: d[2],
         amountIn: d[3].toString(),
         amountOut: d[4].toString(),
         confidence: Number(d[5]),
-        reasoningHash: d[6],
+        reasoningHash,
         txHash: d[7],
+        displayTier:
+          outcomeRow?.displayTier ??
+          deriveDisplayTier({
+            decisionTier: outcomeRow?.decisionTier ?? fallbackDecisionTier,
+            executedOnChain: outcomeRow?.executedOnChain,
+          }),
+        executedOnChain: outcomeRow?.executedOnChain ?? false,
         status:
           matchingProposal?.status ||
           (d[1] === "hold" ? "Approved" : "Rejected"),

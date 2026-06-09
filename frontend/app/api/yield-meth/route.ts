@@ -21,8 +21,6 @@
  */
 
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
 
 // SWR caching — match the pattern from /api/decisions et al.
 export const revalidate = 60;
@@ -55,24 +53,7 @@ type Snapshot = {
   }>;
 };
 
-const SNAPSHOT_PATHS = [
-  path.resolve(process.cwd(), "..", "src", "data", "meth_rate_history.json"),
-  path.resolve(process.cwd(), "src", "data", "meth_rate_history.json"),
-];
-
-function readSnapshot(): Snapshot | null {
-  for (const p of SNAPSHOT_PATHS) {
-    try {
-      if (!fs.existsSync(p)) continue;
-      const raw = fs.readFileSync(p, "utf-8");
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") return parsed as Snapshot;
-    } catch {
-      /* ignored */
-    }
-  }
-  return null;
-}
+const FRESH_CAPTURE_MAX_AGE_SEC = 90 * 60;
 
 async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
   try {
@@ -114,7 +95,7 @@ function readLatestCaptureFromSnapshot(s: Snapshot | null): LiveRate | null {
     currentRateAtomic: last.currentRateAtomic ?? null,
     source: `cached:${last.source || "unknown"}`,
     fetchedAt,
-    degraded: true,
+    degraded: snapshotAgeSec > FRESH_CAPTURE_MAX_AGE_SEC,
     snapshotAgeSec,
   };
 }
@@ -199,12 +180,9 @@ async function fetchPerfBalanceAndEthPrice(): Promise<{
 }
 
 export async function GET() {
-  let snapshot = readSnapshot();
-  if (!snapshot) {
-    snapshot = await fetchFromGitHub<Snapshot>(
-      "src/data/meth_rate_history.json"
-    );
-  }
+  const snapshot = await fetchFromGitHub<Snapshot>(
+    "src/data/meth_rate_history.json"
+  );
 
   // Live read attempt: we re-use the captures-on-disk path because
   // the cron is the canonical writer and we don't want every page

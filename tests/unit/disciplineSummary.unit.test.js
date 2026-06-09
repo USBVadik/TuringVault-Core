@@ -219,6 +219,44 @@ describe("discipline summary", () => {
     expect(txProof?.detail).toMatch(/BLOCKED_BY_REGIME/);
   });
 
+  test("rewrites stale executed tx skip copy to intent-only display tier", () => {
+    const [entry] = enrichHistoryWithOutcomes(
+      [
+        {
+          at: "2026-06-09T14:07:03Z",
+          decisionId: 413,
+          verdict: "ACCEPTED",
+          decisionTier: "EXECUTED_SWAP",
+          displayTier: "EXECUTED_SWAP",
+          executedOnChain: false,
+          checks: [
+            {
+              name: "tx_proof",
+              status: "SKIP",
+              detail: "EXECUTED_SWAP — No execution transaction expected for this cycle",
+            },
+            { name: "price_freshness", status: "PASS" },
+            { name: "drift_detection", status: "PASS" },
+          ],
+        },
+      ],
+      [
+        {
+          decisionId: 413,
+          decisionTier: "EXECUTED_SWAP",
+          _displayTier: "INTENT_SWAP_NO_EXEC",
+          executedOnChain: false,
+        },
+      ]
+    );
+
+    expect(entry.displayTier).toBe("INTENT_SWAP_NO_EXEC");
+    const txProof = entry.checks.find((check) => check.name === "tx_proof");
+    expect(txProof?.status).toBe("SKIP");
+    expect(txProof?.detail).toMatch(/INTENT_SWAP_NO_EXEC/);
+    expect(txProof?.detail).not.toMatch(/EXECUTED_SWAP/);
+  });
+
   test("falls back to cycle history tier when outcomes row is missing", () => {
     const [entry] = enrichHistoryWithOutcomes(
       [

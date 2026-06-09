@@ -4,6 +4,8 @@ const {
     getSettlementSnapshot,
     inferSettlementSourceAsset,
     shouldRefreshAgentCard,
+    retagSkippedTxProofChecks,
+    resolveCycleDisplayTier,
   },
 } = require("../../src/orchestrator/multiAgentLoop");
 
@@ -139,6 +141,41 @@ describe("multiAgentLoop settlement snapshot", () => {
       sourceAsset: "WMNT",
       missingPriceReason: "missing-MNT-price",
     });
+  });
+});
+
+describe("multiAgentLoop execution display tier", () => {
+  test("demotes non-executed EXECUTED_SWAP cycles before discipline history is written", () => {
+    expect(
+      resolveCycleDisplayTier({
+        decisionTier: "EXECUTED_SWAP",
+        executedOnChain: false,
+        disciplineDetail: {
+          checks: [{ name: "tx_proof", status: "SKIP" }],
+        },
+      })
+    ).toBe("INTENT_SWAP_NO_EXEC");
+  });
+
+  test("retags skipped tx proof copy with the final display tier", () => {
+    const checks = retagSkippedTxProofChecks(
+      [
+        {
+          name: "tx_proof",
+          status: "SKIP",
+          detail: "EXECUTED_SWAP — No execution transaction expected for this cycle",
+        },
+        { name: "price_freshness", status: "PASS" },
+      ],
+      "INTENT_SWAP_NO_EXEC"
+    );
+
+    expect(checks[0]).toEqual({
+      name: "tx_proof",
+      status: "SKIP",
+      detail: "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle",
+    });
+    expect(checks[1]).toEqual({ name: "price_freshness", status: "PASS" });
   });
 });
 

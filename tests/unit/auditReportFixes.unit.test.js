@@ -84,10 +84,80 @@ describe("post-audit report regression fixes", () => {
       path.join(repoRoot, ".github/workflows/agent-cycle.yml"),
       "utf8"
     );
+    const commitScript = fs.readFileSync(
+      path.join(repoRoot, "scripts/commit-cycle-state.sh"),
+      "utf8"
+    );
 
     expect(workflow).not.toMatch(/git pull --rebase --autostash/);
-    expect(workflow).toMatch(/origin\/main advanced after cycle generation/);
-    expect(workflow).toMatch(/Skipping stale cycle commit/);
+    expect(workflow).toMatch(/bash scripts\/commit-cycle-state\.sh/);
+    expect(commitScript).toMatch(/origin\/main advanced after cycle generation/);
+    expect(commitScript).toMatch(/Skipping stale cycle commit/);
+  });
+
+  test("agent-watchdog runs the rescue cycle itself instead of dispatching a workflow", () => {
+    const workflow = fs.readFileSync(
+      path.join(repoRoot, ".github/workflows/agent-watchdog.yml"),
+      "utf8"
+    );
+
+    expect(workflow).toMatch(/node scripts\/run-cycle\.js/);
+    expect(workflow).toMatch(/bash scripts\/commit-cycle-state\.sh/);
+    expect(workflow).toMatch(/group:\s*agent-cycle/);
+    expect(workflow).toMatch(/cancel-in-progress:\s*false/);
+    expect(workflow).not.toMatch(/gh workflow run|actions:\s*write/);
+  });
+
+  test("GitHub workflows avoid Node 20 action versions", () => {
+    const workflowDir = path.join(repoRoot, ".github/workflows");
+    const workflows = fs
+      .readdirSync(workflowDir)
+      .filter((name) => name.endsWith(".yml"))
+      .map((name) => [
+        name,
+        fs.readFileSync(path.join(workflowDir, name), "utf8"),
+    ]);
+
+    for (const [name, workflow] of workflows) {
+      const labeledWorkflow = `${name}\n${workflow}`;
+      expect(labeledWorkflow).not.toMatch(
+        /actions\/(?:checkout|setup-node)@v4/
+      );
+      expect(labeledWorkflow).not.toMatch(/foundry-rs\/foundry-toolchain@v1/);
+    }
+  });
+
+  test("Proof Explorer direct data path enriches rows with displayTier and real DecisionLog ids", () => {
+    const proofData = fs.readFileSync(
+      path.join(repoRoot, "frontend/app/lib/proof-data.ts"),
+      "utf8"
+    );
+    const proofClient = fs.readFileSync(
+      path.join(repoRoot, "frontend/app/proof-explorer/client.tsx"),
+      "utf8"
+    );
+
+    expect(proofData).toMatch(/loadOutcomesIndex/);
+    expect(proofData).toMatch(/outcomesIndex\.get\(decisionLogId \+ 1\)/);
+    expect(proofData).toMatch(/id:\s*decisionLogId/);
+    expect(proofData).toMatch(/displayTier:/);
+    expect(proofData).toMatch(/executedOnChain:/);
+    expect(proofClient).toMatch(/typeof d\.id === "number" \? d\.id/);
+    expect(proofClient).not.toMatch(/const decisionNum = totalDecisions - i/);
+  });
+
+  test("mETH yield API does not mark fresh cron captures as degraded", () => {
+    const route = fs.readFileSync(
+      path.join(repoRoot, "frontend/app/api/yield-meth/route.ts"),
+      "utf8"
+    );
+
+    expect(route).toMatch(/FRESH_CAPTURE_MAX_AGE_SEC\s*=\s*90\s*\*\s*60/);
+    expect(route).toMatch(
+      /degraded:\s*snapshotAgeSec\s*>\s*FRESH_CAPTURE_MAX_AGE_SEC/
+    );
+    expect(route).not.toMatch(/from\s+["']fs["']|from\s+["']path["']/);
+    expect(route).not.toMatch(/degraded:\s*true,\s*\n\s*snapshotAgeSec/);
   });
 
   test("cycle failure summary writer records timeout evidence without execution claims", () => {

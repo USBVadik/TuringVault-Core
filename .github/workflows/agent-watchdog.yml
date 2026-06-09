@@ -1,82 +1,146 @@
 name: Agent Watchdog
 
-# Backup trigger for the Agent Cycle. GitHub's scheduled-event runner
-# regularly drops `schedule` slots under load — we have observed 3
-# consecutive missed slots (~100 min gap) which pushes the live feed
-# toward STALE/OFFLINE on the dashboard. This watchdog runs on an
-# INDEPENDENT schedule, checks the live /api/health freshness, and
-# only dispatches an Agent Cycle when the feed is actually going
-# stale. It is condition-based on purpose: it must NOT add baseline
-# cycle frequency (that would accelerate gas burn). It only fires to
-# rescue a gap a missed scheduled slot would otherwise have left.
-#
-# Two independent schedules being dropped at the same time is far
-# less likely than one, so this materially raises feed uptime without
-# extra gas cost in the steady state.
-#
-# Spec: .kiro/specs/continuous-cron-and-health
-# Audit: .kiro/audits/33-live-system-health-audit.md (F2 schedule gap)
+# Backup runner for the Agent Cycle. It does not dispatch another
+# workflow: scheduled workflows triggered by the default GitHub token are
+# easy to make non-operative, and a failed dispatch gives no fresh cycle.
+# Instead, this workflow checks live freshness and runs the same cycle
+# script itself only when the feed is stale.
 
 on:
   schedule:
-    # Every 25 min, offset from the Agent Cycle slots (:17 / :47).
-    # Gives :00 / :25 / :50 — so a missed cycle slot is caught within
-    # ~25 min, before the 90-min OFFLINE threshold (badge goes STALE
-    # at 35 min). Combined with the main schedule this keeps the feed
-    # under the STALE line in the common single-miss case.
-    - cron: "*/25 * * * *"
-  workflow_dispatch: # Manual "kick it now" button
+    # Offset from Agent Cycle (:02/:17/:32/:47). The freshness gate below
+    # means this does not increase steady-state gas burn.
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
 
-# Don't let two watchdogs overlap. Separate group from agent-cycle so
-# the watchdog can run while a cycle is in flight (it'll just observe
-# fresh health and not dispatch).
 concurrency:
-  group: agent-watchdog
-  cancel-in-progress: true
+  group: agent-cycle
+  cancel-in-progress: false
 
 permissions:
-  actions: write # required to dispatch the Agent Cycle workflow
-  contents: read
+  contents: write
 
 jobs:
   watchdog:
     name: Health check + conditional rescue
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+
+    env:
+      AGENT_RUN_MODE: cron-github-actions
+      RWA_EXECUTE_ENABLED: "true"
+      HEARTBEAT_MODE_ENABLED: ${{ secrets.HEARTBEAT_MODE_ENABLED }}
+      RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
+      STALE_THRESHOLD_S: "3000"
+      HEALTH_URL: "https://frontend-seven-beta-46.vercel.app/api/health"
+      MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      NANSEN_API_KEY: ${{ secrets.NANSEN_API_KEY }}
+      ELFA_API_KEY: ${{ secrets.ELFA_API_KEY }}
+      PINATA_JWT: ${{ secrets.PINATA_JWT }}
+      PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
+      PINATA_SECRET: ${{ secrets.PINATA_SECRET }}
+      PINATA_UPLOAD_MODE: "anchor-only"
+      AGENT_CARD_AUTO_UPDATE_ENABLED: "false"
+      GEMINI_PROJECT_ID: ${{ secrets.GEMINI_PROJECT_ID }}
+      GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
     steps:
-      - name: Check freshness and dispatch a cycle if stale
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          # Freshness threshold in seconds. 3000 = 50 min. The agent
-          # cron runs every 30 min, so a single dropped slot (~60 min
-          # gap) trips this; a healthy 30-min cadence never does.
-          STALE_THRESHOLD_S: "3000"
-          HEALTH_URL: "https://frontend-seven-beta-46.vercel.app/api/health"
+      - name: Check freshness gate
+        id: freshness
         run: |
           set -euo pipefail
 
-          # Pull live health. -f makes curl exit non-zero on HTTP
-          # errors so a down API doesn't read as "fresh".
           if ! BODY=$(curl -fsS -m 25 "$HEALTH_URL"); then
-            echo "::warning::watchdog: /api/health unreachable — not dispatching (avoid blind spam)"
+            echo "::warning::watchdog: /api/health unreachable; running rescue cycle."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # jq is preinstalled on ubuntu-latest runners.
           AGE=$(printf '%s' "$BODY" | jq -r '.lastCycleAge // empty')
 
           if [ -z "${AGE:-}" ] || ! printf '%s' "$AGE" | grep -Eq '^[0-9]+$'; then
-            echo "::warning::watchdog: lastCycleAge missing/non-numeric ('$AGE') — not dispatching"
+            echo "::warning::watchdog: lastCycleAge missing/non-numeric ('$AGE'); running rescue cycle."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           echo "watchdog: lastCycleAge=${AGE}s threshold=${STALE_THRESHOLD_S}s"
 
           if [ "$AGE" -gt "$STALE_THRESHOLD_S" ]; then
-            echo "watchdog: feed is STALE (${AGE}s > ${STALE_THRESHOLD_S}s) — dispatching Agent Cycle"
-            gh workflow run agent-cycle.yml --repo "$GH_REPO" --ref main
-            echo "watchdog: dispatched."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "watchdog: feed stale; running rescue cycle."
           else
-            echo "watchdog: feed fresh (${AGE}s) — no action."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "watchdog: feed fresh; no action."
           fi
+
+      - name: Checkout main
+        if: steps.freshness.outputs.should_run == 'true'
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Sync latest main before rescue
+        if: steps.freshness.outputs.should_run == 'true'
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+
+      - name: Setup Node 22
+        if: steps.freshness.outputs.should_run == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        if: steps.freshness.outputs.should_run == 'true'
+        run: npm ci --legacy-peer-deps
+
+      - name: Write Gemini service-account key
+        if: steps.freshness.outputs.should_run == 'true'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+        run: |
+          if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+            echo "::warning::GOOGLE_APPLICATION_CREDENTIALS_JSON not set; arbiter will fall back to conservative-block."
+          else
+            printf '%s' "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > ./gemini-service-account.json
+            chmod 600 ./gemini-service-account.json
+          fi
+
+      - name: Run rescue cycle
+        if: steps.freshness.outputs.should_run == 'true'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ./gemini-service-account.json
+        run: |
+          set +e
+          CYCLE_STARTED_AT=$(date -u +%FT%TZ)
+          timeout 600 node scripts/run-cycle.js
+          code=$?
+          set -e
+
+          if [ "$code" -eq 0 ]; then
+            exit 0
+          fi
+
+          if [ "$code" -eq 2 ]; then
+            exit "$code"
+          fi
+
+          CYCLE_EXIT_CODE="$code" CYCLE_STARTED_AT="$CYCLE_STARTED_AT" \
+            node scripts/write-cycle-failure-summary.js "watchdog run-cycle exited ${code}"
+
+      - name: Verify outcomes integrity invariants
+        if: steps.freshness.outputs.should_run == 'true'
+        run: npx jest tests/unit/outcomesIntegrity.unit.test.js --silent
+
+      - name: Commit state changes
+        if: steps.freshness.outputs.should_run == 'true'
+        run: bash scripts/commit-cycle-state.sh

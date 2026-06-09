@@ -26,8 +26,18 @@ function extractDecisionTier(reasoningHash) {
   return match?.[1] || null;
 }
 
+function displayTier(decision = {}) {
+  const explicit = decision.displayTier || decision._displayTier || null;
+  const legacy = extractDecisionTier(decision.reasoningHash);
+  const tier = explicit || legacy;
+  if (tier === "EXECUTED_SWAP" && decision.executedOnChain === false) {
+    return "INTENT_SWAP_NO_EXEC";
+  }
+  return tier;
+}
+
 function classifyDecisionForDisplay(decision = {}) {
-  const tier = extractDecisionTier(decision.reasoningHash);
+  const tier = displayTier(decision);
   const validatorStatus = decision.status || null;
 
   if (tier) {
@@ -90,6 +100,7 @@ function buildValidationStatCopy(validation) {
 module.exports = {
   buildValidationStatCopy,
   classifyDecisionForDisplay,
+  displayTier,
   extractDecisionTier,
   validationDenominator,
   buildDenominatorNote,

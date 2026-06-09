@@ -35,6 +35,7 @@ const mantleProofDetail =
   contractProofSummary.summarizeSourcifyContracts(contractsData).detail;
 
 interface Decision {
+  id?: number;
   timestamp: number;
   action: string;
   targetAsset: string;
@@ -44,6 +45,8 @@ interface Decision {
   reasoningHash: string;
   txHash: string;
   status?: string;
+  displayTier?: string | null;
+  executedOnChain?: boolean;
   riskScore?: number;
   validatorReasoning?: string;
 }
@@ -839,7 +842,8 @@ export function ProofExplorerClient({
                 <p className="text-white/30 text-sm">No decisions loaded.</p>
               ) : (
                 decisions.map((d, i) => {
-                  const decisionNum = totalDecisions - i;
+                  const decisionNum =
+                    typeof d.id === "number" ? d.id : totalDecisions - 1 - i;
                   const display = proofExplorerConsistency.classifyDecisionForDisplay(d);
                   const isBlocked = display.blocked;
                   const confidencePct = d.confidence / 100;

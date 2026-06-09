@@ -15,6 +15,73 @@ require("dotenv").config({
 });
 const { ethers } = require("ethers");
 
+const DEFAULT_MANTLE_RPC =
+  process.env.MANTLE_RPC_URL ||
+  process.env.MANTLE_RPC ||
+  "https://rpc.mantle.xyz";
+const DEFAULT_READ_RETRY_ATTEMPTS = Number(
+  process.env.MANTLE_READ_RETRY_ATTEMPTS || 3
+);
+const DEFAULT_READ_RETRY_BASE_MS = Number(
+  process.env.MANTLE_READ_RETRY_BASE_MS || 250
+);
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function createMantleProvider(rpcUrl = DEFAULT_MANTLE_RPC) {
+  // Merchant Moe quotes are latency-sensitive and the public Mantle RPC has
+  // occasionally returned false CALL_EXCEPTIONs on valid LB pair reads when
+  // calls are coalesced. Disabling batching keeps each eth_call isolated.
+  return new ethers.JsonRpcProvider(rpcUrl, undefined, { batchMaxCount: 1 });
+}
+
+function isRetriableReadError(err) {
+  const code = String(err?.code || "").toUpperCase();
+  const message = String(err?.shortMessage || err?.message || "").toLowerCase();
+  return (
+    code === "CALL_EXCEPTION" ||
+    code === "SERVER_ERROR" ||
+    code === "TIMEOUT" ||
+    message.includes("missing revert data") ||
+    message.includes("network") ||
+    message.includes("timeout") ||
+    message.includes("econnreset") ||
+    message.includes("rate limit")
+  );
+}
+
+async function retryReadCall(label, fn, options = {}) {
+  const attempts = Math.max(
+    1,
+    Number(options.attempts ?? DEFAULT_READ_RETRY_ATTEMPTS) || 1
+  );
+  const baseDelayMs = Math.max(
+    0,
+    Number(options.baseDelayMs ?? DEFAULT_READ_RETRY_BASE_MS) || 0
+  );
+  const shouldRetry = options.shouldRetry || isRetriableReadError;
+  let lastErr;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (attempt >= attempts || !shouldRetry(err)) {
+        err.message = `[${label}] ${err.message}`;
+        throw err;
+      }
+      if (baseDelayMs > 0) {
+        await sleep(baseDelayMs * attempt);
+      }
+    }
+  }
+
+  throw lastErr;
+}
+
 // Mantle Mainnet addresses
 const ADDRESSES = {
   LB_ROUTER: "0x013e138EF6008ae5FDFDE29700e3f2Bc61d21E3a",
@@ -71,14 +138,16 @@ const ERC20_ABI = [
 
 class MerchantMoeDEX {
   constructor(options = {}) {
-    this.provider = new ethers.JsonRpcProvider(
-      options.rpcUrl || "https://rpc.mantle.xyz"
-    );
+    this.provider = options.provider || createMantleProvider(options.rpcUrl);
     this.wallet = options.privateKey
       ? new ethers.Wallet(options.privateKey, this.provider)
       : null;
     this.dryRun = options.dryRun !== false; // default: simulation only
     this.maxSlippageBps = options.maxSlippageBps || 100; // 1%
+    this.readRetryAttempts =
+      options.readRetryAttempts ?? DEFAULT_READ_RETRY_ATTEMPTS;
+    this.readRetryBaseMs =
+      options.readRetryBaseMs ?? DEFAULT_READ_RETRY_BASE_MS;
 
     this.router = new ethers.Contract(
       ADDRESSES.LB_ROUTER,
@@ -90,6 +159,13 @@ class MerchantMoeDEX {
       LB_FACTORY_ABI,
       this.provider
     );
+  }
+
+  async _read(label, fn) {
+    return retryReadCall(label, fn, {
+      attempts: this.readRetryAttempts,
+      baseDelayMs: this.readRetryBaseMs,
+    });
   }
 
   /**
@@ -130,7 +206,10 @@ class MerchantMoeDEX {
         candidates.map(async (p) => {
           try {
             const c = new ethers.Contract(p.LBPair, PAIR_RES_ABI, this.provider);
-            const [rX, rY] = await c.getReserves();
+            const [rX, rY] = await this._read(
+              `LBPair(${p.LBPair}).getReserves`,
+              () => c.getReserves()
+            );
             const depth = rX + rY; // BigInt
             return { pair: p, depth };
           } catch {
@@ -167,9 +246,18 @@ class MerchantMoeDEX {
       LB_PAIR_ABI,
       this.provider
     );
-    const tokenX = await pair.getTokenX();
-    const activeId = await pair.getActiveId();
-    const [reserveX, reserveY] = await pair.getReserves();
+    const tokenX = await this._read(
+      `LBPair(${pairInfo.LBPair}).getTokenX`,
+      () => pair.getTokenX()
+    );
+    const activeId = await this._read(
+      `LBPair(${pairInfo.LBPair}).getActiveId`,
+      () => pair.getActiveId()
+    );
+    const [reserveX, reserveY] = await this._read(
+      `LBPair(${pairInfo.LBPair}).getReserves`,
+      () => pair.getReserves()
+    );
 
     // Determine swap direction
     const swapForY = tokenInAddr.toLowerCase() === tokenX.toLowerCase();
@@ -190,20 +278,28 @@ class MerchantMoeDEX {
       ERC20_ABI,
       this.provider
     );
+    const tokenY = await this._read(
+      `LBPair(${pairInfo.LBPair}).getTokenY`,
+      () => pair.getTokenY()
+    );
     const tokenYContract = new ethers.Contract(
-      await pair.getTokenY(),
+      tokenY,
       ERC20_ABI,
       this.provider
     );
 
     const [decimalsIn, decimalsOut, decimalsX, decimalsY, symbolIn, symbolOut] =
       await Promise.all([
-        tokenInContract.decimals(),
-        tokenOutContract.decimals(),
-        tokenXContract.decimals(),
-        tokenYContract.decimals(),
-        tokenInContract.symbol().catch(() => tokenIn),
-        tokenOutContract.symbol().catch(() => tokenOut),
+        this._read(`${tokenIn}.decimals`, () => tokenInContract.decimals()),
+        this._read(`${tokenOut}.decimals`, () => tokenOutContract.decimals()),
+        this._read(`${tokenX}.decimals`, () => tokenXContract.decimals()),
+        this._read(`${tokenY}.decimals`, () => tokenYContract.decimals()),
+        this._read(`${tokenIn}.symbol`, () => tokenInContract.symbol()).catch(
+          () => tokenIn
+        ),
+        this._read(`${tokenOut}.symbol`, () => tokenOutContract.symbol()).catch(
+          () => tokenOut
+        ),
       ]);
 
     // LB v2.1 price formula:
@@ -242,9 +338,9 @@ class MerchantMoeDEX {
         SWAP_OUT_ABI,
         this.provider
       );
-      const [amountInLeft, amountOut, feeOut] = await pairForSwap.getSwapOut(
-        amountIn,
-        swapForY
+      const [amountInLeft, amountOut, feeOut] = await this._read(
+        `LBPair(${pairInfo.LBPair}).getSwapOut`,
+        () => pairForSwap.getSwapOut(amountIn, swapForY)
       );
       estimatedOutFloat = parseFloat(
         ethers.formatUnits(amountOut, decimalsOut)
@@ -339,7 +435,7 @@ class MerchantMoeDEX {
   /**
    * Multi-hop quote (tokenA → WMNT → tokenB)
    */
-  async _getMultiHopQuote(tokenInAddr, tokenOutAddr, amountIn) {
+  async _getMultiHopQuote(tokenInAddr, tokenOutAddr, _amountIn) {
     // Try routing through WMNT
     const hop1 = await this.findPair(tokenInAddr, ADDRESSES.WMNT);
     const hop2 = await this.findPair(ADDRESSES.WMNT, tokenOutAddr);
@@ -384,9 +480,13 @@ class MerchantMoeDEX {
       ERC20_ABI,
       this.wallet
     );
-    const current = await tokenContract.allowance(
-      this.wallet.address,
-      ADDRESSES.LB_ROUTER
+    const current = await this._read(
+      `${tokenInAddr}.allowance`,
+      () =>
+        tokenContract.allowance(
+          this.wallet.address,
+          ADDRESSES.LB_ROUTER
+        )
     );
     // If already > 1e30 we treat it as effectively infinite.
     if (current > 10n ** 30n) {
@@ -549,7 +649,16 @@ class MerchantMoeDEX {
 }
 
 // Export
-module.exports = { MerchantMoeDEX, ADDRESSES, PAIRS };
+module.exports = {
+  MerchantMoeDEX,
+  ADDRESSES,
+  PAIRS,
+  _private: {
+    createMantleProvider,
+    isRetriableReadError,
+    retryReadCall,
+  },
+};
 
 // Self-test if called directly
 if (require.main === module) {
