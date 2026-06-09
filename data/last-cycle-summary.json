@@ -1,36 +1,27 @@
 {
-  "cycleStartedAt": "2026-06-09T08:00:04.093Z",
-  "cycleEndedAt": "2026-06-09T08:01:27.562Z",
-  "durationSeconds": 83.47,
+  "cycleStartedAt": "2026-06-09T08:39:23.171Z",
+  "cycleEndedAt": "2026-06-09T08:42:30.452Z",
+  "durationSeconds": 187.28,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 4741,
-    "validatorMs": 6750,
+    "analystMs": 4952,
+    "validatorMs": 7209,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 405,
-  "decisionTier": "BLOCKED_BY_REGIME",
+  "decisionId": 406,
+  "decisionTier": "HEARTBEAT_SWAP",
   "consensus": false,
   "txHashes": [
-    "0xf212686559ef19a12787d2a2c302777140fb0dd86bee5f39b175143dd707f951"
+    "0x3dd7571278c67eb3a6f3ecec0434e4b79859969b800c397e0eb73a74ccbab35f",
+    "0x1d0eeabf35abb1ac3b164ceaa1e3710c0e0f34c8ffe07566841493119f9f5cf9"
   ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27192308329",
-  "errors": [
-    "outcome-not-persisted: cycle 405 missing from src/data/outcomes.json after Step 6"
-  ],
-  "rwa": {
-    "source": "conservative",
-    "executed": true,
-    "amountInUsd": 2.11417325,
-    "from": "USDT",
-    "to": "USDT0",
-    "blockedReason": null
-  },
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27194299379",
+  "errors": [],
   "gridTradeCandidate": {
     "active": false,
     "kind": null,
@@ -42,6 +33,38 @@
     "confidence": null,
     "reason": "no actionable lower-band or grid edge",
     "routeHint": null
+  },
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 0.8,
+    "amountOut": null,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "USDT",
+        "txHash": "0x3dd7571278c67eb3a6f3ecec0434e4b79859969b800c397e0eb73a74ccbab35f",
+        "blockNumber": 96432104,
+        "amountIn": 0.8,
+        "amountOut": 0.800079,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "WMNT",
+        "txHash": "0x1d0eeabf35abb1ac3b164ceaa1e3710c0e0f34c8ffe07566841493119f9f5cf9",
+        "blockNumber": 96432111,
+        "amountIn": 0.7992789209999993,
+        "amountOut": 1.472760227726304,
+        "reason": null
+      }
+    ]
   },
   "executionStatus": "EXECUTED"
 }
