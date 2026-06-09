@@ -41,7 +41,7 @@ TuringVault is an **AI-powered RWA portfolio management infrastructure layer on 
 
 The Mantle Turing Test 2026 brief calls out three defining features. We built the entire stack around them.
 
-**1 · On-chain benchmarking of AI.** Every cycle writes 4 attestation TXs to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-04 17:05 UTC snapshot shows 288 DecisionLog rows and 289 ValidationRegistry proposals logged to date, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log; judges can inspect run history and use `/api/health` for current freshness.
+**1 · On-chain benchmarking of AI.** Every cycle writes attestation data to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-09 19:04 UTC snapshot shows 418 DecisionLog rows and 419 ValidationRegistry proposals logged to date, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log; judges can inspect run history and use `/api/health` for current freshness.
 
 **2 · ERC-8004 agent identity reference implementation.** Non-transferable Identity NFT (`0x6f86…28bD`), ValidationRegistry, ReputationRegistry, DecisionLog — all Sourcify-verified on Mantle Mainnet. `tokenURI(0)` returns a live IPFS CID that auto-refreshes per cycle. Drop-in compatible with the upcoming Mantle-issued Agent Identity standard; we are positioned to interop or migrate the moment that ships.
 
@@ -70,14 +70,14 @@ A single hourly cron drives the cycle:
 ### Mantle-native asset stack
 
 - **mETH** — Mantle's own LST, used as the risk-on real-yield leg.
-- **USDT0** — LayerZero-bridged Tether (Treasury-collateralised, 1:1 USD peg). Around 46% of NAV in the 2026-06-04 17:05 UTC snapshot. First RWA swap on-chain: TX `0x0af2336…3e09de`.
+- **USDT0** — LayerZero-bridged Tether (Treasury-collateralised, 1:1 USD peg). Around 57% of NAV in the 2026-06-09 19:04 UTC snapshot. First RWA swap on-chain: TX `0x0af2336…3e09de`.
 - **USDY** — Ondo tokenized Treasuries metadata module ships in repo (`src/rwa/usdyModule.js`). Mantle pool depth currently zero, so the swap path throws `RWA_POOL_INACTIVE` until reactivated. We label it as `paper-ready` honestly rather than pretending it's live.
 
 ### What's currently live
 
 | Component                | State | Verifiable artefact                                                            |
 | ------------------------ | ----- | ------------------------------------------------------------------------------ |
-| Multi-agent consensus    | LIVE  | 288 DecisionLog rows in the 2026-06-04 17:05 UTC snapshot, public cron log     |
+| Multi-agent consensus    | LIVE  | 418 DecisionLog rows in the 2026-06-09 19:04 UTC snapshot, public cron log     |
 | ERC-8004 contracts       | LIVE  | 5 Sourcify-verified contracts on Mantle                                        |
 | Discipline Layer         | LIVE  | `/discipline` page, 3 gates fire each cycle                                    |
 | RWA execution to USDT0   | LIVE  | TX `0x0af2336…` on Mantlescan                                                  |
@@ -124,7 +124,7 @@ Treat AI agents as accountable economic actors with on-chain identity, reputatio
 | Elfa snapshot           | https://frontend-seven-beta-46.vercel.app/api/elfa-snapshot?symbol=ETH                       |
 | Judge Q&A               | `docs/judge-q-and-a-final.md` (in repo)                                                      |
 | Pitch deck (PDF)        | `docs/pitch-deck/turingvault-pitch.pdf` (in repo)                                            |
-| Demo video              | TBD — re-recording with Screen Studio at high quality                                        |
+| Demo video              | https://youtu.be/AnLbnbW36ys                                                                  |
 
 ## Stack tags
 
