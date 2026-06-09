@@ -991,6 +991,83 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1781017539221_414",
+      "decisionId": 414,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1642.15,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei8573ef701935b7145cc2f2c9040523c80fc9dacf3f83f82634db",
+      "recordedAt": "2026-06-09T15:05:39.221Z",
+      "settleAfter": "2026-06-09T16:05:39.221Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781017539212
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already 82.5% stable-heavy with only $19.67 risk exposure. TREND_DOWN confirmed at 60% with bearish consensus, but funding is neutral (-0.043%), smart money flow is neutral ($0.0M), and RSI at 35 is approaching oversold — insufficient edge for forced risk_off. Scale-in rule correctly blocks new risk_on. No action is the lowest-risk posture. Analyst reasoning align",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional trade — acceptable",
+        "Yield spread -1% bearish signal noted but insufficient alone to force risk_off",
+        "RSI at 35 not yet at <30 oversold threshold for counter-trend entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9a7b34066db7a86ab780bcb95effe0bf9b576e95f71ad1cfa666e056d977614b",
+      "combinedAnchor": "0xafaeab9d1d5b80a269e74e5e9d4052bc3728994c5bc819cc7b22389afb97c484",
+      "decisionLogTxHash": "0x3b29bc53e1457fc7fde177fd45ee3a4d901941e99ea882fc76c6f82b9fe1be4e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
