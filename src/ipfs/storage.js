@@ -10,9 +10,37 @@
  */
 const https = require("https");
 
-const PINATA_JWT = process.env.PINATA_JWT || "";
 const PINATA_GATEWAY =
   process.env.PINATA_GATEWAY || "green-linear-jay-761.mypinata.cloud";
+
+function getPinataJwt() {
+  return process.env.PINATA_JWT || "";
+}
+
+function getPinataUploadMode() {
+  return String(process.env.PINATA_UPLOAD_MODE || "pinata").toLowerCase();
+}
+
+function isStrictPinataMode() {
+  return String(process.env.PINATA_STRICT || "").toLowerCase() === "true";
+}
+
+function localAnchorFallback(jsonData, name, reason) {
+  const crypto = require("crypto");
+  const hash = crypto
+    .createHash("sha256")
+    .update(JSON.stringify({ name, jsonData }))
+    .digest("hex");
+  const fakeCid = `bafkrei${hash.slice(0, 52)}`;
+  return {
+    cid: fakeCid,
+    uri: `ipfs://${fakeCid}`,
+    gateway: null,
+    degraded: true,
+    storage: "local-anchor",
+    reason,
+  };
+}
 
 /**
  * Upload JSON to IPFS via Pinata pinJSONToIPFS
@@ -21,15 +49,14 @@ const PINATA_GATEWAY =
  * @returns {Promise<{cid: string, uri: string}>}
  */
 async function pinJSON(jsonData, name = "turingvault-reasoning") {
-  if (!PINATA_JWT) {
-    // Fallback: generate deterministic hash for demo
-    const crypto = require("crypto");
-    const hash = crypto
-      .createHash("sha256")
-      .update(JSON.stringify(jsonData))
-      .digest("hex");
-    const fakeCid = `bafkrei${hash.slice(0, 52)}`;
-    return { cid: fakeCid, uri: `ipfs://${fakeCid}` };
+  const uploadMode = getPinataUploadMode();
+  if (uploadMode === "anchor-only") {
+    return localAnchorFallback(jsonData, name, "PINATA_UPLOAD_MODE=anchor-only");
+  }
+
+  const pinataJwt = getPinataJwt();
+  if (!pinataJwt) {
+    return localAnchorFallback(jsonData, name, "PINATA_JWT not configured");
   }
 
   const payload = JSON.stringify({
@@ -45,7 +72,7 @@ async function pinJSON(jsonData, name = "turingvault-reasoning") {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${PINATA_JWT}`,
+          Authorization: `Bearer ${pinataJwt}`,
           "Content-Length": Buffer.byteLength(payload),
         },
       },
@@ -62,15 +89,36 @@ async function pinJSON(jsonData, name = "turingvault-reasoning") {
                 gateway: `https://${PINATA_GATEWAY}/ipfs/${parsed.IpfsHash}`,
               });
             } else {
-              reject(new Error(`Pinata error: ${data}`));
+              const err = new Error(`Pinata error: ${data}`);
+              if (isStrictPinataMode()) {
+                reject(err);
+              } else {
+                resolve(localAnchorFallback(jsonData, name, err.message));
+              }
             }
           } catch (e) {
-            reject(e);
+            if (isStrictPinataMode()) {
+              reject(e);
+            } else {
+              resolve(
+                localAnchorFallback(
+                  jsonData,
+                  name,
+                  `Pinata response parse failed: ${e.message}`
+                )
+              );
+            }
           }
         });
       }
     );
-    req.on("error", reject);
+    req.on("error", (e) => {
+      if (isStrictPinataMode()) {
+        reject(e);
+      } else {
+        resolve(localAnchorFallback(jsonData, name, `Pinata request failed: ${e.message}`));
+      }
+    });
     req.write(payload);
     req.end();
   });

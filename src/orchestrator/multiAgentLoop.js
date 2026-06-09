@@ -2030,6 +2030,13 @@ async function runMultiAgentCycle(opts = {}) {
   // Step 8: Auto-update Agent Card on IPFS + on-chain tokenURI
   console.log("🪪 [STEP 8] Updating Agent Card on IPFS...");
   try {
+    const agentCardAutoUpdateEnabled =
+      String(
+        process.env.AGENT_CARD_AUTO_UPDATE_ENABLED || "true"
+      ).toLowerCase() !== "false";
+    const pinataUploadMode = String(
+      process.env.PINATA_UPLOAD_MODE || "pinata"
+    ).toLowerCase();
     const { pinJSON } = require("../ipfs/storage");
     const agentCardPath = require("path").join(
       __dirname,
@@ -2066,7 +2073,11 @@ async function runMultiAgentCycle(opts = {}) {
       nowMs: Date.parse(nowIso),
     });
 
-    if (!refreshPolicy.refresh) {
+    if (!agentCardAutoUpdateEnabled || pinataUploadMode === "anchor-only") {
+      console.log(
+        "   ⏭️  Agent Card auto-update skipped (Pinata quota guard enabled)"
+      );
+    } else if (!refreshPolicy.refresh) {
       console.log(
         `   ↷ Agent Card refresh skipped (${refreshPolicy.reason}; total=${Number(
           total

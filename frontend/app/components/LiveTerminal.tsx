@@ -66,7 +66,7 @@ type Health = HealthForLiveness;
  */
 function extractTier(reasoning: string | undefined): string | null {
   if (!reasoning) return null;
-  const m = reasoning.match(/^\[([A-Z_]+)\]/);
+  const m = reasoning.match(/^\[([A-Z0-9_]+)\]/);
   return m ? m[1] : null;
 }
 
@@ -238,7 +238,10 @@ export function LiveTerminal() {
             const isIntentOnly =
               d.executedOnChain === false && d.action === "swap";
             const ts =
-              new Date(d.timestamp * 1000).toISOString().slice(11, 19) + "Z";
+              typeof d.timestamp === "number" && Number.isFinite(d.timestamp)
+                ? new Date(d.timestamp * 1000).toISOString().slice(11, 19) +
+                  "Z"
+                : "--:--:--Z";
             const conf = (d.confidence / 100).toFixed(1);
             return (
               <div key={`${d.id}-${i}`} className="terminal-line">

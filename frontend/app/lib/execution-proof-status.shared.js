@@ -44,6 +44,11 @@ function deriveExecutionProofStatus(input = {}) {
   return hasCompleteProof ? "ACCEPTED" : "UNKNOWN";
 }
 
+function extractDecisionTier(reasoning = "") {
+  const match = String(reasoning || "").match(/^\[([A-Z0-9_]+)\]/);
+  return match ? match[1] : null;
+}
+
 function deriveDisplayTier({
   decisionTier = null,
   displayTier = null,
@@ -72,4 +77,5 @@ module.exports = {
   TX_PROOF_CHECKS,
   deriveDisplayTier,
   deriveExecutionProofStatus,
+  extractDecisionTier,
 };

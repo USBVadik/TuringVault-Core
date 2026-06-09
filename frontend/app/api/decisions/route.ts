@@ -28,9 +28,22 @@ const proofStatus = require("./proofStatus.js") as {
     executionProofStatus?: string | null;
     disciplineDetail?: { checks?: ExecutionProofCheck[] };
   }) => string;
+  extractDecisionTier: (reasoning?: string | null) => string | null;
 };
 
-const { deriveDisplayTier, deriveExecutionProofStatus } = proofStatus;
+const { deriveDisplayTier, deriveExecutionProofStatus, extractDecisionTier } =
+  proofStatus;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { queryRecentEventsInChunks } = require("./recentEvents.js") as {
+  queryRecentEventsInChunks: (input: {
+    contract: ethers.Contract;
+    eventName: string;
+    currentBlock: number;
+    fromBlock: number;
+    limit: number;
+    blockRangeLimit?: number;
+  }) => Promise<ethers.Log[]>;
+};
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { deriveOutcomeSourceAsset } = require("./sourceAsset.js") as {
   deriveOutcomeSourceAsset: (row?: {
@@ -284,95 +297,119 @@ export async function GET() {
     // Pull recent DecisionLogged events so we can attach the tx hash + block.
     const currentBlock = await provider.getBlockNumber();
     const fromBlock = Math.max(0, currentBlock - 500_000);
-    const events = await contract.queryFilter("DecisionLogged", fromBlock);
-    const recentEvents = events.slice(-RECENT_LIMIT);
+    const recentEvents = await queryRecentEventsInChunks({
+      contract,
+      eventName: "DecisionLogged",
+      currentBlock,
+      fromBlock,
+      limit: RECENT_LIMIT,
+    });
 
     const outcomesIndex = await loadOutcomesIndex();
 
     // For each event, also fetch the on-chain Decision struct so we get
     // the real timestamp + amounts. This is N reads (≤ 20 in practice)
     // — acceptable for the dashboard surface; we could shave with multicall later.
-    const decisions = await Promise.all(
-      recentEvents.map(async (e) => {
-        const args = (e as ethers.EventLog).args;
-        const id = Number(args[0]);
-        let onchain: {
-          timestamp: number;
-          amountIn: string;
-          amountOut: string;
-        } | null = null;
+    const decisions = [];
+    for (const e of recentEvents) {
+      const args = (e as ethers.EventLog).args;
+      const id = Number(args[0]);
+      let onchain: {
+        timestamp: number;
+        amountIn: string;
+        amountOut: string;
+      } | null = null;
+      try {
+        const d = await contract.decisions(id);
+        onchain = {
+          timestamp: Number(d[0]),
+          amountIn: d[3].toString(),
+          amountOut: d[4].toString(),
+        };
+      } catch {
         try {
-          const d = await contract.decisions(id);
-          onchain = {
-            timestamp: Number(d[0]),
-            amountIn: d[3].toString(),
-            amountOut: d[4].toString(),
-          };
+          const block = await provider.getBlock(e.blockNumber);
+          onchain = block?.timestamp
+            ? {
+                timestamp: Number(block.timestamp),
+                amountIn: "0",
+                amountOut: "0",
+              }
+            : null;
         } catch {
           onchain = null;
         }
-        const targetAsset = args[2] as string;
-        // ValidationRegistry.totalProposals drifted +1 ahead of
-        // DecisionLog.totalDecisions historically (one early cycle
-        // wrote a proposal but not a DecisionLog entry). The
-        // outcomes ledger is keyed by `decisionId` from the
-        // ValidationRegistry side (i.e. proposalId = manifest
-        // cycle id). On-chain events here are keyed by
-        // DecisionLog row index = proposalId - 1. Probe both
-        // candidates: prefer the +1 match (which corresponds to
-        // the same cycle) and fall back to exact id for legacy
-        // rows that pre-date the drift.
-        // Audit ref: .kiro/audits/19, /api/replay/[id]/route.ts
-        // uses the same offset-tolerant lookup.
-        const outcomeRow =
-          outcomesIndex.get(id + 1) || outcomesIndex.get(id);
-        const rwaIntent = outcomeRow?.rwaIntent ?? null;
-        return {
-          id,
-          action: args[1],
-          targetAsset,
-          sourceAsset: outcomeRow?.sourceAsset ?? null,
-          asset: targetAsset,
-          assetClass: classifyAsset(targetAsset, rwaIntent),
-          confidence: Number(args[3]),
-          reasoningHash: (args[4] as string)?.substring(0, 200),
-          reasoning: (args[4] as string)?.substring(0, 200),
-          txHash: e.transactionHash,
-          block: e.blockNumber,
-          // Real on-chain values when struct read succeeded; null otherwise
-          // (frontend renders '—' for null).
-          timestamp: onchain?.timestamp ?? null,
-          amountIn: onchain?.amountIn ?? null,
-          amountOut: onchain?.amountOut ?? null,
-          // RWA-specific surface (rwa-allocation-active R5).
-          rwaIntent:
-            rwaIntent && rwaIntent.executed
-              ? { source: rwaIntent.source ?? null, executed: true }
-              : null,
-          // Honesty surface (workspace rule no-lying-about-state §4).
-          // executedOnChain reflects whether this decision actually
-          // produced any DEX TX (via rwaResult.txHash, directionalSwap
-          // legs, or row.txHash in outcomes.json). displayTier is the
-          // tier the UI should render — equal to decisionTier in the
-          // happy path, but rewritten to INTENT_SWAP_NO_EXEC when the
-          // classifier said EXECUTED_SWAP without a tx hash to back it.
-          executedOnChain: outcomeRow?.executedOnChain ?? false,
-          displayTier:
-            outcomeRow?.displayTier ?? outcomeRow?.decisionTier ?? null,
-          // Audit 19/20: which upstream feed served this cycle's
-          // prices and candles. Surfaced so a judge can see "Cycle
-          // 149 was fed by Binance fallback" when relevant — making
-          // the multi-source resilience visible. null on cycles
-          // before the audit-19/20 instrumentation landed.
-          priceSource: outcomeRow?.priceSource ?? null,
-          priceFromSnapshot: outcomeRow?.priceFromSnapshot ?? false,
-          priceSnapshotAgeSec: outcomeRow?.priceSnapshotAgeSec ?? null,
-          candleSource: outcomeRow?.candleSource ?? null,
-          candleFromSnapshot: outcomeRow?.candleFromSnapshot ?? false,
-          candleSnapshotAgeSec: outcomeRow?.candleSnapshotAgeSec ?? null,
-        };
-      })
-    );
+      }
+      const targetAsset = args[2] as string;
+      // ValidationRegistry.totalProposals drifted +1 ahead of
+      // DecisionLog.totalDecisions historically (one early cycle
+      // wrote a proposal but not a DecisionLog entry). The
+      // outcomes ledger is keyed by `decisionId` from the
+      // ValidationRegistry side (i.e. proposalId = manifest
+      // cycle id). On-chain events here are keyed by
+      // DecisionLog row index = proposalId - 1. Probe both
+      // candidates: prefer the +1 match (which corresponds to
+      // the same cycle) and fall back to exact id for legacy
+      // rows that pre-date the drift.
+      // Audit ref: .kiro/audits/19, /api/replay/[id]/route.ts
+      // uses the same offset-tolerant lookup.
+      const outcomeRow = outcomesIndex.get(id + 1) || outcomesIndex.get(id);
+      const rwaIntent = outcomeRow?.rwaIntent ?? null;
+      const reasoningText = (args[4] as string)?.substring(0, 200);
+      const fallbackDecisionTier = extractDecisionTier(reasoningText);
+      const executedOnChain = outcomeRow?.executedOnChain ?? false;
+      const executionProofStatus = outcomeRow?.executionProofStatus ?? null;
+      const displayTier =
+        outcomeRow?.displayTier ??
+        deriveDisplayTier({
+          decisionTier: outcomeRow?.decisionTier ?? fallbackDecisionTier,
+          executedOnChain,
+          executionProofStatus,
+        });
+      decisions.push({
+        id,
+        action: args[1],
+        targetAsset,
+        sourceAsset: outcomeRow?.sourceAsset ?? null,
+        asset: targetAsset,
+        assetClass: classifyAsset(targetAsset, rwaIntent),
+        confidence: Number(args[3]),
+        reasoningHash: reasoningText,
+        reasoning: reasoningText,
+        txHash: e.transactionHash,
+        block: e.blockNumber,
+        // Real on-chain values when struct read succeeded; null otherwise
+        // (frontend renders '—' for null).
+        timestamp: onchain?.timestamp ?? null,
+        amountIn: onchain?.amountIn ?? null,
+        amountOut: onchain?.amountOut ?? null,
+        // RWA-specific surface (rwa-allocation-active R5).
+        rwaIntent:
+          rwaIntent && rwaIntent.executed
+            ? { source: rwaIntent.source ?? null, executed: true }
+            : null,
+        // Honesty surface (workspace rule no-lying-about-state §4).
+        // executedOnChain reflects whether this decision actually
+        // produced any DEX TX (via rwaResult.txHash, directionalSwap
+        // legs, or row.txHash in outcomes.json). displayTier is the
+        // tier the UI should render — equal to decisionTier in the
+        // happy path, but rewritten to INTENT_SWAP_NO_EXEC when the
+        // classifier said EXECUTED_SWAP without a tx hash to back it.
+        executedOnChain,
+        displayTier,
+        // Audit 19/20: which upstream feed served this cycle's
+        // prices and candles. Surfaced so a judge can see "Cycle
+        // 149 was fed by Binance fallback" when relevant — making
+        // the multi-source resilience visible. null on cycles
+        // before the audit-19/20 instrumentation landed.
+        priceSource: outcomeRow?.priceSource ?? null,
+        priceFromSnapshot: outcomeRow?.priceFromSnapshot ?? false,
+        priceSnapshotAgeSec: outcomeRow?.priceSnapshotAgeSec ?? null,
+        candleSource: outcomeRow?.candleSource ?? null,
+        candleFromSnapshot: outcomeRow?.candleFromSnapshot ?? false,
+        candleSnapshotAgeSec: outcomeRow?.candleSnapshotAgeSec ?? null,
+      });
+    }
 
     decisions.reverse(); // newest first
 

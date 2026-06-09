@@ -54,6 +54,11 @@ jobs:
       PINATA_JWT: ${{ secrets.PINATA_JWT }}
       PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
       PINATA_SECRET: ${{ secrets.PINATA_SECRET }}
+      # Pinata free-tier guard: replay manifests are committed to GitHub
+      # every cycle and anchored on-chain via manifestHash. While the
+      # Pinata account is at quota, avoid creating new pins during cron.
+      PINATA_UPLOAD_MODE: "anchor-only"
+      AGENT_CARD_AUTO_UPDATE_ENABLED: "false"
       GEMINI_PROJECT_ID: ${{ secrets.GEMINI_PROJECT_ID }}
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 

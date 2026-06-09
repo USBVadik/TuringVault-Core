@@ -1,9 +1,23 @@
 const {
   deriveDisplayTier,
   deriveExecutionProofStatus,
+  extractDecisionTier,
 } = require("../../frontend/app/api/decisions/proofStatus.js");
 
 describe("decision API proof status helpers", () => {
+  test("extracts decision tier from on-chain reasoning prefix", () => {
+    expect(
+      extractDecisionTier(
+        "[BLOCKED_BY_REGIME] Analyst: ranging exit | Validator: APPROVED"
+      )
+    ).toBe("BLOCKED_BY_REGIME");
+    expect(extractDecisionTier("[EXECUTED_SWAP] Analyst: sell")).toBe(
+      "EXECUTED_SWAP"
+    );
+    expect(extractDecisionTier("Analyst: no prefix")).toBeNull();
+    expect(extractDecisionTier("")).toBeNull();
+  });
+
   test("missing proof checks are UNKNOWN, not implicitly accepted", () => {
     expect(deriveExecutionProofStatus({})).toBe("UNKNOWN");
     expect(deriveExecutionProofStatus({ executionProofStatus: "ACCEPTED" })).toBe(
