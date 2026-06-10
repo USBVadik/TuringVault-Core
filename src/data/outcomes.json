@@ -2550,6 +2550,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781075209049_431",
+      "decisionId": 431,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1632.14,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreia20ddfebc1c62f9cdee28339c05ada2df941f5c5f1d2af168f37",
+      "recordedAt": "2026-06-10T07:06:49.049Z",
+      "settleAfter": "2026-06-10T08:06:49.049Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781075209041
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 67.2% stable-heavy and FLAT — inventory rule explicitly favors HOLD over repeated risk_off unless CRISIS is confirmed. TREND_DOWN at 60% confidence is mild, not crisis-level. Funding -0.116% is NEUTRAL, smart money flow NEUTRAL ($0.0M), RSI 41.1 rising — no strong bearish acceleration. Analyst correctly avoids both premature risk_on and unneces",
+      "validatorFlaggedIssues": [
+        "R:R not provided — acceptable for HOLD as no capital is deployed",
+        "TREND_DOWN regime noted but 60% confidence is below crisis threshold",
+        "Yield spread -1% bearish but insufficient alone to force risk_off from already-stable portfolio"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xbf968f8996cab4b3f88cbead867e78f37b7157395fbee87eb7a7ec3ce73b896d",
+      "combinedAnchor": "0x33d490deac7db6f84d703f526ef943c091133944913ba1dc96bf477bdc3676b3",
+      "decisionLogTxHash": "0xeaa6f419f3a29061a9cf63f31e574738bbc2eb54cb778c369687536f090ae2d8",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
