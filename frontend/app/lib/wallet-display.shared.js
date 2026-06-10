@@ -91,8 +91,60 @@ function formatStrategyChannel(strategyData) {
   };
 }
 
+function formatHeldPosition(strategyData) {
+  const held = strategyData?.heldPosition;
+  if (!held) {
+    return {
+      label: "Position",
+      value: strategyData?.position || "FLAT",
+      tone: "flat",
+    };
+  }
+
+  const asset = held.asset || strategyData?.positionAsset || "asset";
+  const entry = held.entry || "entry unavailable";
+  const pct =
+    Number.isFinite(Number(held.allocationPct)) && Number(held.allocationPct) > 0
+      ? ` · ${Number(held.allocationPct).toFixed(0)}% target`
+      : "";
+
+  return {
+    label:
+      held.sameAssetAsActiveGrid === false
+        ? `Held Position (${asset})`
+        : `Active Position (${asset})`,
+    value: `${asset} ${entry}${pct}`,
+    tone: held.sameAssetAsActiveGrid === false ? "held" : "active",
+  };
+}
+
+function formatPositionGuardrail(strategyData) {
+  const held = strategyData?.heldPosition;
+  if (!held) {
+    return {
+      label: "TP / SL",
+      value: "N/A (FLAT)",
+      tone: "flat",
+    };
+  }
+
+  const asset = held.asset || strategyData?.positionAsset || "asset";
+  const rr = held.riskReward ? ` · held R:R ${held.riskReward}:1` : "";
+  const value =
+    held.tp && held.sl ? `${held.tp} / ${held.sl}${rr}` : "guardrail unavailable";
+
+  return {
+    label:
+      held.sameAssetAsActiveGrid === false ? `${asset} Guardrail` : "TP / SL",
+    value,
+    tone: held.sameAssetAsActiveGrid === false ? "held" : "active",
+  };
+}
+
 module.exports = {
+  formatHeldPosition,
   formatHoldingUsd,
+  formatPositionGuardrail,
   formatStrategyChannel,
   resolveHoldingPrice,
 };

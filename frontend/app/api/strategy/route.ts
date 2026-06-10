@@ -74,6 +74,28 @@ type OutcomeRow = {
   rwaIntent?: RwaIntent | null;
 };
 
+function inferPositionAsset(status?: string | null): string | null {
+  const raw = String(status || "").trim();
+  const match = raw.match(/^IN_([A-Za-z0-9_]+)$/);
+  if (!match) return null;
+  const asset = match[1].toUpperCase();
+  if (asset === "METH") return "mETH";
+  if (asset === "WMNT") return "WMNT";
+  if (asset === "MNT") return "MNT";
+  if (asset === "MUSD") return "mUSD";
+  return match[1];
+}
+
+function formatUsd(value: number | string | null | undefined) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  const digits = n < 10 ? 4 : 2;
+  return `$${n.toLocaleString("en-US", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  })}`;
+}
+
 /**
  * Compute current RWA allocation as % of NAV from live on-chain reads.
  * Stables priced at $1; MNT/WMNT/mETH priced from CoinGecko. Returns null
@@ -116,7 +138,7 @@ async function computeRwaPctNav(): Promise<{
     let navUsd = mnt * mntPrice;
     let rwaUsd = 0;
 
-    for (const [sym, info] of Object.entries(TOKENS)) {
+    for (const info of Object.values(TOKENS)) {
       let bal = 0;
       try {
         const wei = await client.readContract({
@@ -280,12 +302,14 @@ export async function GET() {
     else if (channel.currentPrice > channel.resistance) regime = "BREAKOUT";
     else regime = "TRENDING";
 
+    const activeGridAsset = "MNT";
+    const positionAsset = inferPositionAsset(positionState.status);
+
     // Determine position display
     let position = "FLAT";
     if (positionState.status && positionState.status !== "FLAT") {
-      position = `${positionState.status} @ $${Number(
-        positionState.entryPrice
-      ).toFixed(4)}`;
+      const entry = formatUsd(positionState.entryPrice);
+      position = `${positionState.status}${entry ? ` @ ${entry}` : ""}`;
     }
 
     // Risk:Reward
@@ -301,6 +325,39 @@ export async function GET() {
       const risk = Math.abs(positionState.entryPrice - positionState.stopLoss);
       riskReward = risk > 0 ? (reward / risk).toFixed(1) : null;
     }
+    const hasHeldPosition =
+      Boolean(positionState.status) && positionState.status !== "FLAT";
+    const heldPosition =
+      hasHeldPosition
+        ? {
+            status: positionState.status,
+            asset: positionAsset ?? "unknown",
+            entryPrice: Number.isFinite(Number(positionState.entryPrice))
+              ? Number(positionState.entryPrice)
+              : null,
+            entry: formatUsd(positionState.entryPrice),
+            tp: formatUsd(positionState.targetExit),
+            sl: formatUsd(positionState.stopLoss),
+            riskReward,
+            allocationPct:
+              Number.isFinite(Number(positionState.allocationPct))
+                ? Number(positionState.allocationPct)
+                : null,
+            scope:
+              positionAsset === activeGridAsset ? "active-grid" : "held-position",
+            sameAssetAsActiveGrid: positionAsset === activeGridAsset,
+          }
+        : null;
+    const activeGrid = {
+      asset: activeGridAsset,
+      support: Number(channel.support.toFixed(4)),
+      resistance: Number(channel.resistance.toFixed(4)),
+      currentPrice: Number(channel.currentPrice.toFixed(4)),
+      regime,
+      channelPosition: Number.isFinite(channel.channelPosition)
+        ? Number(channel.channelPosition.toFixed(4))
+        : null,
+    };
 
     // RWA allocation surface (rwa-allocation-active R5, design §C9).
     const [latestRwa, rwaPct] = await Promise.all([
@@ -339,20 +396,28 @@ export async function GET() {
     const responseBody = {
       regime,
       position,
-      channelAsset: "MNT",
+      positionAsset,
+      activeGrid,
+      heldPosition,
+      channelAsset: activeGridAsset,
       channel: {
-        asset: "MNT",
-        support: Number(channel.support.toFixed(4)),
-        resistance: Number(channel.resistance.toFixed(4)),
+        asset: activeGridAsset,
+        support: activeGrid.support,
+        resistance: activeGrid.resistance,
       },
-      currentPrice: Number(channel.currentPrice.toFixed(4)),
-      tp: positionState.targetExit
-        ? `$${Number(positionState.targetExit).toFixed(4)}`
-        : null,
-      sl: positionState.stopLoss
-        ? `$${Number(positionState.stopLoss).toFixed(4)}`
-        : null,
-      riskReward,
+      currentPrice: activeGrid.currentPrice,
+      // Backward-compatible top-level trade guardrail fields. They only
+      // describe the active grid when the held position is for the same asset.
+      // Otherwise the mETH/WMNT guardrail lives under heldPosition so the UI
+      // cannot imply that an MNT channel is using mETH TP/SL.
+      tp: heldPosition?.sameAssetAsActiveGrid ? heldPosition.tp : null,
+      sl: heldPosition?.sameAssetAsActiveGrid ? heldPosition.sl : null,
+      riskReward: heldPosition?.sameAssetAsActiveGrid ? riskReward : null,
+      riskRewardScope: heldPosition?.sameAssetAsActiveGrid
+        ? "active-grid"
+        : heldPosition
+          ? "held-position"
+          : "flat",
       varGate: "< 150 bps",
       lastUpdated: positionState.lastUpdated || new Date().toISOString(),
       dataScope: "agent-lifetime",

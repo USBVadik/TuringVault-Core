@@ -38,12 +38,22 @@ import contractsData from "./data/contracts.json";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const walletDisplay = require("./lib/wallet-display.shared.js") as {
+  formatHeldPosition: (strategyData: unknown) => {
+    label: string;
+    value: string;
+    tone: string;
+  };
   formatHoldingUsd: (
     symbol: string,
     balance: number | string | null,
     perfData: unknown,
     marketData: unknown
   ) => string;
+  formatPositionGuardrail: (strategyData: unknown) => {
+    label: string;
+    value: string;
+    tone: string;
+  };
   formatStrategyChannel: (strategyData: unknown) => {
     label: string;
     value: string;
@@ -497,6 +507,9 @@ export default function Home() {
   const strategyChannelDisplay = walletDisplay.formatStrategyChannel(
     strategyData
   );
+  const strategyPositionDisplay = walletDisplay.formatHeldPosition(strategyData);
+  const strategyGuardrailDisplay =
+    walletDisplay.formatPositionGuardrail(strategyData);
   const channelSupport = signalDisplay.support;
   const channelResistance = signalDisplay.resistance;
   const signalMarkerLeft = signalDisplay.markerLeft;
@@ -1546,24 +1559,24 @@ export default function Home() {
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">
-                      Position
+                      {strategyPositionDisplay.label}
                     </span>
-                    <span className="text-[10px] font-mono text-green-400/70">
-                      {strategyData?.position || "—"}
+                    <span
+                      className={`text-[10px] font-mono ${
+                        strategyPositionDisplay.tone === "held"
+                          ? "text-cyan-300/70"
+                          : "text-green-400/70"
+                      }`}
+                    >
+                      {strategyPositionDisplay.value}
                     </span>
                   </div>
                   <div className="funding-strategy-row">
                     <span className="text-[10px] font-mono text-purple-400/70">
-                      TP / SL
+                      {strategyGuardrailDisplay.label}
                     </span>
                     <span className="text-[10px] font-mono text-white/50">
-                      {strategyData?.tp && strategyData?.sl
-                        ? `${strategyData.tp} / ${strategyData.sl}${
-                            strategyData.riskReward
-                              ? ` (R:R ${strategyData.riskReward}:1)`
-                              : ""
-                          }`
-                        : "N/A (FLAT)"}
+                      {strategyGuardrailDisplay.value}
                     </span>
                   </div>
                   <div className="funding-strategy-row">
