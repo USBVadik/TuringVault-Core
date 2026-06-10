@@ -2473,6 +2473,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781071605945_430",
+      "decisionId": 430,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1627.18,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei7ee6162a5feef52a21ee4a38873a2fec65dde093a9607a91bdb0",
+      "recordedAt": "2026-06-10T06:06:45.945Z",
+      "settleAfter": "2026-06-10T07:06:45.945Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781071605937
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 67.2% stable — repeated risk_off would violate inventory rule. TREND_DOWN at 60% confidence is mild, not CRISIS. RSI 37.8 rising with neutral smart money flow and balanced liquidation risk do not confirm accelerating breakdown. No directional swap proposed, so regime-mismatch gate does not apply. Funding -0.147% is not extreme. HOLD preserves c",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD actions only",
+        "TREND_DOWN confidence only 60% — borderline regime signal",
+        "EMA bearish crossover (9 below 21) is a mild confirming bear signal worth monitoring"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa230b52bf5e6730ac2c55d25c0c383416df09c92f2debb739cf3a60beb023bc1",
+      "combinedAnchor": "0x0961c6a53cb9262062efe27d7e61ca63b53321b3989bc4849bca2907fa08bb7e",
+      "decisionLogTxHash": "0x1899ef4a5af066840dfae1b8664ba9fd94b5e4b8a36790963fcedfa8c5613ae7",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
