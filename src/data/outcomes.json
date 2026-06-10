@@ -505,6 +505,105 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781128566546_445",
+      "decisionId": 445,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 1609.56,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei1ea953bb8f7f4d2f93ca407577c1b0a9b66ae665a84dbcf52caa",
+      "recordedAt": "2026-06-10T21:56:06.546Z",
+      "settleAfter": "2026-06-10T22:56:06.546Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781128566537
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Proposal is a defensive risk-off swap (mETH→mUSD), not a directional speculative trade. Both ETH and MNT grids show EXIT_RANGING with confirmed downward breakouts (ETH: $1609 below $1623 support, MNT: $0.527 below $0.530), regimeHint=TREND_DOWN at 70% confidence. Signal consensus BEARISH, yield spread -1% BEARISH, RSI 37.5 falling, EMA bearish, MACD weakening. Portfolio is currently IN_mETH since ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided by Analyst — defensive exit logic accepted as capital protection",
+        "Extreme Fear (F&G=9) raises mean-reversion risk; partial exit mitigates this",
+        "Funding rate neutral (-0.033%) does not confirm strong bearish crowding — noted but grid breakout sufficient"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: open position IN_mETH can be exited",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 73.75193499999999,
+          "tradableRiskUsd": 36.86438430001837,
+          "nativeMnt": 48.51572379991733,
+          "stableShare": 0.6667364767396283,
+          "riskShare": 0.3332635232603717,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "reason": "smart-router-infeasible: preferred source mETH unavailable: 0.000000 < floor 0.001; refusing to sell a different risk asset",
+        "balancesSnapshot": {
+          "MNT": 48.44733484810185,
+          "WMNT": 11.230842304536507,
+          "USDT0": 65.911543,
+          "USDT": 0,
+          "mETH": 0,
+          "WETH": 0
+        }
+      },
+      "manifestHash": "0xb2bc9d7c6102516ed8a56725f14cda26628e91260fa928c4bca067e995df81d2",
+      "combinedAnchor": "0x0cea9f747146effcbdb2d9942fe1a97ea85f3634937902550a9e110cf466802c",
+      "decisionLogTxHash": "0x070e2fee109767ef56c22a117fb2f3151c6a3251bc40b9eba8f826046810c98d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
