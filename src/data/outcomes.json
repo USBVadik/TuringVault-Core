@@ -269,6 +269,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781115924912_442",
+      "decisionId": 442,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1627.45,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei30a5bab7f36d0045d50c4bcd8eca8950b5cea70d075b5b43bb32",
+      "recordedAt": "2026-06-10T18:25:24.912Z",
+      "settleAfter": "2026-06-10T19:25:24.912Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781115924902
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. Position is IN_mETH at $1643 vs current $1628 — scale-in rule correctly blocks adding since price is ~$15 above entry, not a fresh deeper lower-band move. Grid BUY_mETH at 77% confidence is noted but overridden by existing position logic. MNT EXIT_RANGING with UNKNOWN breakout direction supports inaction. Four risk factors (F&G=9, yield spread -1%, BEARISH conse",
+      "validatorFlaggedIssues": [
+        "Unrealized loss on mETH (~$15 below entry $1643)",
+        "Signal consensus BEARISH conflicts with grid BUY — acknowledged but unresolved tension",
+        "Yield spread -1% mETH vs USDY adds carry cost to holding",
+        "F&G=9 Extreme Fear may signal further downside before mean-reversion"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x35fab8327b73caceab854a38714ca95ff21a2d350b263373bf790d5336cc1d01",
+      "combinedAnchor": "0xe926d52d5b566eaf24d34cc7ca91fd5c56c71d3349670da6b9adf6e8c1308165",
+      "decisionLogTxHash": "0x2c3398b0efd2d7b82c001521083227f874154ea4aa80a3f6c4403a0eab5925f6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
