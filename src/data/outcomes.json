@@ -2250,6 +2250,79 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1781059958304_427",
+      "decisionId": 427,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1622.72,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei1ad8818636ddfa80ca95325c8475d5a54d1dd872b72523520371",
+      "recordedAt": "2026-06-10T02:52:38.304Z",
+      "settleAfter": "2026-06-10T03:52:38.304Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781059958296
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. ETH grid shows confirmed EXIT_RANGING/DOWN breakout below $1638.5 with 80% confidence and TREND_DOWN hint — directional long would be rejected. Portfolio is already 67.3% stable, posture balanced. Analyst correctly identifies conflicting signals: ETH bearish breakdown vs MNT BUY at support, F&G=9 oversold vs confirmed down-break. HOLD preserves capital while ",
+      "validatorFlaggedIssues": [
+        "Analyst describes funding as 'neutral' but -0.226% avg with Binance at -0.671% leans bearish — minor misread",
+        "MNT grid BUY signal (R:R 2.5:1) is valid but ETH confirmed down-break overrides risk-on bias per inventory rule",
+        "No explicit R:R provided for HOLD — acceptable since HOLD carries no new directional exposure"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x53f4dc21d237f56509a5cd073e7d946b5b4b4b26fe4cf04e70f7616b1a5e5c47",
+      "combinedAnchor": "0x6c589dcab1ba8d28a3246366648cef99c680f5b25c97555f5c631c7e6985e796",
+      "decisionLogTxHash": "0x64dce8f03f062974de53580ab3bfb40472adf873828e7bc6962cf80429d31e97",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
