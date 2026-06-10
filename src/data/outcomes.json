@@ -195,6 +195,80 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1781113077766_441",
+      "decisionId": 441,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1626.13,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreidb95998217b365633800ce04d1d76937e48c33159935e6041f9a",
+      "recordedAt": "2026-06-10T17:37:57.766Z",
+      "settleAfter": "2026-06-10T18:37:57.766Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781113077756
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-reasoned and conservative. Already IN_mETH at $1643.26; current price $1626.13 is ~1.05% below entry — insufficient for scale-in per the deeper lower-band rule. Grid BUY_mETH at 79% confidence with 2.5:1 R:R is valid but override ALREADY_IN_POSITION applies. Signal consensus BEARISH + F&G=9 + yield spread -1% BEARISH correctly caution against new risk-on. MNT EXIT_RANGING wit",
+      "validatorFlaggedIssues": [
+        "Position underwater ~$17 below entry — monitor support at $1624.53 closely",
+        "Yield spread -1% BEARISH adds mild downside pressure",
+        "F&G=9 Extreme Fear: contrarian signal but lacks smart money confirmation",
+        "MNT vol expanding with unknown breakout direction — no actionable edge"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x3705885b697fd13e1dd771722bccccae5b1a91c43d3b2d82cab8f190e4ac5e79",
+      "combinedAnchor": "0xf1d38234b12311de42b70993e3578759cd38c990a1fbf8a26bd1e1f1c2d5e0dc",
+      "decisionLogTxHash": "0x9d392857ca2c45a01796cd7220054b2b2cd69df0bd35c98f2256487d8a78a3c3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
