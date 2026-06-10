@@ -2904,6 +2904,80 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1781088116133_435",
+      "decisionId": 435,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1625.09,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreic9f64aed6cd2e024273765109f93fe783ca0f8454a2ba29b2ce5",
+      "recordedAt": "2026-06-10T10:41:56.133Z",
+      "settleAfter": "2026-06-10T11:41:56.133Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781088116125
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal on existing mETH position is sound. Analyst correctly identifies scale-in rule requires a deeper lower-band move not yet materialized. Price at $1624.8 vs entry $1643.26 means position is underwater; adding without reversal confirmation increases cost basis risk. F&G=9 Extreme Fear, EMA bearish, MACD SELL, yield spread -1% BEARISH all support caution. Grid BUY_mETH at 80% confidence ",
+      "validatorFlaggedIssues": [
+        "Position underwater: entry $1643.26 vs current $1624.8 (-1.12%)",
+        "Signal consensus BEARISH conflicts with grid BUY — analyst correctly acknowledges tension",
+        "Funding -0.062% avg but Binance/Gate both negative ~-0.35% suggesting bearish crowding on majors",
+        "No smart money accumulation confirmation to justify scale-in"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x100fdfec9c99cf0f636b81e6696628237da33e66f7e8bae5c40f866ed54dab38",
+      "combinedAnchor": "0x1d016cd4ff919d76dfd86291d5b13ae5d2d7e49e33e76b601743f56ee6ac3431",
+      "decisionLogTxHash": "0x813968beba1adc9d3d2a06f756537e4d2956d5df04cb4c6c89e955d231863a85",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
