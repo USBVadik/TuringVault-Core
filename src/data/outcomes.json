@@ -2323,6 +2323,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781062616547_428",
+      "decisionId": 428,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1629.78,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreie51220dff7e5cac77b4792378ada71355936bc244c5fff57c0d5",
+      "recordedAt": "2026-06-10T03:36:56.547Z",
+      "settleAfter": "2026-06-10T04:36:56.547Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781062616538
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. Position is IN_mETH at $1651.90, currently -1.4% underwater. Grid fires BUY_mETH at 80% confidence with 2.5:1 R:R, but ALREADY_IN_POSITION override correctly blocks new entry. Scale-in rule requires a fresh deeper lower-band move — not yet triggered at $1629.78 vs support $1638. Analyst correctly acknowledges yield spread bearish signal and extreme fear. No hall",
+      "validatorFlaggedIssues": [
+        "Position underwater ~1.4% from $1651.90 entry",
+        "Yield spread -1% structurally favors stables",
+        "F&G=9 extreme fear may persist — stop at $1611.36 should be monitored",
+        "No smart money accumulation to confirm reversal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc4b3a7ed94cfb27a1bfdf4241a318bb727fba1d4cec3eb9de73ca76e013310b1",
+      "combinedAnchor": "0xb641560419f085b592da6d506e8580c983faf73b53283cdd298825c8e2e5f094",
+      "decisionLogTxHash": "0xd63431f8667c498f62612c679315071514bc488e4a62d5791210237a9d0dbfd2",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
