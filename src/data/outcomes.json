@@ -151,6 +151,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781207232328_465",
+      "decisionId": 465,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1684.52,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei51b04afeaa4f888d2ad743eeb6ea34beb5374462a84de13372df",
+      "recordedAt": "2026-06-11T19:47:12.328Z",
+      "settleAfter": "2026-06-11T20:47:12.328Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781207232317
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is appropriate given HOLD regime at only 35% confidence with no active grid. Portfolio is already 79.6% stable — no further de-risking needed. Analyst correctly identifies conflicting technicals (RSI SELL vs EMA/MACD BUY) and neutral smart money flow. Yield spread bearish at -1% noted. Extreme Fear (12) adds caution but is not a confirmed CRISIS/TREND_DOWN trigger. No directional tra",
+      "validatorFlaggedIssues": [
+        "Funding rate cited as 0.30% annualized but raw data shows 0.30% per period — minor framing imprecision",
+        "Signal consensus is BEARISH yet Analyst frames as mixed — slight underweighting of bearish consensus"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf34779bfc064d71b637cee4005af7cf7f07bf3e42eff5f62fcbdc520a9ed0d1d",
+      "combinedAnchor": "0x320472e921094927773b97b384f5ddb88b43b9222c0424b390b27ea4a24d6810",
+      "decisionLogTxHash": "0xe189164af21c1e3aca89fe2404bbdcc7dec8934098dd4fcc5f5b97a146e06bec",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
