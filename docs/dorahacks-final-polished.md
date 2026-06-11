@@ -1,6 +1,6 @@
 # TuringVault DoraHacks Final Submission Copy
 
-Observed live snapshot: 2026-06-11 07:09 UTC.
+Observed live snapshot: 2026-06-11 17:03 UTC.
 
 Refresh before final paste:
 - Health: https://frontend-seven-beta-46.vercel.app/api/health
@@ -81,22 +81,22 @@ The target users are DAO treasuries, on-chain funds, and compliance-conscious op
 
 The current public system is running on Mantle Mainnet with operator-funded demo capital.
 
-Observed on 2026-06-11 at 07:09 UTC:
+Observed on 2026-06-11 at 17:03 UTC:
 
 | Metric | Observed Value | Source |
 | --- | ---: | --- |
-| ValidationRegistry proposals / decision records | 455 | `/api/decisions` |
-| Approved proposals | 332 | ValidationRegistry |
-| Rejected proposals | 123 | ValidationRegistry |
-| Pre-execution rejection rate | 27.0% | 123 / 455 |
+| ValidationRegistry proposals / decision records | 463 | `/api/decisions` |
+| Approved proposals | 337 | ValidationRegistry |
+| Rejected proposals | 126 | ValidationRegistry |
+| Pre-execution rejection rate | 27.2% | 126 / 463 |
 | Settled outcomes | 358 | `/api/performance` |
 | Settled win rate | 53.1% | `/api/performance` |
 | Lifetime Decision-Quality Score | +5083 bps | settled outcomes, not wallet PnL |
 | Realized wallet PnL claim | null | intentionally not claimed |
-| Cron health, trailing 24h | 22 succeeded / 0 failed | `/api/health` |
+| Cron health, trailing 24h | 23 succeeded / 0 failed | `/api/health` |
 | Parse success, trailing 24h | 100% | `/api/health` |
-| Operator-funded NAV | about $139.88 | `/api/performance` |
-| Gas runway | about 11.5 days | `/api/health.gasRunway` |
+| Operator-funded NAV | about $139.33 | `/api/performance` |
+| Gas runway | about 11.4 days | `/api/health.gasRunway` |
 
 Latest risk-on proof: cycle 453 (`HEARTBEAT_SWAP`) executed USDT0 → USDT → WMNT with two Mantle transactions:
 
@@ -135,7 +135,7 @@ TuringVault is intentionally scoped as an operator-funded demo and verification 
 - USDY is implemented but gated until Mantle liquidity is usable.
 - Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML checks, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
 
-The AI can assist allocation, proof generation, and compliance-review workflows, but it does not bypass legal constraints.
+The AI can assist allocation, proof generation, and compliance-review workflows, but it does not bypass legal constraints. In the live demo this shows up as automated pre-trade suitability review, deterministic portfolio/risk gates, and post-execution Discipline Layer checks rather than a chatbot wrapper around a trade button.
 
 ### 20 Project Deployment Award Checklist
 

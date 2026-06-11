@@ -29,7 +29,7 @@ The product layer is accountability infrastructure, but the track fit is Path B 
 | Innovation | Treats blocked trades and post-execution proof as first-class outputs instead of hiding them behind a chatbot or opaque bot log |
 | UX | Public dashboard, Proof Explorer, Replay, Discipline Layer, and Challenge Arena turn a complex AI agent into inspectable judge flows |
 | AI x RWA integration depth | AI proposes allocation, validator challenges the thesis, deterministic guards enforce risk/compliance boundaries, and outputs are auditable |
-| Compliance awareness | Operator-funded demo only; no public deposits, no yield promise, no live USDY claim, and a roadmap for allowlists/KYC/AML/jurisdiction policy before any public vault |
+| Compliance awareness | Operator-funded demo only; no public deposits, no yield promise, no live USDY claim, and AI-assisted controls: validator suitability review, deterministic risk gates, Discipline Layer proof checks, plus allowlists/KYC/AML/jurisdiction policy before any public vault |
 
 ## Compliance Posture
 
@@ -44,7 +44,7 @@ TuringVault is scoped as an operator-funded demo and verification layer, not a p
 - USDY is implemented but gated until Mantle liquidity is usable.
 - Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML checks, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
 
-The AI can assist allocation, proof generation, and compliance-review workflows, but it does not bypass legal constraints.
+The AI can assist allocation, proof generation, and compliance-review workflows, but it does not bypass legal constraints. In the live demo this shows up as automated pre-trade suitability review, deterministic portfolio/risk gates, and post-execution Discipline Layer checks rather than a chatbot wrapper around a trade button.
 
 ## Required Links
 

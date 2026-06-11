@@ -13,6 +13,9 @@ const FILES = [
   "docs/dorahacks-submission-v2.md",
   "docs/dorahacks-final-polished.md",
   "docs/submission-final-copy.md",
+  "docs/demo-script.md",
+  "docs/final-recording-brief-2026-06-04.md",
+  "docs/rwa-live-vs-paper-ready.md",
   "docs/MASTER_SPEC.md",
 ];
 
@@ -35,7 +38,7 @@ const RULES = [
   },
   {
     name: "Do not claim perpetual liveness",
-    pattern: /\balways[-\s]?on\b/i,
+    pattern: /^(?!.*\bDo not say\b).*\balways[-\s]?on\b/i,
   },
   {
     name: "Do not reintroduce stale 287 proposal denominator",
@@ -80,6 +83,18 @@ const RULES = [
   {
     name: "Do not reintroduce stale May Agent Card snapshot",
     pattern: /2026-05-29T19:42:00\.000Z/i,
+  },
+  {
+    name: "Do not reintroduce stale 196 settled-outcome snapshot in active submission docs",
+    pattern: /\b196\s+settled\s+outcomes\b|\bsettled\s+outcomes\s+196\b/i,
+  },
+  {
+    name: "Do not reintroduce stale +4342 bps outcome-score snapshot in active submission docs",
+    pattern: /\+?4342\s+bps\b|outcomeScoreBps:\s*4342/i,
+  },
+  {
+    name: "Do not claim Agent Card tokenURI auto-refreshes every cycle while Pinata quota guard is enabled",
+    pattern: /tokenURI\(0\).*auto-refresh(?:es)?\s+per\s+cycle|tokenURI.*auto-refresh(?:es)?\s+per\s+cycle/i,
   },
 ];
 

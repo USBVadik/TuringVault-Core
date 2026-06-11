@@ -1,6 +1,6 @@
 # TuringVault DoraHacks Final Copy
 
-Observed snapshot: 2026-06-11 07:09 UTC.
+Observed snapshot: 2026-06-11 17:03 UTC.
 Refresh before final paste from:
 - https://frontend-seven-beta-46.vercel.app/api/health
 - https://frontend-seven-beta-46.vercel.app/api/performance
@@ -42,7 +42,7 @@ TuringVault's product layer is accountability infrastructure, but its updated AI
 The Mantle Turing Test brief asks for on-chain benchmarking of AI, agent identity/reputation, and radical transparency. TuringVault ships all three as one live system:
 
 1. On-chain benchmarking of AI
-   Every autonomous cycle writes proposal, validation, decision, and reputation data to Mantle Mainnet. The 2026-06-11 07:09 UTC snapshot shows 455 public decision records / ValidationRegistry proposals.
+   Every autonomous cycle writes proposal, validation, decision, and reputation data to Mantle Mainnet. The 2026-06-11 17:03 UTC snapshot shows 463 public decision records / ValidationRegistry proposals.
 
 2. ERC-8004-style agent identity and reputation
    The agent has a non-transferable identity NFT, active ValidationRegistry writes, active ReputationRegistry feedback, and a DecisionLog. Five production contracts are Sourcify perfect-match verified on Mantle Mainnet.
@@ -54,22 +54,22 @@ The Mantle Turing Test brief asks for on-chain benchmarking of AI, agent identit
 
 ## Live Snapshot
 
-Observed from live APIs and Mantle Mainnet on 2026-06-11 07:09 UTC:
+Observed from live APIs and Mantle Mainnet on 2026-06-11 17:03 UTC:
 
 ```text
-Decision records / proposals     455
-Approved proposals               332
-Rejected proposals               123  (27.0% rejected before execution)
+Decision records / proposals     463
+Approved proposals               337
+Rejected proposals               126  (27.2% rejected before execution)
 Settled outcomes                 358
 Win rate                         53.1%
 Decision-Quality Score        +5083 bps
 realizedTradingPnlBps            null
 Methodology                      outcome score from settled decisions, not realized wallet PnL
-Cron health, 24h                 22 ran / 0 failed
-Last cycle age                   about 26 min in the observed snapshot
+Cron health, 24h                 23 ran / 0 failed
+Last cycle age                   about 10 min in the observed snapshot
 Parse success, 24h               100%
-NAV                           about $139.88 operator-funded demo capital
-Gas runway                       low, about 11.5 days in the observed snapshot
+NAV                           about $139.33 operator-funded demo capital
+Gas runway                       low, about 11.4 days in the observed snapshot
 ```
 
 Denominator note: DecisionLog rows and ValidationRegistry proposals are different contract surfaces. During a fresh cycle, the two counters can differ by one. The Proof Explorer now labels that difference explicitly.
@@ -98,7 +98,7 @@ https://mantlescan.xyz/tx/0xe12b24a14057ad7071b4ab8bf406f7219b88f3f2289145c7669b
 
 ## Compliance Awareness
 
-TuringVault is scoped as an operator-funded demo and verification layer, not a public investment product. It accepts no public deposits, promises no yield, labels USDY as gated/paper-ready, and keeps `realizedTradingPnlBps` null. Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
+TuringVault is scoped as an operator-funded demo and verification layer, not a public investment product. It accepts no public deposits, promises no yield, labels USDY as gated/paper-ready, and keeps `realizedTradingPnlBps` null. The AI assists compliance controls through validator suitability review, deterministic portfolio/risk gates, and Discipline Layer proof checks; it does not bypass legal constraints. Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
 
 ---
 

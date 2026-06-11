@@ -1,6 +1,6 @@
 # RWA Live Vs Paper-Ready Matrix
 
-Observed snapshot: 2026-06-04 17:05 UTC.
+Observed snapshot: 2026-06-11 17:03 UTC.
 
 This file exists to keep the RWA story strong without overclaiming. Use it for DoraHacks copy, demo narration, and judge Q&A.
 

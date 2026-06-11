@@ -114,13 +114,13 @@ Screen: `/backtest` or `/api/performance`.
 
 Voiceover:
 
-"Across 196 settled outcomes, TuringVault has a +4342 bps Decision-Quality Score and a 58.2% settled win rate. That is not claimed as wallet PnL; it is an outcome score for whether the agent made or blocked the right decisions. The real win is the audit trail."
+"Across 358 settled outcomes in the current live snapshot, TuringVault has a +5083 bps Decision-Quality Score and a 53.1% settled win rate. That is not claimed as wallet PnL; it is an outcome score for whether the agent made or blocked the right decisions. The real win is the audit trail."
 
 Show:
 
-- `outcomeScoreBps: 4342`
+- `outcomeScoreBps: 5083`
 - `realizedTradingPnlBps: null`
-- settled outcomes: `196`
+- settled outcomes: `358`
 - GitHub repo + live demo URL
 
 ---

@@ -41,9 +41,9 @@ TuringVault is an **AI-powered RWA portfolio application and verification layer 
 
 The Mantle Turing Test 2026 brief calls out three defining features. We built the entire stack around them.
 
-**1 · On-chain benchmarking of AI.** Every cycle writes attestation data to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-11 07:09 UTC snapshot shows 455 ValidationRegistry proposals and 455 decision records exposed through the public API, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log; judges can inspect run history and use `/api/health` for current freshness.
+**1 · On-chain benchmarking of AI.** Every cycle writes attestation data to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-11 17:03 UTC snapshot shows 463 ValidationRegistry proposals / public decision rows exposed through the public API, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log; judges can inspect run history and use `/api/health` for current freshness.
 
-**2 · ERC-8004 agent identity reference implementation.** Non-transferable Identity NFT (`0x6f86…28bD`), ValidationRegistry, ReputationRegistry, DecisionLog — all Sourcify-verified on Mantle Mainnet. `tokenURI(0)` returns a live IPFS CID that auto-refreshes per cycle. Drop-in compatible with the upcoming Mantle-issued Agent Identity standard; we are positioned to interop or migrate the moment that ships.
+**2 · ERC-8004 agent identity reference implementation.** Non-transferable Identity NFT (`0x6f86…28bD`), ValidationRegistry, ReputationRegistry, DecisionLog — all Sourcify-verified on Mantle Mainnet. `tokenURI(0)` exposes the agent's IPFS identity card; during Pinata quota guard mode the public `/api/agent-card` hides stale card counters and points judges to live `/api/decisions` / `/api/performance` stats. Drop-in compatible with the upcoming Mantle-issued Agent Identity standard; we are positioned to interop or migrate the moment that ships.
 
 **3 · Radical transparency.** Public hourly cron. IPFS-pinned reasoning blobs. Live mascot reflecting actual cycle freshness. `/challenge` arena where anyone can inject four canonical attack vectors and watch the real multi-agent pipeline reason through them. `/discipline` page surfacing the post-execution proof history. The honesty rule is enforced as a workspace steering doc (`.kiro/steering/no-lying-about-state.md`); every numeric stat must trace to a contract read or settled outcome.
 
@@ -70,14 +70,14 @@ A single hourly cron drives the cycle:
 ### Mantle-native asset stack
 
 - **mETH** — Mantle's own LST, used as the risk-on real-yield leg.
-- **USDT0** — LayerZero-bridged Tether (Treasury-collateralised, 1:1 USD peg). Around 53% of NAV in the 2026-06-11 07:09 UTC snapshot. First RWA swap on-chain: TX `0x0af2336…3e09de`.
+- **USDT0** — LayerZero-bridged Tether (Treasury-collateralised, 1:1 USD peg). It is the stable RWA allocation rail in the live system. First RWA swap on-chain: TX `0x0af2336…3e09de`.
 - **USDY** — Ondo tokenized Treasuries metadata module ships in repo (`src/rwa/usdyModule.js`). Mantle pool depth currently zero, so the swap path throws `RWA_POOL_INACTIVE` until reactivated. We label it as `paper-ready` honestly rather than pretending it's live.
 
 ### What's currently live
 
 | Component                | State | Verifiable artefact                                                            |
 | ------------------------ | ----- | ------------------------------------------------------------------------------ |
-| Multi-agent consensus    | LIVE  | 455 decision records in the 2026-06-11 07:09 UTC API snapshot, public cron log |
+| Multi-agent consensus    | LIVE  | 463 public decision/proposal rows in the 2026-06-11 17:03 UTC API snapshot, public cron log |
 | ERC-8004 contracts       | LIVE  | 5 Sourcify-verified contracts on Mantle                                        |
 | Discipline Layer         | LIVE  | `/discipline` page, 3 gates fire each cycle                                    |
 | RWA execution to USDT0   | LIVE  | TX `0x0af2336…` on Mantlescan                                                  |
@@ -89,7 +89,7 @@ A single hourly cron drives the cycle:
 
 ### Compliance posture
 
-TuringVault is an operator-funded demo and verification layer, not a public investment product. It accepts no public deposits, promises no yield, labels USDY as gated/paper-ready, and keeps `realizedTradingPnlBps` null. Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
+TuringVault is an operator-funded demo and verification layer, not a public investment product. It accepts no public deposits, promises no yield, labels USDY as gated/paper-ready, and keeps `realizedTradingPnlBps` null. The AI assists compliance controls through validator suitability review, deterministic portfolio/risk gates, and Discipline Layer proof checks; it does not bypass legal constraints. Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
 
 ### Deployment Award checklist
 

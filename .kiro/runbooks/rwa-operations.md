@@ -1,5 +1,7 @@
 # RWA Operations Runbook
 
+> Internal allocator note: "Path A" / "Path B" in this runbook are historical implementation-mode labels (`llm` vs `idle-parking`). They are not Mantle AI & RWA track labels. The public hackathon submission is **AI & RWA Track — Path B: RWA Application**.
+
 **Spec:** `.kiro/specs/rwa-allocation-active`
 **Code:** `src/orchestrator/rwaAllocator.js`, `src/dex/merchantMoe.js`,
 `src/rwa/usdt0Module.js`, `src/config/rwaLimits.js`

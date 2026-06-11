@@ -2,23 +2,22 @@
 
 Use this for the DoraHacks video recording. It is intentionally short enough to keep open beside the browser.
 
-Observed production snapshot: 2026-06-04 17:56 UTC.
+Original recording snapshot: 2026-06-04 17:56 UTC.
+Refreshed judge-facing metric snapshot: 2026-06-11 17:03 UTC.
 
 ```text
-Latest cycle                 #290
-Latest cycle ended            2026-06-04T17:53:10Z
-Latest tier                   BLOCKED_BY_REGIME
-Cron health, 24h              31 ran / 0 failed
+Latest live cycle             refresh from /api/health before recording
+Latest tier                   refresh from /api/decisions before recording
+Cron health, 24h              23 ran / 0 failed in the 2026-06-11 17:03 UTC snapshot
 Parse success, 24h            100%
-Gas runway                    ok, about 15.4 days
-DecisionLog rows              290
-ValidationRegistry proposals  291
-Approved / rejected           215 / 76
-Settled outcomes              196
-Win rate                      58.2%
-Decision-Quality Score        +4342 bps
+Gas runway                    low, about 11.4 days
+Decision/proposal rows        463 public API rows; Proof Explorer contract view may differ by one during fresh writes
+Approved / rejected           337 / 126
+Settled outcomes              358
+Win rate                      53.1%
+Decision-Quality Score        +5083 bps
 realizedTradingPnlBps         null
-NAV                           $150.69 operator-funded demo capital
+NAV                           about $139.33 operator-funded demo capital
 ```
 
 ## Browser Tabs
@@ -40,7 +39,7 @@ Start on the homepage:
 
 Move to `/api/health`:
 
-"This is a best-effort public GitHub Actions cron, not a hidden daemon. I do not claim perpetual liveness. `lastCycleAge` is the truth source. In this snapshot the latest cycle is #290, the 24-hour cron window is 31 successful runs and zero failed runs, and gas runway is healthy."
+"This is a best-effort public GitHub Actions cron, not a hidden daemon. I do not claim perpetual liveness. `lastCycleAge` is the truth source. In this refreshed snapshot the 24-hour cron window is 23 successful runs and zero failed runs, with about 11.4 days of gas runway."
 
 Move to `/replay/265`:
 
@@ -52,11 +51,11 @@ Move to `/replay/266`:
 
 Move to Proof Explorer:
 
-"The current proof snapshot shows 290 DecisionLog rows and 291 ValidationRegistry proposals. Those counters are intentionally labelled separately because they are different contract surfaces."
+"The current proof snapshot shows 463 public decision/proposal rows. DecisionLog rows and ValidationRegistry proposals are intentionally labelled separately because they are different contract surfaces and can differ by one during a fresh cycle."
 
 Move to performance:
 
-"Across 196 settled outcomes, the system has a +4342 bps Decision-Quality Score and a 58.2% settled win rate. That is not wallet PnL. The API intentionally exposes `realizedTradingPnlBps: null`."
+"Across 358 settled outcomes, the system has a +5083 bps Decision-Quality Score and a 53.1% settled win rate. That is not wallet PnL. The API intentionally exposes `realizedTradingPnlBps: null`."
 
 Close:
 

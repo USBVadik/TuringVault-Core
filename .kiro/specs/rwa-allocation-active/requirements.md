@@ -1,5 +1,7 @@
 # RWA Allocation Active — Requirements
 
+> Internal allocator note: "Path A" / "Path B" in this spec are implementation-mode labels (`llm` vs `idle-parking`). They are not Mantle AI & RWA track labels. The public hackathon submission is **AI & RWA Track — Path B: RWA Application**.
+
 ## Background
 
 After `continuous-cron-and-health` shipped, the agent runs hourly and
