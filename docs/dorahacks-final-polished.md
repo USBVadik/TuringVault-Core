@@ -1,6 +1,6 @@
 # TuringVault DoraHacks Final Submission Copy
 
-Observed live snapshot: 2026-06-09 19:48 UTC.
+Observed live snapshot: 2026-06-11 06:02 UTC.
 
 Refresh before final paste:
 - Health: https://frontend-seven-beta-46.vercel.app/api/health
@@ -13,7 +13,7 @@ Demo video: https://youtu.be/AnLbnbW36ys
 
 ## Short Description
 
-Accountable AI RWA portfolio infrastructure on Mantle. TuringVault combines multi-model consensus, ERC-8004-style identity/reputation, Proof-of-Reasoning anchors, and post-execution Discipline checks before AI-managed capital is trusted.
+Accountable AI RWA portfolio application on Mantle. TuringVault combines multi-model consensus, ERC-8004-style identity/reputation, Proof-of-Reasoning anchors, and post-execution Discipline checks before AI-managed capital is trusted.
 
 ---
 
@@ -51,7 +51,7 @@ That distinction is the core of the project: AI-managed capital should be allowe
 
 ### Why This Fits The Mantle Turing Test
 
-TuringVault should be judged as infrastructure.
+TuringVault's product layer is accountability infrastructure, but its AI & RWA track fit is **Path B: RWA Application** because it manages existing RWA/yield assets instead of issuing a new tokenized asset.
 
 The Mantle Turing Test brief emphasizes three primitives: on-chain benchmarking of AI, agent identity/reputation, and radical transparency. TuringVault ships those as one live system.
 
@@ -67,27 +67,44 @@ TuringVault includes ERC-8004-style identity, validation, reputation, and decisi
 
 Judges can inspect the live dashboard, raw replay pages, the public GitHub Actions cron, contract events, and the proof explorer without asking the team for private logs. The reasoning itself is pinned off-chain, while Mantle stores tamper-evident anchors and registry state.
 
+### Track Fit Under The Updated Scorecard
+
+The strongest fit is **AI & RWA Track — Path B: RWA Application**.
+
+TuringVault does not pretend to issue a new real-world asset token. Instead, it uses AI to manage and verify allocation across existing Mantle-native RWA/yield rails: USDT0 as the stable RWA allocation rail, mETH as the Mantle-native liquid-staking yield/risk leg, MNT/WMNT as native execution inventory, and a gated USDY module for when Mantle liquidity is usable.
+
+That maps directly to the Path B prompt: a clearly defined asset set, a real user category, and an end-to-end experience from AI allocation intent to on-chain position and public proof.
+
+The target users are DAO treasuries, on-chain funds, and compliance-conscious operators that want AI allocation without losing governance-grade evidence.
+
 ### Live Snapshot
 
 The current public system is running on Mantle Mainnet with operator-funded demo capital.
 
-Observed on 2026-06-09 at 19:48 UTC:
+Observed on 2026-06-11 at 06:02 UTC:
 
 | Metric | Observed Value | Source |
 | --- | ---: | --- |
-| DecisionLog rows | 419 | `/api/proof-explorer` + DecisionLog |
-| ValidationRegistry proposals | 420 | `/api/proof-explorer` |
-| Approved proposals | 298 | ValidationRegistry |
-| Rejected proposals | 122 | ValidationRegistry |
-| Pre-execution rejection rate | 29.0% | 122 / 420 |
-| Settled outcomes | 326 | `/api/performance` |
-| Settled win rate | 54.6% | `/api/performance` |
-| Lifetime Decision-Quality Score | +5135 bps | settled outcomes, not wallet PnL |
+| DecisionLog rows | 453 | `/api/proof-explorer` + DecisionLog |
+| ValidationRegistry proposals | 454 | `/api/proof-explorer` |
+| Approved proposals | 331 | ValidationRegistry |
+| Rejected proposals | 123 | ValidationRegistry |
+| Pre-execution rejection rate | 27.1% | 123 / 454 |
+| Settled outcomes | 358 | `/api/performance` |
+| Settled win rate | 53.1% | `/api/performance` |
+| Lifetime Decision-Quality Score | +5083 bps | settled outcomes, not wallet PnL |
 | Realized wallet PnL claim | null | intentionally not claimed |
-| Cron health, trailing 24h | 25 succeeded / 0 failed | `/api/health` |
+| Cron health, trailing 24h | 23 succeeded / 0 failed | `/api/health` |
 | Parse success, trailing 24h | 100% | `/api/health` |
-| Operator-funded NAV | $141.31 | `/api/performance` |
-| Gas runway | about 12.4 days | `/api/health.gasRunway` |
+| Operator-funded NAV | $139.89 | `/api/performance` |
+| Gas runway | about 11.6 days | `/api/health.gasRunway` |
+
+Latest risk-on proof: cycle 453 (`HEARTBEAT_SWAP`) executed USDT0 → USDT → WMNT with two Mantle transactions:
+
+- https://mantlescan.xyz/tx/0xd736dbf6d268112ddbca8fae0067cd3605e8ad70b10d3f5eeeaeda1a91d82602
+- https://mantlescan.xyz/tx/0xe12b24a14057ad7071b4ab8bf406f7219b88f3f2289145c7669b7e6525776a3e
+
+This is labelled as heartbeat/liveness execution and is not blended into realized PnL.
 
 Denominator note: DecisionLog rows and ValidationRegistry proposals are different contract surfaces. During a fresh cycle they can differ by one. The UI labels this instead of pretending all counters share one denominator.
 
@@ -107,6 +124,31 @@ We do not claim that USDT0 itself pays yield. It is treated as the stable RWA al
 
 First verifiable RWA swap:
 https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de
+
+### Compliance Awareness
+
+TuringVault is intentionally scoped as an operator-funded demo and verification layer, not a public investment product.
+
+- No public deposits are accepted.
+- No yield or profit is promised.
+- Current capital is controlled by an operator EOA for hackathon demonstration.
+- USDT0 is described as a stable RWA allocation rail, not a yield product.
+- USDY is implemented but gated until Mantle liquidity is usable.
+- Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML checks, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
+
+The AI can assist allocation, proof generation, and compliance-review workflows, but it does not bypass legal constraints.
+
+### 20 Project Deployment Award Checklist
+
+| Requirement | TuringVault status |
+| --- | --- |
+| Smart contract deployed on Mantle Mainnet or Testnet | Six contracts deployed on Mantle Mainnet |
+| Contract verified on Mantle Explorer | Five production contracts Sourcify `perfect`; Router is deployed but labelled as source-drifted legacy helper |
+| At least one AI-powered function callable/on-chain recorded | Every agent cycle writes proposal, validation, decision, and reputation evidence to Mantle; `/challenge` can submit adversarial validation proposals |
+| Public frontend demo | https://frontend-seven-beta-46.vercel.app |
+| Deployment address included in submission | DecisionLog, ValidationRegistry, ReputationRegistry, Identity NFT links below |
+| Demo video at least 2 min | https://youtu.be/AnLbnbW36ys |
+| Open-source repo with setup, architecture, deployed addresses | GitHub README + `docs/ARCHITECTURE.md` |
 
 ### Architecture
 

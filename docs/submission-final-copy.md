@@ -1,6 +1,6 @@
 # TuringVault DoraHacks Final Copy
 
-Observed snapshot: 2026-06-09 19:04 UTC.
+Observed snapshot: 2026-06-11 06:02 UTC.
 Refresh before final paste from:
 - https://frontend-seven-beta-46.vercel.app/api/health
 - https://frontend-seven-beta-46.vercel.app/api/performance
@@ -35,14 +35,14 @@ Commercially, TuringVault is a verification and decision-governance rail for tre
 
 ---
 
-## Why This Fits AI x RWA Path A
+## Why This Fits AI & RWA Path B
 
-TuringVault should be judged as infrastructure.
+TuringVault's product layer is accountability infrastructure, but its updated AI & RWA track fit is **Path B: RWA Application**. It does not issue a new tokenized asset; it manages existing Mantle-native RWA/yield rails and makes every AI allocation proposal challengeable, replayable, and anchored on-chain.
 
 The Mantle Turing Test brief asks for on-chain benchmarking of AI, agent identity/reputation, and radical transparency. TuringVault ships all three as one live system:
 
 1. On-chain benchmarking of AI
-   Every autonomous cycle writes proposal, validation, decision, and reputation data to Mantle Mainnet. The 2026-06-09 19:04 UTC snapshot shows 418 DecisionLog rows and 419 ValidationRegistry proposals.
+   Every autonomous cycle writes proposal, validation, decision, and reputation data to Mantle Mainnet. The 2026-06-11 06:02 UTC snapshot shows 453 DecisionLog rows and 454 ValidationRegistry proposals.
 
 2. ERC-8004-style agent identity and reputation
    The agent has a non-transferable identity NFT, active ValidationRegistry writes, active ReputationRegistry feedback, and a DecisionLog. Five production contracts are Sourcify perfect-match verified on Mantle Mainnet.
@@ -54,23 +54,23 @@ The Mantle Turing Test brief asks for on-chain benchmarking of AI, agent identit
 
 ## Live Snapshot
 
-Observed from live APIs and Mantle Mainnet on 2026-06-09 19:04 UTC:
+Observed from live APIs and Mantle Mainnet on 2026-06-11 06:02 UTC:
 
 ```text
-DecisionLog rows                 418
-ValidationRegistry proposals     419
-Approved proposals               298
-Rejected proposals               121  (28.9% rejected before execution)
-Settled outcomes                 326
-Win rate                         54.6%
-Decision-Quality Score        +5135 bps
+DecisionLog rows                 453
+ValidationRegistry proposals     454
+Approved proposals               331
+Rejected proposals               123  (27.1% rejected before execution)
+Settled outcomes                 358
+Win rate                         53.1%
+Decision-Quality Score        +5083 bps
 realizedTradingPnlBps            null
 Methodology                      outcome score from settled decisions, not realized wallet PnL
-Cron health, 24h                 25 ran / 0 failed
-Last cycle age                   about 2.5 min in the observed snapshot
+Cron health, 24h                 23 ran / 0 failed
+Last cycle age                   about 37 min in the observed snapshot
 Parse success, 24h               100%
-NAV                           $141.31 operator-funded demo capital
-Gas runway                       low, about 12.4 days in the observed snapshot
+NAV                           $139.89 operator-funded demo capital
+Gas runway                       low, about 11.6 days in the observed snapshot
 ```
 
 Denominator note: DecisionLog rows and ValidationRegistry proposals are different contract surfaces. During a fresh cycle, the two counters can differ by one. The Proof Explorer now labels that difference explicitly.
@@ -92,6 +92,14 @@ Paper-ready / gated:
 
 First verifiable RWA swap:
 https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de
+
+Latest risk-on heartbeat proof:
+https://mantlescan.xyz/tx/0xd736dbf6d268112ddbca8fae0067cd3605e8ad70b10d3f5eeeaeda1a91d82602
+https://mantlescan.xyz/tx/0xe12b24a14057ad7071b4ab8bf406f7219b88f3f2289145c7669b7e6525776a3e
+
+## Compliance Awareness
+
+TuringVault is scoped as an operator-funded demo and verification layer, not a public investment product. It accepts no public deposits, promises no yield, labels USDY as gated/paper-ready, and keeps `realizedTradingPnlBps` null. Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
 
 ---
 

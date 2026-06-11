@@ -44,9 +44,9 @@ What we should not say:
 
 ---
 
-## Path A Infrastructure Framing
+## AI & RWA Path B Application Framing
 
-The strongest RWA claim is infrastructure, not APY:
+The strongest RWA claim is an application with infrastructure-grade proof, not APY:
 
 1. The agent receives market/yield/liquidity context.
 2. The analyst proposes an allocation.
@@ -56,4 +56,4 @@ The strongest RWA claim is infrastructure, not APY:
 6. The Discipline Layer checks the result after execution.
 7. The outcome feeds reputation.
 
-That is the Path A story: a verifiable AI allocation rail for RWA treasury management on Mantle.
+That is the Path B story under the updated Mantle scorecard: a complete RWA application for treasury/fund operators, using existing Mantle-native assets and making every AI allocation step verifiable.
