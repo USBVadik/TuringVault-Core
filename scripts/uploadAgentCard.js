@@ -9,6 +9,7 @@ require("dotenv").config({
   path: require("path").resolve(__dirname, "../.env"),
 });
 const { pinJSON } = require("../src/ipfs/storage");
+const { assertResolvableIpfsPin } = require("../src/ipfs/pinResultGuard");
 const { ethers } = require("ethers");
 
 const RPC_URL = "https://rpc.mantle.xyz";
@@ -192,6 +193,7 @@ async function uploadAndUpdateAgentCard() {
     agentCard,
     `TuringVault-AgentCard-v${stats.totalDecisions}`
   );
+  assertResolvableIpfsPin(result, "Agent Card");
   console.log(`   ✅ CID: ${result.cid}`);
   console.log(`   ✅ Gateway: https://gateway.pinata.cloud/ipfs/${result.cid}`);
 

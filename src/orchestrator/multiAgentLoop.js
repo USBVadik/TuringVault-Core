@@ -2084,6 +2084,7 @@ async function runMultiAgentCycle(opts = {}) {
       process.env.PINATA_UPLOAD_MODE || "pinata"
     ).toLowerCase();
     const { pinJSON } = require("../ipfs/storage");
+    const { assertResolvableIpfsPin } = require("../ipfs/pinResultGuard");
     const agentCardPath = require("path").join(
       __dirname,
       "../../assets/agent-card.json"
@@ -2143,6 +2144,7 @@ async function runMultiAgentCycle(opts = {}) {
         agentCard,
         `TuringVault-AgentCard-v${agentCard.systemPrompt.version}-${Date.now()}`
       );
+      assertResolvableIpfsPin(cardResult, "Agent Card auto-update");
       console.log(`   ✅ New Agent Card CID: ${cardResult.cid}`);
 
       // Update tokenURI on-chain
