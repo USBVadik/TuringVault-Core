@@ -1380,6 +1380,171 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1781160208985_454",
+      "decisionId": 454,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 0.536789,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkrei606a5b386fb61d9f4254be0bedcf1fd07b1d6891bc04b62bf387",
+      "recordedAt": "2026-06-11T06:43:28.985Z",
+      "settleAfter": "2026-06-11T07:43:28.985Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 96514945"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781160208973
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Proposal passes all gates. MNT grid SELL_mETH at 73% channel position near $0.54 resistance is confirmed. R:R 2.24:1 exceeds 1.5:1 threshold. Source is WMNT ($7.90 existing risk inventory) — not a redundant risk_off on stable-heavy flat portfolio, but a valid trim of held risk. RANGING regime permits grid-confirmed sells. ETH EXIT_RANGING with UNKNOWN direction acknowledged. Bearish consensus and ",
+      "validatorFlaggedIssues": [
+        "ETH breakout direction unconfirmed — MNT correlation risk remains",
+        "F&G=12 extreme fear raises contrarian bounce possibility",
+        "Low absolute profit potential given $7.90 WMNT base"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: tradable risk inventory $34.67 and regime=RANGING",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 77.304601,
+          "tradableRiskUsd": 34.67348581166098,
+          "nativeMnt": 47.82084786469451,
+          "stableShare": 0.6903547220807651,
+          "riskShare": 0.3096452779192349,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.6799999999999967,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 0.5376, stop 0.541, take-profit 0.53, R:R 2.24:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.6799999999999967,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.73,
+          "support": 0.53,
+          "resistance": 0.54,
+          "currentPrice": 0.5376
+        },
+        "riskReward": {
+          "entry": 0.5376,
+          "stopLoss": 0.541,
+          "takeProfit": 0.53,
+          "ratio": 2.24,
+          "riskPct": 0.63,
+          "rewardPct": 1.41
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 2.9432317716427217,
+        "amountOut": 1.571496,
+        "txHash": "0x62bc0686f6519f31a05a39c687a02d7c6fe23c15df17691e161f01c23626fa2b",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0xa6db431d8403f835544612b0edf67f810972c409b2fb056d4ac3cd9fb98cb89e",
+            "blockNumber": 96514940,
+            "amountIn": 2.9432317716427217,
+            "amountOut": 1.573543
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0x62bc0686f6519f31a05a39c687a02d7c6fe23c15df17691e161f01c23626fa2b",
+            "blockNumber": 96514945,
+            "amountIn": 1.571969457,
+            "amountOut": 1.571496
+          }
+        ]
+      },
+      "manifestHash": "0x2d6025a6667b93401d51e7dba8e066ea58a1862fd8042dc9075da44919f6af54",
+      "combinedAnchor": "0xed4bcf5dc95a6c9ca377e480d9d49351810f93a03619ecd74ac249d2c2a90a15",
+      "decisionLogTxHash": "0x989007e3347a6614ea5454a7d7645c4d3ce98bbd433cbe2611d53b7b2afedf73",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "ACCEPTED",
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [

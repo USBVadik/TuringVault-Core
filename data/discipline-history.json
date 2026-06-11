@@ -1,28 +1,5 @@
 [
   {
-    "at": "2026-06-07T05:46:26.236Z",
-    "decisionId": 354,
-    "verdict": "ACCEPTED",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "Hold action — no tx to verify"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-07T06:41:11.136Z",
     "decisionId": 355,
     "verdict": "ACCEPTED",
@@ -3106,6 +3083,55 @@
         "name": "tx_exists",
         "status": "PASS",
         "detail": "Block 96512602"
+      },
+      {
+        "name": "tx_sender",
+        "status": "PASS",
+        "detail": "Matches vault wallet"
+      },
+      {
+        "name": "tx_confirmed",
+        "status": "PASS",
+        "detail": "2 confirmations"
+      },
+      {
+        "name": "tx_success",
+        "status": "PASS",
+        "detail": "TX successful"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      },
+      {
+        "name": "tx_proof",
+        "status": "PASS",
+        "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-11T06:43:28.975Z",
+    "decisionId": 454,
+    "verdict": "ACCEPTED",
+    "decisionTier": "EXECUTED_SWAP",
+    "displayTier": "EXECUTED_SWAP",
+    "executedOnChain": true,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": "WMNT",
+    "checks": [
+      {
+        "name": "tx_exists",
+        "status": "PASS",
+        "detail": "Block 96514945"
       },
       {
         "name": "tx_sender",
