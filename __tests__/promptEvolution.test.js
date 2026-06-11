@@ -8,11 +8,14 @@ const {
 const fs = require("fs");
 const path = require("path");
 
+const TEST_PRIVATE_KEY =
+  "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
 describe("Prompt Evolution", () => {
   let evo;
 
   beforeAll(() => {
-    evo = new PromptEvolution();
+    evo = new PromptEvolution({ privateKey: TEST_PRIVATE_KEY });
   });
 
   describe("shouldEvolve", () => {
