@@ -682,7 +682,7 @@ function getPendingCount() {
 
 /**
  * Get the ISO timestamp of the most recent successful RWA swap.
- * Used by the cycle to compute Path B cooldown. Returns null if
+ * Used by the cycle to compute idle-parking cooldown. Returns null if
  * there has never been an executed RWA swap.
  *
  * Spec: rwa-allocation-active R3.3 / T9.

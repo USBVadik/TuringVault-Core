@@ -50,7 +50,7 @@
 3. The words `realised PnL`, `realized PnL`, `successful cycles`, `ACCEPTED`, `TX proof 100%`, and `No trust assumptions` are high-risk unless tightly scoped.
 4. DoraHacks and README numbers are stale compared with live API. Updating them helps only if the metric is renamed from PnL to outcome/decision-quality score.
 5. The demo should never depend on the latest market cycle. It should pin one recent executed cycle and one recent correct block/protected-capital cycle.
-6. The RWA story should be framed as Path A infrastructure for RWA allocation. Active now: mETH yield surface, USDT0/stable allocation, Mantle execution/proof rails. Paper-ready: USDY route, shipped but gated until Mantle liquidity returns.
+6. Superseded on 2026-06-11: the RWA story should now be framed as AI & RWA Track Path B application, not Path A infrastructure. Active now: mETH yield surface, USDT0/stable allocation, Mantle execution/proof rails. Paper-ready: USDY route, shipped but gated until Mantle liquidity returns.
 7. Judges need a three-click verification path above the fold: live health, latest executed proof, replay verifier/contracts.
 
 ### Findings To Discard Or Downgrade
@@ -199,7 +199,7 @@ The values below were observed on 2026-06-04 and must be refreshed before final 
   - USDY module ships.
   - USDY route is gated off until Mantle liquidity returns.
   - No live USDY execution claim.
-- Submission explains Path A infrastructure more strongly than "trading bot".
+- Submission explains Path B RWA application more strongly than "trading bot".
 
 ### Module G - Demo Video And X Thread Package (P1)
 
@@ -835,7 +835,7 @@ Create `docs/rwa-live-vs-paper-ready.md`:
 
 ## Submission Language
 
-TuringVault is Path A infrastructure for accountable RWA allocation. The live demo proves the trust layer, decision logging, replay, and Mantle execution rails with demo capital. It does not claim a production public vault or live USDY rebalancing today.
+TuringVault is an AI & RWA Path B application for accountable RWA allocation. The live demo proves the trust layer, decision logging, replay, and Mantle execution rails with demo capital. It does not claim a production public vault or live USDY rebalancing today.
 ```
 
 - [ ] **Step 2: Link it from README and submission copy**

@@ -34,20 +34,20 @@ module.exports = {
   // Slippage applied when computing minAmountOut. 50 bps = 0.5%.
   DEFAULT_SLIPPAGE_BPS: num("RWA_DEFAULT_SLIPPAGE_BPS", 50),
 
-  // Path B cooldown between successful idle-parking swaps.
+  // Cooldown between successful idle-parking swaps.
   IDLE_PARKING_COOLDOWN_MS: num(
     "RWA_IDLE_PARKING_COOLDOWN_MS",
     6 * 60 * 60 * 1000
   ),
 
-  // Path B trigger: minimum continuous FLAT duration before parking
+  // Idle-parking trigger: minimum continuous FLAT duration before parking
   // can fire. Operator can lower for testing (e.g., 60_000) and revert.
   IDLE_PARKING_MIN_FLAT_MS: num(
     "RWA_IDLE_PARKING_MIN_FLAT_MS",
     24 * 60 * 60 * 1000
   ),
 
-  // Fraction of idle stable-USD balance to park per Path B trigger.
+  // Fraction of idle stable-USD balance to park per idle-parking trigger.
   // 0.20 = move 20% of idle USDT into USDT0 each parking event.
   IDLE_PARKING_FRACTION: num("RWA_IDLE_PARKING_FRACTION", 0.2),
 };

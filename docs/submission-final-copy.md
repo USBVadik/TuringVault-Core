@@ -11,13 +11,13 @@ Refresh before final paste from:
 
 ## Short Description
 
-Accountable AI RWA portfolio infrastructure on Mantle. TuringVault combines 3-model adversarial consensus, ERC-8004-style identity/reputation, Discipline Layer proof checks, and on-chain Proof-of-Reasoning anchors before capital moves.
+Accountable AI RWA portfolio application on Mantle. TuringVault combines 3-model adversarial consensus, ERC-8004-style identity/reputation, Discipline Layer proof checks, and on-chain Proof-of-Reasoning anchors before capital moves.
 
 ---
 
 ## Long Description
 
-TuringVault is an AI-powered RWA portfolio infrastructure layer on Mantle. The project is not just another autonomous trading bot. It is a verification system for the moment an AI agent wants to allocate real capital.
+TuringVault is an AI-powered RWA portfolio application and verification layer on Mantle. The project is not just another autonomous trading bot. It is a verification system for the moment an AI agent wants to allocate real capital.
 
 DAO treasuries and on-chain funds should not have to choose between slow human committees and black-box AI. TuringVault gives them an agent whose market thesis, validator challenge, risk gate, execution status, and post-execution proof trail are all public, replayable, and anchored on Mantle.
 

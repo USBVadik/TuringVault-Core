@@ -24,6 +24,7 @@ import {
   Zap,
   AlertCircle,
   CheckCircle,
+  Scale,
   Link as LinkIcon,
 } from "lucide-react";
 import { LiveTerminal } from "./components/LiveTerminal";
@@ -748,8 +749,8 @@ export default function Home() {
           </div>
           <div className="ops-topline">
             <div>
-              <p className="ops-kicker">TV-PRF/001 · Live Agent Console</p>
-              <h1 className="ops-title">Proof-locked autonomous portfolio agent</h1>
+              <p className="ops-kicker">TV-PRF/001 · Live RWA Agent Console</p>
+              <h1 className="ops-title">Proof-locked RWA portfolio agent</h1>
             </div>
             <div className="ops-topline-actions">
               <LiveStatusBadge variant="compact" initialHealth={health} />
@@ -1067,6 +1068,30 @@ export default function Home() {
                     ? `$${marketData.ethPrice.toLocaleString("en-US")}`
                     : "—"}
                 </strong>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="compliance-posture"
+            aria-label="Compliance posture"
+          >
+            <div className="compliance-posture-header">
+              <Scale className="w-4 h-4 text-amber-200/80" />
+              <span>Compliance Posture</span>
+            </div>
+            <div className="compliance-posture-grid">
+              <div>
+                <span>Custody</span>
+                <strong>Operator-funded demo EOA</strong>
+              </div>
+              <div>
+                <span>Public access</span>
+                <strong>No deposits · no yield promise</strong>
+              </div>
+              <div>
+                <span>Regulated assets</span>
+                <strong>KYC/AML + jurisdiction gates before vault launch</strong>
               </div>
             </div>
           </div>

@@ -36,7 +36,7 @@ const INITIAL_STATE = {
   scaleInCount: 0, // controlled same-asset scale-ins used in this position
   lastScaleInAt: null,
   cycleCount: 0, // how many cycles in current position (prevent infinite hold)
-  // ISO of when we became FLAT. Used by rwaAllocator (Path B idle-parking)
+  // ISO of when we became FLAT. Used by rwaAllocator idle-parking
   // to know how long the wallet has been idle. Null while in a position.
   // Spec: rwa-allocation-active R2.3 / design §C5.
   flatSince: null,

@@ -329,7 +329,7 @@ Your "action" and "targetAsset" MUST be logically consistent with your "reasonin
 - If reasoning says "wait" or "conflicting signals" → action MUST be "hold", direction MUST be "neutral"
 VIOLATION OF THIS RULE = AUTOMATIC REJECTION BY VALIDATOR. Think step-by-step: first decide your thesis (bullish/bearish/neutral), then set action+target to match.
 
-RWA ALLOCATION (Path A — Treasury-backed allocation):
+RWA ALLOCATION (compliance-aware Treasury-backed stable allocation):
 You also have access to USDT0, a LayerZero-bridged Tether stablecoin
 backed by US Treasury Bills + cash equivalents. USDT0 is NOT yield-bearing
 on its own (no APY on the token). Use it for:

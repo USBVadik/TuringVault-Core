@@ -2,11 +2,11 @@
  * RWA Allocator — single decision point for "should we touch RWA
  * this cycle?".
  *
- * Two paths feed in:
- *   • Path A (LLM-driven)         — Analyst's `action` is `rwa_allocate`
+ * Two routes feed in:
+ *   • LLM-reviewed route          — Analyst's `action` is `rwa_allocate`
  *                                   or `rwa_exit` and consensus reached.
- *   • Path B (idle-parking floor) — agent has been FLAT for ≥ 24 h,
- *                                   regime ≠ TREND_UP, cooldown elapsed,
+ *   • Idle-parking route          — agent has been FLAT for >= 24 h,
+ *                                   regime != TREND_UP, cooldown elapsed,
  *                                   wallet has idle stable USD.
  *
  * Output:
@@ -17,7 +17,7 @@
  * The cycle integrator (multiAgentLoop.js) treats both null and skip
  * as "no swap"; the difference is just logging granularity.
  *
- * Spec: rwa-allocation-active (R2, design §C3, CP1–CP4).
+ * Spec: rwa-allocation-active.
  */
 
 const { ethers } = require("ethers");
@@ -214,7 +214,7 @@ function evaluate(args) {
   const regime =
     market?.regime || market?.structuredSignals?.regime?.regime || null;
 
-  // ── Path A: LLM-driven ──────────────────────────────────────
+  // -- LLM-reviewed route --------------------------------------
   // Explicit rwa_allocate action
   if (consensus && action === "rwa_allocate") {
     const reason = `LLM allocate: ${
@@ -230,7 +230,7 @@ function evaluate(args) {
     });
   }
 
-  // ── Path A.1: Implicit RWA allocation ───────────────────────
+  // -- LLM-reviewed route: implicit RWA allocation --------------
   // When agent says "swap to mUSD/USDT" in risk-off regime, treat it as
   // RWA allocation intent. This bridges the gap between the old "swap"
   // vocabulary and the new "rwa_allocate" action.
@@ -254,7 +254,7 @@ function evaluate(args) {
     });
   }
 
-  // ── Path A.2: Implicit RWA exit ─────────────────────────────
+  // -- LLM-reviewed route: implicit RWA exit --------------------
   // When agent says "swap to mETH" in TREND_UP, and we hold USDT0,
   // exit RWA position first.
   if (
@@ -279,11 +279,11 @@ function evaluate(args) {
     }
   }
 
-  // ── Path A.3: Conservative RWA allocation ───────────────────
+  // -- LLM-reviewed route: conservative RWA allocation ----------
   // When agent says HOLD (not confident enough to swap) but regime is
   // risk-off (TREND_DOWN, CRISIS, RANGING, HOLD), park idle stables
-  // into USDT0 anyway. This ensures RWA allocation happens even when
-  // the agent is uncertain — better to earn yield than sit at 0%.
+  // into USDT0 anyway. USDT0 is not yield-bearing; this is a
+  // transparent Treasury-collateralised stable reserve route.
   // Spec: rwa-allocation-active — conservative allocation path.
   const confidence = decision?.analyst?.confidence ?? 0;
   if (
@@ -332,9 +332,9 @@ function evaluate(args) {
     });
   }
 
-  // ── Path B: deterministic idle-parking ──────────────────────
+  // -- Idle-parking route --------------------------------------
   // Only fires when LLM said HOLD AND wallet is idle.
-  // Note: `regime` already declared above in Path A section.
+  // Note: `regime` already declared above in the route context.
 
   if (
     !consensus &&

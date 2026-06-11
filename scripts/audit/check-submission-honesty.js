@@ -10,6 +10,7 @@ const FILES = [
   "docs/DORAHACKS_SUBMISSION.md",
   "docs/SUBMISSION.md",
   "docs/dorahacks-submission-v2.md",
+  "docs/dorahacks-final-polished.md",
   "docs/submission-final-copy.md",
 ];
 
@@ -53,6 +54,14 @@ const RULES = [
   {
     name: "Do not call cron cycles successful trades",
     pattern: /\bsuccessful\s+(?:trades|swaps)\b/i,
+  },
+  {
+    name: "Do not position the project as Path A primary",
+    pattern: /^(?!.*\bDo not claim\b).*\bPath\s+A\b.*\b(?:PRIMARY|primary|Infrastructure|infrastructure|over\s+Path\s+B|asset\s+tokenization)\b/i,
+  },
+  {
+    name: "Do not use stale AI x RWA Path A track label",
+    pattern: /\bAI\s*x?\s*&?\s*RWA\s+Track\s+[—-]\s+Path\s+A\b/i,
   },
 ];
 

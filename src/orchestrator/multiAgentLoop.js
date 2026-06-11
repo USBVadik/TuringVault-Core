@@ -958,7 +958,7 @@ async function runMultiAgentCycle(opts = {}) {
 
   // ─────────────────────────────────────────────────────────────
   // Step 4.5: RWA Allocator — single decision point for "should we
-  // touch RWA this cycle?" (Path A LLM, Path B idle-parking).
+  // touch RWA this cycle?" (LLM-reviewed route + idle-parking route).
   // Spec: rwa-allocation-active R2/R3 / design §C6.
   // ─────────────────────────────────────────────────────────────
   let rwaIntent = null;
