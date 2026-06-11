@@ -965,6 +965,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781142031297_449",
+      "decisionId": 449,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1640.86,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei1f3013f85ea11d2bad5ddd5fc80c7bba373bd41d883cecf67e2d",
+      "recordedAt": "2026-06-11T01:40:31.297Z",
+      "settleAfter": "2026-06-11T02:40:31.297Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781142031287
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both grids signal EXIT_RANGING with UNKNOWN breakout direction — no directional trade is warranted. Portfolio is already 72.8% stable, making further risk-off redundant per inventory rule. F&G=12 extreme fear noted but funding is neutral (0.042%), smart money flow is $0.0M NEUTRAL, and regime confidence is only 55%. No R:R gate applies to HOLD. Analyst correctly av",
+      "validatorFlaggedIssues": [
+        "EXIT_RANGING with UNKNOWN breakout direction — volatility expanding, direction unconfirmed",
+        "Extreme fear F&G=12 adds downside tail risk if $1620.9 support breaks",
+        "Yield spread -1% bearish but insufficient alone to justify risk-off given stable-heavy posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd24c712ece64d3fa1987a686d54c1577b6e03674c4e75eccd42f76a8f7b979f3",
+      "combinedAnchor": "0xf3a4d8b9acfe458bcac973844456cfe427055a249330e48240f87b8223307eab",
+      "decisionLogTxHash": "0x7e658ff31583acf66dbf249ea35434bd03e0d277bcb81ef91024007ea7606976",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
