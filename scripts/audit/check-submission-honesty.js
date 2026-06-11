@@ -12,6 +12,7 @@ const FILES = [
   "docs/dorahacks-submission-v2.md",
   "docs/dorahacks-final-polished.md",
   "docs/submission-final-copy.md",
+  "docs/MASTER_SPEC.md",
 ];
 
 const RULES = [
@@ -62,6 +63,10 @@ const RULES = [
   {
     name: "Do not use stale AI x RWA Path A track label",
     pattern: /\bAI\s*x?\s*&?\s*RWA\s+Track\s+[—-]\s+Path\s+A\b/i,
+  },
+  {
+    name: "Do not leave demo video as a pending submission item",
+    pattern: /(?:\[ \]|□)\s+.*demo\s+video|demo\s+video:\s+add\s+the\s+final/i,
   },
 ];
 

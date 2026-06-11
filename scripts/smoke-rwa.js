@@ -10,8 +10,8 @@
  * Usage:
  *   npm run smoke:rwa
  *
- * Exits 0 if ≥ 4/12 cases produce a non-null intent (validates that
- * Path A + Path B both fire on at least their canonical inputs).
+ * Exits 0 if >= 4/12 cases produce a non-null intent (validates that
+ * LLM-reviewed and idle-parking routes both fire on canonical inputs).
  *
  * Spec: rwa-allocation-active T13.
  */
@@ -26,7 +26,7 @@ const rwaAllocator = require("../src/orchestrator/rwaAllocator");
 const { USDT0Module } = require("../src/rwa/usdt0Module");
 const { MerchantMoeDEX } = require("../src/dex/merchantMoe");
 
-const FLAT_HOURS_AGO = 30; // simulate "long-flat wallet" for Path B cases
+const FLAT_HOURS_AGO = 30; // simulate "long-flat wallet" for idle-parking cases
 
 async function readBalances() {
   // Always include USDT (legacy) + USDT0. Other tokens optional.
@@ -102,14 +102,14 @@ async function main() {
   );
   for (const cm of consensusModes) {
     for (const regime of regimes) {
-      const isPathBcandidate = cm.consensus === false;
+      const isIdleParkingCandidate = cm.consensus === false;
       const out = rwaAllocator.evaluate({
         decision: makeDecision(cm.consensus, cm.action),
         market: { regime },
         balances,
         prices,
         lastSwapAt: null, // no prior swap for smoke
-        posState: makePosState(isPathBcandidate),
+        posState: makePosState(isIdleParkingCandidate),
       });
 
       let resultStr;
@@ -130,7 +130,7 @@ async function main() {
   console.log(`\nIntents emitted: ${intentCount}/12`);
   if (intentCount >= 4) {
     console.log(
-      "✅ Smoke pass — Path A and Path B both fire on canonical inputs."
+      "✅ Smoke pass — LLM-reviewed and idle-parking routes both fire on canonical inputs."
     );
     process.exit(0);
   }

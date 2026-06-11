@@ -1,9 +1,11 @@
-# TuringVault Code Quality Audit
+# TuringVault Code Quality Audit — Historical Snapshot
 
 **Date:** 2026-05-23  
 **Scope:** Full repository — code structure, testing, dependencies, patterns  
 **Auditor:** Hermes Agent (automated)  
 **Overall Quality:** GOOD (for hackathon project)
+
+> Historical early-build audit. It is kept for transparency, not as the current submission readiness checklist. Since this snapshot, the project added public GitHub Actions cron, submission honesty audits, frontend lint/build verification, 400+ passing focused tests across contracts/unit surfaces, live Mantle Mainnet proof data, demo video, and final DoraHacks copy. Current readiness source of truth: `README.md`, `docs/SUBMISSION.md`, and `docs/dorahacks-final-polished.md`.
 
 ---
 

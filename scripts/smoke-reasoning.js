@@ -14,7 +14,7 @@
  *   npm run smoke:reasoning              # default 5 cycles
  *   SMOKE_CYCLES=10 npm run smoke:reasoning
  *
- * Exits non-zero if parse rate < 0.95 (Path A acceptance threshold).
+ * Exits non-zero if parse rate < 0.95 (self-evolving prompt acceptance threshold).
  *
  * Spec: .kiro/specs/agent-reasoning-quality/{requirements,design,tasks}.md (T12)
  */
@@ -94,7 +94,7 @@ async function main() {
     console.log(`  success:     n/a`);
   }
 
-  console.log(`\n=== Path A/B gate ===`);
+  console.log(`\n=== Self-evolution readiness gate ===`);
   if (m.successRate == null) {
     console.log("No parse data — inconclusive.");
     process.exit(2);
@@ -103,14 +103,14 @@ async function main() {
     console.log(
       `✅ Parse rate ${(m.successRate * 100).toFixed(1)}% ≥ ${
         PARSE_RATE_TARGET * 100
-      }% — Path A is viable.`
+      }% — self-evolution claim is viable.`
     );
     process.exit(0);
   } else {
     console.log(
       `⚠ Parse rate ${(m.successRate * 100).toFixed(1)}% < ${
         PARSE_RATE_TARGET * 100
-      }% — recommend Path B (drop self-evolving claim).`
+      }% — keep self-evolution claim disabled until parse reliability improves.`
     );
     process.exit(1);
   }

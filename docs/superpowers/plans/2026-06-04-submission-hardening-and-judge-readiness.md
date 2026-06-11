@@ -992,7 +992,7 @@ Insert the exact summarized outputs from Step 1. The section must include `lastC
 - DoraHacks: https://dorahacks.io/buidl/43986
 - Live demo: https://frontend-seven-beta-46.vercel.app
 - GitHub: https://github.com/USBVadik/TuringVault-Core
-- Demo video: add the final YouTube/Loom URL after upload; if no upload exists, keep `demo/demo-FINAL.mp4` out of the public proof path and do not claim an external video link.
+- Demo video: final YouTube URL is live at https://youtu.be/AnLbnbW36ys; keep that link in the public proof path.
 - Latest executed cycle: use the card/link produced by Module C after verification.
 - Latest protected block: use the card/link produced by Module C after verification.
 - Replay verifier: https://frontend-seven-beta-46.vercel.app/replay

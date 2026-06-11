@@ -1,5 +1,7 @@
 # TuringVault — Master Technical Specification
 
+> Historical build specification from the start of the hackathon. The current submission source of truth is `README.md`, `docs/dorahacks-final-polished.md`, and `docs/SUBMISSION.md`. The live project now has the demo video, public frontend, Mantle Mainnet contracts, and AI & RWA Path B positioning.
+
 > **Hackathon:** Mantle Turing Test 2026 (Phase 2: AI Awakening)
 > **Prize Pool:** $100,000
 > **Deadline:** June 15, 2026 (26 days remaining)
@@ -527,13 +529,13 @@ WMNT (Wrapped MNT):   0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8
 ### PHASE 4: Submission (Days 22-26) — Jun 9-15
 
 ```
-□ P4.1: Demo video (screen recording with voiceover)
-□ P4.2: Technical documentation
-□ P4.3: README + architecture diagrams
-□ P4.4: DoraHacks submission form
-□ P4.5: Profile setup (@turingvault_core)
-□ P4.6: Final mainnet verification
-□ P4.7: SUBMIT (before June 15 deadline)
+✅ P4.1: Demo video recorded and uploaded — https://youtu.be/AnLbnbW36ys
+✅ P4.2: Technical documentation updated
+✅ P4.3: README + architecture diagrams updated
+✅ P4.4: DoraHacks submission copy prepared
+✅ P4.5: Social/demo profile materials prepared
+✅ P4.6: Final mainnet verification path documented
+□ P4.7: Final DoraHacks submit button is a human/operator action before June 15
 ```
 
 ---
@@ -671,21 +673,21 @@ ROUTER_CONTRACT=0x...
 
 ### Minimum Viable Submission (MUST HAVE):
 
-- [ ] 3 contracts deployed on Mantle Mainnet
-- [ ] Agent NFT minted (ERC-8004)
-- [ ] At least 5 on-chain decisions logged
-- [ ] At least 1 real swap executed
-- [ ] AI reasoning visible and verifiable
-- [ ] Demo video showing full cycle
-- [ ] Documentation
+- [x] 3+ contracts deployed on Mantle Mainnet
+- [x] Agent NFT minted (ERC-8004-style identity)
+- [x] At least 5 on-chain decisions logged
+- [x] At least 1 real swap executed
+- [x] AI reasoning visible and verifiable
+- [x] Demo video showing full cycle — https://youtu.be/AnLbnbW36ys
+- [x] Documentation
 
 ### Nice to Have:
 
-- [ ] Dashboard UI
-- [ ] 3+ days of autonomous operation
-- [ ] Positive PnL
-- [ ] Nansen integration working
-- [ ] Sentiment analysis active
+- [x] Dashboard UI
+- [x] 3+ days of autonomous operation
+- [x] Positive decision-quality outcome score; realized wallet PnL is intentionally not claimed
+- [x] Nansen integration working
+- [x] Sentiment analysis active
 
 ### Stretch Goals:
 
