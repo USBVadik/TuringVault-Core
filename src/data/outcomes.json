@@ -470,6 +470,83 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1781216959940_468",
+      "decisionId": 468,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1675.52,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei850f6b156c19c29fa4473973823f6ccf0d770766160eb523bfeb",
+      "recordedAt": "2026-06-11T22:29:19.940Z",
+      "settleAfter": "2026-06-11T23:29:19.940Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781216959929
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is the correct action given regime confidence of only 35%, no active grid, stable-heavy portfolio (80.9%), and genuinely mixed signals: bearish consensus + yield spread -1% conflict with BUY technical scores (RSI 59.3, bullish EMA). F&G at 12 signals capitulation risk but no confirmed TREND_DOWN. Analyst reasoning accurately reflects raw signals with no hallucinated data. No directional trade",
+      "validatorFlaggedIssues": [
+        "MACD histogram weakening despite BUY label — momentum fading",
+        "Yield spread -1% bearish signal underweighted in confidence assessment",
+        "Regime confidence 35% is very low — clarity may take multiple cycles"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xdf8bdfeff1ab9a242df6cd2f94ae56ae512cad4e59391f244a7992a69c4f38f6",
+      "combinedAnchor": "0xd8ce403d90d2f3e4db9869606d4c18d83a371899887d72b5bad95a57c06469ce",
+      "decisionLogTxHash": "0x228c0ab6e3beaf51259476d96682c057434cb38f3a30850a9def836b63cd684e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
