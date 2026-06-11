@@ -547,6 +547,84 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781221816199_469",
+      "decisionId": 469,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1674.65,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei2effa5be8e8ba017421651ae0f48d168f77d0c4909bf7338c760",
+      "recordedAt": "2026-06-11T23:50:16.199Z",
+      "settleAfter": "2026-06-12T00:50:16.199Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781221816188
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is the correct low-risk action. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH, yield spread -1% is bearish, smart money flow is neutral at $0.0M, and F&G at 12 shows extreme fear with zero inflow confirmation. Portfolio is already 80.9% stable-heavy and FLAT — inventory rule explicitly supports HOLD over repeated risk_off. No R:R gate applies to a HOLD",
+      "validatorFlaggedIssues": [
+        "No R:R provided — acceptable for HOLD action",
+        "Regime confidence 35% too low for any directional trade",
+        "BEARISH consensus + negative yield spread confirm defensive posture",
+        "Extreme Fear without inflow confirmation disqualifies risk-on"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x99bc08092f9faa40c09b5c917e241ea67cb4d572d031c61039e6489d0104cd1e",
+      "combinedAnchor": "0xb80873d50d337761cff0ab3a3dc813974477593d754e9aab2547dd6909640c10",
+      "decisionLogTxHash": "0xe2bbd313cdbd7b17bfb9aa2468744436d67c1272b02957defe8e64119cd21436",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
