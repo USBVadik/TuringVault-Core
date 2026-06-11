@@ -51,15 +51,15 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 🔗 **DecisionLog on Explorer:** [explorer.mantle.xyz/address/0x7bCd...cfbB5](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5)  
 🔗 **ValidationRegistry:** [explorer.mantle.xyz/address/0x6841...63b6](https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6)
 
-**Stats (observed 2026-06-11 06:02 UTC — refreshable via `/api/health`, `/api/performance`, and `/api/proof-explorer`; contract counters on Mantlescan are the on-chain ground truth):**
+**Stats (observed 2026-06-11 07:09 UTC — refreshable via `/api/health`, `/api/performance`, and `/api/decisions`; contract counters on Mantlescan are the on-chain ground truth):**
 
-- **453 DecisionLog rows** logged to Mantle Mainnet with full reasoning pinned off-chain and cryptographically anchored on Mantle (live count: [`DecisionLog.totalDecisions()`](https://explorer.mantle.xyz/address/0x7bCd905678ed5dB1e87852b933f1aEfE544cfbB5))
-- **123 of 454 ValidationRegistry proposals rejected before execution** (~27.1% rejection rate) — adversarial Validator + confidence gates blocking unsafe proposals; this proposal denominator can differ from DecisionLog rows by one during fresh-cycle writes
-- **331 approved, 123 rejected** at the registry level — proposals reaching consensus go on-chain; off-chain block reasons (regime, low confidence, portfolio guard, intent-no-exec) shown in tier breakdown on `/proof-explorer`
+- **455 decision records/proposals** exposed through the public API, with full reasoning pinned off-chain and cryptographically anchored on Mantle (live count: [`/api/decisions`](https://frontend-seven-beta-46.vercel.app/api/decisions) + contract surfaces)
+- **123 of 455 ValidationRegistry proposals rejected before execution** (~27.0% rejection rate) — adversarial Validator + confidence gates blocking unsafe proposals; this proposal denominator can differ from DecisionLog rows by one during fresh-cycle writes
+- **332 approved, 123 rejected** at the registry level — proposals reaching consensus go on-chain; off-chain block reasons (regime, low confidence, portfolio guard, intent-no-exec) shown in tier breakdown on `/proof-explorer`
 - **Real DEX execution path verified end-to-end** on Merchant Moe LB v2.2 — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de); first autonomous-cron swap [`0x313c0fc…`](https://mantlescan.xyz/tx/0x313c0fc20541a7662ecfe2f9f5966c7f5e57a06495b6aae9ee30ade140b57c96) (cycle 123, 2026-05-28); first heartbeat-mode liveness swap (`HEARTBEAT_SWAP` tier) cycle 146, 2026-05-29; **post-smart-router execution window cycles 149-157 — every cycle on this window produced real on-chain swap legs after the audit-21 smart wallet router landed** — see [`heartbeatMode.js`](src/orchestrator/heartbeatMode.js), [`walletRouter.js`](src/dex/walletRouter.js), [audit 17](.kiro/audits/17-heartbeat-mode.md), [audit 21](.kiro/audits/21-smart-wallet-router.md)
 - **Latest risk-on proof:** cycle 453 (`HEARTBEAT_SWAP`) executed USDT0 → USDT → WMNT with two Mantle transactions ([leg 1](https://mantlescan.xyz/tx/0xd736dbf6d268112ddbca8fae0067cd3605e8ad70b10d3f5eeeaeda1a91d82602), [leg 2](https://mantlescan.xyz/tx/0xe12b24a14057ad7071b4ab8bf406f7219b88f3f2289145c7669b7e6525776a3e)) — labelled as heartbeat/liveness mode, not blended into outcome PnL
 - **Lifetime Decision-Quality / Outcome Score: +5083 bps across 358 settled outcomes, 53.1% settled win rate.** Methodology: this is an outcome score from settled decisions, not realized wallet PnL; [`/api/performance.realizedTradingPnlBps`](https://frontend-seven-beta-46.vercel.app/api/performance) is intentionally null. Settled in [`outcomes.json`](src/data/outcomes.json), surfaced on [`/backtest`](https://frontend-seven-beta-46.vercel.app/backtest), summary on [`/api/performance`](https://frontend-seven-beta-46.vercel.app/api/performance) (winRate, cumulativePnlBps, dataScope:`agent-lifetime`)
-- **Cron status is live-only** — observed 23 successful / 0 failed cycles in the trailing 24h window; use [`/api/health.cyclesSucceeded24h`](https://frontend-seven-beta-46.vercel.app/api/health), `cyclesFailed24h`, and `lastCycleAge` for the current value. GitHub Actions schedules are best-effort and the count changes every cycle
+- **Cron status is live-only** — observed 22 successful / 0 failed cycles in the trailing 24h window; use [`/api/health.cyclesSucceeded24h`](https://frontend-seven-beta-46.vercel.app/api/health), `cyclesFailed24h`, and `lastCycleAge` for the current value. GitHub Actions schedules are best-effort and the count changes every cycle
 - Scheduled cron via GitHub Actions (public log linked below); adaptive regime detection on each tick. Schedule is best-effort hourly — GH Actions skips slots under platform load; the `/api/health` `lastCycleAge` field always reflects ground truth.
 - No catastrophic-loss event recorded in the current demo history — operator-funded demo capital, custodial EOA, vault contract pattern in development
 
@@ -170,7 +170,7 @@ Execution requires passing **two independent gates**:
 
 In the probed 50-cycle window below, the largest single blocking bucket was Gate 1: the Analyst proposed HOLD with moderate confidence during sideways markets, and the confidence threshold blocked execution. Gate 2 (Validator) flags risk issues in its reasoning even when it approves structurally safe HOLD proposals. This is by design: the validator's adversarial scrutiny matters most for high-risk directional trades, where it acts as the final safety floor.
 
-The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate. The 2026-06-11 06:02 UTC snapshot is **123 rejected / 454 proposals = 27.1%**, demonstrating the system's capital-preservation bias without implying that every cycle produces a swap. The ratio drifts cycle-to-cycle as market conditions change; the **live ratio** is always the on-chain value (`totalRejected() / totalProposals()` on `0x6841…63b6`), not this README.
+The on-chain `totalRejected` counter on ValidationRegistry reflects proposals blocked by **either** gate. The 2026-06-11 07:09 UTC snapshot is **123 rejected / 455 proposals = 27.0%**, demonstrating the system's capital-preservation bias without implying that every cycle produces a swap. The ratio drifts cycle-to-cycle as market conditions change; the **live ratio** is always the on-chain value (`totalRejected() / totalProposals()` on `0x6841…63b6`), not this README.
 
 ### What "adversarial" actually means in production
 
@@ -460,8 +460,8 @@ turingvault/
 ## Roadmap
 
 - [x] Multi-agent consensus (GLM-5 + Claude Sonnet 4.6 + Gemini 3.5 arbiter)
-- [x] On-chain decision logging (453 DecisionLog rows in the 2026-06-11 06:02 UTC snapshot, growing whenever the best-effort GitHub Actions schedule fires)
-- [x] Adversarial validation (123 of 454 ValidationRegistry proposals rejected before execution in the 2026-06-11 06:02 UTC snapshot; live count via ValidationRegistry)
+- [x] On-chain decision logging (455 public decision records/proposals in the 2026-06-11 07:09 UTC snapshot, growing whenever the best-effort GitHub Actions schedule fires)
+- [x] Adversarial validation (123 of 455 ValidationRegistry proposals rejected before execution in the 2026-06-11 07:09 UTC snapshot; live count via ValidationRegistry)
 - [x] Self-evolving AI prompts (v3.0.0 pinned to IPFS, default-off behind env flag while smoke tests confirm parse stability)
 - [x] Grid bot with regime detection (RANGING/TREND_UP/TREND_DOWN/CRISIS)
 - [x] Live dashboard + proof explorer

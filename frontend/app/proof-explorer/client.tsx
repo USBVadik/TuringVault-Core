@@ -1001,7 +1001,7 @@ export function ProofExplorerClient({
                         {agentCard.name}
                       </p>
                       <p className="text-[10px] text-white/30">
-                        Dual-model consensus agent
+                        Three-model consensus agent
                       </p>
                     </div>
                   </div>

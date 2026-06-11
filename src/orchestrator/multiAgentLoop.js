@@ -2096,6 +2096,10 @@ async function runMultiAgentCycle(opts = {}) {
       Number(total) > 0
         ? ((Number(rejected) / Number(total)) * 100).toFixed(1)
         : "0";
+    const validatorApprovalRate =
+      Number(total) > 0
+        ? ((Number(approved) / Number(total)) * 100).toFixed(1)
+        : "0";
 
     const nowIso = new Date().toISOString();
     const nextStats = {
@@ -2105,12 +2109,13 @@ async function runMultiAgentCycle(opts = {}) {
       safetyBlockedActions: Number(rejected),
       approvedExecutions: Number(approved),
       blockRate: `${blockRate}%`,
-      consensusRate: "100%",
+      validatorApprovalRate: `${validatorApprovalRate}%`,
+      realizedTradingPnlBps: null,
       avgVaR: "~100 bps (illustrative — no formal VaR model)",
       gasEfficiency: "~0.0098 MNT per TX (~$0.007 at MNT=$0.72; 22-TX verified sample)",
-      narrative: `Trust Firewall blocked ${Number(rejected)}/${Number(
+      narrative: `Validator and portfolio gates blocked ${Number(rejected)}/${Number(
         total
-      )} unsafe proposals — 3-model consensus ensures safety-first execution`,
+      )} proposals before unsafe execution. Decision-quality score is not a realized wallet-PnL claim.`,
     };
 
     const refreshPolicy = shouldRefreshAgentCard({

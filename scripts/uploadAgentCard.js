@@ -72,7 +72,7 @@ function buildAgentCard(stats) {
   return {
     type: "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
     name: "TuringVault AI Agent",
-    description: `Autonomous multi-agent trading system with Proof-of-Reasoning attestation on Mantle. Dual-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator) with VaR-based risk gating, hardware KMS signing, and on-chain reputation tracking. Acts as a Trust Firewall: ${stats.rejected}/${stats.total} unsafe proposals blocked, saving capital during market panic.`,
+    description: `Autonomous multi-agent RWA portfolio manager with Proof-of-Reasoning attestation on Mantle. Three-model consensus (Z.ai GLM-5 Analyst + Claude 4.6 Validator + Gemini 3.5 Flash Arbiter), deterministic portfolio guards, on-chain reputation, and Discipline Layer post-execution checks. Acts as a Trust Firewall: ${stats.rejected}/${stats.total} proposals blocked before unsafe execution.`,
     image:
       "https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/assets/agent-avatar.png",
 
@@ -97,15 +97,22 @@ function buildAgentCard(stats) {
         model: "Claude 4.6",
         role: "Conservative risk manager — validates proposals, assigns risk scores, blocks unsafe trades",
       },
+      arbiter: {
+        provider: "Google (via Vertex AI)",
+        model: "Gemini 3.5 Flash",
+        role: "Tie-breaker arbiter — resolves analyst/validator disagreements with independent assessment",
+      },
     },
 
     systemPrompt: {
-      version: "2.1.0",
+      version: "3.0.0",
       lastUpdated: new Date().toISOString(),
       analyst:
         "You are TuringVault's AI Analyst (GLM-5). Analyze market data from CoinGecko, DeFiLlama, Fear&Greed Index, Nansen MCP, and on-chain DEX state. Output: action (hold/swap/provide_liquidity), targetAsset, confidence (0-1), reasoning (max 200 chars). Be aggressive but data-driven.",
       validator:
         "You are TuringVault's Validator (Claude 4.6). Review the Analyst's proposal against current market conditions. Score risk 0-100, provide validatorConfidence 0-1, and approve/reject. Protect capital above all. Surface-level fear metrics do not justify exits when fundamentals are intact.",
+      arbiter:
+        "You are TuringVault's Arbiter (Gemini 3.5 Flash). When Analyst and Validator disagree, provide an independent tie-breaking assessment against market data.",
       riskParameters: {
         maxPositionSize: "50% of portfolio",
         varThreshold: { autonomous: 50, supervised: 150, blocked: 150 },
@@ -137,10 +144,10 @@ function buildAgentCard(stats) {
 
     executionPipeline: [
       "1. Unified market data aggregation (7 sources)",
-      "2. Multi-agent consensus (GLM-5 proposes, Claude 4.6 validates)",
-      "3. VaR calculation → autonomy level assignment",
-      "4. DEX quote + RWA allocation signal",
-      "5. KMS signing (Tencent Cloud HSM SECP256K1)",
+      "2. Multi-agent consensus (GLM-5 proposes, Claude 4.6 validates, Gemini 3.5 Flash arbitrates soft disagreements)",
+      "3. Deterministic portfolio/risk guard",
+      "4. DEX quote + RWA allocation or exit signal",
+      "5. EOA signing for the hackathon demo; vault/KMS signing is roadmap",
       "6. On-chain recording (4 TXs: proposal, validation, decision log, reputation)",
       "7. Agent Card auto-update on IPFS + tokenURI refresh",
     ],
@@ -151,10 +158,12 @@ function buildAgentCard(stats) {
       safetyBlockedActions: stats.rejected,
       approvedExecutions: stats.approved,
       blockRate: `${stats.blockRate}%`,
-      consensusRate: "100%",
+      validatorApprovalRate:
+        stats.total > 0 ? `${((stats.approved / stats.total) * 100).toFixed(1)}%` : "0.0%",
+      realizedTradingPnlBps: null,
       avgVaR: "~100 bps (illustrative — no formal VaR model)",
       gasEfficiency: "~0.0098 MNT per TX (~$0.007 at MNT=$0.72; 22-TX verified sample)",
-      narrative: `Risk firewall blocked ${stats.rejected}/${stats.total} unsafe proposals — safety-first design`,
+      narrative: `Validator and portfolio gates blocked ${stats.rejected}/${stats.total} proposals before unsafe execution. Outcome score is decision-quality evidence, not a realized wallet-PnL claim.`,
     },
   };
 }

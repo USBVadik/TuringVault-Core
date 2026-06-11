@@ -22,7 +22,7 @@ TuringVault
 
 ## Tagline
 
-Proof-of-Reasoning AI · RWA Portfolio Infrastructure on Mantle
+Proof-of-Reasoning AI · RWA Portfolio Application on Mantle
 
 ## Tracks to claim (in order of priority)
 
@@ -35,13 +35,13 @@ Proof-of-Reasoning AI · RWA Portfolio Infrastructure on Mantle
 
 ## Long description (paste into the main project description field)
 
-TuringVault is an **AI-powered RWA portfolio management infrastructure layer on Mantle**. We do not pitch yet another autonomous trading bot — we ship the verification machinery that lets DAO treasuries, DeFi-native funds, and compliance-conscious operators trust an AI agent with real capital.
+TuringVault is an **AI-powered RWA portfolio application and verification layer on Mantle**. We do not pitch yet another autonomous trading bot — we ship the workflow that lets DAO treasuries, DeFi-native funds, and compliance-conscious operators inspect every AI allocation before trusting it with real capital.
 
 ### Three defining features — end-to-end, all live
 
 The Mantle Turing Test 2026 brief calls out three defining features. We built the entire stack around them.
 
-**1 · On-chain benchmarking of AI.** Every cycle writes attestation data to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-11 06:02 UTC snapshot shows 453 DecisionLog rows and 454 ValidationRegistry proposals logged to date, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log; judges can inspect run history and use `/api/health` for current freshness.
+**1 · On-chain benchmarking of AI.** Every cycle writes attestation data to Mantle Mainnet (`submitProposal` → `validateProposal` → `logDecision` → `submitFeedback`). The 2026-06-11 07:09 UTC snapshot shows 455 ValidationRegistry proposals and 455 decision records exposed through the public API, with full reasoning pinned off-chain and cryptographically anchored on Mantle. The best-effort cron is a public GitHub Actions workflow log; judges can inspect run history and use `/api/health` for current freshness.
 
 **2 · ERC-8004 agent identity reference implementation.** Non-transferable Identity NFT (`0x6f86…28bD`), ValidationRegistry, ReputationRegistry, DecisionLog — all Sourcify-verified on Mantle Mainnet. `tokenURI(0)` returns a live IPFS CID that auto-refreshes per cycle. Drop-in compatible with the upcoming Mantle-issued Agent Identity standard; we are positioned to interop or migrate the moment that ships.
 
@@ -53,16 +53,16 @@ The updated scorecard separates RWA Infrastructure from RWA Application. TuringV
 
 ### Commercial path
 
-The first customer is not a retail trader. It is a DAO treasury, on-chain fund, or compliance-conscious operator that wants AI allocation but still needs governance-grade evidence. The commercial product is a white-label verification and decision-governance rail for Mantle yield/RWA portfolios: hosted agent ops, on-chain attestation, replay dashboards, and audit exports around an allocator the customer already controls.
+The first customer is not a retail trader. It is a DAO treasury, on-chain fund, or compliance-conscious operator that wants AI allocation but still needs governance-grade evidence. The commercial product is a white-label application layer for Mantle yield/RWA portfolios: hosted agent ops, on-chain attestation, replay dashboards, and audit exports around an allocator the customer already controls.
 
 ### Architecture
 
 A single hourly cron drives the cycle:
 
-1. Aggregate 5 structured market signals — funding rate (Hyperliquid), smart-money flow (Nansen MCP, JSON-RPC 2.0), yield spread (mETH vs USDY), liquidation map, **Elfa social attention** (mindshare + smart-account repost ratio via REST v2).
+1. Aggregate structured market signals — funding rate (Hyperliquid), smart-money flow (Nansen MCP, JSON-RPC 2.0), mETH yield context, stable/RWA allocation context, liquidation map, and **Elfa social attention** (mindshare + smart-account repost ratio via REST v2).
 2. Run validator-gated adversarial consensus: **Z.ai GLM-5 Analyst** (proposes) → **Anthropic Claude Sonnet 4.6 Validator** (default REJECT, R/R ≥ 1.5:1 to approve, hard veto final) → **Google Gemini 3.5 Flash Arbiter** (soft confidence-dispute tiebreaker).
 3. Pin full reasoning chain to IPFS via Pinata. Anchor hash on Mantle.
-4. Run RWA Allocator — LLM-driven `rwa_allocate` / `rwa_exit` route or deterministic 24h FLAT idle-parking route.
+4. Run the RWA Allocator — LLM-reviewed allocation/exit route plus a bounded heartbeat route for liveness and inventory hygiene.
 5. Execute via Merchant Moe Liquidity Book v2.2 (binStep=1) on the USDT/USDT0 pool.
 6. Run **Synrail-inspired Discipline Layer** — 3-gate post-execution verification: TX proof + price freshness + regime drift. Failure blocks outcome settlement.
 7. Schedule outcome for settlement against price 4h later → updates ReputationRegistry.
@@ -70,14 +70,14 @@ A single hourly cron drives the cycle:
 ### Mantle-native asset stack
 
 - **mETH** — Mantle's own LST, used as the risk-on real-yield leg.
-- **USDT0** — LayerZero-bridged Tether (Treasury-collateralised, 1:1 USD peg). Around 52% of NAV in the 2026-06-11 06:02 UTC snapshot. First RWA swap on-chain: TX `0x0af2336…3e09de`.
+- **USDT0** — LayerZero-bridged Tether (Treasury-collateralised, 1:1 USD peg). Around 53% of NAV in the 2026-06-11 07:09 UTC snapshot. First RWA swap on-chain: TX `0x0af2336…3e09de`.
 - **USDY** — Ondo tokenized Treasuries metadata module ships in repo (`src/rwa/usdyModule.js`). Mantle pool depth currently zero, so the swap path throws `RWA_POOL_INACTIVE` until reactivated. We label it as `paper-ready` honestly rather than pretending it's live.
 
 ### What's currently live
 
 | Component                | State | Verifiable artefact                                                            |
 | ------------------------ | ----- | ------------------------------------------------------------------------------ |
-| Multi-agent consensus    | LIVE  | 453 DecisionLog rows in the 2026-06-11 06:02 UTC snapshot, public cron log     |
+| Multi-agent consensus    | LIVE  | 455 decision records in the 2026-06-11 07:09 UTC API snapshot, public cron log |
 | ERC-8004 contracts       | LIVE  | 5 Sourcify-verified contracts on Mantle                                        |
 | Discipline Layer         | LIVE  | `/discipline` page, 3 gates fire each cycle                                    |
 | RWA execution to USDT0   | LIVE  | TX `0x0af2336…` on Mantlescan                                                  |
@@ -104,7 +104,7 @@ TuringVault is an operator-funded demo and verification layer, not a public inve
 
 ### Why we will keep our claims after the submission deadline
 
-- All five smart contracts are Sourcify-verified and **never going to be redeployed** (we'd lose the on-chain decision history). The hash anchors are immutable.
+- The verified production contracts are not going to be redeployed casually; the existing addresses preserve the on-chain decision history. The hash anchors are immutable.
 - The hourly cron's GitHub Actions workflow is public — anyone can fork the repo and reproduce a run.
 - The honesty rule is enforced as a steering document loaded on every developer turn. Misrepresentation is the project's only way to lose.
 

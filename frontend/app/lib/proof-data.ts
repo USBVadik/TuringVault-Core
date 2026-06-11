@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import fs from "node:fs";
 import path from "node:path";
+import { fulfilledValue } from "./proof-data-resilience.shared.js";
 
 const RPC_URL = "https://rpc.mantle.xyz";
 
@@ -53,6 +54,12 @@ function deriveDisplayTier(input: {
     return "INTENT_SWAP_NO_EXEC";
   }
   return tier;
+}
+
+function toFiniteNumber(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
 }
 
 async function fetchJsonFromGitHub<T>(filePath: string): Promise<T | null> {
@@ -134,14 +141,7 @@ export async function fetchProofDataDirect() {
     provider
   );
 
-  const [
-    totalDecisions,
-    recentDecisions,
-    tokenURI,
-    consensusRate,
-    recentProposals,
-    outcomesIndex,
-  ] = await Promise.all([
+  const readResults = await Promise.allSettled([
     decisionLog.totalDecisions(),
     decisionLog.getRecentDecisions(20),
     identity.tokenURI(0),
@@ -150,8 +150,26 @@ export async function fetchProofDataDirect() {
     loadOutcomesIndex(),
   ]);
 
+  const totalDecisionsRaw = fulfilledValue(readResults[0], null) as unknown;
+  const recentDecisionsRaw = fulfilledValue(readResults[1], []) as unknown;
+  const tokenURI = fulfilledValue(readResults[2], null) as unknown;
+  const consensusRate = fulfilledValue(
+    readResults[3] as PromiseSettledResult<ethers.Result | null> | undefined,
+    null
+  ) as ethers.Result | null;
+  const recentProposals = fulfilledValue(readResults[4], []) as unknown;
+  const outcomesIndex = fulfilledValue(
+    readResults[5] as
+      | PromiseSettledResult<Awaited<ReturnType<typeof loadOutcomesIndex>>>
+      | undefined,
+    new Map()
+  );
+
   // Parse proposals
-  const proposals = (recentProposals as ethers.Result[]).map(
+  const recentProposalRows = Array.isArray(recentProposals)
+    ? (recentProposals as ethers.Result[])
+    : [];
+  const proposals = recentProposalRows.map(
     (p: ethers.Result) => ({
       timestamp: Number(p[0]),
       action: p[1],
@@ -165,8 +183,13 @@ export async function fetchProofDataDirect() {
   );
 
   // Parse decisions
-  const recentDecisionRows = recentDecisions as ethers.Result[];
-  const totalDecisionCount = Number(totalDecisions);
+  const recentDecisionRows = Array.isArray(recentDecisionsRaw)
+    ? (recentDecisionsRaw as ethers.Result[])
+    : [];
+  const totalDecisionCount =
+    toFiniteNumber(totalDecisionsRaw) ??
+    toFiniteNumber(consensusRate?.[2]) ??
+    recentDecisionRows.length;
   const startId = Math.max(0, totalDecisionCount - recentDecisionRows.length);
   const decisions = recentDecisionRows.map(
     (d: ethers.Result, index: number) => {
@@ -238,7 +261,7 @@ export async function fetchProofDataDirect() {
   }
 
   return {
-    totalDecisions: Number(totalDecisions),
+    totalDecisions: totalDecisionCount,
     decisions: decisions.reverse(),
     validation: validationData,
     agentCard,

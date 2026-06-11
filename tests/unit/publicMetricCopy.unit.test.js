@@ -4,6 +4,7 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..", "..");
 const PUBLIC_DOCS = [
   "README.md",
+  "assets/agent-card.json",
   "docs/dorahacks-submission-v2.md",
   "docs/DORAHACKS_SUBMISSION.md",
   "docs/SUBMISSION.md",
@@ -41,5 +42,13 @@ describe("public metric copy honesty", () => {
     expect(text).not.toMatch(/38\.9%/i);
     expect(text).not.toMatch(/65 rejected\s*\/\s*158 total\s*=\s*41%/i);
     expect(text).not.toMatch(/96\.4% uptime|27\/28/i);
+  });
+
+  test.each(PUBLIC_DOCS)("%s does not carry stale agent-card positioning", (file) => {
+    const text = read(file);
+
+    expect(text).not.toMatch(/RWA allocator \(Path A LLM-driven OR Path B deterministic/i);
+    expect(text).not.toMatch(/"consensusRate"\s*:\s*"100%/i);
+    expect(text).not.toMatch(/2026-05-29T19:42:00\.000Z/i);
   });
 });

@@ -7,6 +7,7 @@ const ROOT = path.resolve(__dirname, "..", "..");
 
 const FILES = [
   "README.md",
+  "assets/agent-card.json",
   "docs/DORAHACKS_SUBMISSION.md",
   "docs/SUBMISSION.md",
   "docs/dorahacks-submission-v2.md",
@@ -67,6 +68,18 @@ const RULES = [
   {
     name: "Do not leave demo video as a pending submission item",
     pattern: /(?:\[ \]|□)\s+.*demo\s+video|demo\s+video:\s+add\s+the\s+final/i,
+  },
+  {
+    name: "Do not expose internal Path A/Path B allocator route names in public Agent Card",
+    pattern: /RWA allocator\s+\(Path\s+A\s+LLM-driven\s+OR\s+Path\s+B\s+deterministic/i,
+  },
+  {
+    name: "Do not claim 100% consensus rate in public Agent Card stats",
+    pattern: /"consensusRate"\s*:\s*"100%/i,
+  },
+  {
+    name: "Do not reintroduce stale May Agent Card snapshot",
+    pattern: /2026-05-29T19:42:00\.000Z/i,
   },
 ];
 
