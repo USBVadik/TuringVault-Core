@@ -2560,6 +2560,78 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1781196806467_462",
+      "decisionId": 462,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1638.94,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei267f6b1a448c4335d3b061d174ceab95fe5e3a49e0a02de66d04",
+      "recordedAt": "2026-06-11T16:53:26.467Z",
+      "settleAfter": "2026-06-11T17:53:26.467Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781196806457
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH (51%) and MNT (74%) grids signal HOLD with 50% confidence — no actionable edge at channel extremes. Funding neutral at 0.121%, smart money flow neutral ($0.0M), RSI 46 not oversold. Portfolio is already stable-heavy (80%) with $22.55 risk exposure providing adequate upside participation. Extreme Fear F&G=12 noted but no confirming technical breakout signal",
+      "validatorFlaggedIssues": [
+        "MNT grid at 74% channel position is approaching resistance — monitor for rejection signal",
+        "Bearish signal consensus vs neutral funding creates mild contradiction, acknowledged implicitly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8ac9ea0c7e9e94aa4937af09697a0c0246abc7b3a1d72aa334a2ae5748028788",
+      "combinedAnchor": "0x59e1f41a595552ff4ae277434055b25df35cc3203531a09a904f525f6a52ad73",
+      "decisionLogTxHash": "0x9c401fb05e8fd63d24c0d85dbfca02e088bb92708f5bb0ed45c3b7e5342c4f9e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
