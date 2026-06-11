@@ -30,6 +30,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createPublicClient, http } from "viem";
 import { mantle } from "viem/chains";
+import { sanitizeCardStats } from "../../lib/agent-card-honesty.shared.js";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -87,6 +88,12 @@ type AgentCardResponse = {
    */
   cardStats: Record<string, unknown> | null;
   cardStatsScope: "card-author-declared";
+  cardStatsStatus:
+    | "card-author-declared"
+    | "sanitized"
+    | "stale-hidden"
+    | "missing";
+  cardStatsNote: string;
   error?: string;
 };
 
@@ -223,6 +230,11 @@ function buildBody(args: {
   error?: string;
 }): AgentCardResponse {
   const { raw } = args;
+  const cardStatsResult = sanitizeCardStats(
+    (raw?.stats as Record<string, unknown>) ?? null
+  );
+  const cardStatsStatus =
+    cardStatsResult.cardStatsStatus as AgentCardResponse["cardStatsStatus"];
   return {
     status: args.status,
     source: args.source,
@@ -236,8 +248,10 @@ function buildBody(args: {
     systemPromptVersion: raw?.systemPrompt?.version ?? null,
     systemPromptLastUpdated: raw?.systemPrompt?.lastUpdated ?? null,
     contracts: raw?.contracts ?? null,
-    cardStats: (raw?.stats as Record<string, unknown>) ?? null,
+    cardStats: cardStatsResult.cardStats,
     cardStatsScope: "card-author-declared",
+    cardStatsStatus,
+    cardStatsNote: cardStatsResult.cardStatsNote,
     ...(args.error ? { error: args.error } : {}),
   };
 }
