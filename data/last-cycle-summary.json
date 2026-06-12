@@ -1,35 +1,70 @@
 {
-  "cycleStartedAt": "2026-06-12T17:52:45.214Z",
-  "cycleEndedAt": "2026-06-12T17:53:55.503Z",
-  "durationSeconds": 70.29,
+  "cycleStartedAt": "2026-06-12T19:07:59.594Z",
+  "cycleEndedAt": "2026-06-12T19:09:26.214Z",
+  "durationSeconds": 86.62,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 19434,
-    "validatorMs": 5967,
+    "analystMs": 13410,
+    "validatorMs": 7564,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 489,
-  "decisionTier": "BLOCKED_BY_REGIME",
-  "consensus": false,
-  "txHashes": [],
+  "decisionId": 490,
+  "decisionTier": "EXECUTED_SWAP",
+  "consensus": true,
+  "txHashes": [
+    "0xf3cffd9bfd0464f66322e3b51e1725b06d5e75f63cea4c6ce4fc48ac74249678",
+    "0x1205079abed4df3c19ba86e9b3c815d9c462a461adb3680cfa612c397da6bd64"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27433192308",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27437099907",
   "errors": [],
   "gridTradeCandidate": {
-    "active": false,
-    "kind": null,
-    "action": null,
-    "direction": null,
-    "targetAsset": null,
-    "sourceAsset": null,
-    "allocationPct": null,
-    "confidence": null,
-    "reason": "not stable-heavy FLAT inventory",
+    "active": true,
+    "kind": "grid-sell",
+    "action": "swap",
+    "direction": "risk_off",
+    "targetAsset": "mUSD",
+    "sourceAsset": "WMNT",
+    "allocationPct": 20,
+    "confidence": 0.7149999999999983,
+    "reason": null,
     "routeHint": null
   },
-  "executionStatus": "BLOCKED_BY_REGIME"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-off",
+    "from": "WMNT",
+    "to": "USDT0",
+    "amountIn": 2.252954864077132,
+    "amountOut": 1.208955,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "WMNT",
+        "to": "USDT",
+        "txHash": "0xf3cffd9bfd0464f66322e3b51e1725b06d5e75f63cea4c6ce4fc48ac74249678",
+        "blockNumber": 96580517,
+        "amountIn": 2.252954864077132,
+        "amountOut": 1.210529,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "USDT0",
+        "txHash": "0x1205079abed4df3c19ba86e9b3c815d9c462a461adb3680cfa612c397da6bd64",
+        "blockNumber": 96580523,
+        "amountIn": 1.209318471,
+        "amountOut": 1.208955,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
