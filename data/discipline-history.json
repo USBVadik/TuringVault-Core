@@ -1,23 +1,5 @@
 [
   {
-    "at": "2026-06-08T06:24:39.333Z",
-    "decisionId": 382,
-    "verdict": "ACCEPTED",
-    "checks": [
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-08T10:10:40.238Z",
     "decisionId": 383,
     "verdict": "ACCEPTED",
@@ -3464,6 +3446,35 @@
         "name": "tx_proof",
         "status": "PASS",
         "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-12T12:03:28.063Z",
+    "decisionId": 482,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_PORTFOLIO",
+    "displayTier": "BLOCKED_BY_PORTFOLIO",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": "WMNT",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
       }
     ],
     "blockReason": null
