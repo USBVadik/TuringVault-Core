@@ -1,23 +1,26 @@
 {
-  "cycleStartedAt": "2026-06-12T02:51:37.958Z",
-  "cycleEndedAt": "2026-06-12T02:52:36.685Z",
-  "durationSeconds": 58.73,
+  "cycleStartedAt": "2026-06-12T03:56:43.745Z",
+  "cycleEndedAt": "2026-06-12T03:58:21.333Z",
+  "durationSeconds": 97.59,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 2702,
-    "validatorMs": 7201,
+    "analystMs": 12252,
+    "validatorMs": 8662,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 472,
-  "decisionTier": "BLOCKED_BY_PORTFOLIO",
+  "decisionId": 473,
+  "decisionTier": "HEARTBEAT_SWAP",
   "consensus": false,
-  "txHashes": [],
+  "txHashes": [
+    "0xf739866060d1341d46463ef0828f93344ccddee2d0e04bb022ea680e393c94d9",
+    "0x1296d223df42d68ae0e3b9a98d1de867eb9115354dd73ecbb523c98cd3fa636f"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27391334866",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27393447830",
   "errors": [],
   "gridTradeCandidate": {
     "active": true,
@@ -31,5 +34,37 @@
     "reason": null,
     "routeHint": null
   },
-  "executionStatus": "BLOCKED_BY_PORTFOLIO"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 0.8,
+    "amountOut": null,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "USDT",
+        "txHash": "0xf739866060d1341d46463ef0828f93344ccddee2d0e04bb022ea680e393c94d9",
+        "blockNumber": 96553184,
+        "amountIn": 0.8,
+        "amountOut": 0.800079,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "WMNT",
+        "txHash": "0x1296d223df42d68ae0e3b9a98d1de867eb9115354dd73ecbb523c98cd3fa636f",
+        "blockNumber": 96553190,
+        "amountIn": 0.799278921,
+        "amountOut": 1.472760227726304,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
