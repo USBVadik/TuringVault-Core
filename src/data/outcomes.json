@@ -5280,6 +5280,102 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781362133756_514",
+      "decisionId": 514,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1678.88,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreiac5a6aac87735277cee0910e110db04b40f48ff98b7dc963a763",
+      "recordedAt": "2026-06-13T14:48:53.756Z",
+      "settleAfter": "2026-06-13T15:48:53.756Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781362133746
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies MNT upward breakout (price $0.54635 > resistance $0.54, TREND_UP hint) but notes ETH grid breakout direction is UNKNOWN. Critically, analyst correctly rejects the grid candidate's risk_off direction as contradicting the actual MNT upward breakout. Portfolio is already 80.6% stable — HOLD is appropriate. Inventory rule supports HOLD over repeated risk_off when stable-he",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD action",
+        "MNT TREND_UP breakout could warrant risk_on consideration rather than pure HOLD",
+        "ETH Bollinger at 88% band position with expanding vol warrants caution"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.8,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.8,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 0.54,
+          "resistance": 0.54,
+          "currentPrice": 0.54635
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xac128dfca88359f0b7a8c6bddfd2cda4192427fc69a7dc90a29cf1c8a9061043",
+      "combinedAnchor": "0x32ff499e426f1410d965e49a0a5f7300644e89289ba20cc2e4fc6496a2246095",
+      "decisionLogTxHash": "0x858fe5bdd1d8f3f99d26f9505ac7a896e53568831c974ca34f5dd3fb19ee75d6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
