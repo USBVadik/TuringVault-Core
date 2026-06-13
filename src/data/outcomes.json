@@ -5183,6 +5183,103 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781357703448_513",
+      "decisionId": 513,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1678.37,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreia29ac3a7c44091f621b8821d4920c980c8c162aabcc6226eda26",
+      "recordedAt": "2026-06-13T13:35:03.448Z",
+      "settleAfter": "2026-06-13T14:35:03.448Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781357703436
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies MNT EXIT_RANGING as an UPWARD breakout (regimeHint=TREND_UP), not a bearish signal — rejecting the deterministic candidate's risk_off framing is appropriate. ETH SELL_mETH targets only $11.27 (9.9% NAV), de minimis. Portfolio is 80.6% stable-heavy and FLAT per inventory rule, which mandates HOLD over repeated risk_off absent CRISIS/TREND_DOWN confirmation. F&G=13 Extre",
+      "validatorFlaggedIssues": [
+        "MNT breakout unconfirmed — upward EXIT_RANGING could revert",
+        "ETH Bollinger SELL signal at 90% band position warrants monitoring",
+        "Yield spread -1% remains bearish headwind for mETH",
+        "Signal consensus BEARISH conflicts with TREND_UP hint — acknowledged but not fully resolved"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.8,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.8,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 0.54,
+          "resistance": 0.54,
+          "currentPrice": 0.54639
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1b003e436b1d02fce2d41ba54f2c35161ab982443bb17af720c1a69004ec3efb",
+      "combinedAnchor": "0xb9f61df1c75dd7b15e0949efcef4ef633f530d076afc1543ceb2c239c597549e",
+      "decisionLogTxHash": "0x5335f22cc4e4add643b4cb197e9acafb908fa0d719eccd26f4e35ac33dbf3b67",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
