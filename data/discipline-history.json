@@ -1,34 +1,5 @@
 [
   {
-    "at": "2026-06-09T12:54:50.277Z",
-    "decisionId": 411,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_PORTFOLIO",
-    "displayTier": "BLOCKED_BY_PORTFOLIO",
-    "executedOnChain": false,
-    "action": "swap",
-    "targetAsset": "mUSD",
-    "sourceAsset": "mETH",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-09T14:04:53.192Z",
     "decisionId": 412,
     "verdict": "ACCEPTED",
@@ -3379,6 +3350,35 @@
     "executedOnChain": false,
     "action": "hold",
     "targetAsset": "mUSD",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-13T12:46:48.439Z",
+    "decisionId": 512,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_REGIME",
+    "displayTier": "BLOCKED_BY_REGIME",
+    "executedOnChain": false,
+    "action": "hold",
+    "targetAsset": "mETH",
     "sourceAsset": null,
     "checks": [
       {
