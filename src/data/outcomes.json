@@ -4256,6 +4256,109 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781337025881_506",
+      "decisionId": 506,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1673.91,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei9551904aab2845e33ef40ddaf3d067206baab45e34116a1068d4",
+      "recordedAt": "2026-06-13T07:50:25.881Z",
+      "settleAfter": "2026-06-13T08:50:25.881Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781337025869
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. ETH grid SELL_mETH (73%) genuinely conflicts with MNT PRIMARY EDGE BUY_mETH (80%), creating cross-current signals the Analyst correctly identifies. Portfolio is stable-heavy (75%) with only $17.57 mETH — trimming 20% yields ~$3.51 impact, negligible. F&G=13 extreme fear with NEUTRAL funding (0.422%) and zero smart-money outflow supports patience. Yield spread be",
+      "validatorFlaggedIssues": [
+        "ETH grid SELL conflicts with MNT PRIMARY EDGE BUY — Analyst correctly flags but does not resolve",
+        "Yield spread -1% bearish signal not explicitly weighted in final reasoning",
+        "RANGING regime at 55% confidence is low — regime uncertainty adds noise"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.7272388059701518,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 1675.4, stop 1681.98, take-profit 1652.5, R:R 3.48:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.7272388059701518,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.85,
+          "support": 1652.5,
+          "resistance": 1679.3,
+          "currentPrice": 1675.4
+        },
+        "riskReward": {
+          "entry": 1675.4,
+          "stopLoss": 1681.98,
+          "takeProfit": 1652.5,
+          "ratio": 3.48,
+          "riskPct": 0.39,
+          "rewardPct": 1.37
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa1c8d75c2a2c7ef41e43f7f94819fdf041fee83683468ddb373e9ab5714083ab",
+      "combinedAnchor": "0x602809aa654eecc0005b877ee6d81a34a4fdb90fd0bbae91c245dd2d265e6a9a",
+      "decisionLogTxHash": "0x62dfdb75602da5d908e812c95eca3473176a7d37fb09909da306aebc698b4e3e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [

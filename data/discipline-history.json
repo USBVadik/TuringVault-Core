@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-06-09T08:01:15.726Z",
-    "decisionId": 405,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_REGIME",
-    "displayTier": "BLOCKED_BY_REGIME",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "mUSD",
-    "sourceAsset": null,
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 96430876"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "5 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-09T08:42:19.865Z",
     "decisionId": 406,
     "verdict": "ACCEPTED",
@@ -3379,6 +3330,35 @@
     "executedOnChain": false,
     "action": "hold",
     "targetAsset": "mETH",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-13T07:50:25.870Z",
+    "decisionId": 506,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_REGIME",
+    "displayTier": "BLOCKED_BY_REGIME",
+    "executedOnChain": false,
+    "action": "hold",
+    "targetAsset": "mUSD",
     "sourceAsset": null,
     "checks": [
       {
