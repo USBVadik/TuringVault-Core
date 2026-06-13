@@ -4181,6 +4181,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1781334388570_505",
+      "decisionId": 505,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1667.82,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreib9eb631430bf3fcf7edb853be4d8ec49bd34d8061ad4d85ec192",
+      "recordedAt": "2026-06-13T07:06:28.570Z",
+      "settleAfter": "2026-06-13T08:06:28.570Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781334388553
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-justified. Portfolio is already IN_MNT at 87% channel position — scale-in rule correctly blocks adding. ETH grid is HOLD at 57% (mid-channel). MNT grid BUY_mETH signal is undermined by negative R:R (-1.3:1 per raw signals), which is a hard rejection trigger for any new entry. Funding neutral, smart money neutral, yield spread bearish at -1%. No directional edge present. H",
+      "validatorFlaggedIssues": [
+        "MNT grid R:R is -1.3:1 — below 1.5:1 threshold, correctly not acted upon",
+        "Position already IN_MNT near resistance at 87% channel — scale-in rule applies",
+        "Yield spread -1% bearish on mETH reduces conviction for any risk-on",
+        "Extreme fear F&G=13 with no oversold RSI confirmation (RSI 51.6 neutral)",
+        "No confirming signals for directional action; HOLD is the only defensible choice"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xee6c97d1bdfd9707079e6cdfc762d280263d13ae69fa5c2e6d503be14d3d1ff9",
+      "combinedAnchor": "0x0fe331e3d44086f9785292d47a449c9f949070cea8a0986e9d363f48d24eab9a",
+      "decisionLogTxHash": "0x4e09d1d8f6b7bf5b8c5a917de821c12a5bfac5191f62522791194e71a21f7bc6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
