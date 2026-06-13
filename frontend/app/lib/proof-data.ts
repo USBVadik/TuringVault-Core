@@ -3,6 +3,21 @@ import fs from "node:fs";
 import path from "node:path";
 import { fulfilledValue } from "./proof-data-resilience.shared.js";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const {
+  buildOutcomeIndexes,
+  selectOutcomeRow,
+} = require("./decision-outcome-match.shared.js") as {
+  buildOutcomeIndexes: (rows?: OutcomeIndexRow[]) => OutcomeIndexes;
+  selectOutcomeRow: (input: {
+    decisionLogId: number;
+    decisionLogTxHash?: string | null;
+    fallbackDecisionTier?: string | null;
+    byDecisionId: Map<number, OutcomeIndexRow>;
+    byDecisionLogTxHash: Map<string, OutcomeIndexRow>;
+  }) => OutcomeIndexRow | null;
+};
+
 const RPC_URL = "https://rpc.mantle.xyz";
 
 const CONTRACTS = {
@@ -36,6 +51,20 @@ type OutcomeRow = {
   _displayTier?: string;
   displayTier?: string;
   executedOnChain?: boolean;
+  decisionLogTxHash?: string | null;
+};
+
+type OutcomeIndexRow = {
+  decisionId: number;
+  decisionLogTxHash?: string | null;
+  displayTier: string | null;
+  decisionTier: string | null;
+  executedOnChain: boolean;
+};
+
+type OutcomeIndexes = {
+  byDecisionId: Map<number, OutcomeIndexRow>;
+  byDecisionLogTxHash: Map<string, OutcomeIndexRow>;
 };
 
 function extractDecisionTier(reasoningHash: string | null | undefined) {
@@ -74,14 +103,7 @@ async function fetchJsonFromGitHub<T>(filePath: string): Promise<T | null> {
 }
 
 async function loadOutcomesIndex() {
-  const out = new Map<
-    number,
-    {
-      displayTier: string | null;
-      decisionTier: string | null;
-      executedOnChain: boolean;
-    }
-  >();
+  const rows: OutcomeIndexRow[] = [];
 
   try {
     const localPath = path.resolve(
@@ -105,7 +127,9 @@ async function loadOutcomesIndex() {
       if (typeof row?.decisionId !== "number") continue;
       const executedOnChain = row.executedOnChain === true;
       const decisionTier = row.decisionTier ?? null;
-      out.set(row.decisionId, {
+      rows.push({
+        decisionId: row.decisionId,
+        decisionLogTxHash: row.decisionLogTxHash ?? null,
         displayTier: deriveDisplayTier({
           decisionTier,
           displayTier: row._displayTier ?? row.displayTier ?? null,
@@ -119,7 +143,7 @@ async function loadOutcomesIndex() {
     /* best-effort enrichment only */
   }
 
-  return out;
+  return buildOutcomeIndexes(rows);
 }
 
 export async function fetchProofDataDirect() {
@@ -162,7 +186,7 @@ export async function fetchProofDataDirect() {
     readResults[5] as
       | PromiseSettledResult<Awaited<ReturnType<typeof loadOutcomesIndex>>>
       | undefined,
-    new Map()
+    buildOutcomeIndexes()
   );
 
   // Parse proposals
@@ -195,13 +219,17 @@ export async function fetchProofDataDirect() {
     (d: ethers.Result, index: number) => {
       const ts = Number(d[0]);
       const decisionLogId = startId + index;
-      const outcomeRow =
-        outcomesIndex.get(decisionLogId + 1) || outcomesIndex.get(decisionLogId);
       const matchingProposal = proposals.find(
         (p) => Math.abs(p.timestamp - ts) < 60
       );
       const reasoningHash = d[6];
       const fallbackDecisionTier = extractDecisionTier(reasoningHash);
+      const outcomeRow = selectOutcomeRow({
+        decisionLogId,
+        decisionLogTxHash: d[7],
+        fallbackDecisionTier,
+        ...outcomesIndex,
+      });
 
       return {
         id: decisionLogId,

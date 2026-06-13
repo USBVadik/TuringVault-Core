@@ -34,6 +34,20 @@ const proofStatus = require("./proofStatus.js") as {
 const { deriveDisplayTier, deriveExecutionProofStatus, extractDecisionTier } =
   proofStatus;
 // eslint-disable-next-line @typescript-eslint/no-require-imports
+const {
+  buildOutcomeIndexes,
+  selectOutcomeRow,
+} = require("../../lib/decision-outcome-match.shared.js") as {
+  buildOutcomeIndexes: (rows?: OutcomeIndexRow[]) => OutcomeIndexes;
+  selectOutcomeRow: (input: {
+    decisionLogId: number;
+    decisionLogTxHash?: string | null;
+    fallbackDecisionTier?: string | null;
+    byDecisionId: Map<number, OutcomeIndexRow>;
+    byDecisionLogTxHash: Map<string, OutcomeIndexRow>;
+  }) => OutcomeIndexRow | null;
+};
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { queryRecentEventsInChunks } = require("./recentEvents.js") as {
   queryRecentEventsInChunks: (input: {
     contract: ethers.Contract;
@@ -93,6 +107,28 @@ type ExecutionProofCheck = {
   status?: string;
 };
 
+type OutcomeIndexRow = {
+  decisionId: number;
+  decisionLogTxHash: string | null;
+  rwaIntent: { source?: string; executed?: boolean } | null;
+  executedOnChain: boolean;
+  displayTier: string | null;
+  decisionTier: string | null;
+  executionProofStatus: string | null;
+  sourceAsset: string | null;
+  priceSource: string | null;
+  priceFromSnapshot: boolean;
+  priceSnapshotAgeSec: number | null;
+  candleSource: string | null;
+  candleFromSnapshot: boolean;
+  candleSnapshotAgeSec: number | null;
+};
+
+type OutcomeIndexes = {
+  byDecisionId: Map<number, OutcomeIndexRow>;
+  byDecisionLogTxHash: Map<string, OutcomeIndexRow>;
+};
+
 /**
  * Classify a decision row by asset class so the frontend can colour /
  * filter RWA swaps separately from mETH/mUSD trades.
@@ -117,42 +153,8 @@ function classifyAsset(
  * Read outcomes.json once and index by decisionId so we can look up
  * each event's matching rwaIntent in O(1).
  */
-async function loadOutcomesIndex(): Promise<Map<
-  number,
-  {
-    rwaIntent: { source?: string; executed?: boolean } | null;
-    executedOnChain: boolean;
-    displayTier: string | null;
-    decisionTier: string | null;
-    executionProofStatus: string | null;
-    sourceAsset: string | null;
-    // Audit 19/20 provenance — surfaced on /api/decisions so the
-    // dashboard can render a "fed by Binance fallback" pill.
-    priceSource: string | null;
-    priceFromSnapshot: boolean;
-    priceSnapshotAgeSec: number | null;
-    candleSource: string | null;
-    candleFromSnapshot: boolean;
-    candleSnapshotAgeSec: number | null;
-  }
->> {
-  const out = new Map<
-    number,
-    {
-      rwaIntent: { source?: string; executed?: boolean } | null;
-      executedOnChain: boolean;
-      displayTier: string | null;
-      decisionTier: string | null;
-      executionProofStatus: string | null;
-      sourceAsset: string | null;
-      priceSource: string | null;
-      priceFromSnapshot: boolean;
-      priceSnapshotAgeSec: number | null;
-      candleSource: string | null;
-      candleFromSnapshot: boolean;
-      candleSnapshotAgeSec: number | null;
-    }
-  >();
+async function loadOutcomesIndex(): Promise<OutcomeIndexes> {
+  const rows: OutcomeIndexRow[] = [];
   try {
     const p = path.resolve(process.cwd(), "..", "src", "data", "outcomes.json");
     let db: {
@@ -182,6 +184,7 @@ async function loadOutcomesIndex(): Promise<Map<
         candleFromSnapshot?: boolean;
         candleSnapshotAgeSec?: number | null;
         executionProofStatus?: string | null;
+        decisionLogTxHash?: string | null;
         disciplineDetail?: { checks?: ExecutionProofCheck[] };
       }>;
       settled?: Array<{
@@ -210,6 +213,7 @@ async function loadOutcomesIndex(): Promise<Map<
         candleFromSnapshot?: boolean;
         candleSnapshotAgeSec?: number | null;
         executionProofStatus?: string | null;
+        decisionLogTxHash?: string | null;
         disciplineDetail?: { checks?: ExecutionProofCheck[] };
       }>;
     } | null = null;
@@ -218,7 +222,7 @@ async function loadOutcomesIndex(): Promise<Map<
     } else {
       db = await fetchFromGitHub("src/data/outcomes.json");
     }
-    if (!db) return out;
+    if (!db) return buildOutcomeIndexes(rows);
     const all = [...(db.pending ?? []), ...(db.settled ?? [])];
     for (const e of all) {
       if (typeof e?.decisionId !== "number") continue;
@@ -240,7 +244,9 @@ async function loadOutcomesIndex(): Promise<Map<
         executedOnChain,
         executionProofStatus,
       });
-      out.set(e.decisionId, {
+      rows.push({
+        decisionId: e.decisionId,
+        decisionLogTxHash: e.decisionLogTxHash ?? null,
         rwaIntent: e.rwaIntent ?? null,
         executedOnChain,
         displayTier,
@@ -258,7 +264,7 @@ async function loadOutcomesIndex(): Promise<Map<
   } catch {
     /* best-effort */
   }
-  return out;
+  return buildOutcomeIndexes(rows);
 }
 
 async function fetchFromGitHub(filePath: string): Promise<Record<string, unknown> | null> {
@@ -353,10 +359,15 @@ export async function GET() {
       // rows that pre-date the drift.
       // Audit ref: .kiro/audits/19, /api/replay/[id]/route.ts
       // uses the same offset-tolerant lookup.
-      const outcomeRow = outcomesIndex.get(id + 1) || outcomesIndex.get(id);
-      const rwaIntent = outcomeRow?.rwaIntent ?? null;
       const reasoningText = (args[4] as string)?.substring(0, 200);
       const fallbackDecisionTier = extractDecisionTier(reasoningText);
+      const outcomeRow = selectOutcomeRow({
+        decisionLogId: id,
+        decisionLogTxHash: e.transactionHash,
+        fallbackDecisionTier,
+        ...outcomesIndex,
+      });
+      const rwaIntent = outcomeRow?.rwaIntent ?? null;
       const executedOnChain = outcomeRow?.executedOnChain ?? false;
       const executionProofStatus = outcomeRow?.executionProofStatus ?? null;
       const displayTier =

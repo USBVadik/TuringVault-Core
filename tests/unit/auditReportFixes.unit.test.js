@@ -138,7 +138,9 @@ describe("post-audit report regression fixes", () => {
     );
 
     expect(proofData).toMatch(/loadOutcomesIndex/);
-    expect(proofData).toMatch(/outcomesIndex\.get\(decisionLogId \+ 1\)/);
+    expect(proofData).toMatch(/selectOutcomeRow/);
+    expect(proofData).toMatch(/decisionLogTxHash/);
+    expect(proofData).toMatch(/buildOutcomeIndexes/);
     expect(proofData).toMatch(/id:\s*decisionLogId/);
     expect(proofData).toMatch(/displayTier:/);
     expect(proofData).toMatch(/executedOnChain:/);
