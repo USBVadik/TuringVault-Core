@@ -1,23 +1,28 @@
 {
-  "cycleStartedAt": "2026-06-13T08:49:15.999Z",
-  "cycleEndedAt": "2026-06-13T08:50:30.925Z",
-  "durationSeconds": 74.93,
+  "cycleStartedAt": "2026-06-13T09:29:03.211Z",
+  "cycleEndedAt": "2026-06-13T09:31:37.832Z",
+  "durationSeconds": 154.62,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 17115,
-    "validatorMs": 6771,
+    "analystMs": 21037,
+    "validatorMs": 6529,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 507,
-  "decisionTier": "INTENT_SWAP_NO_EXEC",
+  "decisionId": 508,
+  "decisionTier": "EXECUTED_SWAP",
   "consensus": true,
-  "txHashes": [],
+  "txHashes": [
+    "0x3360cdad7a700a47b464d41b3486c531e2972ae8364466b8622e93e22e7f181f",
+    "0x4471089e56cbf1de85015cd0923fbb142ed82a74125b3d8a22829c7125bc12d3",
+    "0x813d0e5d4c22386b475f1262a586bac43236caa831e07873baa517fda42e266d",
+    "0x2e50629d75386a42391506efec06918800b233e588e4149a349826043940a717"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27462077469",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27462918320",
   "errors": [],
   "gridTradeCandidate": {
     "active": true,
@@ -27,20 +32,61 @@
     "targetAsset": "mUSD",
     "sourceAsset": "mETH",
     "allocationPct": 20,
-    "confidence": 0.7160447761194029,
+    "confidence": 0.6768656716417926,
     "reason": null,
     "routeHint": null
   },
   "directionalSwap": {
-    "executed": false,
+    "executed": true,
     "direction": "risk-off",
-    "from": null,
-    "to": null,
-    "amountIn": null,
-    "amountOut": null,
-    "reason": "smart-router-infeasible: preferred source mETH unavailable: 0.000000 < floor 0.001; refusing to sell a different risk asset",
+    "from": "mETH",
+    "to": "USDT0",
+    "amountIn": 0.002099269797428261,
+    "amountOut": 3.807696,
+    "reason": null,
     "error": null,
-    "legs": null
+    "legs": [
+      {
+        "leg": 1,
+        "from": "mETH",
+        "to": "WETH",
+        "txHash": "0x3360cdad7a700a47b464d41b3486c531e2972ae8364466b8622e93e22e7f181f",
+        "blockNumber": 96606365,
+        "amountIn": 0.002099269797428261,
+        "amountOut": 0.002293985472553181,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "WETH",
+        "to": "WMNT",
+        "txHash": "0x4471089e56cbf1de85015cd0923fbb142ed82a74125b3d8a22829c7125bc12d3",
+        "blockNumber": 96606373,
+        "amountIn": 0.0022916914870806278,
+        "amountOut": 7.0675690661218376,
+        "reason": null
+      },
+      {
+        "leg": 3,
+        "from": "WMNT",
+        "to": "USDT",
+        "txHash": "0x813d0e5d4c22386b475f1262a586bac43236caa831e07873baa517fda42e266d",
+        "blockNumber": 96606380,
+        "amountIn": 7.060501497055716,
+        "amountOut": 3.812652,
+        "reason": null
+      },
+      {
+        "leg": 4,
+        "from": "USDT",
+        "to": "USDT0",
+        "txHash": "0x2e50629d75386a42391506efec06918800b233e588e4149a349826043940a717",
+        "blockNumber": 96606388,
+        "amountIn": 3.808839347999999,
+        "amountOut": 3.807696,
+        "reason": null
+      }
+    ]
   },
-  "executionStatus": "INTENT_ONLY"
+  "executionStatus": "EXECUTED"
 }
