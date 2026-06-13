@@ -3761,6 +3761,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1781314682778_500",
+      "decisionId": 500,
+      "action": "swap",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 0.538935,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreif228fa866dec9eb471535dc34a0fb0f516ae0a1c343525d7c127",
+      "recordedAt": "2026-06-13T01:38:02.778Z",
+      "settleAfter": "2026-06-13T02:38:02.778Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781314682767
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst explicitly acknowledges R:R of 0.5:1 in risk factors — this alone triggers mandatory rejection (threshold 1.5:1). MNT grid TP=$0.54 equals stop=$0.54, making the channel degenerate with near-zero upside. RANGING regime with no grid confirmation for directional WMNT swap. Signal consensus NEUTRAL, smart money NEUTRAL, yield spread BEARISH. No multi-signal confirmation. Portfolio is stable-h",
+      "validatorFlaggedIssues": [
+        "R:R explicitly stated as 0.5:1 — hard rejection threshold not met",
+        "MNT grid TP and stop both $0.54 — degenerate channel, no measurable upside",
+        "RANGING regime with no valid grid confirmation for directional swap",
+        "Analyst confidence 58% backed by only one signal (grid); consensus NEUTRAL",
+        "Yield spread -1% BEARISH ignored in buy rationale"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc89529bd412c54ba05475419bf20aa9e7822510704226079c007cf8f8125fdb3",
+      "combinedAnchor": "0x87f18dc41cd36a6d1dc27ab8294d03d9abf40d82dbaadfebbd35b2d93aae92bf",
+      "decisionLogTxHash": "0x9de76efedf5861cc8ca886dd7e03a5d67aa68ec55ed1c48b06407eda01710e73",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
