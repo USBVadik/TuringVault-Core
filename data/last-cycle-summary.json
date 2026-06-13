@@ -1,23 +1,26 @@
 {
-  "cycleStartedAt": "2026-06-13T21:45:46.167Z",
-  "cycleEndedAt": "2026-06-13T21:46:41.356Z",
-  "durationSeconds": 55.19,
+  "cycleStartedAt": "2026-06-13T22:49:30.409Z",
+  "cycleEndedAt": "2026-06-13T22:51:03.104Z",
+  "durationSeconds": 92.7,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 7468,
-    "validatorMs": 7264,
+    "analystMs": 27201,
+    "validatorMs": 7039,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 522,
-  "decisionTier": "BLOCKED_BY_PORTFOLIO",
+  "decisionId": 523,
+  "decisionTier": "HEARTBEAT_SWAP",
   "consensus": false,
-  "txHashes": [],
+  "txHashes": [
+    "0xe896cff74e542f400185b3677f629256835b78961ef648e9a03191e509b1978e",
+    "0xfdb05dc2398bf67c178c72a4e28dda4d88e88479c2b0d244c35451a7c368df52"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27480034496",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27481447909",
   "errors": [],
   "gridTradeCandidate": {
     "active": true,
@@ -31,5 +34,37 @@
     "reason": null,
     "routeHint": null
   },
-  "executionStatus": "BLOCKED_BY_PORTFOLIO"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 0.8,
+    "amountOut": null,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "USDT",
+        "txHash": "0xe896cff74e542f400185b3677f629256835b78961ef648e9a03191e509b1978e",
+        "blockNumber": 96630367,
+        "amountIn": 0.8,
+        "amountOut": 0.800079,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "WMNT",
+        "txHash": "0xfdb05dc2398bf67c178c72a4e28dda4d88e88479c2b0d244c35451a7c368df52",
+        "blockNumber": 96630372,
+        "amountIn": 0.799278921,
+        "amountOut": 1.432847730517942,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
