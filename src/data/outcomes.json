@@ -3836,6 +3836,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1781317541297_501",
+      "decisionId": 501,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 0.538808,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei582260b07f77b27aece5c13ae375399994a67687e018c2142c64",
+      "recordedAt": "2026-06-13T02:25:41.297Z",
+      "settleAfter": "2026-06-13T03:25:41.297Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781317541284
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst explicitly acknowledges MNT grid R:R of 0.6:1 yet still proposes the swap — this is an automatic rejection trigger. R:R < 1.5:1 mandatory threshold not met. MNT grid stop-loss and take-profit are both listed as $0.54 (degenerate channel width 1.1%), making the R:R calculation unreliable. Yield spread -1% is BEARISH, smart money NEUTRAL, signal consensus NEUTRAL. No 2+ confirming signals fo",
+      "validatorFlaggedIssues": [
+        "R:R explicitly 0.6:1 — hard rejection threshold violated",
+        "MNT grid stop-loss equals take-profit ($0.54) — degenerate channel, no valid R:R",
+        "Analyst acknowledged suboptimal R:R but still proposed swap — reasoning contradiction",
+        "Yield spread -1% BEARISH ignored as blocking signal",
+        "No confirming signals: funding NEUTRAL, flow NEUTRAL, consensus NEUTRAL"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd80a8bccd90afe431085e8b390da711267d4c3da8aea54501ee42e3c037b02ca",
+      "combinedAnchor": "0x68343ae306b8a6641722a1eb1be0db1971949deb0c018a1d33370f74fc385c90",
+      "decisionLogTxHash": "0xbbe9372f9959070849c6c16d47500417cae873251f666d66a3b6b025a6533a95",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
