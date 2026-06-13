@@ -5522,6 +5522,78 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1781369152241_516",
+      "decisionId": 516,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1673.44,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreibf4e233b75d6b50c1470773a092aa998e00923d7c281bf04c3f8",
+      "recordedAt": "2026-06-13T16:45:52.241Z",
+      "settleAfter": "2026-06-13T17:45:52.241Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781369152229
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction and HOLD regime hints at 65% confidence. Portfolio is 79.9% stable-heavy/FLAT — inventory rule supports HOLD over repeated risk_off. Funding neutral (0.427% avg), RSI 51.8 not oversold, smart money flow NEUTRAL. No directional swap proposed, so RANGING regime restriction is not triggered. R:",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "Vol expanding with UNKNOWN breakout direction creates asymmetric gap risk on small $22.83 risk inventory"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf9fad1f61571c4ecf128fac97830675c2d0d14994762b8b9efe080f58fc8a23b",
+      "combinedAnchor": "0x58cdde5088ff75e62bb1a1d80740fda2b100ab13514115cb8976d0f8bf0bbed7",
+      "decisionLogTxHash": "0xebc84e0ba2397a0b39a98dacdb46e0ceae68d1fc6ba9feccbcb0e11b80a15e7b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
