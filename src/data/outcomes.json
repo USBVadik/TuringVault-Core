@@ -6158,6 +6158,103 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1781393757243_524",
+      "decisionId": 524,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1679.51,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei623b8b86645e7ec784f6f92f27bf0e87b1d00dc70e0f56967f39",
+      "recordedAt": "2026-06-13T23:35:57.243Z",
+      "settleAfter": "2026-06-14T00:35:57.243Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781393757230
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-supported. Portfolio is 82.6% stable-heavy/FLAT — inventory rule mandates HOLD over repeated risk_off absent CRISIS/TREND_DOWN. ETH grid SELL_mETH conflicts with MNT EXIT_RANGING UP breakout (TREND_UP hint), creating genuine signal ambiguity. Funding neutral at 0.223%, smart money NEUTRAL ($0.0M flow), F&G=13 extreme fear. No confirmed breakdown. Grid candidate (WMNT risk",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided by Analyst — acceptable for HOLD, not for directional trade",
+        "MNT EXIT_RANGING UP breakout ignored in grid candidate reasoning — correctly caught by Analyst",
+        "Yield spread -1% BEARISH signal underweighted in Analyst reasoning",
+        "F&G=13 extreme fear noted but contrarian signal not fully explored"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.8,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.8,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 0.54,
+          "resistance": 0.55,
+          "currentPrice": 0.5577
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1a560c3417d776a24ff44380be46d8d2d4abb06e286394c7f4b903e68efc9328",
+      "combinedAnchor": "0x7d017048d9f944f9169138b6a1a1a2c3aa8aefb6092ebdab617abd160ef6532f",
+      "decisionLogTxHash": "0xc5dd66fa257a0e45940f5fd13cb80dd227338817e4b76359b287f02c5442b3dc",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
