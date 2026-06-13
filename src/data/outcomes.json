@@ -3686,6 +3686,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1781313078080_499",
+      "decisionId": 499,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 0.538957,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei287fc777290c449f7e218e36701f2bf399c897033be1a7d0a438",
+      "recordedAt": "2026-06-13T01:11:18.080Z",
+      "settleAfter": "2026-06-13T02:11:18.080Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781313078069
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst explicitly acknowledges R:R of 0.7:1 in risk factors — this alone triggers mandatory rejection (threshold 1.5:1). MNT grid raw data confirms R:R=0.7:1 (0.21%/0.30%). RANGING regime at 55% confidence with NEUTRAL consensus, BEARISH yield spread, and zero smart-money confirmation provides no multi-signal edge. Scale-in rule requires fresh deeper lower-band move; current position=36% in chann",
+      "validatorFlaggedIssues": [
+        "R:R 0.7:1 is below mandatory 1.5:1 threshold — hard rejection trigger",
+        "Analyst self-reports suboptimal R:R yet still proposes swap — internal contradiction",
+        "RANGING regime with only 55% confidence and NEUTRAL consensus insufficient for directional swap",
+        "Yield spread -1% BEARISH with zero smart-money inflow confirmation",
+        "Scale-in condition not clearly met: no confirmed fresh deeper lower-band move"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x77a5d8b57bbade397972e058bb47e6918dc1cd1110af6ed48a8ebc5d7e840370",
+      "combinedAnchor": "0xd897220fd96602d58520ddf0e2c39487431deb3a94e6c195b563eb0f30e41b5d",
+      "decisionLogTxHash": "0x1bedff879010bdf10fb4a41853ebc6418d10f9dc35e5068c3d0773e4d2cb7496",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
