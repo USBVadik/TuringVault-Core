@@ -34,10 +34,7 @@ const proofStatus = require("./proofStatus.js") as {
 const { deriveDisplayTier, deriveExecutionProofStatus, extractDecisionTier } =
   proofStatus;
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const {
-  buildOutcomeIndexes,
-  selectOutcomeRow,
-} = require("../../lib/decision-outcome-match.shared.js") as {
+const outcomeMatch = require("../../lib/decision-outcome-match.shared.js") as {
   buildOutcomeIndexes: (rows?: OutcomeIndexRow[]) => OutcomeIndexes;
   selectOutcomeRow: (input: {
     decisionLogId: number;
@@ -47,6 +44,7 @@ const {
     byDecisionLogTxHash: Map<string, OutcomeIndexRow>;
   }) => OutcomeIndexRow | null;
 };
+const { buildOutcomeIndexes, selectOutcomeRow } = outcomeMatch;
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { queryRecentEventsInChunks } = require("./recentEvents.js") as {
   queryRecentEventsInChunks: (input: {

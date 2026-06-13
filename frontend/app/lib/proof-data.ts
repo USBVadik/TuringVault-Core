@@ -4,10 +4,7 @@ import path from "node:path";
 import { fulfilledValue } from "./proof-data-resilience.shared.js";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const {
-  buildOutcomeIndexes,
-  selectOutcomeRow,
-} = require("./decision-outcome-match.shared.js") as {
+const outcomeMatch = require("./decision-outcome-match.shared.js") as {
   buildOutcomeIndexes: (rows?: OutcomeIndexRow[]) => OutcomeIndexes;
   selectOutcomeRow: (input: {
     decisionLogId: number;
@@ -17,6 +14,7 @@ const {
     byDecisionLogTxHash: Map<string, OutcomeIndexRow>;
   }) => OutcomeIndexRow | null;
 };
+const { buildOutcomeIndexes, selectOutcomeRow } = outcomeMatch;
 
 const RPC_URL = "https://rpc.mantle.xyz";
 
