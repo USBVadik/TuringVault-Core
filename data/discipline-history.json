@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-06-09T08:42:19.865Z",
-    "decisionId": 406,
-    "verdict": "ACCEPTED",
-    "decisionTier": "HEARTBEAT_SWAP",
-    "displayTier": "HEARTBEAT_SWAP",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "mETH",
-    "sourceAsset": "USDT0",
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 96432111"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "2 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-09T09:42:31.348Z",
     "decisionId": 407,
     "verdict": "ACCEPTED",
@@ -3365,6 +3316,35 @@
         "name": "tx_proof",
         "status": "SKIP",
         "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-13T08:50:28.270Z",
+    "decisionId": 507,
+    "verdict": "ACCEPTED",
+    "decisionTier": "EXECUTED_SWAP",
+    "displayTier": "INTENT_SWAP_NO_EXEC",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": "mETH",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
       },
       {
         "name": "price_freshness",
