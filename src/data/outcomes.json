@@ -7979,6 +7979,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1781451287294_543",
+      "decisionId": 543,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1661.62,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei33b6b50167d3d462624cbd02b328050b5bbacd0f25f970c49505",
+      "recordedAt": "2026-06-14T15:34:47.294Z",
+      "settleAfter": "2026-06-14T16:34:47.294Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781451287282
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on stable-heavy FLAT portfolio is correct. ETH grid EXIT_RANGING with DOWN breakout (70% confidence) confirms TREND_DOWN risk. Portfolio is already 88.1% stables with only $11.16 mETH and $2.40 WMNT residual — no meaningful risk-off action available. Analyst correctly identifies neutral funding (0.196%), neutral smart money flow ($0.0M), and notes F&G=18 contrarian potential without overridin",
+      "validatorFlaggedIssues": [
+        "R:R not provided — acceptable for HOLD action only",
+        "Residual mETH $11.16 exposure remains during confirmed DOWN breakout — monitor closely",
+        "F&G=18 contrarian signal unresolved against TREND_DOWN regime hint"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "lower-band risk-on blocked by confirmed down-break"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x959fe30bf824c46bfc19003fd08013262a48e68c15c64711984fa5a03eee8ece",
+      "combinedAnchor": "0x14013ae6b0e4d3897a0c9e62cda41da251489323b6e8b74a24b3d8195d094ea0",
+      "decisionLogTxHash": "0xb62620bce287de382af2d8573337ff65727ac9b6b4d46d5be9ea334262ed8161",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
