@@ -99,6 +99,7 @@ function shortHash(h: string | undefined): string {
 }
 
 const DECISION_LIMIT = 8;
+const LIVE_TERMINAL_REFRESH_MS = 120_000;
 
 export function LiveTerminal() {
   const [decisions, setDecisions] = useState<Decision[] | null>(null);
@@ -107,13 +108,15 @@ export function LiveTerminal() {
   const terminalRef = useRef<HTMLDivElement>(null);
 
   // Polling: decisions + health together so the badge stays in sync.
+  // Keep this slower than the 30m cron cadence; the route payloads are
+  // verifiable history, and hot polling burns Vercel Fluid CPU.
   useEffect(() => {
     let cancelled = false;
     async function fetchAll() {
       try {
         const [dRes, hRes] = await Promise.all([
-          fetch("/api/decisions", { cache: "no-store" }),
-          fetch("/api/health", { cache: "no-store" }),
+          fetch("/api/decisions"),
+          fetch("/api/health"),
         ]);
         if (!cancelled) {
           if (dRes.ok) {
@@ -137,7 +140,7 @@ export function LiveTerminal() {
       }
     }
     fetchAll();
-    const id = setInterval(fetchAll, 30_000);
+    const id = setInterval(fetchAll, LIVE_TERMINAL_REFRESH_MS);
     return () => {
       cancelled = true;
       clearInterval(id);

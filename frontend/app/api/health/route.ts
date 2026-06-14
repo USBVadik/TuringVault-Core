@@ -47,6 +47,21 @@ const {
   pickFreshestByIso,
   pickFreshestOutcomes,
 } = freshness;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const healthCache = require("./health-cache.shared.js") as {
+  canReuseHealthPayload: (
+    snapshot: HealthResponse | null,
+    cachedAtMs: number,
+    nowMs?: number,
+    ttlMs?: number
+  ) => boolean;
+  cloneHealthWithFreshAge: (
+    snapshot: HealthResponse | null,
+    nowMs?: number,
+    overrides?: Partial<HealthResponse>
+  ) => HealthResponse | null;
+};
+const { canReuseHealthPayload, cloneHealthWithFreshAge } = healthCache;
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -167,6 +182,7 @@ const HEALTH_CACHE: HeadersInit = NO_STORE;
  * Date.now().
  */
 let lastOkSnapshot: HealthResponse | null = null;
+let lastOkSnapshotCachedAtMs = 0;
 
 /**
  * Resolve a backend file path that lives outside the frontend dir.
@@ -313,6 +329,18 @@ async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
 
 export async function GET(): Promise<NextResponse> {
   try {
+    if (canReuseHealthPayload(lastOkSnapshot, lastOkSnapshotCachedAtMs)) {
+      const cachedBody = cloneHealthWithFreshAge(lastOkSnapshot);
+      if (cachedBody) {
+        return NextResponse.json(cachedBody, {
+          headers: {
+            ...HEALTH_CACHE,
+            "X-Cache-Mode": "no-store-memory-ttl",
+          },
+        });
+      }
+    }
+
     // Try local files first (works in dev), fall back to GitHub (works on Vercel)
     
     // 1. data/loop_progress.json mtime
@@ -517,6 +545,7 @@ export async function GET(): Promise<NextResponse> {
     const { lastCycleAge: _ignoredAge, ...snapshotForReuse } = body;
     void _ignoredAge;
     lastOkSnapshot = snapshotForReuse as HealthResponse;
+    lastOkSnapshotCachedAtMs = Date.now();
 
     return NextResponse.json(body, { headers: HEALTH_CACHE });
   } catch (err: unknown) {
@@ -529,21 +558,13 @@ export async function GET(): Promise<NextResponse> {
     // flag set so the frontend can show stale copy honestly. Steering
     // rule §1: re-derive lastCycleAge from the snapshot timestamp.
     if (lastOkSnapshot && lastOkSnapshot.lastCycleTimestamp) {
-      const recomputedAge = Math.max(
-        0,
-        Math.floor(
-          (Date.now() - Date.parse(lastOkSnapshot.lastCycleTimestamp)) /
-            1000
-        )
-      );
-      const fallbackBody: HealthResponse = {
-        ...lastOkSnapshot,
+      const fallbackBody = cloneHealthWithFreshAge(lastOkSnapshot, Date.now(), {
         // Mark the response as degraded even though we have a payload —
         // the underlying upstream is failing and the badge should know.
         status: "degraded",
-        lastCycleAge: recomputedAge,
         error: `${errorMessage} (served from in-memory snapshot)`,
-      };
+      });
+      if (!fallbackBody) throw err;
       return NextResponse.json(fallbackBody, {
         headers: {
           ...HEALTH_CACHE,

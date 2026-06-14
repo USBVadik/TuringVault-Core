@@ -22,3 +22,54 @@ describe("frontend /api/health cache policy", () => {
     expect(source).not.toContain("next: { revalidate: 30 }");
   });
 });
+
+describe("frontend /api/health warm-function reuse", () => {
+  const {
+    cloneHealthWithFreshAge,
+  } = require("../../frontend/app/api/health/health-cache.shared.js");
+
+  test("recomputes lastCycleAge when reusing a cached health payload", () => {
+    const nowMs = Date.parse("2026-06-14T12:05:00.000Z");
+    const cached = {
+      status: "ok",
+      lastCycleTimestamp: "2026-06-14T12:00:00.000Z",
+      lastCycleAge: 1,
+      cyclesSucceeded24h: 20,
+      cyclesFailed24h: 0,
+      mode: "cron-github-actions",
+      chainBlockHeight: 123,
+      dataScope: "agent-lifetime",
+      gasRunway: null,
+    };
+
+    expect(cloneHealthWithFreshAge(cached, nowMs)).toMatchObject({
+      lastCycleTimestamp: "2026-06-14T12:00:00.000Z",
+      lastCycleAge: 300,
+      cyclesSucceeded24h: 20,
+      mode: "cron-github-actions",
+    });
+  });
+});
+
+describe("frontend polling budget", () => {
+  test("expensive live dashboard routes are not polled every 30 seconds", () => {
+    const repoRoot = path.resolve(__dirname, "../..");
+    const home = fs.readFileSync(
+      path.join(repoRoot, "frontend/app/page.tsx"),
+      "utf8"
+    );
+    const terminal = fs.readFileSync(
+      path.join(repoRoot, "frontend/app/components/LiveTerminal.tsx"),
+      "utf8"
+    );
+    const badge = fs.readFileSync(
+      path.join(repoRoot, "frontend/app/components/LiveStatusBadge.tsx"),
+      "utf8"
+    );
+
+    expect(home).not.toContain("setInterval(fetchChainData, 30000)");
+    expect(home).not.toContain("setInterval(fetchMarket, 30000)");
+    expect(terminal).not.toContain("setInterval(fetchAll, 30_000)");
+    expect(badge).not.toContain("setInterval(poll, 30_000)");
+  });
+});

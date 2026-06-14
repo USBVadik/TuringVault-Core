@@ -20,6 +20,7 @@ import {
 } from "../lib/live-status";
 
 type Variant = "compact" | "full";
+const LIVE_STATUS_REFRESH_MS = 120_000;
 
 interface Props {
   variant?: Variant;
@@ -64,7 +65,7 @@ export function LiveStatusBadge({
     if (!initialHealth) {
       void poll();
     }
-    const id = setInterval(poll, 30_000);
+    const id = setInterval(poll, LIVE_STATUS_REFRESH_MS);
     return () => {
       cancelled = true;
       clearInterval(id);

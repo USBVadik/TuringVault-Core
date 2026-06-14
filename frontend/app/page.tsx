@@ -213,6 +213,10 @@ type SignalHover = {
   tone: "executed" | "blocked" | "intent" | "hold" | "live";
 };
 
+const DECISIONS_REFRESH_MS = 120_000;
+const HEALTH_REFRESH_MS = 120_000;
+const MARKET_REFRESH_MS = 300_000;
+
 export default function Home() {
   const { address, isConnected } = useAccount();
   const [marketData, setMarketData] = useState<any>(null);
@@ -252,7 +256,7 @@ export default function Home() {
       } catch {}
     }
     fetchChainData();
-    const interval = setInterval(fetchChainData, 30000);
+    const interval = setInterval(fetchChainData, DECISIONS_REFRESH_MS);
     return () => clearInterval(interval);
   }, []);
 
@@ -292,7 +296,7 @@ export default function Home() {
       }
     }
     fetchHealth();
-    const id = setInterval(fetchHealth, 60_000);
+    const id = setInterval(fetchHealth, HEALTH_REFRESH_MS);
     return () => {
       cancelled = true;
       clearInterval(id);
@@ -380,7 +384,7 @@ export default function Home() {
       }
     }
     fetchMarket();
-    const interval = setInterval(fetchMarket, 30000);
+    const interval = setInterval(fetchMarket, MARKET_REFRESH_MS);
     return () => clearInterval(interval);
   }, [FALLBACK_MARKET]);
 

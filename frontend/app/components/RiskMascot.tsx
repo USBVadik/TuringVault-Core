@@ -56,7 +56,7 @@ function deriveState(h: Health | null): State {
   return "offline";
 }
 
-const REFRESH_MS = 60_000;
+const REFRESH_MS = 300_000;
 
 export function RiskMascot() {
   const [health, setHealth] = useState<Health | null>(null);
