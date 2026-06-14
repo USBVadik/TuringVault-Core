@@ -1,24 +1,29 @@
 {
-  "cycleStartedAt": "2026-06-14T03:36:36.720Z",
-  "cycleEndedAt": "2026-06-14T03:37:25.757Z",
-  "durationSeconds": 49.04,
+  "cycleStartedAt": "2026-06-14T05:03:27.759Z",
+  "cycleEndedAt": "2026-06-14T05:05:12.913Z",
+  "durationSeconds": 105.15,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 2178,
-    "validatorMs": 6362,
+    "analystMs": 23246,
+    "validatorMs": 7023,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 529,
-  "decisionTier": "BLOCKED_BY_PORTFOLIO",
+  "decisionId": 530,
+  "decisionTier": "HEARTBEAT_SWAP",
   "consensus": false,
-  "txHashes": [],
+  "txHashes": [
+    "0xa6190ff213ed2907329079bd989db5533ffa596e986de7d67682fc512723cc00",
+    "0xd346999a6c21bafc2a15243b7e074c70de817d8ca7db9df69b2ef3ee672a40a6"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27487276536",
-  "errors": [],
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27488962104",
+  "errors": [
+    "outcome-not-persisted: cycle 530 missing from src/data/outcomes.json after Step 6"
+  ],
   "gridTradeCandidate": {
     "active": true,
     "kind": "grid-sell",
@@ -27,9 +32,41 @@
     "targetAsset": "mUSD",
     "sourceAsset": "mETH",
     "allocationPct": 20,
-    "confidence": 0.7924242424242436,
+    "confidence": 0.7116161616161615,
     "reason": null,
     "routeHint": null
   },
-  "executionStatus": "BLOCKED_BY_PORTFOLIO"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "WMNT",
+    "amountIn": 0.8,
+    "amountOut": null,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "USDT",
+        "txHash": "0xa6190ff213ed2907329079bd989db5533ffa596e986de7d67682fc512723cc00",
+        "blockNumber": 96641589,
+        "amountIn": 0.8,
+        "amountOut": 0.800079,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "USDT",
+        "to": "WMNT",
+        "txHash": "0xd346999a6c21bafc2a15243b7e074c70de817d8ca7db9df69b2ef3ee672a40a6",
+        "blockNumber": 96641596,
+        "amountIn": 0.799278921,
+        "amountOut": 1.4328603108186841,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
