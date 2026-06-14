@@ -1,41 +1,47 @@
 {
-  "cycleStartedAt": "2026-06-14T14:30:50.208Z",
-  "cycleEndedAt": "2026-06-14T14:32:06.277Z",
-  "durationSeconds": 76.07,
+  "cycleStartedAt": "2026-06-14T15:17:31.803Z",
+  "cycleEndedAt": "2026-06-14T15:18:33.971Z",
+  "durationSeconds": 62.17,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 29035,
-    "validatorMs": 7061,
+    "analystMs": 4611,
+    "validatorMs": 6820,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 541,
-  "decisionTier": "BLOCKED_BY_VALIDATOR",
+  "decisionId": 542,
+  "decisionTier": "BLOCKED_BY_REGIME",
   "consensus": false,
-  "txHashes": [],
+  "txHashes": [
+    "0xe2018cc15001a98705c90586c432164355a676354797da7e9dfb9079f11c47ec"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27501927203",
-  "errors": [],
-  "gridTradeCandidate": {
-    "active": true,
-    "kind": "stable-heavy-lower-band-reentry",
-    "action": "swap",
-    "direction": "risk_on",
-    "targetAsset": "mETH",
-    "sourceAsset": "USDT0",
-    "allocationPct": 12,
-    "confidence": 0.64,
-    "reason": null,
-    "routeHint": [
-      "USDT0",
-      "USDT",
-      "WMNT",
-      "WETH",
-      "mETH"
-    ]
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27503149345",
+  "errors": [
+    "outcome-not-persisted: cycle 542 missing from src/data/outcomes.json after Step 6"
+  ],
+  "rwa": {
+    "source": "conservative",
+    "executed": true,
+    "amountInUsd": 2.310567,
+    "from": "USDT",
+    "to": "USDT0",
+    "blockedReason": null
   },
-  "executionStatus": "BLOCKED_BY_VALIDATOR"
+  "gridTradeCandidate": {
+    "active": false,
+    "kind": null,
+    "action": null,
+    "direction": null,
+    "targetAsset": null,
+    "sourceAsset": null,
+    "allocationPct": null,
+    "confidence": null,
+    "reason": "lower-band risk-on blocked by confirmed down-break",
+    "routeHint": null
+  },
+  "executionStatus": "EXECUTED"
 }
