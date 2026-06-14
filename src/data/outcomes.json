@@ -387,6 +387,104 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1781480773671_553",
+      "decisionId": 553,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1719.62,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei41906e1556bf562c59a54b0e076bd09cc84a9575e9a678d06b90",
+      "recordedAt": "2026-06-14T23:46:13.671Z",
+      "settleAfter": "2026-06-15T00:46:13.671Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781480773658
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "A DETERMINISTIC GRID CANDIDATE proposes risk_off (sell mETH→mUSD), yet the Analyst counters with risk_on (buy mETH). The grid signals EXIT_RANGING UP / TREND_UP, which supports trimming existing risk inventory at upper band, not adding new exposure. RSI 77.3 is overbought (STRONG_SELL), Bollinger at 106% band (SELL), signal consensus BEARISH, yield spread -1% BEARISH. No R:R ratio provided — manda",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory rejection trigger",
+        "RSI 77.3 STRONG_SELL and Bollinger 106% SELL contradict risk_on entry",
+        "Signal consensus BEARISH with yield spread -1% ignored by Analyst",
+        "Grid candidate explicitly calls for risk_off trim, Analyst proposes opposite direction",
+        "Confidence 68% supported by only contrarian F&G — insufficient multi-signal confirmation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.8,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.8,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 1662.3,
+          "resistance": 1683.3,
+          "currentPrice": 1719
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x04224c7bd39df3f14bdd5fe67eff2a1abbffc0d47bfaa12a1f6d277fe8ed253b",
+      "combinedAnchor": "0x7db81dcf2b121d442916fb6121ef7bf4e5cadddfdf4ea9fc99ff1b97bc36275b",
+      "decisionLogTxHash": "0xbd90b1320eeb0afa7a1670a07802f1696b20dd42f117231de49651e0572d3643",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
