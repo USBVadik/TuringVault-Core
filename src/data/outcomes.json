@@ -77,6 +77,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781548807493_571",
+      "decisionId": 571,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1829.02,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei4ef1b96dc4ca94ca5731979061ed6f7019fa44fcfeb44ab98bf7",
+      "recordedAt": "2026-06-15T18:40:07.493Z",
+      "settleAfter": "2026-06-15T19:40:07.493Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781548807479
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal on an already stable-heavy portfolio (86.6% stables, $15.41 risk exposure) is well-supported. Regime confidence is only 35% with no confirmed direction. RSI 80.8 is a genuine STRONG_SELL signal; MACD histogram weakening at 8.9953 confirms momentum fading. Yield spread -1% bearish, signal consensus BEARISH. No CRISIS/TREND_DOWN to force risk_off; no grid/flow confirmation to justify r",
+      "validatorFlaggedIssues": [
+        "RSI 80.8 overbought — reversal risk if regime shifts bearish",
+        "MACD weakening reduces bullish conviction",
+        "Regime confidence only 35% — no actionable edge"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x644b2e02ec34921883726c7382294117529b20ae5eaf4405ba63f7efa63e6d4d",
+      "combinedAnchor": "0xccd41d3296322a64f99bc92315c71c694c93f27c4a7771a9f32f5f721dd19ba2",
+      "decisionLogTxHash": "0x09cea487226c20cb8c717f85b1fbec64b5356a67f90af6bcd01c7c39ef541310",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
