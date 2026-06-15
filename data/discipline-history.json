@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-06-11T09:45:34.353Z",
-    "decisionId": 456,
-    "verdict": "ACCEPTED",
-    "decisionTier": "EXECUTED_SWAP",
-    "displayTier": "EXECUTED_SWAP",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "mUSD",
-    "sourceAsset": "mETH",
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 96520408"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "2 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-11T11:22:47.373Z",
     "decisionId": 457,
     "verdict": "ACCEPTED",
@@ -3425,6 +3376,35 @@
         "name": "tx_proof",
         "status": "SKIP",
         "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-15T05:27:01.855Z",
+    "decisionId": 558,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_VALIDATOR",
+    "displayTier": "BLOCKED_BY_VALIDATOR",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mETH",
+    "sourceAsset": "USDT0",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
       },
       {
         "name": "price_freshness",
