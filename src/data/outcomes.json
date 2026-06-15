@@ -1049,6 +1049,111 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781508385588_560",
+      "decisionId": 560,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1720.42,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei94ac5eb64284909b5bbfac9fa6a14806713c86c37f98eaa077e2",
+      "recordedAt": "2026-06-15T07:26:25.588Z",
+      "settleAfter": "2026-06-15T08:26:25.588Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781508385575
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes risk_on BUY into mETH but the DETERMINISTIC GRID CANDIDATE explicitly signals risk_off (sell mETH→mUSD). The grid EXIT_RANGING with breakoutDirection=UP means exit the ranging grid, not a confirmed TREND_UP entry signal. RSI=70.6 triggers STRONG_SELL. Signal consensus is BEARISH. Yield spread -1% is BEARISH. Stop-loss at 1726.1 is ABOVE entry 1722.9 — this is inverted/nonsensical ",
+      "validatorFlaggedIssues": [
+        "Stop-loss 1726.1 is above entry 1722.9 — inverted stop logic for a long position",
+        "Grid candidate explicitly says risk_off sell mETH, analyst proposes opposite direction",
+        "RSI 70.6 = STRONG_SELL signal ignored by analyst",
+        "Signal consensus BEARISH and yield spread -1% BEARISH both ignored",
+        "EXIT_RANGING UP breakout misread as confirmed TREND_UP entry; no volume confirmation cited"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.7,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 1722.9, stop 1726.1, take-profit 1662.3, R:R 18.94:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.7,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 1662.3,
+          "resistance": 1720.3,
+          "currentPrice": 1722.9
+        },
+        "riskReward": {
+          "entry": 1722.9,
+          "stopLoss": 1726.1,
+          "takeProfit": 1662.3,
+          "ratio": 18.94,
+          "riskPct": 0.19,
+          "rewardPct": 3.52
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xcc29d57739d661fdfbda33f9e2d6e438d37585a864d529bed7f7a1973e80d949",
+      "combinedAnchor": "0x8cd77e7825ff3bd1c56d9c83b3c34898410781bff1a26bc6783f92d6eb5f153c",
+      "decisionLogTxHash": "0x6eff57c7f96a074e9e1ddce0002f3c22f337ff41a3210b35d25d3cf15a60229e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
