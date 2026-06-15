@@ -1154,6 +1154,152 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1781512518417_561",
+      "decisionId": 561,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1717.95,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreieb9f987e00e56632c0d0dc2bb23b0e38d1ccc00a0098e773056b",
+      "recordedAt": "2026-06-15T08:35:18.417Z",
+      "settleAfter": "2026-06-15T09:35:18.417Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 96691100"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781512518405
+      },
+      "decisionTier": "HEARTBEAT_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is low-risk and capital-preserving. MNT shows upward breakout (price $0.573 > resistance $0.57, TREND_UP hint) but ETH grid breakout direction is UNKNOWN. Funding neutral, smart money flow neutral, F&G=20 extreme fear. Portfolio is already 88.4% stable — no urgency to act. Analyst correctly defers on ETH uncertainty. Grid candidate (risk_off WMNT) is moot since WMNT=$1.68 is negligib",
+      "validatorFlaggedIssues": [
+        "MNT upward breakout ignored as potential risk_on opportunity — analyst could have proposed small MNT buy",
+        "WMNT=$1.68 residual inventory makes grid candidate risk_off largely inconsequential",
+        "ETH at 99% of channel with UNKNOWN breakout direction warrants caution — correctly noted"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.7,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.7,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 0.55,
+          "resistance": 0.57,
+          "currentPrice": 0.57341
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 0.8,
+        "amountUsd": 0.8,
+        "tier": "HEARTBEAT_SWAP",
+        "rationale": "Heartbeat micro-swap to maintain on-chain liveness during a passive window. NOT alpha-seeking. Quiet cycles: 30. Direction: risk-on. Cap: $0.80.",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0xb40b9ad55e7347a76da3b48a55f7fc576511bdbca763890d599bfa256a419ec0",
+            "blockNumber": 96691093,
+            "amountIn": 0.8,
+            "amountOut": 0.800079
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0x1c3bfd3c9bede8097a695dc7635d93d55fc786aa2a3f40b9265756cc4da2603e",
+            "blockNumber": 96691100,
+            "amountIn": 0.799278921,
+            "amountOut": 1.3905649472962867
+          }
+        ],
+        "txHash": "0x1c3bfd3c9bede8097a695dc7635d93d55fc786aa2a3f40b9265756cc4da2603e"
+      },
+      "manifestHash": "0xb51ea5aa99a56d7eba92295d39b1bfefa9d9177365ca078dfef387d989e37dbd",
+      "combinedAnchor": "0xfd125728b2d3d32b6e58c6e99636cdcf0f79ca769873c37d75e56e7dbac4fd7a",
+      "decisionLogTxHash": "0x8ce9e42abc21727e927c8d8994e83c203e1cf178a5bdd7d0d054679b003bc25c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "ACCEPTED",
+      "_displayTier": "HEARTBEAT_SWAP"
     }
   ],
   "settled": [
