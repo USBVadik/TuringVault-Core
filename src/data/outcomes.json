@@ -154,6 +154,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781556185371_573",
+      "decisionId": 573,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1821.55,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreibe175e7e77bae1726ee948414b2d6cb1f32966d84b4fba4b622d",
+      "recordedAt": "2026-06-15T20:43:05.371Z",
+      "settleAfter": "2026-06-15T21:43:05.371Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781556185357
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is 87.7% stable — no risk_off trigger without CRISIS/TREND_DOWN confirmation, per inventory rule. Analyst correctly identifies RSI 75.6 (overbought) vs bullish EMA/MACD contradiction. Regime confidence only 35%, signal consensus BEARISH, yield spread -1% BEARISH. No grid active. HOLD is the appropriate low-risk action. No hallucinated data detected; all c",
+      "validatorFlaggedIssues": [
+        "Analyst did not cite specific liquidation levels ($1730/$1639) as downside context",
+        "MACD histogram weakening (4.5993) adds further caution not fully emphasized"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x7bec59973399a9ca2bba696dfcc12a235c5f9b0a3404f55d71313a1fa1e7446e",
+      "combinedAnchor": "0x17e514cd9e64a600c8503c3556856cd23a2bc10d0f66ca13cf17ed0c4cb911bb",
+      "decisionLogTxHash": "0xe188167d443cbfca4a249a37ab24ef1bc6d9be10b6d9338eb656932e7e3da44d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
