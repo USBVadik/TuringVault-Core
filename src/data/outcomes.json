@@ -745,6 +745,110 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1781497341653_557",
+      "decisionId": 557,
+      "action": "hold",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 0.570848,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreida934cf89b750b83923b23a25ad9c1d1bb20abd4697ec4249fae",
+      "recordedAt": "2026-06-15T04:22:21.653Z",
+      "settleAfter": "2026-06-15T05:22:21.653Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781497341641
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate here. MNT grid shows EXIT_RANGING with breakoutDirection=UP and regimeHint=TREND_UP, but confirmation is absent. Grid candidate proposes risk_off (sell WMNT to mUSD) which contradicts the upward breakout signal — correctly rejected by Analyst. Portfolio is stable-heavy (87.4%) and FLAT; inventory rule mandates HOLD over repeated risk_off absent CRISIS/TREND_DOWN confirmation. F",
+      "validatorFlaggedIssues": [
+        "Grid candidate risk_off direction contradicts MNT upward breakout signal",
+        "RSI 70.8 rising — overbought risk on MNT",
+        "Breakout confirmation absent — premature directional action would be speculative",
+        "WMNT position ($2.79) too small to warrant forced exit"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.7,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 0.5708, stop 0.573, take-profit 0.54, R:R 14:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.7,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 0.54,
+          "resistance": 0.57,
+          "currentPrice": 0.5708
+        },
+        "riskReward": {
+          "entry": 0.5708,
+          "stopLoss": 0.573,
+          "takeProfit": 0.54,
+          "ratio": 14,
+          "riskPct": 0.39,
+          "rewardPct": 5.4
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x21cd85944a9687b41e375c0d315f940aba362ffbcfe22ca991e82c8fc2442402",
+      "combinedAnchor": "0x73e3ca6ad6faaabda3e409dd3a463f6cb714751b64bb9843f0b6fdb2d9cbba26",
+      "decisionLogTxHash": "0xf1e2b9b5f5023485c70a4d4ec124b92daf57b5856bff0896a50ce773de1fd64c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
