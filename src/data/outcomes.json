@@ -76,6 +76,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781529610974_565",
+      "decisionId": 565,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1804.5,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei3687a25f2fce147b72f3c29ce18e4404323822fce32f7f9a35cd",
+      "recordedAt": "2026-06-15T13:20:10.974Z",
+      "settleAfter": "2026-06-15T14:20:10.974Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781529610961
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on existing mETH position with 87.2% stable inventory is low-risk and appropriate. Regime is HOLD at 35% confidence with BEARISH consensus, RSI 87.6 STRONG_SELL, Bollinger at 113% above band — all support waiting. No directional swap proposed. Portfolio is already stable-heavy/FLAT, so HOLD is the correct posture per inventory rules. Analyst correctly identifies RSI/price divergence with Fear",
+      "validatorFlaggedIssues": [
+        "RSI 87.6 overbought with Bollinger 113% — reversal risk if held too long",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x40abc9a900e5de6f771527657eff874a9403110fa9e62263bc342e9158801bc1",
+      "combinedAnchor": "0xf5969fddc57275af857dead3df4d80ae1b355dd194a7a5ff7152879687e85439",
+      "decisionLogTxHash": "0x14a37ae160e4c41caa91bc3b3db4f12e88cd362ebcb931497da3b2b03f423cf3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
