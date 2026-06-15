@@ -25,6 +25,16 @@ import { LiveStatusBadge } from "../../components/LiveStatusBadge";
 import { explorerUrl } from "../../lib/explorer";
 import styles from "../replay.module.css";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const indexWindow = require("../../lib/decision-log-index-window.shared.js") as {
+  buildDecisionLogCandidateWindow: (input: {
+    decisionId: number;
+    totalDecisions: number;
+    windowSize?: number;
+  }) => number[];
+};
+const { buildDecisionLogCandidateWindow } = indexWindow;
+
 interface CaptureEntry {
   role: string;
   provider: string;
@@ -98,13 +108,13 @@ async function loadOnChainAnchor(
     );
     const total = Number(await dl.totalDecisions());
     if (total === 0) return null;
-    // ValidationRegistry.totalProposals drifted +1 ahead of
-    // DecisionLog.totalDecisions historically (one early cycle wrote
-    // a proposal but not a DecisionLog entry). Probe a small window
-    // and prefer the row whose bytes32 matches the expected anchor.
-    const candidates = [cycleId, cycleId - 1, cycleId - 2].filter(
-      (i) => i >= 0 && i < total
-    );
+    // ValidationRegistry/proposal ids can drift ahead of DecisionLog rows.
+    // Search a bounded backward window and prefer the row whose bytes32
+    // matches the expected anchor.
+    const candidates = buildDecisionLogCandidateWindow({
+      decisionId: cycleId,
+      totalDecisions: total,
+    });
     for (const idx of candidates) {
       try {
         const d = await dl.getDecision(BigInt(idx));

@@ -23,6 +23,16 @@ import { ethers } from "ethers";
 import * as fs from "fs";
 import * as path from "path";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const indexWindow = require("../../../lib/decision-log-index-window.shared.js") as {
+  buildDecisionLogCandidateWindow: (input: {
+    decisionId: number;
+    totalDecisions: number;
+    windowSize?: number;
+  }) => number[];
+};
+const { buildDecisionLogCandidateWindow } = indexWindow;
+
 export const dynamic = "force-dynamic";
 // Cache for 60s on the edge; Vercel ISR revalidate after 5m. Manifests
 // are immutable per cycle so caching is safe — we only ever invalidate
@@ -114,17 +124,14 @@ async function readOnChainAnchor(
     );
     const total = Number(await dl.totalDecisions());
     if (total === 0) return null;
-    // Manifest's decisionId comes from ValidationRegistry.totalProposals
-    // which historically drifted ahead of DecisionLog.totalDecisions by
-    // one row. We probe a small window of candidate indices and, when
-    // an expected anchor is supplied, return the row whose txHash slot
-    // matches it. Otherwise we fall back to the closest candidate that
-    // exists.
-    const candidates = [
+    // Manifest decisionId comes from the ValidationRegistry/proposal
+    // side, while DecisionLog only increments when a row lands. Drift
+    // can grow past a fixed -1/-2 offset, so search a bounded backward
+    // window and prefer the row whose txHash slot matches expectedAnchor.
+    const candidates = buildDecisionLogCandidateWindow({
       decisionId,
-      decisionId - 1,
-      decisionId - 2,
-    ].filter((i) => i >= 0 && i < total);
+      totalDecisions: total,
+    });
     if (candidates.length === 0) return null;
     for (const idx of candidates) {
       try {

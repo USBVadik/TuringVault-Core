@@ -33,6 +33,9 @@ const { ethers } = require("ethers");
 const {
   manifestHash: computeManifestHash,
 } = require("../src/replay/captureManifest");
+const {
+  buildDecisionLogCandidateWindow,
+} = require("../frontend/app/lib/decision-log-index-window.shared.js");
 
 const RPC_URL = process.env.MANTLE_RPC_URL || "https://rpc.mantle.xyz";
 const DECISION_LOG_ADDR =
@@ -131,8 +134,10 @@ if (storedAnchor && recomputedAnchor.toLowerCase() !== storedAnchor.toLowerCase(
 }
 
 // 3. Read on-chain anchor with the same offset-tolerant lookup the UI
-// uses (ValidationRegistry.totalProposals drifted +1 ahead of
-// DecisionLog.totalDecisions historically).
+// uses. ValidationRegistry proposal IDs can drift ahead of DecisionLog
+// rows when a cycle records validation/outcome state but no DecisionLog
+// row lands, so search a bounded backward window for the expected anchor
+// instead of assuming a fixed -1/-2 offset.
 async function readOnChain() {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const dl = new ethers.Contract(DECISION_LOG_ADDR, DECISION_LOG_ABI, provider);
@@ -143,9 +148,10 @@ async function readOnChain() {
     return { error: `RPC unreachable: ${e.message?.slice(0, 120)}` };
   }
   if (total === 0) return { error: "DecisionLog is empty" };
-  const candidates = [cycleId, cycleId - 1, cycleId - 2].filter(
-    (i) => i >= 0 && i < total
-  );
+  const candidates = buildDecisionLogCandidateWindow({
+    decisionId: cycleId,
+    totalDecisions: total,
+  });
   for (const idx of candidates) {
     try {
       const d = await dl.getDecision(BigInt(idx));
@@ -196,8 +202,8 @@ readOnChain()
         "    (a) the manifest on disk has been edited after the cycle\n" +
         "        committed — the binding it declares no longer matches\n" +
         "        the bytes32 already permanent on Mantle, OR\n" +
-        "    (b) the offset between manifest decisionId and DecisionLog\n" +
-        "        index drifted further than the +1 we tolerate.\n" +
+        "    (b) the matching DecisionLog row is outside the bounded\n" +
+        "        search window used by the verifier.\n" +
         "  Investigate before claiming Reproducible AI for this cycle."
     );
     process.exit(2);

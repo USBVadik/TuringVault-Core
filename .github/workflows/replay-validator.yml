@@ -41,6 +41,7 @@ jobs:
     timeout-minutes: 10
 
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -103,7 +104,7 @@ jobs:
             echo "::warning::Mantle RPC unreachable — anchor not verified, this is transient and will retry tomorrow."
             exit 0
           else
-            echo "::error::Anchor mismatch for cycle ${{ steps.pick.outputs.cycle }} (exit ${STATUS}). Manifest may have been edited after the cycle committed."
+            echo "::error::Anchor mismatch for cycle ${{ steps.pick.outputs.cycle }} (exit ${STATUS}). The manifest may have been edited, or the matching DecisionLog row may be outside the verifier search window."
             exit 1
           fi
 
@@ -179,9 +180,9 @@ jobs:
               `1. The manifest on disk was edited after the cycle committed`,
               `   on-chain — the binding it declares no longer matches the`,
               `   permanent value on Mantle.`,
-              `2. The +1 offset between manifest \`decisionId\` and the`,
-              `   \`DecisionLog\` array index drifted further than the`,
-              `   verifier tolerates.`,
+              `2. The ValidationRegistry/proposal id and \`DecisionLog\``,
+              `   row index drifted outside the bounded search window`,
+              `   used by the verifier.`,
               ``,
               `**Honesty rule**: until this is resolved, the public`,
               `\`/replay/${cycle}\` page will surface a "binding mismatch"`,
