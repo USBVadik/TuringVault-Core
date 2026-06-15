@@ -1,19 +1,19 @@
 {
   "pending": [
     {
-      "id": "1781542640980_569",
-      "decisionId": 569,
+      "id": "1781546817508_570",
+      "decisionId": 570,
       "action": "hold",
       "targetAsset": "mUSD",
       "consensus": false,
-      "confidence": 0.55,
-      "priceAtDecision": 1841.43,
+      "confidence": 0.35,
+      "priceAtDecision": 1827.28,
       "settlementAsset": "WETH",
       "priceAssetAtDecision": "WETH",
       "settlementSourceAsset": "mETH",
-      "ipfsCid": "bafkreie5d9d97a67e72461c687ddf0a5eeb7c1f6e619bc162666e3af23",
-      "recordedAt": "2026-06-15T16:57:20.980Z",
-      "settleAfter": "2026-06-15T17:57:20.980Z",
+      "ipfsCid": "bafkrei635122b30f9f39b7a6098b065dfc276e862cf642e13d5e35e1a1",
+      "recordedAt": "2026-06-15T18:06:57.508Z",
+      "settleAfter": "2026-06-15T19:06:57.508Z",
       "settled": false,
       "rwaIntent": null,
       "disciplineStatus": "ACCEPTED",
@@ -23,7 +23,7 @@
           {
             "name": "tx_proof",
             "status": "SKIP",
-            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
           },
           {
             "name": "price_freshness",
@@ -38,19 +38,19 @@
         ],
         "blockReason": null,
         "repairStep": null,
-        "timestamp": 1781542640966
+        "timestamp": 1781546817495
       },
-      "decisionTier": "BLOCKED_BY_REGIME",
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
       "tierSource": "live",
       "confidencePath": "native_unit",
       "promptSource": "static",
       "disagreementSignal": false,
-      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 86.5% stable/FLAT — inventory rule explicitly favors HOLD over repeated risk_off. Regime confidence is only 35% with mixed signals: RSI 89.6 (STRONG_SELL) conflicts with bullish EMA/MACD, and Fear&Greed 20 conflicts with +10.9% ETH surge. Analyst correctly identifies no actionable edge. Signal consensus BEARISH + negative yield spread (-1%) + o",
+      "validatorReasoning": "HOLD proposal is appropriate. Portfolio is 86.6% stable-heavy and FLAT — inventory rule mandates HOLD over risk_off absent CRISIS/TREND_DOWN confirmation. Regime confidence only 35% with mixed signals: RSI 80.3 STRONG_SELL conflicts with bullish EMA cross and MACD BUY. Signal consensus BEARISH plus yield spread -1% BEARISH noted. No R:R gate required for HOLD. No hallucinated data detected.",
       "validatorFlaggedIssues": [
-        "R:R not provided — acceptable for HOLD action only",
-        "RSI 89.6 extreme overbought with no confirmed reversal yet",
-        "Contradictory signals (EMA/MACD bullish vs RSI STRONG_SELL) acknowledged by Analyst",
-        "Regime confidence only 35% — insufficient for directional trade"
+        "RSI 80.3 overbought conflicts with EMA/MACD bullish — unresolved contradiction acknowledged",
+        "Fear & Greed 20 vs ETH +9.96% 24h divergence unresolved",
+        "Regime confidence 35% — below actionable threshold for any directional trade",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning"
       ],
       "arbiterVote": null,
       "arbiterReasoning": null,
@@ -65,9 +65,9 @@
         }
       },
       "directionalSwap": null,
-      "manifestHash": "0x34a061ff29018fc2eac87130f3c66982ea8fa92455d87cda5dff5315225671f0",
-      "combinedAnchor": "0xfc3d1d8839d87b59b05b2a3cfbb9c60314e83aff3744eb06daef01b92c9de9c5",
-      "decisionLogTxHash": "0x03bc82ee4da67c6d2a8367daf1c33e5210a173f6f9593d1ed490150b29c4fed0",
+      "manifestHash": "0xc021362df65d4ca6ebd617b33aa968776de43fdc0115d5d6690aff4cf41f3366",
+      "combinedAnchor": "0x7969fb7239d2a0c77e875d52ed11167374336cfefec076558620ee989db18741",
+      "decisionLogTxHash": "0xf5c7b5ba9ba62f463a3415b66fe5d3ab40c672b36d5c1b2ab88687757a141810",
       "priceSource": "coingecko",
       "priceFromSnapshot": false,
       "priceSnapshotAgeSec": null,
@@ -76,7 +76,7 @@
       "candleSnapshotAgeSec": null,
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
-      "_displayTier": "BLOCKED_BY_REGIME"
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
@@ -44553,6 +44553,91 @@
       "scoreDelta": 40,
       "pnlBps": 42,
       "onChainTx": "0xde6a21088ee38dcb828f21394a9943ed2d0849b2021bf6216916ba9ff8c79240"
+    },
+    {
+      "id": "1781542640980_569",
+      "decisionId": 569,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1841.43,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreie5d9d97a67e72461c687ddf0a5eeb7c1f6e619bc162666e3af23",
+      "recordedAt": "2026-06-15T16:57:20.980Z",
+      "settleAfter": "2026-06-15T17:57:20.980Z",
+      "settled": true,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781542640966
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 86.5% stable/FLAT — inventory rule explicitly favors HOLD over repeated risk_off. Regime confidence is only 35% with mixed signals: RSI 89.6 (STRONG_SELL) conflicts with bullish EMA/MACD, and Fear&Greed 20 conflicts with +10.9% ETH surge. Analyst correctly identifies no actionable edge. Signal consensus BEARISH + negative yield spread (-1%) + o",
+      "validatorFlaggedIssues": [
+        "R:R not provided — acceptable for HOLD action only",
+        "RSI 89.6 extreme overbought with no confirmed reversal yet",
+        "Contradictory signals (EMA/MACD bullish vs RSI STRONG_SELL) acknowledged by Analyst",
+        "Regime confidence only 35% — insufficient for directional trade"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x34a061ff29018fc2eac87130f3c66982ea8fa92455d87cda5dff5315225671f0",
+      "combinedAnchor": "0xfc3d1d8839d87b59b05b2a3cfbb9c60314e83aff3744eb06daef01b92c9de9c5",
+      "decisionLogTxHash": "0x03bc82ee4da67c6d2a8367daf1c33e5210a173f6f9593d1ed490150b29c4fed0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME",
+      "settledAt": "2026-06-15T18:06:04.512Z",
+      "priceAtSettlement": 1827.02,
+      "pricePct": -0.783,
+      "outcome": "MISSED_ALPHA",
+      "scoreDelta": -20,
+      "pnlBps": -23,
+      "onChainTx": "0xc1a66e8e7077b1475b742568229793e34135af11fabe8507ac594ee2d76928c9"
     }
   ],
   "schemaVersion": 2
