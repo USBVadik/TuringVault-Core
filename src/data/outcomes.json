@@ -230,6 +230,133 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781563901842_575",
+      "decisionId": 575,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1790.1,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei4a880b2600a6707726689abe0d4580f8f8c7f7aee2ab49d571f2",
+      "recordedAt": "2026-06-15T22:51:41.842Z",
+      "settleAfter": "2026-06-15T23:51:41.842Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 96716792"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781563901830
+      },
+      "decisionTier": "HEARTBEAT_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus BEARISH + yield spread -1% correctly prevent a risk_on entry. Portfolio is already 87.9% stable — no defensive swap needed either. Funding at 0.421% is neutral. Smart money flow flat. No hallucinated data detected. HOLD preserves capital appropriately given mixed signals and Extreme Fear at",
+      "validatorFlaggedIssues": [
+        "R:R not provided but irrelevant for HOLD — no capital at risk",
+        "MACD histogram negative (-1.2562) weakening while EMA cross is BUY — contradiction acknowledged implicitly by analyst",
+        "Extreme Fear 20 could signal capitulation but no confirming reversal signal present"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 0.8,
+        "amountUsd": 0.8,
+        "tier": "HEARTBEAT_SWAP",
+        "rationale": "Heartbeat micro-swap to maintain on-chain liveness during a passive window. NOT alpha-seeking. Quiet cycles: 30. Direction: risk-on. Cap: $0.80.",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0x1b9ee3cfb3260536baef9fe8ced5e947b00ba84abe1e2b483dc6d02b2efce67d",
+            "blockNumber": 96716787,
+            "amountIn": 0.8,
+            "amountOut": 0.800079
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0x16953a7b6785c22e04f91ec51b7c7f00d7e6959f41fab35188285fe4b27a361d",
+            "blockNumber": 96716792,
+            "amountIn": 0.799278921,
+            "amountOut": 1.3767457754745707
+          }
+        ],
+        "txHash": "0x16953a7b6785c22e04f91ec51b7c7f00d7e6959f41fab35188285fe4b27a361d"
+      },
+      "manifestHash": "0x7ce4cc964a41c02eac530772bbfad4ef695d206ec31f513f90a908ed980238b0",
+      "combinedAnchor": "0x638da476dc7ef26aa4e08f22b81b71672011bf2d98fb46b0749299b7bdf908cb",
+      "decisionLogTxHash": "0xf31d84cd832099448b9ae3469be5fccaf41fe64869bfe96ea496916464bc2f7c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "ACCEPTED",
+      "_displayTier": "HEARTBEAT_SWAP"
     }
   ],
   "settled": [
