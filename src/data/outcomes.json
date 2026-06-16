@@ -486,6 +486,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781600133900_586",
+      "decisionId": 586,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1795.77,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei078020e36fd2f586bc51457684df6ef645c66f08f52e9492c828",
+      "recordedAt": "2026-06-16T08:55:33.900Z",
+      "settleAfter": "2026-06-16T09:55:33.900Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781600133886
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 88.6% stable — no further risk_off warranted per inventory rule. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but contradicted by bullish EMA cross, rising RSI (58.8), and neutral funding (0.082%). Analyst correctly acknowledges conflicting signals. No directional trade proposed, so R:R gate does not ap",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% is bearish but insufficient alone to trigger risk_off",
+        "F&G 23 extreme fear unconfirmed as capitulation — no catalyst visible",
+        "MACD histogram negative (-5.96) adds mild bearish weight not fully emphasized"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd6135c055192c1f7c5556c50cf69074cc075b7d58c6ef023321e6045e9314222",
+      "combinedAnchor": "0x8c243d296de2821b9da1f965997bca00464cf9ff5e1acb2c45958bfe5d745400",
+      "decisionLogTxHash": "0x1fd13e6d4bb0e0ff72f58fc63440624d8f2ff1b7c88ce561047a93f39c57d178",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
