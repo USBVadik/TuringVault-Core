@@ -589,6 +589,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781577224902_580",
+      "decisionId": 580,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1773.87,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei0bae3335a261d09d07d91bf0733368a662ce4692fd54926a8fca",
+      "recordedAt": "2026-06-16T02:33:44.902Z",
+      "settleAfter": "2026-06-16T03:33:44.902Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781577224889
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no active grid strategy. Signal consensus is BEARISH but lacks multi-signal confirmation for a directional trade: funding NEUTRAL at 0.101%, smart money flow flat at $0.0M, RSI at 50.5 (not oversold), MACD weakening but not decisive. Portfolio is 88% stable-heavy and FLAT — inventory rule explicitly favors HOLD over repeated risk_",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% BEARISH signal not explicitly weighted in reasoning but does not alone justify risk_off given FLAT/stable-heavy posture",
+        "Fear & Greed at 23 warrants monitoring for regime shift to TREND_DOWN"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8c6521b51de4f149c3c842f7fa681a8f9ada7af3e0921c01baa145c1e50b976b",
+      "combinedAnchor": "0x4c0799ee09049be9d163e10e9e078aeffab6f972ae2be72346436511ef165704",
+      "decisionLogTxHash": "0x3c689ded1982162c2e01bad04508b4a3e9f065974775116c80e2eefa7fd5d15f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
