@@ -409,6 +409,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1781595668103_585",
+      "decisionId": 585,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1773.44,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei492f5e8d6b3987196954552c94d1b913a88fdcf861b13039fcf2",
+      "recordedAt": "2026-06-16T07:41:08.103Z",
+      "settleAfter": "2026-06-16T08:41:08.103Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781595668089
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is the correct action given HOLD regime at 35% confidence, mixed technicals (EMA bullish vs MACD bearish), neutral smart money flow, and stable-heavy portfolio at 88.1%. Inventory rules explicitly prohibit repeated risk_off when portfolio is FLAT and stable-heavy without CRISIS/TREND_DOWN confirmation. No directional trade proposed, so R:R gate is not triggered. Analyst correctly identified t",
+      "validatorFlaggedIssues": [
+        "Regime confidence only 35% — clarity may not emerge soon",
+        "Yield spread -1% remains a mild bearish drag on mETH",
+        "MACD histogram negative despite EMA bullish cross — divergence unresolved"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2e3a5c2ead3a68c44d1cdfad15edcb14743ac7f9e3e2617b28f1ddeab60164e6",
+      "combinedAnchor": "0x5929b5b3e3ccfbdc7a12c55643aea0547114311f0531821cdc7dca083b0d4413",
+      "decisionLogTxHash": "0x10031afe8c34bc7100b28b7584e7f249bf66eff026f0fa666afac5403f2bf325",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
