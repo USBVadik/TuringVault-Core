@@ -513,6 +513,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781574706284_579",
+      "decisionId": 579,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1795.39,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreif9bdfd8b545c4746439b8989d6f04a6d92ab59acb4f90658e28e",
+      "recordedAt": "2026-06-16T01:51:46.284Z",
+      "settleAfter": "2026-06-16T02:51:46.284Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781574706271
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but portfolio is already 88.1% stable — no de-risking action needed. EMA bullish vs MACD bearish divergence acknowledged. Funding at 0.170% is neutral, smart money flow $0.0M neutral. No R:R gate required for HOLD. Inventory rule supports HOLD over repeated risk_off given stable-",
+      "validatorFlaggedIssues": [
+        "Analyst states funding 0.170% annualized ~1.5% — raw data shows 0.170% as periodic rate, not annualized; minor misread but immaterial to HOLD decision",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe501764db3730b8b33c0f7a91e0a0cb6b5f9b7759ea538f12fdd68abd13fbae1",
+      "combinedAnchor": "0x485440ac1d00950d3ab03e8e4e5152a6e8025288f3b5fae2466db1424b45238c",
+      "decisionLogTxHash": "0x0f4b32eff0bee6f7a7db9cd2b25681cfd8994aff323a6224dd2ec9765f099a24",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
