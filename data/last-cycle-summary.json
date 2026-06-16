@@ -1,70 +1,35 @@
 {
-  "cycleStartedAt": "2026-06-16T12:19:39.483Z",
-  "cycleEndedAt": "2026-06-16T12:21:54.387Z",
-  "durationSeconds": 134.9,
+  "cycleStartedAt": "2026-06-16T13:16:32.690Z",
+  "cycleEndedAt": "2026-06-16T13:17:41.370Z",
+  "durationSeconds": 68.68,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 22769,
-    "validatorMs": 6301,
+    "analystMs": 9062,
+    "validatorMs": 8421,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 589,
-  "decisionTier": "HEARTBEAT_SWAP",
+  "decisionId": 590,
+  "decisionTier": "BLOCKED_BY_PORTFOLIO",
   "consensus": false,
-  "txHashes": [
-    "0xaf7d8ba23862d56118447182814a368f04e207f1fe2c0ffd65069f244ba7331d",
-    "0x4ee24099fec5daacafd0dab137aec1e877b86678b85c9db867c0cb4be7039539"
-  ],
+  "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27616992193",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27620265847",
   "errors": [],
   "gridTradeCandidate": {
-    "active": false,
-    "kind": null,
-    "action": null,
-    "direction": null,
-    "targetAsset": null,
-    "sourceAsset": null,
-    "allocationPct": null,
-    "confidence": null,
-    "reason": "no inventory-aware lower-band edge",
+    "active": true,
+    "kind": "grid-sell",
+    "action": "swap",
+    "direction": "risk_off",
+    "targetAsset": "mUSD",
+    "sourceAsset": "mETH",
+    "allocationPct": 20,
+    "confidence": 0.7537974683544307,
+    "reason": null,
     "routeHint": null
   },
-  "directionalSwap": {
-    "executed": true,
-    "direction": "risk-on",
-    "from": "USDT0",
-    "to": "WMNT",
-    "amountIn": 0.8,
-    "amountOut": null,
-    "reason": null,
-    "error": null,
-    "legs": [
-      {
-        "leg": 1,
-        "from": "USDT0",
-        "to": "USDT",
-        "txHash": "0xaf7d8ba23862d56118447182814a368f04e207f1fe2c0ffd65069f244ba7331d",
-        "blockNumber": 96741091,
-        "amountIn": 0.8,
-        "amountOut": 0.800079,
-        "reason": null
-      },
-      {
-        "leg": 2,
-        "from": "USDT",
-        "to": "WMNT",
-        "txHash": "0x4ee24099fec5daacafd0dab137aec1e877b86678b85c9db867c0cb4be7039539",
-        "blockNumber": 96741097,
-        "amountIn": 0.799278921,
-        "amountOut": 1.3830542113665436,
-        "reason": null
-      }
-    ]
-  },
-  "executionStatus": "EXECUTED"
+  "executionStatus": "BLOCKED_BY_PORTFOLIO"
 }
