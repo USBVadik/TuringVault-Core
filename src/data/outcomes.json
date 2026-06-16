@@ -75,6 +75,90 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781585151640_582",
+      "decisionId": 582,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 0.572989,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkrei7c3756b8972944d68a2607d8a5ded1883ce6d90e6c29bd18d91e",
+      "recordedAt": "2026-06-16T04:45:51.640Z",
+      "settleAfter": "2026-06-16T05:45:51.640Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781585151627
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is 88.8% stable-heavy with only $12.79 risk exposure — inventory rule explicitly mandates HOLD over risk_off in this posture absent CRISIS/TREND_DOWN confirmation. ETH grid EXIT_RANGING with UNKNOWN breakout direction correctly precludes directional action. MNT SELL_mETH signal is noted but WMNT exposure is negligible ($0.95). Funding neutral, smart money",
+      "validatorFlaggedIssues": [
+        "F&G=23 extreme fear may precede capitulation bounce — monitor for contrarian entry",
+        "MNT grid SELL_mETH at 68% confidence ignored due to negligible WMNT position — valid but worth tracking",
+        "ETH price $1762 vs EMA9 $1784 — slight bearish divergence with MACD histogram negative",
+        "Yield spread -1% mETH vs USDY mildly reduces risk-on appeal if breakout resolves upward"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no tradable WMNT inventory for grid sell",
+        "inspectedSignal": {
+          "asset": "mantle",
+          "action": "SELL_mETH",
+          "confidence": 0.6783333333333335,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.68,
+          "support": 0.55,
+          "resistance": 0.58,
+          "currentPrice": 0.5727
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x91452a486c6f11132a8641a83b56e232d65444e6b4fbc97b0b3c2912b8f8afd7",
+      "combinedAnchor": "0x825737b9124cdfbc1ac7fd11456e682dde7dbbc73a6cffd94b10e51e71df8af2",
+      "decisionLogTxHash": "0xb8ccb23b6e2804e94c71f858bdd2392ca2d1b5a9ef4f42a10193e06053a4bdad",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
