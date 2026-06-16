@@ -435,6 +435,84 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781569697735_577",
+      "decisionId": 577,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1791.9,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei7df9a18714195217353172ffaa7fef7018b41393627f0916be24",
+      "recordedAt": "2026-06-16T00:28:17.735Z",
+      "settleAfter": "2026-06-16T01:28:17.735Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781569697722
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is 88.1% stable-heavy and FLAT — inventory rule explicitly favors HOLD over risk_off in this state. Regime confidence is only 35% with mixed signals: EMA_CROSS=BUY but MACD=SELL, signal consensus BEARISH, RSI 58.9 neutral-to-falling. No grid confirmation active. Analyst correctly identifies no actionable edge. R:R not applicable for HOLD. All cited figure",
+      "validatorFlaggedIssues": [
+        "Regime confidence only 35% — no confirmed directional edge",
+        "Signal consensus BEARISH but RSI not oversold (58.9) — contradiction noted",
+        "Yield spread -1% adds mild bearish pressure on mETH",
+        "Fear & Greed 23 with non-oversold RSI is an unusual divergence worth monitoring"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x99933b3f436f582bcac6ee1d16ad674eb3acc2c7ccc6ec4593489e0d2739baf4",
+      "combinedAnchor": "0xa2b501995d08bcd6654ca8bc565a0c80bc6c3ca6e8bdd40016ea129419b3d9fb",
+      "decisionLogTxHash": "0x240cd6b28681b6e1860d22f209851e1e71641fd504df14ee67edfe7101e39572",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
