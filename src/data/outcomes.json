@@ -1,19 +1,19 @@
 {
   "pending": [
     {
-      "id": "1781694405699_613",
-      "decisionId": 613,
+      "id": "1781698721023_614",
+      "decisionId": 614,
       "action": "hold",
       "targetAsset": "mETH",
       "consensus": false,
-      "confidence": 0.6,
-      "priceAtDecision": 1765.31,
+      "confidence": 0.58,
+      "priceAtDecision": 1762.12,
       "settlementAsset": "WETH",
       "priceAssetAtDecision": "WETH",
       "settlementSourceAsset": null,
-      "ipfsCid": "bafkrei4559a716740950fbeaa619949c48489e970554a9a02f38fcc1bb",
-      "recordedAt": "2026-06-17T11:06:45.699Z",
-      "settleAfter": "2026-06-17T12:06:45.699Z",
+      "ipfsCid": "bafkreid024d04a3896b59cd2903d942772cd978f28813996e6759aa6e5",
+      "recordedAt": "2026-06-17T12:18:41.023Z",
+      "settleAfter": "2026-06-17T13:18:41.023Z",
       "settled": false,
       "rwaIntent": null,
       "disciplineStatus": "ACCEPTED",
@@ -38,34 +38,39 @@
         ],
         "blockReason": null,
         "repairStep": null,
-        "timestamp": 1781694405686
+        "timestamp": 1781698721009
       },
       "decisionTier": "BLOCKED_BY_REGIME",
       "tierSource": "live",
       "confidencePath": "native_unit",
       "promptSource": "static",
       "disagreementSignal": false,
-      "validatorReasoning": "Analyst correctly identifies ALREADY_IN_POSITION override and applies scale-in rule: current price $1765.31 is only 0.36% below entry $1771.67, insufficient for a 'deeper lower-band move.' Grid BUY_mETH at 80% confidence with 2.5:1 R:R is noted but not actionable given existing exposure. HOLD preserves capital, avoids overexposure in RANGING regime with BEARISH consensus and F&G=22. All raw signal",
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already 76.8% stable/FLAT, making repeated risk_off inappropriate per inventory rules. TREND_DOWN at only 60% confidence with NEUTRAL smart money flow ($0.0M) and balanced funding (0.324%) does not justify forced de-risking. RSI 37.3 with improving MACD histogram and Bollinger at 2% band position suggest mild oversold — not a crisis signal. Analyst cor",
       "validatorFlaggedIssues": [
-        "Signal consensus BEARISH conflicts with grid BUY — acknowledged implicitly but not explicitly stated",
-        "Yield spread -1% bearish not explicitly addressed in reasoning"
+        "R:R not explicitly provided but HOLD requires no directional trade — gate waived",
+        "Yield spread -1% bearish but insufficient alone to force action given stable-heavy posture",
+        "TREND_DOWN confidence only 60% — borderline regime signal"
       ],
       "arbiterVote": null,
       "arbiterReasoning": null,
       "portfolioGuard": null,
       "gridTradeCandidate": {
         "active": false,
-        "reason": "not stable-heavy FLAT inventory",
-        "sellCandidateBlocked": null
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
       },
       "directionalSwap": null,
-      "manifestHash": "0xabb0d4ad4c61d26c9fdf2464ff2e5fc4a38df8293bda07fd0eae0529bcde530e",
-      "combinedAnchor": "0xa158a0295d62afe18b543d7bc87122159a92976764dd91b6a47fcfaa5a41ac83",
-      "decisionLogTxHash": "0x39f158aebf442588a078429a58d5486c28f1118e1d5ec0c0e6aa68653a17e65f",
+      "manifestHash": "0xf470f5cdebe207a2d992d5030c50755d6506798ad2fdef96ee2968721cba3644",
+      "combinedAnchor": "0x3adae2754cb4b9ec5550ccbb007b85485f21122e783d0a920b3149417d322ffa",
+      "decisionLogTxHash": "0x09d797e73a9e0d723b2e86596554492580f268df64852a24d381d36c066a9973",
       "priceSource": "coingecko",
       "priceFromSnapshot": false,
       "priceSnapshotAgeSec": null,
-      "candleSource": "coingecko",
+      "candleSource": null,
       "candleFromSnapshot": false,
       "candleSnapshotAgeSec": null,
       "executedOnChain": null,
@@ -48142,6 +48147,85 @@
       "scoreDelta": -80,
       "pnlBps": -22,
       "onChainTx": "0x39f6637105d810c9caecd3aac8fd06c1d1e4bda93772aae04403dbdb401c40b2"
+    },
+    {
+      "id": "1781694405699_613",
+      "decisionId": 613,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1765.31,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei4559a716740950fbeaa619949c48489e970554a9a02f38fcc1bb",
+      "recordedAt": "2026-06-17T11:06:45.699Z",
+      "settleAfter": "2026-06-17T12:06:45.699Z",
+      "settled": true,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781694405686
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies ALREADY_IN_POSITION override and applies scale-in rule: current price $1765.31 is only 0.36% below entry $1771.67, insufficient for a 'deeper lower-band move.' Grid BUY_mETH at 80% confidence with 2.5:1 R:R is noted but not actionable given existing exposure. HOLD preserves capital, avoids overexposure in RANGING regime with BEARISH consensus and F&G=22. All raw signal",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH conflicts with grid BUY — acknowledged implicitly but not explicitly stated",
+        "Yield spread -1% bearish not explicitly addressed in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xabb0d4ad4c61d26c9fdf2464ff2e5fc4a38df8293bda07fd0eae0529bcde530e",
+      "combinedAnchor": "0xa158a0295d62afe18b543d7bc87122159a92976764dd91b6a47fcfaa5a41ac83",
+      "decisionLogTxHash": "0x39f158aebf442588a078429a58d5486c28f1118e1d5ec0c0e6aa68653a17e65f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME",
+      "settledAt": "2026-06-17T12:17:39.153Z",
+      "priceAtSettlement": 1762.03,
+      "pricePct": -0.186,
+      "outcome": "CORRECT_BLOCK",
+      "scoreDelta": 40,
+      "pnlBps": 6,
+      "onChainTx": "0x20861d85bf61efb9a68525405cb18a0a5ec2f5830052acb224a2596782299dd4"
     }
   ],
   "schemaVersion": 2
