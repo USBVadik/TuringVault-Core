@@ -422,6 +422,79 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "HEARTBEAT_SWAP"
+    },
+    {
+      "id": "1781714107114_619",
+      "decisionId": 619,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1776.5,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei22b8639263c2035a829e8ca9dce164fdaf39643712ce0aee7885",
+      "recordedAt": "2026-06-17T16:35:07.114Z",
+      "settleAfter": "2026-06-17T17:35:07.114Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781714107102
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction — no directional edge exists. Portfolio is already 76% stable-heavy with existing mETH from $1771.67 (current $1776.50, minimal drawdown). F&G=22 extreme fear, MACD improving but EMA bearish, funding neutral — mixed signals correctly acknowledged. No R:R gate required for HOLD. Inventory rul",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "Expanding volatility with UNKNOWN breakout direction elevates whipsaw risk",
+        "EMA cross SELL conflicts with rising RSI 49.7 — indecision confirmed"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x53dd9cb74cda45a85cdf1c3e3b6da1378707501e2829df8b52946ac2181ed509",
+      "combinedAnchor": "0xd6308eddcf7aeb01112b8b9e4cbf30740465a44448d3205c249bd0aa7ef3fc8e",
+      "decisionLogTxHash": "0x8dc00f49ba48978e96efd138920b9fc7d13aaec38aa2c49e0f0de0bb0b7a434b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
