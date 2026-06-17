@@ -871,6 +871,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781736255386_626",
+      "decisionId": 626,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 0.540603,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkrei8bcf4e61ba7885b18035c592af929dc7bdd0bafd932e279b4626",
+      "recordedAt": "2026-06-17T22:44:15.386Z",
+      "settleAfter": "2026-06-17T23:44:15.386Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781736255374
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Swap to mUSD (risk-off) is proposed while portfolio is already stable-heavy (81.6% stable, FLAT posture). Inventory rule requires HOLD unless CRISIS/TREND_DOWN is explicitly confirmed — regime is still RANGING at 55% confidence, not CRISIS. Grid EXIT_RANGING with TREND_DOWN hint is a breakout signal but does not constitute explicit CRISIS confirmation. R:R not provided — mandatory rejection trigge",
+      "validatorFlaggedIssues": [
+        "R:R not provided — mandatory rejection trigger",
+        "Portfolio already 81.6% stable; inventory rule mandates HOLD not risk_off without CRISIS confirmation",
+        "Regime is RANGING 55% confidence, not confirmed CRISIS or TREND_DOWN",
+        "60% allocation on unclear regime exceeds conservative sizing mandate",
+        "Extreme Fear F&G=22 raises capitulation/reversal risk that analyst acknowledges but does not weight adequately"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "lower-band risk-on blocked by confirmed down-break"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x098aa7234e7fa094e64e7de23cfe92e04ed5ba90b80e357961c8a1b07d1e443e",
+      "combinedAnchor": "0xe4a14ffe931dbab5ea7020a1f74893ca167ce19910fc6bf7f6dfc1f58b0aa04b",
+      "decisionLogTxHash": "0x106ed4dce6849998b8a015161d90391be33b3450b5c4b59674f0a5fe949ed30a",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
