@@ -495,6 +495,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781719989137_620",
+      "decisionId": 620,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1764.22,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei3e7ec682546be0f919205bf5c9edae5507e61d822f3f5cca233f",
+      "recordedAt": "2026-06-17T18:13:09.137Z",
+      "settleAfter": "2026-06-17T19:13:09.137Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781719989125
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid fired EXIT_RANGING with UNKNOWN breakout direction — no directional edge confirmed. MNT grid BUY_mETH at 2.5:1 R:R is valid but ALREADY_IN_POSITION override correctly blocks new entry per scale-in rule (no deeper lower-band move confirmed). Funding neutral at 0.241%, smart money flat $0.0M, F&G=22 extreme fear without negative funding spike. All raw signal",
+      "validatorFlaggedIssues": [
+        "ETH grid EXIT_RANGING with vol expanding — whipsaw risk if breakout occurs",
+        "Existing mETH position entered at $1771.67 now below entry (~$1764) — minor unrealized loss",
+        "Yield spread -1% bearish but insufficient alone to trigger risk-off given stable-heavy posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2679ea0bec00f8d497d7a88105d057a9dbe4820faec44c98fbee23e0d64f38e6",
+      "combinedAnchor": "0x8ac879ce202c91c116325789307af014441efbe5020fc2b1737f73a9d1c69aef",
+      "decisionLogTxHash": "0x57523211fd6ee36412faca75a2507cf35f7081e00031c8ead0a27bc8989890f5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
