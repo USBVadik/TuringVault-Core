@@ -834,6 +834,106 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1781685768456_611",
+      "decisionId": 611,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 1762.88,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei91eaf6064f914515cb8e3c78ef59a4cfb2a4d0977e4696f38012",
+      "recordedAt": "2026-06-17T08:42:48.456Z",
+      "settleAfter": "2026-06-17T09:42:48.456Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781685768444
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid BUY_mETH at 78% confidence with price at 3% of channel ($1766 vs $1764.2 support). R:R explicitly stated 2.5:1 (TP $1806.28, SL $1750.03) — exceeds 1.5:1 threshold. RANGING regime supports grid entry at lower band. Funding neutral (0.275%), smart money NEUTRAL — no blocking outflow. Analyst correctly prioritizes PRIMARY EDGE on ETH over MNT breakdown. 20% allocation is within risk cap. Co",
+      "validatorFlaggedIssues": [
+        "BEARISH signal consensus partially contradicts grid BUY — acknowledged but warrants conservative sizing",
+        "MNT ecosystem weakness (TREND_DOWN breakout) may drag ETH/mETH sentiment on Mantle",
+        "RSI falling at 36.4 and MACD negative — momentum not yet confirmed bullish",
+        "F&G=22 Extreme Fear adds execution uncertainty despite contrarian bias"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($92.55)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 92.553906,
+          "tradableRiskUsd": 21.939800928605944,
+          "nativeMnt": 34.910250599715866,
+          "stableShare": 0.8083754861541272,
+          "riskShare": 0.19162451384587273,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-on",
+        "reason": "smart-router-infeasible: risk-on infeasible: USDT0=0.00 USDT=0.00 both below floors",
+        "balancesSnapshot": {
+          "MNT": 34.842682176913534,
+          "WMNT": 22.477480662306757,
+          "USDT0": 0,
+          "USDT": 0,
+          "mETH": 0,
+          "WETH": 0
+        }
+      },
+      "manifestHash": "0x8130b63c2d136122c0bef1f3a4a8b42f9d98033d01264a6522fcd60723335eb8",
+      "combinedAnchor": "0x23491dff1623852e97948d664557e400ddb188776cf4e633bff49919328f439f",
+      "decisionLogTxHash": "0xa41ed4ddee3fd3ff8247a05bd7e34f6bd30c06f03b81577a3cefa32243035b1e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
