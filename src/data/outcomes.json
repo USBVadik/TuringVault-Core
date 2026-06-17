@@ -226,6 +226,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781708828226_617",
+      "decisionId": 617,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1755.14,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei6e4569bddd5759b25204735d16629790d1e75f64d7229cafda21",
+      "recordedAt": "2026-06-17T15:07:08.226Z",
+      "settleAfter": "2026-06-17T16:07:08.226Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781708828214
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on mETH is appropriate. ETH grid shows EXIT_RANGING with confirmed DOWN breakout below $1761 support (70% confidence, regimeHint=TREND_DOWN), but portfolio is already 76.9% stable. Selling $13.92 mETH adds negligible protection. RSI 36 rising + neutral funding (0.052%) + neutral smart money flow = insufficient confirmation for aggressive risk_off. Inventory rule explicitly supports HOLD over ",
+      "validatorFlaggedIssues": [
+        "ETH grid EXIT_RANGING DOWN breakout is real — TREND_DOWN hint should be monitored closely",
+        "No R:R provided but HOLD carries no directional execution risk",
+        "MNT UNKNOWN breakout direction adds cross-asset uncertainty"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd7da8a7e4648a6dcb7b63112ac633a36531e45a5c9ec444babcb9a158d4b0fa8",
+      "combinedAnchor": "0x4fbaf94fd0d25b64d32e38871a563541fe1a87d41697c66e076fe2ad5aebb125",
+      "decisionLogTxHash": "0x34bb3ab64683d2b7f3226d6032f4640226fe14cda780d0113d18a347fce2f3a1",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
