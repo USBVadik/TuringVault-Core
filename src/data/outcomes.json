@@ -2043,6 +2043,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781785675695_640",
+      "decisionId": 640,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1749.38,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei79c4188edc9ed2aacf49ac1e990cd9135882a4235743342f9ebc",
+      "recordedAt": "2026-06-18T12:27:55.695Z",
+      "settleAfter": "2026-06-18T13:27:55.695Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781785675680
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-reasoned and conservative. Already IN_mETH at $1747.71; current price $1751.1 is above entry — scale-in rule correctly not triggered. Grid BUY signals (ETH 69%, MNT 80%) are acknowledged but override applies. R:R on existing position remains 2.5:1 per grid data. Bearish consensus + yield spread -1% + F&G=15 justify waiting. No hallucinated data. HOLD in RANGING regime with ex",
+      "validatorFlaggedIssues": [
+        "Analyst confidence 58% is modest but acceptable for a HOLD",
+        "Yield spread -1% mildly erodes carry thesis on mETH hold",
+        "F&G=15 extreme fear could extend drawdown before mean-reversion"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd5514cbe26fbb9d40f634bab58cf8039d98eb34e5fe56214d0ce4cb13a4d3f08",
+      "combinedAnchor": "0x61e76fa9600dba493417ad5df340c8ed3e7b31ef4b8067d87beb26afbebc1efd",
+      "decisionLogTxHash": "0x29a16b02488774c83cc88032a59de4ecf6e68ad78c1044dfafe0330812aabc87",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
