@@ -1896,6 +1896,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781779013390_638",
+      "decisionId": 638,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1740.7,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei7bb182c0a072fad7a6c33d9935dc6285f2c88dcd43a1bd53c724",
+      "recordedAt": "2026-06-18T10:36:53.390Z",
+      "settleAfter": "2026-06-18T11:36:53.390Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781779013377
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate here. Portfolio is already IN_mETH since $1747.71; current price $1740.70 is only ~0.4% below entry — insufficient for scale-in per the scale-in rule requiring a fresh deeper lower-band move. Grid BUY signals (77%/80%) are real but overridden by existing position. F&G=15 and BEARISH consensus add caution. No contradictions detected; analyst correctly declined scale-in. HOLD pre",
+      "validatorFlaggedIssues": [
+        "No R:R explicitly provided — acceptable for HOLD action",
+        "BEARISH consensus vs grid BUY signals unresolved but acknowledged",
+        "Unrealized loss on mETH position warrants monitoring"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0c3c2f238043f5708c68afe2e54631c509bccb08eab28057ffabf2ded3f23667",
+      "combinedAnchor": "0xad73f4b86c9a393301e2e95c01f26351cd438adf6449ac1f3866324d4105eadc",
+      "decisionLogTxHash": "0xf517ebbc4cce1f88d12c75fec2021a448393cf2ca8b56e468eb934708c422971",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
