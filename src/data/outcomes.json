@@ -1969,6 +1969,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781784887226_639",
+      "decisionId": 639,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1743.92,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei861611e28181d45581e25440c29a3770eef9fd45af4b0189120d",
+      "recordedAt": "2026-06-18T12:14:47.226Z",
+      "settleAfter": "2026-06-18T13:14:47.226Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781784887211
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-reasoned. Portfolio is already IN_mETH at $1747.71; current price $1745.4 is only ~0.13% below entry — insufficient pullback to justify scale-in per the scale-in rule. Grid BUY signals acknowledged but override flag correctly applied. Bearish consensus + falling RSI (44.8/33.7) + extreme fear (F&G=15) support patience. No contradictions ignored. R:R gate not applicable to HOL",
+      "validatorFlaggedIssues": [
+        "Scale-in threshold not met — price marginally below entry, not a fresh deeper lower-band move",
+        "BEARISH signal consensus conflicts with grid BUY signals — acknowledged by Analyst",
+        "RSI falling on both assets weakens bullish grid case",
+        "Extreme Fear sentiment (15) elevates downside tail risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8bb0da0188169304f8995ae050c96ff4639598f4186ae4db812590e03bdcdf28",
+      "combinedAnchor": "0xfc24b3a52b78d13ef5cdc6650faaf07579307f30c313a05674b72c9ec184fc0a",
+      "decisionLogTxHash": "0x533f573818f6ce53e126a4e80b24c16785d15d83cee314307ac4122230473825",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
