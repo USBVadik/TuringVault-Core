@@ -1210,6 +1210,94 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781746339154_629",
+      "decisionId": 629,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1756.56,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreibd9d5b3d412fe6bc53c119402048dde85c401c12d98827cd6a41",
+      "recordedAt": "2026-06-18T01:32:19.154Z",
+      "settleAfter": "2026-06-18T02:32:19.154Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781746339140
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid BUY_mETH fires at 24% channel position near $1749.7 support with stated R:R 2.5:1 (target $1785.55, stop $1751.6) — exceeds 1.5:1 threshold. RANGING regime with grid confirmation satisfies directional swap gate. Portfolio is 75% stable-heavy/FLAT; inventory rule explicitly permits risk_on when grid supports buy. F&G=15 contrarian tailwind acknowledged. Funding 0.367% neutral, no strong ou",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish — mild headwind not fully weighted",
+        "Bearish EMA cross (9<21) conflicts with buy thesis",
+        "3-leg route USDT0→USDT→WMNT→mETH introduces slippage risk on small allocation",
+        "Signal consensus BEARISH — grid buy is contrarian; stop at $1751.6 is tight (~0.55% below entry)"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-on",
+        "reason": "scale-in blocked: no fresh lower-band grid edge",
+        "scaleIn": true,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 85.30578,
+          "tradableRiskUsd": 28.33299271364264,
+          "nativeMnt": 33.41418289984163,
+          "stableShare": 0.7506749497811042,
+          "riskShare": 0.2493250502188958,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x499a1354b383c426317560a46e16868a2da98dcad2ae6a9bcb79d0272f95c0cd",
+      "combinedAnchor": "0x12757711a5abff8ee88011954c022270c40c34d0925dafcac450f83bef1bb380",
+      "decisionLogTxHash": "0x60ef0cd49256d9409b2180ea5aba7f4590245aba365bc11a1a2e7f7cd090dfd0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
