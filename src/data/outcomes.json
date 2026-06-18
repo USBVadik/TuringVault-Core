@@ -1822,6 +1822,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781777398280_637",
+      "decisionId": 637,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1744.18,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei26d301a1e48009606894e0b5bff738409e5507fc36bab75668ca",
+      "recordedAt": "2026-06-18T10:09:58.280Z",
+      "settleAfter": "2026-06-18T11:09:58.280Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781777398266
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is already IN_mETH from $1747.71; scale-in rule requires a deeper lower-band move before adding. Current price $1742 is only ~$5 below entry — insufficient for scale-in. Grid BUY signals (76-80% conf, 2.5:1 R:R) are intact but override applies. BEARISH consensus + F&G=15 + negative yield spread justify patience. No contradictions ignored. HOLD is low-risk",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH vs grid BUY — acknowledged but not resolved directionally",
+        "Yield spread -1% adds carry cost to holding mETH",
+        "Liquidation clusters at $1657/$1570 pose cascade risk if support at $1738 fails",
+        "Extreme Fear (F&G=15) may extend downside before mean-reversion"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xaeefddd566d3596cb5f269aa682fba9369e248392fc1feb7ffd27b888f9c42bf",
+      "combinedAnchor": "0x57cb3e8cab900ee653ba97a2ae0088e04536672e67ae1e8aba79261f15ad9dc4",
+      "decisionLogTxHash": "0x3ab5deb68232ebd0ddbf0c16a58be1e58d2ad9dfcafc32f33a519c34eb397b1e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
