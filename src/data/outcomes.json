@@ -1386,6 +1386,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1781754037742_631",
+      "decisionId": 631,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1742.74,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei1b4979fbd45b5188397cdb754e3378b343bb3cb6c10771cea87a",
+      "recordedAt": "2026-06-18T03:40:37.742Z",
+      "settleAfter": "2026-06-18T04:40:37.742Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781754037729
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. ETH grid shows BUY_mETH at 0% channel position with 2.5:1 R:R, but ALREADY_IN_POSITION since $1747.71 blocks new entry per scale-in rule — no deeper lower-band move confirmed. MNT EXIT_RANGING with UNKNOWN breakout direction correctly defers action. Funding neutral, smart money flat, regime RANGING 55%. All signals accurately cited. No hallucination detected.",
+      "validatorFlaggedIssues": [
+        "RSI 41.1 falling — no oversold bounce confirmation yet",
+        "F&G=15 Extreme Fear raises downside continuation risk",
+        "MNT trend forming with unknown breakout direction adds uncertainty",
+        "Yield spread -1% bearish on mETH vs USDY",
+        "RANGING regime at only 55% confidence — regime could shift"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1e0b13f5a2c400b9561e177dda27b68220e09f6bbddfd8464e3b4ed3e0f0d2a3",
+      "combinedAnchor": "0x40fb6e6bc6f1cf2832baf68e7381fa81cf4e4ebe5d8d8b71797e96969a388002",
+      "decisionLogTxHash": "0x1bb6528bf163c12d38c2c8c1bac803affd92dfcfdea8f4ecd4d786a471431de9",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
