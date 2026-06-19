@@ -1,26 +1,23 @@
 {
-  "cycleStartedAt": "2026-06-19T14:02:21.564Z",
-  "cycleEndedAt": "2026-06-19T14:04:05.806Z",
-  "durationSeconds": 104.24,
+  "cycleStartedAt": "2026-06-19T16:01:01.417Z",
+  "cycleEndedAt": "2026-06-19T16:01:56.984Z",
+  "durationSeconds": 55.57,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 25003,
-    "validatorMs": 7295,
+    "analystMs": 4748,
+    "validatorMs": 7715,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 651,
-  "decisionTier": "HEARTBEAT_SWAP",
-  "consensus": false,
-  "txHashes": [
-    "0xf0fb52918329f040e8bb33a066a3231c32ba58eeb43a4e062abfbd8051c11f36",
-    "0xfaf7242c43f77e18b7fc9eef2c2bfbcfb8eee530539fd2c266d6a3d5d1978ee7"
-  ],
+  "decisionId": 653,
+  "decisionTier": "INTENT_SWAP_NO_EXEC",
+  "consensus": true,
+  "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27830259360",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/27836055008",
   "errors": [],
   "gridTradeCandidate": {
     "active": false,
@@ -35,36 +32,15 @@
     "routeHint": null
   },
   "directionalSwap": {
-    "executed": true,
+    "executed": false,
     "direction": "risk-on",
     "from": "USDT0",
-    "to": "WMNT",
-    "amountIn": 0.8,
+    "to": "mETH",
+    "amountIn": 5,
     "amountOut": null,
-    "reason": null,
+    "reason": "preflight-failed: leg2 USDT->WMNT not viable",
     "error": null,
-    "legs": [
-      {
-        "leg": 1,
-        "from": "USDT0",
-        "to": "USDT",
-        "txHash": "0xf0fb52918329f040e8bb33a066a3231c32ba58eeb43a4e062abfbd8051c11f36",
-        "blockNumber": 96873756,
-        "amountIn": 0.8,
-        "amountOut": 0.800079,
-        "reason": null
-      },
-      {
-        "leg": 2,
-        "from": "USDT",
-        "to": "WMNT",
-        "txHash": "0xfaf7242c43f77e18b7fc9eef2c2bfbcfb8eee530539fd2c266d6a3d5d1978ee7",
-        "blockNumber": 96873762,
-        "amountIn": 0.799278921,
-        "amountOut": 1.510230756884738,
-        "reason": null
-      }
-    ]
+    "legs": null
   },
-  "executionStatus": "EXECUTED"
+  "executionStatus": "INTENT_ONLY"
 }
