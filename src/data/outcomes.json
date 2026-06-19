@@ -1820,6 +1820,79 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1781912705287_663",
+      "decisionId": 663,
+      "action": "hold",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.5,
+      "priceAtDecision": 0.527659,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreia7a967cda8e62f8b6821f0267ba387453b8c3f53686b4b58c36f",
+      "recordedAt": "2026-06-19T23:45:05.287Z",
+      "settleAfter": "2026-06-20T00:45:05.287Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781912705274
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both grids confirm HOLD at 32%/30% channel positions — neither near support nor resistance. RANGING regime (55%) with BEARISH consensus correctly argues against new directional entry. Portfolio is already IN_MNT from $0.527, current price $0.529 shows minimal drift. No scale-in trigger (no fresh lower-band move). Extreme Fear F&G=14 noted but RSI 51.1 is neutral, n",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no R:R gate",
+        "Yield spread -1% bearish signal acknowledged but not deeply weighted",
+        "MACD histogram weakening — minor bearish divergence not explicitly noted"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa4bb28db56d833c86b7b7ae03c44e9520f5d279072719d4a230e529f6a5dc01f",
+      "combinedAnchor": "0xa21df3caf5ffbbfb6d017635851b19109e06504405ecfb8b48e452ce31287f84",
+      "decisionLogTxHash": "0xa960a1f59c760f98bf763c44132101a0dbe1ec7d6f147eb9be042138439d88c8",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
