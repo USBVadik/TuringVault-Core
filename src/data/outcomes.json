@@ -884,6 +884,94 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1781888386447_654",
+      "decisionId": 654,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 0.525292,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei4968cf753fc47372d4d0a8f8e139044b480c2ec09cd05c3c6ee3",
+      "recordedAt": "2026-06-19T16:59:46.447Z",
+      "settleAfter": "2026-06-19T17:59:46.447Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781888386433
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "MNT grid fires BUY at 12% of channel with 2.5:1 R:R (TP $0.54, SL $0.52) — meets 1.5:1 threshold. RANGING regime with grid confirmation satisfies directional swap gate. F&G=14 contrarian tailwind is valid. 15% allocation is conservative and within risk cap. Scale-in rule met: existing WMNT at $0.527, current price $0.526 is a marginal lower-band re-entry. Funding neutral (0.092%) — no crowding ris",
+      "validatorFlaggedIssues": [
+        "Signal consensus is BEARISH — grid BUY operates against broader consensus, monitor closely",
+        "Yield spread -1% reduces carry appeal on MNT hold",
+        "RSI 42.9 falling — momentum not yet reversed",
+        "Concentration risk: adding to existing WMNT position"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-on",
+        "reason": "scale-in blocked: price 0.52579 is not below prior entry by 1.0%",
+        "scaleIn": true,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 84.441907,
+          "tradableRiskUsd": 28.093586031986604,
+          "nativeMnt": 31.33231305431176,
+          "stableShare": 0.7503579957302768,
+          "riskShare": 0.2496420042697232,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6d4932ba35aca0155de967852a50e7b8b51abceab304874a182e06c1c02b3ef9",
+      "combinedAnchor": "0x1efe766ac4fbb9022472041535dee7c873e168404b5d0c053de02d447d054d2e",
+      "decisionLogTxHash": "0xaef2d3ec03fdf2f924ff67be7ea73c2339000c73c9e0958ab93902e694585f31",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
