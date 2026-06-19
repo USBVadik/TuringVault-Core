@@ -1523,6 +1523,7 @@ async function runMultiAgentCycle(opts = {}) {
     try {
       const {
         shouldFireHeartbeat,
+        shouldExecuteHeartbeatSwap,
         summariseCycle,
         HEARTBEAT_TIER,
       } = require("./heartbeatMode");
@@ -1592,7 +1593,16 @@ async function runMultiAgentCycle(opts = {}) {
         directionLastUsed: lastDirection,
       });
 
-      if (decision_.fire && process.env.RWA_EXECUTE_ENABLED === "true") {
+      const heartbeatExecutionPolicy = shouldExecuteHeartbeatSwap({
+        heartbeatDecision: decision_,
+        env: process.env,
+      });
+
+      if (
+        decision_.fire &&
+        heartbeatExecutionPolicy.execute &&
+        process.env.RWA_EXECUTE_ENABLED === "true"
+      ) {
         console.log(
           `💓 [STEP 4.8] HEARTBEAT firing: ${decision_.plan.from} → ${decision_.plan.to} ` +
             `($${decision_.plan.amountUsd.toFixed(2)}, ${decision_.plan.direction})`
@@ -1729,6 +1739,10 @@ async function runMultiAgentCycle(opts = {}) {
       } else if (!decision_.fire) {
         // Visible diagnostic so the operator can see what's gating it.
         console.log(`💓 [STEP 4.8] heartbeat skipped: ${decision_.reason}`);
+      } else if (!heartbeatExecutionPolicy.execute) {
+        console.log(
+          `💓 [STEP 4.8] heartbeat proof-only: ${heartbeatExecutionPolicy.reason}`
+        );
       }
     } catch (hbErr) {
       console.log(

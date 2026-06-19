@@ -15,6 +15,8 @@
  *   - refuses to fire in adversarial regimes (TREND_DOWN, CRISIS)
  *   - alternates direction so wallet doesn't drift
  *   - is gated behind HEARTBEAT_MODE_ENABLED env flag (default OFF)
+ *   - is proof-only by default; real exposure-changing swaps require
+ *     HEARTBEAT_EXECUTE_SWAPS=true
  *
  * The submission narrative: judges who drop in mid-week see a sustained
  * cadence of small on-chain activity rather than a long HOLD wall.
@@ -177,8 +179,9 @@ function shouldFireHeartbeat(args = {}) {
     direction =
       args.directionLastUsed === "risk-on" ? "risk-off" : "risk-on";
   } else {
-    // First heartbeat ever, no drift — default to risk-on so the bot's
-    // first observable heartbeat looks like an alpha-seeking signal.
+    // First heartbeat ever, no drift — default to risk-on. The execution
+    // policy below is proof-only by default, so this plan does not imply
+    // an exposure-changing swap unless explicitly enabled.
     direction = "risk-on";
   }
 
@@ -231,6 +234,33 @@ function shouldFireHeartbeat(args = {}) {
 }
 
 /**
+ * Decide whether a heartbeat plan is allowed to broadcast a real DEX swap.
+ *
+ * Heartbeat is a liveness/proof mechanism, not an alpha engine. The
+ * default must therefore be proof-only so it cannot accumulate WMNT or
+ * churn stables just because the normal strategy stayed quiet.
+ */
+function shouldExecuteHeartbeatSwap({ heartbeatDecision, env } = {}) {
+  if (!heartbeatDecision?.fire) {
+    return { execute: false, reason: "heartbeat-not-fired" };
+  }
+
+  const effectiveEnv = env || process.env;
+  if (effectiveEnv.HEARTBEAT_EXECUTE_SWAPS !== "true") {
+    return {
+      execute: false,
+      reason:
+        "heartbeat-proof-only: real exposure-changing swaps disabled; set HEARTBEAT_EXECUTE_SWAPS=true to opt in",
+    };
+  }
+
+  return {
+    execute: true,
+    reason: "explicit HEARTBEAT_EXECUTE_SWAPS opt-in",
+  };
+}
+
+/**
  * Format a `recentCycles` view from outcomes.json records.
  * Each record may carry directionalSwap.legs[].txHash (real swap proof)
  * or _displayTier === HEARTBEAT_SWAP (our own footprint).
@@ -259,6 +289,7 @@ function summariseCycle(record) {
 
 module.exports = {
   shouldFireHeartbeat,
+  shouldExecuteHeartbeatSwap,
   summariseCycle,
   HEARTBEAT_TIER,
 };

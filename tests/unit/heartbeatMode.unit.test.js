@@ -8,6 +8,7 @@
 
 const {
   shouldFireHeartbeat,
+  shouldExecuteHeartbeatSwap,
   HEARTBEAT_TIER,
 } = require("../../src/orchestrator/heartbeatMode");
 
@@ -228,5 +229,33 @@ describe("shouldFireHeartbeat — happy path", () => {
     expect(r.fire).toBe(true);
     expect(r.plan.rationale).toMatch(/Heartbeat/i);
     expect(r.plan.rationale).toMatch(/NOT alpha-seeking/i);
+  });
+});
+
+describe("shouldExecuteHeartbeatSwap — exposure policy", () => {
+  test("does not execute real exposure-changing heartbeat swaps by default", () => {
+    const policy = shouldExecuteHeartbeatSwap({
+      env: ENABLED_ENV,
+      heartbeatDecision: {
+        fire: true,
+        plan: { direction: "risk-on", from: "USDT0", to: "WMNT" },
+      },
+    });
+
+    expect(policy.execute).toBe(false);
+    expect(policy.reason).toMatch(/proof-only/i);
+  });
+
+  test("requires an explicit opt-in flag before heartbeat can broadcast a swap", () => {
+    const policy = shouldExecuteHeartbeatSwap({
+      env: { ...ENABLED_ENV, HEARTBEAT_EXECUTE_SWAPS: "true" },
+      heartbeatDecision: {
+        fire: true,
+        plan: { direction: "risk-on", from: "USDT0", to: "WMNT" },
+      },
+    });
+
+    expect(policy.execute).toBe(true);
+    expect(policy.reason).toMatch(/explicit/i);
   });
 });

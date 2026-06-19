@@ -9,6 +9,7 @@ const MIN_SCALE_IN_DIP_PCT = 0.01;
 const SCALE_IN_LOWER_BAND_MAX = 0.12;
 const SCALE_IN_ALLOCATION_PCT = 10;
 const MAX_SCALE_INS_PER_POSITION = 2;
+const MIN_PROFIT_EXIT_PCT = 0.003;
 
 function num(v, fallback = 0) {
   const n = Number(v);
@@ -46,6 +47,31 @@ function positionRiskAsset(positionState = {}) {
   if (positionState.status === "IN_mETH") return "mETH";
   if (positionState.status === "IN_RISK") return "risk";
   return null;
+}
+
+function currentPriceForPosition({
+  positionState = {},
+  prices = {},
+  structuredSignals = {},
+} = {}) {
+  const riskAsset = positionRiskAsset(positionState);
+  if (riskAsset === "WMNT") {
+    const signal = selectRiskSignal(structuredSignals, "WMNT");
+    return (
+      num(signal.channel?.currentPrice, 0) ||
+      priceOf(prices, "WMNT") ||
+      priceOf(prices, "MNT")
+    );
+  }
+  if (riskAsset === "mETH") {
+    const signal = selectRiskSignal(structuredSignals, "mETH");
+    return (
+      num(signal.channel?.currentPrice, 0) ||
+      priceOf(prices, "mETH") ||
+      priceOf(prices, "WETH")
+    );
+  }
+  return 0;
 }
 
 function selectRiskSignal(structuredSignals = {}, targetAsset) {
@@ -147,6 +173,69 @@ function assessScaleIn({
       `controlled scale-in allowed: ${targetRisk} lower-band price ` +
       `${currentPrice} is below prior entry ${entryPrice}; size capped at ${SCALE_IN_ALLOCATION_PCT}%`,
     suggestedAllocationPct: SCALE_IN_ALLOCATION_PCT,
+  };
+}
+
+function assessRiskOffExit({
+  positionState = {},
+  prices = {},
+  regimeLabel = "",
+  structuredSignals = {},
+} = {}) {
+  const entryPrice = num(positionState.entryPrice, 0);
+  const currentPrice = currentPriceForPosition({
+    positionState,
+    prices,
+    structuredSignals,
+  });
+
+  if (!entryPrice || !currentPrice) {
+    return {
+      allowed: true,
+      reason: `risk-off allowed: open position ${positionState.status} can be exited`,
+    };
+  }
+
+  const stopLoss = num(positionState.stopLoss, 0);
+  if (stopLoss && currentPrice <= stopLoss) {
+    return {
+      allowed: true,
+      reason:
+        `risk-off allowed: stop-loss hit for ${positionState.status} ` +
+        `(current ${currentPrice}, stop ${stopLoss}, entry ${entryPrice})`,
+    };
+  }
+
+  const emergencyRegime =
+    regimeLabel === "CRISIS" || regimeLabel === "TREND_DOWN";
+  if (emergencyRegime) {
+    return {
+      allowed: true,
+      reason:
+        `risk-off allowed: emergency regime ${regimeLabel} can exit ` +
+        `${positionState.status} at current ${currentPrice} vs entry ${entryPrice}`,
+    };
+  }
+
+  const targetExit = num(positionState.targetExit, 0);
+  const feeBufferedEntry = entryPrice * (1 + MIN_PROFIT_EXIT_PCT);
+  const requiredExit = Math.max(feeBufferedEntry, targetExit || 0);
+
+  if (currentPrice < requiredExit) {
+    return {
+      allowed: false,
+      reason:
+        `risk-off blocked: current ${currentPrice} is below profitable exit ` +
+        `${Number(requiredExit.toFixed(6))} for ${positionState.status} ` +
+        `(entry ${entryPrice}${targetExit ? `, target ${targetExit}` : ""}); hold grid position unless stop-loss or crisis triggers`,
+    };
+  }
+
+  return {
+    allowed: true,
+    reason:
+      `risk-off allowed: profitable exit for ${positionState.status} ` +
+      `(current ${currentPrice}, entry ${entryPrice}${targetExit ? `, target ${targetExit}` : ""})`,
   };
 }
 
@@ -271,11 +360,25 @@ function assessTradeInventory({
     }
 
     if (openRiskPosition) {
+      const exitGuard = assessRiskOffExit({
+        positionState,
+        prices,
+        regimeLabel,
+        structuredSignals,
+      });
+      if (!exitGuard.allowed) {
+        return {
+          allowed: false,
+          direction: inferred,
+          summary,
+          reason: exitGuard.reason,
+        };
+      }
       return {
         allowed: true,
         direction: inferred,
         summary,
-        reason: `risk-off allowed: open position ${positionState.status} can be exited`,
+        reason: exitGuard.reason,
       };
     }
 
@@ -341,4 +444,5 @@ module.exports = {
   MIN_SCALE_IN_DIP_PCT,
   SCALE_IN_ALLOCATION_PCT,
   MAX_SCALE_INS_PER_POSITION,
+  MIN_PROFIT_EXIT_PCT,
 };

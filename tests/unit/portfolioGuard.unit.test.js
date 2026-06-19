@@ -210,6 +210,97 @@ describe("portfolioGuard", () => {
     expect(result.reason).toMatch(/open position/i);
   });
 
+  test("blocks non-emergency risk-off exits below a profitable grid exit", () => {
+    const result = assessTradeInventory({
+      direction: "risk-off",
+      targetAsset: "mUSD",
+      balances: {
+        MNT: 20,
+        WMNT: 12,
+        mETH: 0,
+        USDT0: 90,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: {
+        ...PRICES,
+        MNT: 0.65,
+        WMNT: 0.65,
+      },
+      regime: "RANGING",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.67,
+        targetExit: 0.7,
+        stopLoss: 0.62,
+      },
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/profitable exit/i);
+    expect(result.reason).toMatch(/entry/i);
+  });
+
+  test("allows risk-off when a grid take-profit has been reached", () => {
+    const result = assessTradeInventory({
+      direction: "risk-off",
+      targetAsset: "mUSD",
+      balances: {
+        MNT: 20,
+        WMNT: 12,
+        mETH: 0,
+        USDT0: 90,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: {
+        ...PRICES,
+        MNT: 0.705,
+        WMNT: 0.705,
+      },
+      regime: "RANGING",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.67,
+        targetExit: 0.7,
+        stopLoss: 0.62,
+      },
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/profitable exit/i);
+  });
+
+  test("allows risk-off below entry when the position stop-loss is hit", () => {
+    const result = assessTradeInventory({
+      direction: "risk-off",
+      targetAsset: "mUSD",
+      balances: {
+        MNT: 20,
+        WMNT: 12,
+        mETH: 0,
+        USDT0: 90,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: {
+        ...PRICES,
+        MNT: 0.615,
+        WMNT: 0.615,
+      },
+      regime: "RANGING",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.67,
+        targetExit: 0.7,
+        stopLoss: 0.62,
+      },
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/stop-loss/i);
+  });
+
   test("summary excludes native MNT gas reserve from tradable risk inventory", () => {
     const summary = summarizePortfolio({
       balances: {
