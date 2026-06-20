@@ -484,6 +484,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1781941261461_671",
+      "decisionId": 671,
+      "action": "hold",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 0.533081,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei381f8fb7bc0317e0285549bc38a8dc5f4d0f0428f3f5261d2f97",
+      "recordedAt": "2026-06-20T07:41:01.461Z",
+      "settleAfter": "2026-06-20T08:41:01.461Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781941261449
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction and 65% confidence — no directional edge confirmed. Funding neutral at 0.291%, smart money flow flat at $0.0M NEUTRAL, F&G=23 extreme fear with no reversal confirmation. Portfolio already holds WMNT $17.14 providing MNT exposure. Stable-heavy posture (73%) is appropriate while awaiting break",
+      "validatorFlaggedIssues": [
+        "No R:R provided — acceptable for HOLD as no capital is being deployed",
+        "Yield spread -1% bearish signal noted but not actionable without directional confirmation",
+        "Expanding volatility (vol expanding: true) warrants monitoring for imminent breakout"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x4fa7297f21c658ea0b44aafed73bd0a94bda5945ee486d7a38021c588dce760f",
+      "combinedAnchor": "0x0da25bce02841fd24e839605b7cb877b16af3087d4a6011fe863a67bf8d7137a",
+      "decisionLogTxHash": "0x28ea0e15847ce9b5e02a2fb671cf54e44bb1fc7b573297684395db171dfa7529",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
