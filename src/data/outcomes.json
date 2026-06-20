@@ -72,6 +72,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781920742417_666",
+      "decisionId": 666,
+      "action": "hold",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 0.526769,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreibc321d272780972ff895ca9a4cf875070b4a74f5050c7ee23d0c",
+      "recordedAt": "2026-06-20T01:59:02.417Z",
+      "settleAfter": "2026-06-20T02:59:02.417Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781920742405
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. RANGING regime (55%) with both grids in mid-channel HOLD zones (ETH 35%, MNT 15%) — no edge at support/resistance. Portfolio is already IN_MNT at $0.527 vs current $0.5268, essentially flat — no fresh lower-band move to justify scale-in per scale-in rule. Funding neutral (0.335%), smart money flow flat ($0M). Bearish consensus + yield spread -1% noted but insuffici",
+      "validatorFlaggedIssues": [
+        "MNT grid position 15% is approaching lower band — monitor $0.52 support closely",
+        "Yield spread -1% mETH vs USDY is a mild bearish drag worth tracking",
+        "Extreme Fear F&G=23 could accelerate if $0.52 MNT support breaks"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x5bc59d73956a4dbf36b6a5f2fc3d84794fe6f6cfbb1bab2f64f147f0b3ffcc34",
+      "combinedAnchor": "0x895e86eeceb6ed50b0d6b52e185869b2e87defe2f448f7ac25fadb77ef95f7a4",
+      "decisionLogTxHash": "0xc7391eebbf0852b5ea9ef37f910be7ba76e275ab406a3b6f363bad4ed48e6d64",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
