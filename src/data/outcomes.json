@@ -629,6 +629,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781948684912_673",
+      "decisionId": 673,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1727.33,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei6d4dee34f5edeef95401675ec8658c952fc83fb95b3bdab5d738",
+      "recordedAt": "2026-06-20T09:44:44.912Z",
+      "settleAfter": "2026-06-20T10:44:44.912Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781948684899
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid EXIT_RANGING with UNKNOWN breakout direction at 84% channel position correctly warrants waiting. MNT grid HOLD at 70% channel position confirmed. Portfolio already 76.6% stable — no inventory rule violation. Funding neutral (0.452%), smart money flow flat $0.0M, F&G=23 extreme fear. No directional swap proposed in ranging regime. All raw signals cross-chec",
+      "validatorFlaggedIssues": [
+        "ETH Bollinger at 97% band position with vol expanding — breakout imminent but direction unconfirmed",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "Signal consensus BEARISH not acknowledged — minor omission but HOLD remains defensible"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6976aa7825d45f1e6f738822a760e92bd32708e8bf2904a587ee89572f242008",
+      "combinedAnchor": "0xc297db278701b0a9e332ff140890033d2484417fd5fc1ba6d117a40422dc0b3c",
+      "decisionLogTxHash": "0x22dcd3e446ced4763a9b0111d6489a8cc586efc76b69e7b4106ed5d999a1eafb",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
