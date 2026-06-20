@@ -219,6 +219,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1781931542077_668",
+      "decisionId": 668,
+      "action": "hold",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.5,
+      "priceAtDecision": 0.529176,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei7b30d72674ef62f93f5deea1f83fd27d5268a8018473d004c6a1",
+      "recordedAt": "2026-06-20T04:59:02.077Z",
+      "settleAfter": "2026-06-20T05:59:02.077Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781931542064
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both grids signal HOLD at mid-channel (ETH 42%, MNT 39%). Regime is RANGING at 55% confidence. Portfolio is already IN_MNT from $0.527 — no new directional trade proposed. Funding neutral, flow flat, no confirmed breakdown. RSI 54.6 is not oversold. Risk factors acknowledged. No R:R gate applies to HOLD. Signals align with inaction.",
+      "validatorFlaggedIssues": [
+        "Signal consensus is BEARISH but no breakdown confirmed — correctly treated as caution not action",
+        "Yield spread -1% noted but insufficient alone to trigger risk-off given stable-heavy posture rule",
+        "F&G=23 extreme fear warrants monitoring but RSI not oversold"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1ca0173299b13c3c7e78fa98a208bb5837ed38a7335f9da1ed4569b9612acbe3",
+      "combinedAnchor": "0xbd9341d03805bcbee166994ee575015bb99ccb3def98af88314905e99bdf6a71",
+      "decisionLogTxHash": "0x410825f7d7d0c48ece60f42226851ae16cef0b1c5e9c26c53cd85f04c27ccf02",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
