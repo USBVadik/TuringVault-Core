@@ -145,6 +145,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781925305579_667",
+      "decisionId": 667,
+      "action": "hold",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.5,
+      "priceAtDecision": 0.525266,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei43cc0f8401a00bcc1d75a875bd15e7692800c595df93a32754b7",
+      "recordedAt": "2026-06-20T03:15:05.579Z",
+      "settleAfter": "2026-06-20T04:15:05.579Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781925305565
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on WMNT is appropriate. Both grids confirm HOLD (32% and 17% channel position, 50% confidence each). Regime is RANGING at 55% confidence — no directional swap warranted. Portfolio is already IN_MNT from $0.527127; scale-in rule not triggered (no fresh lower-band move). Funding neutral, smart money flow neutral. Analyst correctly identifies no edge. All signals cross-check accurately against r",
+      "validatorFlaggedIssues": [
+        "MNT grid position at 17% is near lower band — monitor for support test at $0.52",
+        "Signal consensus BEARISH not explicitly weighted against contrarian F&G=23 bias",
+        "R:R not provided but HOLD carries no directional exposure so threshold not applicable",
+        "Yield spread -1% mildly favors stables — worth monitoring for defensive pivot"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x78d882a54a1495e7f7f53bcd1507a070764111922c34bf1fd5b3d7d6a83907db",
+      "combinedAnchor": "0xa24277d77b72606f917936743ba0ed3a27a4a15a6d85ce5a6b72c1a98a02fed2",
+      "decisionLogTxHash": "0xe2e9f5d9649aa0a5ef9553e4e930253fd95c2f76da8cdbb01107939e308ef2a3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
