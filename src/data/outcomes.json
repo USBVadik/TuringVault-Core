@@ -1288,6 +1288,116 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1781970416968_680",
+      "decisionId": 680,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.75,
+      "priceAtDecision": 0.533141,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkrei5c22c596c91712f24bd7feee914660d6d612e177efd04dea1819",
+      "recordedAt": "2026-06-20T15:46:56.968Z",
+      "settleAfter": "2026-06-20T16:46:56.968Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781970416954
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "MNT grid SELL_mETH at 100% channel position (resistance $0.53) with R:R 2.5:1 meets the 1.5:1 threshold. Portfolio holds WMNT from $0.527127 — partial profit-taking at resistance is sound mean-reversion logic. ETH EXIT_RANGING breakout UP is acknowledged as correlation risk. Funding neutral, smart money flow neutral. RANGING regime supports grid-based exits. 20% allocation is conservative. Signal ",
+      "validatorFlaggedIssues": [
+        "ETH upward breakout (TREND_UP hint) could pull MNT above $0.53 stop, invalidating the sell thesis",
+        "Signal consensus BEARISH conflicts with ETH EXIT_RANGING UP — correlation risk not fully resolved",
+        "Extreme Fear F&G=23 raises contrarian bounce risk on MNT"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "risk-off blocked: current 0.5342 is below profitable exit 0.55 for IN_MNT (entry 0.527127, target 0.55); hold grid position unless stop-loss or crisis triggers",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 83.30393099999999,
+          "tradableRiskUsd": 29.806368183104148,
+          "nativeMnt": 29.336992161348338,
+          "stableShare": 0.7364840478862735,
+          "riskShare": 0.2635159521137265,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.8,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.8,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 1,
+          "support": 0.52,
+          "resistance": 0.53,
+          "currentPrice": 0.5342
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x5cfd89aee54746bd62fbfd67a9a0c0279bbfdc96f33b638ad492a6d58ae6f8f8",
+      "combinedAnchor": "0xe120d0580219515e55bc43c8fa4ce012545ec85d95c769f40896b8fb099abb00",
+      "decisionLogTxHash": "0xf5fd984f7ce1a5a41ccc2ddc8f073089489c4e0a0b42fecda8cf8723d018fd01",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
