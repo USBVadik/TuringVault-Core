@@ -878,6 +878,103 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1781959268145_676",
+      "decisionId": 676,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1723.6,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreic95c983b3bfab2e9e5258a2bda46831d4888491b4d3cf463c5a1",
+      "recordedAt": "2026-06-20T12:41:08.145Z",
+      "settleAfter": "2026-06-20T13:41:08.145Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1781959268131
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. MNT broke above resistance ($0.53246 > $0.53) with TREND_UP hint, but ETH grid breakout direction is UNKNOWN and funding neutral. Portfolio is 76.6% stable — no capital at risk. Analyst correctly rejects the deterministic risk_off candidate given MNT upward breakout signal. No hallucinated data. Signals accurately cited. HOLD preserves optionality pending confir",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD action",
+        "MNT upward breakout unconfirmed by smart money flow (neutral $0.0M)",
+        "Extreme Fear (F&G=23) creates contrarian tension with TREND_UP hint",
+        "ETH grid UNKNOWN breakout direction adds cross-asset uncertainty"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.7,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.7,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 0.52,
+          "resistance": 0.53,
+          "currentPrice": 0.53246
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x64ed5633156bc6bbd4a9c15a41bd20454ac233f54607114644c4f4903125008e",
+      "combinedAnchor": "0x333bd5027e2c718485ac279f220088ba5d168053013103d7bb1aec5375e50ed3",
+      "decisionLogTxHash": "0x6984ea35aaacc1d4ce1b52594b47b152366b4420596041185498e957f10f50ba",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
