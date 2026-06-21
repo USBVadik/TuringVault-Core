@@ -1080,6 +1080,109 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1782042050919_701",
+      "decisionId": 701,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 0.531349,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreif9451700f0a04fd33e96875ad8177ecf8870a0f1fd29ee6c6815",
+      "recordedAt": "2026-06-21T11:40:50.919Z",
+      "settleAfter": "2026-06-21T12:40:50.919Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782042050906
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst explicitly acknowledges R:R of -1.1:1 in risk factors, which is a hard rejection trigger (minimum 1.5:1 required). MNT grid reasoning block itself states R:R = -0.32%/0.30% = -1.1:1 — negative and well below threshold. Signal consensus is BEARISH, yield spread is BEARISH (-1%), and regime confidence is only 55%. Grid channel width of 1.71% with support=resistance=$0.53 indicates a degenera",
+      "validatorFlaggedIssues": [
+        "R:R explicitly -1.1:1 — hard rejection trigger, minimum 1.5:1 required",
+        "MNT channel is degenerate: support equals resistance ($0.53), no valid take-profit target",
+        "Signal consensus BEARISH contradicts grid buy without sufficient confirming signals",
+        "Yield spread -1% BEARISH adds directional headwind against proposed risk_on",
+        "Regime confidence only 55% RANGING — insufficient conviction for capital deployment"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-buy",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "MNT",
+        "sourceAsset": "USDT0",
+        "allocationPct": 15,
+        "confidence": 0.79915,
+        "reasoning": "MANTLE grid emitted BUY_mETH with 80% confidence; stable-heavy FLAT wallet has deployable stables.",
+        "riskFactors": [
+          "False lower-band break could continue lower",
+          "Validator must reject if funding/flow contradict the grid edge"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT"
+        ],
+        "gridSignal": {
+          "action": "BUY_mETH",
+          "confidence": 0.79915,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.66,
+          "support": 0.53,
+          "resistance": 0.53,
+          "currentPrice": 0.5317
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd564627af2ee49866b7b917b864fe37eb59f5284578d6dd5d7bf07fa09dddcec",
+      "combinedAnchor": "0x9f135438dbcef279b2eb48eb6d3ac0001d79e7bbd5916d9323413ed387a27280",
+      "decisionLogTxHash": "0xf726b1c3d867f160f11a550f3e110dc3f80ae33120c75daef6d8684cbbed48de",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
