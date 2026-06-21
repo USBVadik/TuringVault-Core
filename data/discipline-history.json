@@ -1,34 +1,5 @@
 [
   {
-    "at": "2026-06-16T11:20:01.366Z",
-    "decisionId": 588,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
-    "displayTier": "BLOCKED_BY_LOW_CONFIDENCE",
-    "executedOnChain": false,
-    "action": "hold",
-    "targetAsset": "mUSD",
-    "sourceAsset": null,
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-16T12:21:52.442Z",
     "decisionId": 589,
     "verdict": "ACCEPTED",
@@ -3375,6 +3346,55 @@
         "name": "drift_detection",
         "status": "PASS",
         "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-21T03:34:26.449Z",
+    "decisionId": 692,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_REGIME",
+    "displayTier": "BLOCKED_BY_REGIME",
+    "executedOnChain": true,
+    "action": "swap",
+    "targetAsset": "mETH",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_exists",
+        "status": "PASS",
+        "detail": "Block 96941274"
+      },
+      {
+        "name": "tx_sender",
+        "status": "PASS",
+        "detail": "Matches vault wallet"
+      },
+      {
+        "name": "tx_confirmed",
+        "status": "PASS",
+        "detail": "2 confirmations"
+      },
+      {
+        "name": "tx_success",
+        "status": "PASS",
+        "detail": "TX successful"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      },
+      {
+        "name": "tx_proof",
+        "status": "PASS",
+        "detail": "Rolled up from 4 sub-checks"
       }
     ],
     "blockReason": null
