@@ -1921,6 +1921,118 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1782077168638_711",
+      "decisionId": 711,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.64,
+      "priceAtDecision": 1713.64,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei228b09d17f7a55adbbd243a23198dbe4399736d2a2d1d28a0d07",
+      "recordedAt": "2026-06-21T21:26:08.638Z",
+      "settleAfter": "2026-06-21T22:26:08.638Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782077168623
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Grid signal is EXIT_RANGING with regimeHint=HOLD and UNKNOWN breakout direction — this explicitly contradicts a directional risk_on entry. Signal consensus is BEARISH, yield spread is BEARISH (-1%), EMA cross is SELL, MACD is SELL. While R:R of 4.03:1 clears the threshold and position is 12% in channel (near support), the EXIT_RANGING signal means grid confirmation is absent. Per validation rules,",
+      "validatorFlaggedIssues": [
+        "Grid signal is EXIT_RANGING not a lower-band re-entry buy signal",
+        "Breakout direction UNKNOWN — no grid confirmation for directional swap",
+        "Signal consensus BEARISH with MACD and EMA both SELL",
+        "Yield spread -1% adds bearish weight against mETH entry",
+        "Regime confidence only 55% — insufficient certainty for risk_on"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "stable-heavy-lower-band-reentry",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "mETH",
+        "sourceAsset": "USDT0",
+        "allocationPct": 12,
+        "confidence": 0.64,
+        "reasoning": "ETHEREUM lower-band re-entry: price is at 12% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe. Risk plan: entry 1712.7, stop 1706.8, take-profit 1736.5, R:R 4.03:1.",
+        "riskFactors": [
+          "Confirmed downward breakout invalidates mean reversion",
+          "Keep size small because consensus may still be bearish"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT",
+          "WETH",
+          "mETH"
+        ],
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.65,
+          "breakoutDirection": "UNKNOWN",
+          "regimeHint": "HOLD",
+          "channelPosition": 0.12,
+          "support": 1709.5,
+          "resistance": 1736.5,
+          "currentPrice": 1712.7
+        },
+        "riskReward": {
+          "entry": 1712.7,
+          "stopLoss": 1706.8,
+          "takeProfit": 1736.5,
+          "ratio": 4.03,
+          "riskPct": 0.34,
+          "rewardPct": 1.39
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xac45e4b650f46ebd7073ba1b311f7f9f11b5814adc2eddcb2e1a989cd746ab53",
+      "combinedAnchor": "0x35a8f5bfef84ba188e58582b2c1bd0890a4f5b84421a32c1f99625811601b0d3",
+      "decisionLogTxHash": "0x8027f49125a452fb211e67f042bb71c020b23b04a94c626a096a242d4eb9aa30",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
