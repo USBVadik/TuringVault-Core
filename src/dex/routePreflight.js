@@ -10,6 +10,8 @@ const TOKEN_DECIMALS = {
   mUSD: 18,
 };
 
+const LIQUIDITY_RETRY_DEPTH_FRACTION = 0.45;
+
 function amountToUnits(amount, token) {
   const decimals = TOKEN_DECIMALS[token] ?? 18;
   const n = Number(amount);
@@ -17,6 +19,28 @@ function amountToUnits(amount, token) {
     throw new Error(`invalid amount for ${token}: ${amount}`);
   }
   return ethers.parseUnits(n.toFixed(decimals), decimals);
+}
+
+function suggestedInitialAmountFromDepth({
+  initialAmount,
+  depthFraction,
+  targetDepthFraction = LIQUIDITY_RETRY_DEPTH_FRACTION,
+} = {}) {
+  const initial = Number(initialAmount);
+  const depth = Number(depthFraction);
+  const target = Number(targetDepthFraction);
+  if (
+    !Number.isFinite(initial) ||
+    initial <= 0 ||
+    !Number.isFinite(depth) ||
+    depth <= target ||
+    !Number.isFinite(target) ||
+    target <= 0
+  ) {
+    return null;
+  }
+
+  return Number((initial * (target / depth)).toFixed(8));
 }
 
 function getDirectionalSwapOptions(path, legIndex) {
@@ -62,15 +86,23 @@ async function preflightSwapPath({ dex, path, initialAmount }) {
         : null,
       pairAddress: quote?.pairAddress ?? null,
       binStep: quote?.binStep ?? null,
+      depthFraction: Number.isFinite(Number(quote?.depthFraction))
+        ? Number(Number(quote.depthFraction).toFixed(6))
+        : null,
     };
 
     if (quote?.viable !== true) {
+      const suggestedInitialAmount = suggestedInitialAmountFromDepth({
+        initialAmount,
+        depthFraction: quote?.depthFraction,
+      });
       return {
         ok: false,
         reason:
           `leg${i + 1} ${from}->${to} not viable` +
           (quote?.error ? `: ${quote.error}` : ""),
         legs: [...legs, leg],
+        suggestedInitialAmount,
       };
     }
 
@@ -101,9 +133,59 @@ async function preflightSwapPath({ dex, path, initialAmount }) {
   return { ok: true, reason: "path viable", legs, amountOut: nextAmountIn };
 }
 
+async function retryPreflightWithLiquidityCap({
+  dex,
+  path,
+  initialAmount,
+  minInitialAmount = 0,
+} = {}) {
+  const first = await preflightSwapPath({ dex, path, initialAmount });
+  if (first.ok) {
+    return {
+      ...first,
+      initialAmount: Number(initialAmount),
+      originalInitialAmount: Number(initialAmount),
+      liquidityAdjusted: false,
+    };
+  }
+
+  const suggested = Number(first.suggestedInitialAmount);
+  const min = Number(minInitialAmount);
+  if (
+    !Number.isFinite(suggested) ||
+    suggested <= 0 ||
+    suggested >= Number(initialAmount) ||
+    (Number.isFinite(min) && suggested < min)
+  ) {
+    return {
+      ...first,
+      initialAmount: Number(initialAmount),
+      originalInitialAmount: Number(initialAmount),
+      liquidityAdjusted: false,
+    };
+  }
+
+  const second = await preflightSwapPath({
+    dex,
+    path,
+    initialAmount: suggested,
+  });
+  return {
+    ...second,
+    initialAmount: suggested,
+    originalInitialAmount: Number(initialAmount),
+    liquidityAdjusted: true,
+    retryReason: first.reason,
+    priorPreflight: first,
+  };
+}
+
 module.exports = {
   TOKEN_DECIMALS,
+  LIQUIDITY_RETRY_DEPTH_FRACTION,
   amountToUnits,
   getDirectionalSwapOptions,
   preflightSwapPath,
+  retryPreflightWithLiquidityCap,
+  suggestedInitialAmountFromDepth,
 };

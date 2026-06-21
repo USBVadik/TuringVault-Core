@@ -38,6 +38,7 @@ const {
 } = require("../strategies/rangingGrid");
 const {
   applyPositionAwareness,
+  getState: getPositionState,
   tickCycle,
   updateHWM,
 } = require("../strategies/positionState");
@@ -54,6 +55,42 @@ function cached(key, fn) {
       return d;
     })
     .catch(() => e?.data || null);
+}
+
+function finitePositiveNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function priceForPositionState({
+  positionState = {},
+  marketCtx = {},
+  multiAsset = {},
+  fallbackPrice = null,
+} = {}) {
+  const status = String(positionState?.status || "").toUpperCase();
+  if (status === "IN_MNT") {
+    return (
+      finitePositiveNumber(marketCtx.mntPrice) ||
+      finitePositiveNumber(multiAsset?.mantle?.channel?.currentPrice) ||
+      finitePositiveNumber(fallbackPrice) ||
+      0
+    );
+  }
+  if (status === "IN_METH") {
+    return (
+      finitePositiveNumber(
+        marketCtx.wethPrice ??
+          marketCtx.ethPrice ??
+          marketCtx.methPrice ??
+          marketCtx.mETHPrice
+      ) ||
+      finitePositiveNumber(multiAsset?.ethereum?.channel?.currentPrice) ||
+      finitePositiveNumber(fallbackPrice) ||
+      0
+    );
+  }
+  return finitePositiveNumber(fallbackPrice) || 0;
 }
 
 async function fetchJson(url, timeout = 8000) {
@@ -513,15 +550,19 @@ async function getStructuredSignals(marketCtx = {}) {
         multi.primary === "ethereum" ? multi.ethereum : multi.mantle;
 
       const rawGridSignal = primarySignal || (await getGridSignal());
+      const currentPositionState = getPositionState();
+      const positionCurrentPrice = priceForPositionState({
+        positionState: currentPositionState,
+        marketCtx,
+        multiAsset: multi,
+        fallbackPrice: currentPrice || rawGridSignal.channel?.currentPrice,
+      });
       // Apply position awareness — prevents double-buying, handles TP/SL
-      const gridSignal = applyPositionAwareness(
-        rawGridSignal,
-        currentPrice || rawGridSignal.channel?.currentPrice
-      );
+      const gridSignal = applyPositionAwareness(rawGridSignal, positionCurrentPrice);
       // Tick cycle counter if we're in a position
       tickCycle();
       // Update high water mark for trailing stop
-      if (currentPrice) updateHWM(currentPrice);
+      if (positionCurrentPrice) updateHWM(positionCurrentPrice);
       const ctx = await buildRangingContext();
       rangingData = {
         ...gridSignal,
@@ -568,7 +609,6 @@ async function getStructuredSignals(marketCtx = {}) {
       yieldData,
       socialData,
       liqMap,
-      currentPrice,
       rangingContext,
     }),
   };
@@ -582,7 +622,6 @@ function buildPromptSummary({
   yieldData,
   socialData,
   liqMap,
-  currentPrice,
   rangingContext,
 }) {
   const lines = [];
@@ -675,4 +714,7 @@ module.exports = {
   getYieldSpreadSignal,
   getLiquidationMap,
   detectRegime,
+  _private: {
+    priceForPositionState,
+  },
 };

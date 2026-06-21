@@ -40,9 +40,11 @@ jobs:
       HEARTBEAT_MODE_ENABLED: ${{ secrets.HEARTBEAT_MODE_ENABLED }}
       # Hackathon: reduce idle-parking wait from 24h to 4h
       RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
-      # Scheduled runs skip the expensive cycle when the live feed is
-      # still fresh. Manual workflow_dispatch always runs.
-      SCHEDULE_FRESHNESS_THRESHOLD_S: "1500"
+      # Scheduled runs skip the expensive LLM/on-chain cycle while the
+      # feed is fresh. 3300s keeps roughly hourly cadence under normal
+      # GitHub scheduling, cutting proof-only gas burn without disabling
+      # manual dispatch or stale-feed rescue.
+      SCHEDULE_FRESHNESS_THRESHOLD_S: "3300"
       HEALTH_URL: "https://frontend-seven-beta-46.vercel.app/api/health"
       MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}

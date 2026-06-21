@@ -685,11 +685,18 @@ async function runMultiAgentCycle(opts = {}) {
       portfolioGuardResult = assessTradeInventory({
         direction,
         targetAsset: decision.analyst?.targetAsset,
+        sourceAsset:
+          decision.analyst?.sourceAsset ||
+          decision._gridTradeCandidate?.sourceAsset ||
+          gridTradeCandidate?.sourceAsset ||
+          null,
         balances: portfolioBalances,
         prices: portfolioPrices,
         regime: market.structuredSignals?.regime?.regime,
         positionState: positionState.getState(),
         structuredSignals: market.structuredSignals,
+        gridTradeCandidate:
+          decision._gridTradeCandidate || gridTradeCandidate || null,
       });
       decision._portfolioGuard = compactPortfolioGuardResult(
         portfolioGuardResult
@@ -1155,7 +1162,7 @@ async function runMultiAgentCycle(opts = {}) {
         } = require("../dex/walletRouter");
         const {
           getDirectionalSwapOptions,
-          preflightSwapPath,
+          retryPreflightWithLiquidityCap,
         } = require("../dex/routePreflight");
         const liveDex = new MerchantMoeDEX({
           privateKey: process.env.PRIVATE_KEY,
@@ -1310,10 +1317,11 @@ async function runMultiAgentCycle(opts = {}) {
             },
           };
         } else {
-          const preflight = await preflightSwapPath({
+          const preflight = await retryPreflightWithLiquidityCap({
             dex: liveDex,
             path,
             initialAmount: finalSourceAmount,
+            minInitialAmount: minSourceAmount,
           });
 
           if (!preflight.ok) {
@@ -1330,6 +1338,15 @@ async function runMultiAgentCycle(opts = {}) {
               preflight: preflight.legs,
             };
           } else {
+          const executableSourceAmount =
+            Number(preflight.initialAmount) || finalSourceAmount;
+          if (preflight.liquidityAdjusted) {
+            console.log(
+              `   ↘ liquidity-aware sizing: ${finalSourceAmount.toFixed(
+                8
+              )} ${path[0]} → ${executableSourceAmount.toFixed(8)} ${path[0]} (${preflight.retryReason})`
+            );
+          }
           // N-leg swap loop. path = [from, mid1, mid2?..., to].
           // Each step uses our patched MerchantMoeDEX (deep-pool
           // selection + on-chain getSwapOut quote). Between legs we
@@ -1343,8 +1360,8 @@ async function runMultiAgentCycle(opts = {}) {
           //                                stable-stable, give it room)
           const legResults = [];
           let legFailed = false;
-          let lastLegOut = finalSourceAmount;
-          let nextAmountIn = finalSourceAmount;
+          let lastLegOut = executableSourceAmount;
+          let nextAmountIn = executableSourceAmount;
           const legOutputBaselines = {};
 
           // If we wrapped MNT first, the wrap is leg 0 — record it
@@ -1472,12 +1489,14 @@ async function runMultiAgentCycle(opts = {}) {
               direction: swapDirection,
               from: path[0],
               to: path[path.length - 1],
-              amountIn: finalSourceAmount,
+              amountIn: executableSourceAmount,
               amountOut: lastLegOut,
               // Top-level txHash: surface the FINAL leg so dashboards
               // pointing at one TX show the user-visible outcome.
               txHash: finalLegTxHash,
               legs: legResults,
+              liquidityAdjusted: preflight.liquidityAdjusted === true,
+              originalAmountIn: preflight.originalInitialAmount || null,
             };
             // Discipline layer reads decision.executionTxHash for
             // a single proof; we surface the final leg.

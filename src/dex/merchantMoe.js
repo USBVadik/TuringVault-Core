@@ -136,6 +136,40 @@ const ERC20_ABI = [
   "function allowance(address owner, address spender) view returns (uint256)",
 ];
 
+function normalizeReserve(reserve, decimals) {
+  const n = Number(ethers.formatUnits(reserve || 0n, Number(decimals) || 18));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function rankPairCandidatesByNormalizedDepth(candidates = []) {
+  return [...candidates]
+    .map((candidate) => {
+      const normalizedReserveX = normalizeReserve(
+        candidate.reserveX,
+        candidate.decimalsX
+      );
+      const normalizedReserveY = normalizeReserve(
+        candidate.reserveY,
+        candidate.decimalsY
+      );
+      return {
+        ...candidate,
+        normalizedReserveX,
+        normalizedReserveY,
+        // Two-sided depth matters more than raw aggregate depth: a pool
+        // with one huge side and one dust side cannot fill our route.
+        normalizedDepth: Math.min(normalizedReserveX, normalizedReserveY),
+        normalizedDepthSum: normalizedReserveX + normalizedReserveY,
+      };
+    })
+    .sort((a, b) => {
+      if (b.normalizedDepth !== a.normalizedDepth) {
+        return b.normalizedDepth - a.normalizedDepth;
+      }
+      return b.normalizedDepthSum - a.normalizedDepthSum;
+    });
+}
+
 class MerchantMoeDEX {
   constructor(options = {}) {
     this.provider = options.provider || createMantleProvider(options.rpcUrl);
@@ -194,32 +228,63 @@ class MerchantMoeDEX {
       if (candidates.length === 0) return null;
       if (candidates.length === 1) return candidates[0];
 
-      // Probe reserves for each candidate. We don't need exact USD
-      // valuation — just a relative ranking. reserveX + reserveY in
-      // raw units is a good enough proxy because both tokens in a
-      // sane pair are within an order of magnitude of each other in
-      // 18-dec terms (or 6-dec, identically).
+      // Probe reserves for each candidate. Raw reserve sums are not a
+      // safe proxy across mixed-decimal pairs like USDT(6)/WMNT(18):
+      // the 18-dec side can dominate the BigInt sum and make a
+      // one-sided shallow pool look deepest. Rank by normalized
+      // two-sided depth instead.
       const PAIR_RES_ABI = [
         "function getReserves() view returns (uint128 reserveX, uint128 reserveY)",
+        "function getTokenX() view returns (address)",
+        "function getTokenY() view returns (address)",
       ];
+      const decimalsCache = new Map();
+      const decimalsFor = async (addr) => {
+        const key = String(addr).toLowerCase();
+        if (decimalsCache.has(key)) return decimalsCache.get(key);
+        const token = new ethers.Contract(addr, ERC20_ABI, this.provider);
+        const decimals = await this._read(`${addr}.decimals`, () =>
+          token.decimals()
+        );
+        decimalsCache.set(key, Number(decimals));
+        return Number(decimals);
+      };
       const ranked = await Promise.all(
         candidates.map(async (p) => {
           try {
             const c = new ethers.Contract(p.LBPair, PAIR_RES_ABI, this.provider);
-            const [rX, rY] = await this._read(
-              `LBPair(${p.LBPair}).getReserves`,
-              () => c.getReserves()
-            );
-            const depth = rX + rY; // BigInt
-            return { pair: p, depth };
+            const [[rX, rY], tokenX, tokenY] = await Promise.all([
+              this._read(`LBPair(${p.LBPair}).getReserves`, () =>
+                c.getReserves()
+              ),
+              this._read(`LBPair(${p.LBPair}).getTokenX`, () => c.getTokenX()),
+              this._read(`LBPair(${p.LBPair}).getTokenY`, () => c.getTokenY()),
+            ]);
+            const [decimalsX, decimalsY] = await Promise.all([
+              decimalsFor(tokenX),
+              decimalsFor(tokenY),
+            ]);
+            return {
+              pair: p,
+              reserveX: rX,
+              reserveY: rY,
+              decimalsX,
+              decimalsY,
+            };
           } catch {
-            return { pair: p, depth: 0n };
+            return {
+              pair: p,
+              reserveX: 0n,
+              reserveY: 0n,
+              decimalsX: 18,
+              decimalsY: 18,
+            };
           }
         })
       );
-      ranked.sort((a, b) => (b.depth > a.depth ? 1 : b.depth < a.depth ? -1 : 0));
-      const best = ranked[0];
-      if (best.depth === 0n) return null;
+      const normalizedRanked = rankPairCandidatesByNormalizedDepth(ranked);
+      const best = normalizedRanked[0];
+      if (!best || best.normalizedDepth <= 0) return null;
       return best.pair;
     } catch {
       return null;
@@ -653,6 +718,7 @@ module.exports = {
   MerchantMoeDEX,
   ADDRESSES,
   PAIRS,
+  rankPairCandidatesByNormalizedDepth,
   _private: {
     createMantleProvider,
     isRetriableReadError,

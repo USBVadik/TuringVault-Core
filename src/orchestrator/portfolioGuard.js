@@ -49,6 +49,13 @@ function positionRiskAsset(positionState = {}) {
   return null;
 }
 
+function riskUsdForAsset(summary = {}, asset) {
+  const normalized = normalizeRiskAsset(asset);
+  if (normalized === "WMNT") return num(summary.wmntUsd, 0);
+  if (normalized === "mETH") return num(summary.methUsd, 0);
+  return num(summary.tradableRiskUsd, 0);
+}
+
 function currentPriceForPosition({
   positionState = {},
   prices = {},
@@ -177,11 +184,24 @@ function assessScaleIn({
 }
 
 function assessRiskOffExit({
+  sourceAsset,
   positionState = {},
   prices = {},
   regimeLabel = "",
   structuredSignals = {},
+  gridTradeCandidate = {},
 } = {}) {
+  const sourceRisk = normalizeRiskAsset(sourceAsset);
+  const openRisk = positionRiskAsset(positionState);
+  if (sourceRisk && openRisk && openRisk !== "risk" && sourceRisk !== openRisk) {
+    return {
+      allowed: true,
+      reason:
+        `risk-off allowed: ${sourceRisk} inventory trim is separate from tracked ` +
+        `${positionState.status} grid position`,
+    };
+  }
+
   const entryPrice = num(positionState.entryPrice, 0);
   const currentPrice = currentPriceForPosition({
     positionState,
@@ -220,6 +240,26 @@ function assessRiskOffExit({
   const targetExit = num(positionState.targetExit, 0);
   const feeBufferedEntry = entryPrice * (1 + MIN_PROFIT_EXIT_PCT);
   const requiredExit = Math.max(feeBufferedEntry, targetExit || 0);
+  const isUpperBandGridTrim =
+    gridTradeCandidate?.kind === "grid-sell" &&
+    normalizeRiskAsset(gridTradeCandidate?.sourceAsset || sourceAsset) ===
+      positionRiskAsset(positionState) &&
+    channelPosition(
+      selectRiskSignal(
+        structuredSignals,
+        gridTradeCandidate?.sourceAsset || sourceAsset || positionRiskAsset(positionState)
+      )
+    ) >= 0.8;
+
+  if (isUpperBandGridTrim && currentPrice >= feeBufferedEntry) {
+    return {
+      allowed: true,
+      reason:
+        `risk-off allowed: partial grid trim for ${positionState.status} ` +
+        `(current ${currentPrice}, entry ${entryPrice}, fee-buffered ${Number(feeBufferedEntry.toFixed(6))}, full target ${targetExit || "n/a"})`,
+      partialGridTrim: true,
+    };
+  }
 
   if (currentPrice < requiredExit) {
     return {
@@ -291,11 +331,13 @@ function hasOpenRiskPosition(positionState = {}) {
 function assessTradeInventory({
   direction,
   targetAsset,
+  sourceAsset,
   balances = {},
   prices = {},
   regime,
   positionState = {},
   structuredSignals = {},
+  gridTradeCandidate = {},
 } = {}) {
   const inferred = direction || inferTradeDirection(targetAsset);
   const summary = summarizePortfolio({ balances, prices });
@@ -359,12 +401,27 @@ function assessTradeInventory({
       };
     }
 
+    const sourceRisk = normalizeRiskAsset(sourceAsset);
+    if (sourceRisk && riskUsdForAsset(summary, sourceRisk) < MIN_RISK_USD_FOR_RISK_OFF) {
+      return {
+        allowed: false,
+        direction: inferred,
+        summary,
+        reason:
+          `risk-off blocked: requested ${sourceRisk} inventory ` +
+          `$${riskUsdForAsset(summary, sourceRisk).toFixed(2)} < ` +
+          `$${MIN_RISK_USD_FOR_RISK_OFF.toFixed(2)}`,
+      };
+    }
+
     if (openRiskPosition) {
       const exitGuard = assessRiskOffExit({
+        sourceAsset,
         positionState,
         prices,
         regimeLabel,
         structuredSignals,
+        gridTradeCandidate,
       });
       if (!exitGuard.allowed) {
         return {

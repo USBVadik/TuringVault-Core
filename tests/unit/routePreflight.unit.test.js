@@ -1,4 +1,7 @@
-const { preflightSwapPath } = require("../../src/dex/routePreflight");
+const {
+  preflightSwapPath,
+  retryPreflightWithLiquidityCap,
+} = require("../../src/dex/routePreflight");
 
 describe("routePreflight", () => {
   test("blocks the whole route before broadcast when a later leg is not viable", async () => {
@@ -58,5 +61,72 @@ describe("routePreflight", () => {
       "WMNT->WETH",
       "WETH->mETH",
     ]);
+  });
+
+  test("suggests a smaller initial amount when a later leg is only depth-limited", async () => {
+    const dex = {
+      getQuote: jest.fn(async (from, to) => {
+        if (from === "USDT0" && to === "USDT") {
+          return { viable: true, estimatedOut: 5.000499, priceImpact: 0 };
+        }
+        return {
+          viable: false,
+          estimatedOut: 9.35,
+          priceImpact: 0.0046,
+          depthFraction: 0.508,
+          pairAddress: "0xf6",
+          binStep: 15,
+        };
+      }),
+    };
+
+    const result = await preflightSwapPath({
+      dex,
+      path: ["USDT0", "USDT", "WMNT"],
+      initialAmount: 5,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.reason).toMatch(/not viable/);
+    expect(result.suggestedInitialAmount).toBeGreaterThan(4);
+    expect(result.suggestedInitialAmount).toBeLessThan(5);
+    expect(result.legs[1].depthFraction).toBe(0.508);
+  });
+
+  test("retries with the suggested liquidity-aware size", async () => {
+    const dex = {
+      getQuote: jest.fn(async (from, to, amountIn) => {
+        const amount = Number(amountIn) / 1_000_000;
+        if (from === "USDT0" && to === "USDT") {
+          return { viable: true, estimatedOut: amount, priceImpact: 0 };
+        }
+        if (amount > 4.5) {
+          return {
+            viable: false,
+            estimatedOut: 9.35,
+            priceImpact: 0.0046,
+            depthFraction: 0.508,
+          };
+        }
+        return {
+          viable: true,
+          estimatedOut: 8.2,
+          priceImpact: 0.003,
+          depthFraction: 0.44,
+        };
+      }),
+    };
+
+    const result = await retryPreflightWithLiquidityCap({
+      dex,
+      path: ["USDT0", "USDT", "WMNT"],
+      initialAmount: 5,
+      minInitialAmount: 0.3,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.liquidityAdjusted).toBe(true);
+    expect(result.initialAmount).toBeLessThan(5);
+    expect(dex.getQuote).toHaveBeenCalledTimes(4);
   });
 });

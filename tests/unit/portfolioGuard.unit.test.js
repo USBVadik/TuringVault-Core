@@ -271,6 +271,110 @@ describe("portfolioGuard", () => {
     expect(result.reason).toMatch(/profitable exit/i);
   });
 
+  test("allows a same-asset upper-band grid trim once entry plus fees is cleared", () => {
+    const result = assessTradeInventory({
+      direction: "risk-off",
+      targetAsset: "mUSD",
+      sourceAsset: "WMNT",
+      balances: {
+        MNT: 20,
+        WMNT: 23,
+        mETH: 0.007,
+        USDT0: 78,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: {
+        ...PRICES,
+        MNT: 0.534,
+        WMNT: 0.534,
+      },
+      regime: "RANGING",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.527127,
+        targetExit: 0.55,
+        stopLoss: 0.52,
+      },
+      structuredSignals: {
+        signals: {
+          ranging: {
+            multiAsset: {
+              mantle: {
+                channel: {
+                  currentPrice: 0.534,
+                  channelPosition: 0.92,
+                },
+              },
+            },
+          },
+        },
+      },
+      gridTradeCandidate: {
+        active: true,
+        kind: "grid-sell",
+        asset: "mantle",
+        sourceAsset: "WMNT",
+      },
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/partial grid trim/i);
+  });
+
+  test("does not apply an open MNT target to an mETH risk-off candidate", () => {
+    const result = assessTradeInventory({
+      direction: "risk-off",
+      targetAsset: "mUSD",
+      sourceAsset: "mETH",
+      balances: {
+        MNT: 20,
+        WMNT: 23,
+        mETH: 0.007,
+        USDT0: 78,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: {
+        ...PRICES,
+        MNT: 0.534,
+        WMNT: 0.534,
+        mETH: 1835,
+      },
+      regime: "RANGING",
+      positionState: {
+        status: "IN_MNT",
+        entryPrice: 0.527127,
+        targetExit: 0.55,
+        stopLoss: 0.52,
+      },
+      structuredSignals: {
+        signals: {
+          ranging: {
+            multiAsset: {
+              ethereum: {
+                channel: {
+                  currentPrice: 1835,
+                  channelPosition: 0.88,
+                },
+              },
+            },
+          },
+        },
+      },
+      gridTradeCandidate: {
+        active: true,
+        kind: "grid-sell",
+        asset: "ethereum",
+        sourceAsset: "mETH",
+      },
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/separate from tracked IN_MNT/i);
+    expect(result.reason).not.toMatch(/below profitable exit/i);
+  });
+
   test("allows risk-off below entry when the position stop-loss is hit", () => {
     const result = assessTradeInventory({
       direction: "risk-off",
