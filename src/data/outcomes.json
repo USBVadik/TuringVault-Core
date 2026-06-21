@@ -1183,6 +1183,104 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1782048133553_703",
+      "decisionId": 703,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1724.96,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei363c0d6fd6f8f070c9e290e1d421bf18226c07e7066520c818de",
+      "recordedAt": "2026-06-21T13:22:13.553Z",
+      "settleAfter": "2026-06-21T14:22:13.553Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782048133540
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst proposes directional SWAP to mETH in RANGING regime (55% confidence). ETH grid signal is explicitly HOLD at 67% channel position — not a lower-band re-entry. MNT breakout is UP/TREND_UP but Analyst pivots this to justify buying mETH, a logical disconnect. No R:R ratio provided — mandatory rejection trigger. Signal consensus is BEARISH, technicals SELL (-0.25), yield spread BEARISH (-1%). P",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory rejection trigger",
+        "ETH grid explicitly HOLD at 67% channel, not a buy signal",
+        "MNT TREND_UP breakout misapplied to justify mETH purchase — logical non-sequitur",
+        "RANGING regime with no grid buy confirmation for ETH — directional swap rejected",
+        "Portfolio stable-heavy FLAT: inventory rule mandates HOLD, not risk_on"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no actionable lower-band or grid edge",
+        "inspectedSignals": [
+          {
+            "asset": "ethereum",
+            "action": "HOLD",
+            "confidence": 0.5,
+            "breakoutDirection": null,
+            "regimeHint": null,
+            "channelPosition": 0.67,
+            "support": 1704.7,
+            "resistance": 1736.5,
+            "currentPrice": 1725.9
+          },
+          {
+            "asset": "mantle",
+            "action": "EXIT_RANGING",
+            "confidence": 0.7,
+            "breakoutDirection": "UP",
+            "regimeHint": "TREND_UP",
+            "channelPosition": 0.78,
+            "support": 0.53,
+            "resistance": 0.53,
+            "currentPrice": 0.53294
+          }
+        ]
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xbf92e541b01df8eb40d23777de13ed503df43ef577f1cf2c55bf7f32680e8480",
+      "combinedAnchor": "0x8d61eb3d7ae6fee89d12cd34f0a85802af040756f8ffffafb1a526cc0a2256bb",
+      "decisionLogTxHash": "0x782b86ea1ae82d8de01b365f86cc9da1448ed1a786ec9b965328dcc18c7b9a45",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
