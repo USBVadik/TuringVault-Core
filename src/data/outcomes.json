@@ -2656,6 +2656,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782099443002_717",
+      "decisionId": 717,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1736.15,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreib3e5d29c71cdefba00fec072c984dc52bfa20dc513c8c92f7dc1",
+      "recordedAt": "2026-06-22T03:37:23.002Z",
+      "settleAfter": "2026-06-22T04:37:23.002Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782099442988
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 97% channel position with EXIT_RANGING signal and UNKNOWN breakout direction correctly disengages directional logic. Funding 0.462% is neutral. Smart money flow flat. Position IN_mETH at $1743.24 vs $1736.15 (-0.4% drawdown) is minor. No R:R gate applies to HOLD. Portfolio is stable-heavy (73.7%) — HOLD avoids repeated risk_off without CRISIS confirmati",
+      "validatorFlaggedIssues": [
+        "Position slightly underwater at -0.4%; stop-loss trigger level not explicitly defined",
+        "Expanding volatility (vol expanding: true) increases breakout risk in either direction",
+        "Extreme Fear F&G=20 unresolved — capitulation or bounce both plausible"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x718d99e8a830f43cfe03e938acfde1dd3b5cbdc5f1b6f9c106c51de6ca5f21bd",
+      "combinedAnchor": "0xec7d46aaaa2b3dce0992b61cffffb372f6583316fbd72845cd4a6eb331769635",
+      "decisionLogTxHash": "0x7030dd4f8b9a88a268a095af64dc5617d0bd90e2afcf3376e80c5f308653d563",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
