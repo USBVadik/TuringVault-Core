@@ -2231,6 +2231,179 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1782088105623_714",
+      "decisionId": 714,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": true,
+      "confidence": 0.64,
+      "priceAtDecision": 0.530359,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "bafkrei1b028c41af2022ff1cf5908d37174378f3b814ef1df89b8f4405",
+      "recordedAt": "2026-06-22T00:28:25.623Z",
+      "settleAfter": "2026-06-22T01:28:25.623Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 96978894"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782088105608
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Grid candidate passes core gates: R:R 4.61:1 exceeds 1.5 threshold. Price at 18% of channel (near lower band), no confirmed down-break, breakoutDirection=UNKNOWN. Portfolio is stable-heavy/FLAT at 82.3% stable — inventory rule supports risk_on over repeated risk_off. 12% allocation stays well under 40% cap. Bearish consensus and EXIT_RANGING signal are acknowledged risk factors, not ignored. Volat",
+      "validatorFlaggedIssues": [
+        "MNT grid signal is EXIT_RANGING not BUY — directional entry carries breakout risk",
+        "Signal consensus BEARISH conflicts with long entry — acknowledged but not fully resolved",
+        "Yield spread -1% adds bearish weight",
+        "Vol expanding increases stop-out probability before TP"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($92.97)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 92.96827300000001,
+          "tradableRiskUsd": 19.9451655352145,
+          "nativeMnt": 26.76004869631226,
+          "stableShare": 0.8233587977307576,
+          "riskShare": 0.17664120226924243,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "stable-heavy-lower-band-reentry",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "MNT",
+        "sourceAsset": "USDT0",
+        "allocationPct": 12,
+        "confidence": 0.64,
+        "reasoning": "MANTLE lower-band re-entry: price is at 18% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe. Risk plan: entry 0.53096, stop 0.529, take-profit 0.54, R:R 4.61:1.",
+        "riskFactors": [
+          "Confirmed downward breakout invalidates mean reversion",
+          "Keep size small because consensus may still be bearish"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT"
+        ],
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.65,
+          "breakoutDirection": "UNKNOWN",
+          "regimeHint": "HOLD",
+          "channelPosition": 0.18,
+          "support": 0.53,
+          "resistance": 0.54,
+          "currentPrice": 0.53096
+        },
+        "riskReward": {
+          "entry": 0.53096,
+          "stopLoss": 0.529,
+          "takeProfit": 0.54,
+          "ratio": 4.61,
+          "riskPct": 0.37,
+          "rewardPct": 1.7
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 5,
+        "amountOut": 9.348742879399031,
+        "txHash": "0xe801e0e82cfd35743b5c98041341838c0a89c989a0d4220993463eac5040e760",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "txHash": "0xabe7eda8bc6db5f4825b253a6240cdfcdd62a4d66f4995dddb04c59fe9952e66",
+            "blockNumber": 96978886,
+            "amountIn": 5,
+            "amountOut": 5.000499
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "txHash": "0xe801e0e82cfd35743b5c98041341838c0a89c989a0d4220993463eac5040e760",
+            "blockNumber": 96978894,
+            "amountIn": 4.995498500999999,
+            "amountOut": 9.348742879399031
+          }
+        ],
+        "liquidityAdjusted": false,
+        "originalAmountIn": 5
+      },
+      "manifestHash": "0x321077c3b067879a4b9c24490cbbe6c504073104417a4386901e2147243f836b",
+      "combinedAnchor": "0xde45785a6c04255fe7df094950ccbe38727f2c0d3d527ac3403d49ea9746e1d8",
+      "decisionLogTxHash": "0xb31497cff25abc19feb246d955b5922fa1f2721fb96f6e758263245cc2f6ff24",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "ACCEPTED",
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
