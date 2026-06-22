@@ -60,4 +60,31 @@ describe("positionState", () => {
     expect(next.scaleInCount).toBe(0);
     expect(next.lastScaleInAt).toBeNull();
   });
+
+  test("preserves execution cost basis on fresh positions", () => {
+    const next = buildEnteredPositionState(
+      { status: "FLAT", entryPrice: null },
+      {
+        status: "IN_mETH",
+        entryPrice: 1743.24,
+        targetExit: 1769.3886,
+        stopLoss: 1711.86168,
+        allocationPct: 25,
+        executionEntryPrice: 1907.1314226942789,
+        executionCostUsd: 5,
+        executionAmountOut: 0.002621738565314133,
+        executionSourceAsset: "USDT0",
+        executionTargetAsset: "mETH",
+        executionTxHash: "0xabc",
+      },
+      "2026-06-22T01:52:06.980Z"
+    );
+
+    expect(next.executionEntryPrice).toBe(1907.1314226942789);
+    expect(next.executionCostUsd).toBe(5);
+    expect(next.executionAmountOut).toBe(0.002621738565314133);
+    expect(next.executionSourceAsset).toBe("USDT0");
+    expect(next.executionTargetAsset).toBe("mETH");
+    expect(next.executionTxHash).toBe("0xabc");
+  });
 });

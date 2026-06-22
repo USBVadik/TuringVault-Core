@@ -223,6 +223,57 @@ describe("multiAgentLoop position entry state", () => {
     });
   });
 
+  test("records mETH entries with execution cost basis without changing grid reference price", () => {
+    const market = {
+      ethPrice: 1743.24,
+      mntPrice: 0.535185,
+      structuredSignals: {
+        signals: {
+          ranging: {
+            action: "EXIT_RANGING",
+            multiAsset: {
+              primary: "ethereum",
+              ethereum: {
+                action: "EXIT_RANGING",
+                targetExit: null,
+                stopLoss: null,
+              },
+              mantle: { action: "HOLD" },
+            },
+          },
+        },
+      },
+    };
+
+    expect(
+      buildPositionEntryState({
+        market,
+        targetAsset: "mETH",
+        allocationPct: 25,
+        directionalSwapResult: {
+          executed: true,
+          direction: "risk-on",
+          from: "USDT0",
+          to: "mETH",
+          amountIn: 5,
+          amountOut: 0.002621738565314133,
+        },
+      })
+    ).toEqual({
+      status: "IN_mETH",
+      entryPrice: 1743.24,
+      targetExit: 1769.3885999999998,
+      stopLoss: 1711.86168,
+      allocationPct: 25,
+      executionEntryPrice: 1907.1314226942789,
+      executionCostUsd: 5,
+      executionAmountOut: 0.002621738565314133,
+      executionSourceAsset: "USDT0",
+      executionTargetAsset: "mETH",
+      executionTxHash: null,
+    });
+  });
+
   test("records WMNT entries with Mantle grid levels and MNT spot price", () => {
     const market = {
       ethPrice: 1978.94,

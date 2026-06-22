@@ -33,6 +33,12 @@ const INITIAL_STATE = {
   stopLoss: null, // stop-loss price (from rangingGrid at entry — SINGLE SOURCE OF TRUTH)
   highWaterMark: null, // highest price since entry (for trailing stop)
   allocationPct: null, // how much % of portfolio was moved
+  executionEntryPrice: null, // actual stablecoin cost per received target token
+  executionCostUsd: null,
+  executionAmountOut: null,
+  executionSourceAsset: null,
+  executionTargetAsset: null,
+  executionTxHash: null,
   scaleInCount: 0, // controlled same-asset scale-ins used in this position
   lastScaleInAt: null,
   cycleCount: 0, // how many cycles in current position (prevent infinite hold)
@@ -66,6 +72,41 @@ function num(v, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
+function executionFieldsFromEntry(entry = {}) {
+  return {
+    executionEntryPrice: entry.executionEntryPrice || null,
+    executionCostUsd: entry.executionCostUsd || null,
+    executionAmountOut: entry.executionAmountOut || null,
+    executionSourceAsset: entry.executionSourceAsset || null,
+    executionTargetAsset: entry.executionTargetAsset || null,
+    executionTxHash: entry.executionTxHash || null,
+  };
+}
+
+function mergeExecutionFields(prevState = {}, entry = {}) {
+  const prevCost = Math.max(0, num(prevState.executionCostUsd, 0));
+  const nextCost = Math.max(0, num(entry.executionCostUsd, 0));
+  const prevOut = Math.max(0, num(prevState.executionAmountOut, 0));
+  const nextOut = Math.max(0, num(entry.executionAmountOut, 0));
+  const totalCost = prevCost + nextCost;
+  const totalOut = prevOut + nextOut;
+  const executionEntryPrice =
+    totalCost > 0 && totalOut > 0
+      ? totalCost / totalOut
+      : entry.executionEntryPrice || prevState.executionEntryPrice || null;
+
+  return {
+    executionEntryPrice,
+    executionCostUsd: totalCost || entry.executionCostUsd || prevState.executionCostUsd || null,
+    executionAmountOut: totalOut || entry.executionAmountOut || prevState.executionAmountOut || null,
+    executionSourceAsset:
+      entry.executionSourceAsset || prevState.executionSourceAsset || null,
+    executionTargetAsset:
+      entry.executionTargetAsset || prevState.executionTargetAsset || null,
+    executionTxHash: entry.executionTxHash || prevState.executionTxHash || null,
+  };
+}
+
 function buildEnteredPositionState(prevState = {}, entry = {}, nowIso) {
   const now = nowIso || new Date().toISOString();
   const samePosition =
@@ -82,6 +123,7 @@ function buildEnteredPositionState(prevState = {}, entry = {}, nowIso) {
       stopLoss: entry.stopLoss || null,
       highWaterMark: entry.entryPrice,
       allocationPct: entry.allocationPct || null,
+      ...executionFieldsFromEntry(entry),
       scaleInCount: 0,
       lastScaleInAt: null,
       cycleCount: 0,
@@ -111,6 +153,7 @@ function buildEnteredPositionState(prevState = {}, entry = {}, nowIso) {
       num(entry.entryPrice)
     ),
     allocationPct: totalAllocation || nextAllocation || previousAllocation || null,
+    ...mergeExecutionFields(prevState, entry),
     scaleInCount: num(prevState.scaleInCount, 0) + 1,
     lastScaleInAt: now,
     cycleCount: 0,

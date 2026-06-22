@@ -232,6 +232,33 @@ function isStableTargetAsset(asset) {
   );
 }
 
+function executionCostBasisForTarget(
+  directionalSwapResult = null,
+  targetAsset = "mETH"
+) {
+  const normalizedTarget = normalizePositionTargetAsset(targetAsset);
+  if (!normalizedTarget || directionalSwapResult?.executed !== true) {
+    return null;
+  }
+
+  const from = outcomeTracker.normalizeAssetSymbol(directionalSwapResult.from);
+  const to = normalizePositionTargetAsset(directionalSwapResult.to);
+  if (!isStableTargetAsset(from) || to !== normalizedTarget) return null;
+
+  const costUsd = finitePositiveNumber(directionalSwapResult.amountIn);
+  const amountOut = finitePositiveNumber(directionalSwapResult.amountOut);
+  if (!costUsd || !amountOut) return null;
+
+  return {
+    executionEntryPrice: costUsd / amountOut,
+    executionCostUsd: costUsd,
+    executionAmountOut: amountOut,
+    executionSourceAsset: from,
+    executionTargetAsset: normalizedTarget,
+    executionTxHash: directionalSwapResult.txHash || null,
+  };
+}
+
 function selectPositionGridSignal(market = {}, targetAsset = "mETH") {
   const rangingSignal = market.structuredSignals?.signals?.ranging || null;
   const multiAsset = rangingSignal?.multiAsset || null;
@@ -266,6 +293,7 @@ function buildPositionEntryState({
   market = {},
   targetAsset = "mETH",
   allocationPct = 30,
+  directionalSwapResult = null,
 } = {}) {
   const normalizedTarget = normalizePositionTargetAsset(targetAsset);
   if (!normalizedTarget) return null;
@@ -281,6 +309,7 @@ function buildPositionEntryState({
       finitePositiveNumber(gridSignal?.targetExit) || entryPrice * 1.015,
     stopLoss: finitePositiveNumber(gridSignal?.stopLoss) || entryPrice * 0.982,
     allocationPct: positiveNumberOr(allocationPct, 30),
+    ...executionCostBasisForTarget(directionalSwapResult, targetAsset),
   };
 }
 
@@ -2000,6 +2029,7 @@ async function runMultiAgentCycle(opts = {}) {
         market,
         targetAsset,
         allocationPct: decision.analyst?.allocationPct || 30,
+        directionalSwapResult,
       });
 
       if (entryState) {
