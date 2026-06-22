@@ -3047,6 +3047,103 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782118541062_722",
+      "decisionId": 722,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1746.2,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreiee39df1e36d268c4408e5032fd6373b9677827ab5df0f69cbad3",
+      "recordedAt": "2026-06-22T08:55:41.062Z",
+      "settleAfter": "2026-06-22T09:55:41.062Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782118541050
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies the ETH grid EXIT_RANGING with UP breakout above $1740.5 and TREND_UP regime hint — this directly contradicts the deterministic risk_off candidate, which proposed selling into upward momentum. HOLD is the appropriate response. F&G=20 provides contrarian bullish bias. Funding at 0.299% is neutral with no directional crowding. Portfolio is already IN_mETH at $1743.24 wit",
+      "validatorFlaggedIssues": [
+        "Bollinger at 95% band position signals overbought — monitor for rejection",
+        "Low intraday vol (0.28%) may indicate weak breakout conviction",
+        "Signal consensus BEARISH conflicts with grid TREND_UP hint — acknowledged but unresolved",
+        "Yield spread -1% remains bearish headwind for mETH hold"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.7,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.7,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 1720.2,
+          "resistance": 1740.5,
+          "currentPrice": 1746.9
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x50bf8e3ff2639e6a60c86cb5fea83d97f5ab8305c768e13f237511028051ba58",
+      "combinedAnchor": "0x1e676d1352697bc00ffc7e2e94d54e4d236cfb2eabf1722d5a1d64fb3411f9ae",
+      "decisionLogTxHash": "0xbd31af3c6b47b762009b8aa5d816efb0381d77cdb1c9550e928540fdcdebea76",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
