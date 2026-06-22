@@ -3603,6 +3603,81 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1782138827044_727",
+      "decisionId": 727,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1752.3,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreicc607e3bb31b4e6b1d7a524af24f0a8302b369c0424b57cc6fd9",
+      "recordedAt": "2026-06-22T14:33:47.044Z",
+      "settleAfter": "2026-06-22T15:33:47.044Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782138827030
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "EXIT_RANGING with UP breakout is a regime transition signal, not a confirmed TREND_UP entry. No R:R provided — mandatory reject. Signal consensus is BEARISH, yield spread -1% BEARISH, RSI falling at 56.2, MACD weakening. Portfolio already holds mETH ($18.17) entered at $1743.24 — scale-in requires fresh lower-band move, not a breakout above resistance. Analyst ignored BEARISH consensus and yield s",
+      "validatorFlaggedIssues": [
+        "R:R not provided — mandatory rejection trigger",
+        "Signal consensus BEARISH ignored by Analyst",
+        "Yield spread -1% BEARISH unacknowledged",
+        "Scale-in rule violated: no fresh lower-band move, price at channel top",
+        "Breakout conviction absent: $21k 24h volume, MACD weakening, RSI falling"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x1d92d53f41a9f2d8ce32aff17a258046f071bcc3e49ef947598d3ccb164ddf23",
+      "combinedAnchor": "0x67a1296ee796e33555c1654cafe496c9f14d53fe7fdd5f45db3a237da0ee2696",
+      "decisionLogTxHash": "0x0d16bbbf86525199b44e23379d981b23a88299a802eb57d7526411797c9b8b13",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
