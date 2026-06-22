@@ -2729,6 +2729,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782103347727_718",
+      "decisionId": 718,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1730.69,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreie851ef37112f14b7f0e7a0b091a93b1e38576358f6321187f1b9",
+      "recordedAt": "2026-06-22T04:42:27.727Z",
+      "settleAfter": "2026-06-22T05:42:27.727Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782103347713
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction and expanding volatility — no directional edge exists. Regime is RANGING (55% confidence), signal consensus BEARISH, smart money flow NEUTRAL, funding balanced. Portfolio is already stable-heavy at 73.7% with existing mETH position underwater at $1743.24 vs $1730.69. No R:R calculation requi",
+      "validatorFlaggedIssues": [
+        "mETH position underwater ~$12.55 (-0.72%) — monitor for stop-loss trigger near $1720 support",
+        "Volatility expanding with no breakout direction increases whipsaw risk",
+        "F&G=20 Extreme Fear may persist without macro catalyst",
+        "Yield spread -1% remains a mild bearish drag on mETH thesis"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0380b4aaf11aca51ad6a97183eebe6b298a0be14c803f627720a5a538234dd80",
+      "combinedAnchor": "0x94aee416b4bf4ad6364ca87175c1760a60db0c2608ee7094ec1f5353290cc0bf",
+      "decisionLogTxHash": "0x6dee10b41ecfc7a824dc7830cb8c2398aa6a2f1047c5a886da8224c6611ea90a",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
