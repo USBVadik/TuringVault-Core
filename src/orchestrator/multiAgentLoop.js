@@ -259,6 +259,29 @@ function executionCostBasisForTarget(
   };
 }
 
+function positionRiskAssetForState(positionStateValue = {}) {
+  const status = String(positionStateValue?.status || "").toUpperCase();
+  if (status === "IN_METH") return "mETH";
+  if (status === "IN_MNT" || status === "IN_RISK") return "WMNT";
+  return null;
+}
+
+function stableSwapExitsTrackedPosition({
+  targetAsset = null,
+  sourceAsset = null,
+  directionalSwapResult = null,
+  positionState: positionStateValue = {},
+} = {}) {
+  if (!isStableTargetAsset(targetAsset)) return false;
+  const trackedRiskAsset = positionRiskAssetForState(positionStateValue);
+  if (!trackedRiskAsset) return false;
+
+  const executedSource = normalizePositionTargetAsset(
+    directionalSwapResult?.from || sourceAsset
+  );
+  return executedSource === trackedRiskAsset;
+}
+
 function selectPositionGridSignal(market = {}, targetAsset = "mETH") {
   const rangingSignal = market.structuredSignals?.signals?.ranging || null;
   const multiAsset = rangingSignal?.multiAsset || null;
@@ -2023,6 +2046,7 @@ async function runMultiAgentCycle(opts = {}) {
       Array.isArray(directionalSwapResult?.legs) &&
       directionalSwapResult.legs.some((l) => l && l.txHash);
     if (decision.consensus && decision.action === "swap" && alphaSwapExecuted) {
+      const currentPositionState = positionState.getState();
       const targetAsset = decision.analyst?.targetAsset;
       const overrideReason = rangingSignal?.overrideReason;
       const entryState = buildPositionEntryState({
@@ -2038,12 +2062,27 @@ async function runMultiAgentCycle(opts = {}) {
           `   📍 Position state: ${entryState.status} @ $${entryState.entryPrice}`
         );
       } else if (isStableTargetAsset(targetAsset)) {
-        // Exited to stable inventory.
-        const reason = overrideReason || "GRID_SELL";
-        positionState.exitPosition(reason);
-        console.log(
-          `   📍 Position state: FLAT (exited to stable, reason: ${reason})`
-        );
+        const exitsTrackedPosition = stableSwapExitsTrackedPosition({
+          targetAsset,
+          sourceAsset: decision.analyst?.sourceAsset || null,
+          directionalSwapResult,
+          positionState: currentPositionState,
+        });
+
+        if (exitsTrackedPosition) {
+          // Exited the tracked grid position to stable inventory.
+          const reason = overrideReason || "GRID_SELL";
+          positionState.exitPosition(reason);
+          console.log(
+            `   📍 Position state: FLAT (exited to stable, reason: ${reason})`
+          );
+        } else {
+          console.log(
+            `   📍 Position state unchanged (${currentPositionState.status || "FLAT"}): stable swap source ${
+              directionalSwapResult?.from || decision.analyst?.sourceAsset || "unknown"
+            } does not match tracked position`
+          );
+        }
 
         // USDY idle parking — don't let cash sit at 0% yield
         const { getIdleParkingSignal } = require("../strategies/idleParking");
@@ -2360,5 +2399,6 @@ module.exports = {
     selectPositionGridSignal,
     shouldRefreshAgentCard,
     sourceUsdPriceForToken,
+    stableSwapExitsTrackedPosition,
   },
 };

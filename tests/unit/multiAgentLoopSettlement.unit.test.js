@@ -6,6 +6,7 @@ const {
     shouldRefreshAgentCard,
     retagSkippedTxProofChecks,
     resolveCycleDisplayTier,
+    stableSwapExitsTrackedPosition,
   },
 } = require("../../src/orchestrator/multiAgentLoop");
 
@@ -180,6 +181,46 @@ describe("multiAgentLoop execution display tier", () => {
 });
 
 describe("multiAgentLoop position entry state", () => {
+  test("does not close a tracked mETH position after a separate WMNT trim", () => {
+    expect(
+      stableSwapExitsTrackedPosition({
+        targetAsset: "mUSD",
+        directionalSwapResult: {
+          executed: true,
+          from: "WMNT",
+          to: "USDT0",
+        },
+        positionState: { status: "IN_mETH" },
+      })
+    ).toBe(false);
+  });
+
+  test("closes only when stable swap source matches the tracked risk position", () => {
+    expect(
+      stableSwapExitsTrackedPosition({
+        targetAsset: "mUSD",
+        directionalSwapResult: {
+          executed: true,
+          from: "mETH",
+          to: "USDT0",
+        },
+        positionState: { status: "IN_mETH" },
+      })
+    ).toBe(true);
+
+    expect(
+      stableSwapExitsTrackedPosition({
+        targetAsset: "USDT0",
+        directionalSwapResult: {
+          executed: true,
+          from: "WMNT",
+          to: "USDT0",
+        },
+        positionState: { status: "IN_MNT" },
+      })
+    ).toBe(true);
+  });
+
   test("records mETH entries with ETH grid levels even when Mantle is primary", () => {
     const market = {
       ethPrice: 1978.94,
