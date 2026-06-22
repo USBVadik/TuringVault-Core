@@ -3435,6 +3435,174 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1782134015198_726",
+      "decisionId": 726,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.72,
+      "priceAtDecision": 0.538769,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkreif3753bda20e39960d5068d73b4b8893fdf73d2b47f2a8360ac98",
+      "recordedAt": "2026-06-22T13:13:35.198Z",
+      "settleAfter": "2026-06-22T14:13:35.198Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 97001848"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782134015183
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Proposal passes all gates. MNT grid SELL_mETH at 100% channel (resistance $0.54) with 78% confidence is a legitimate grid signal. R:R 6.64:1 far exceeds 1.5:1 minimum. WMNT inventory ($11.80) exists to sell — no phantom inventory issue. ETH upward breakout acknowledged but PRIMARY EDGE correctly defers to MNT grid. Extreme Fear noted as risk factor. 20% allocation is conservative. Signal consensus",
+      "validatorFlaggedIssues": [
+        "Extreme Fear F&G=20 may precede reversal — selling into fear carries timing risk",
+        "ETH upward breakout could drag MNT higher, cutting take-profit short",
+        "WMNT position small ($11.80) — absolute gain limited",
+        "Regime confidence only 55% — some uncertainty in ranging classification"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: WMNT inventory trim is separate from tracked IN_mETH grid position",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 82.978273,
+          "tradableRiskUsd": 30.080827125601896,
+          "nativeMnt": 25.896792183163516,
+          "stableShare": 0.7339371435631108,
+          "riskShare": 0.26606285643688915,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.7780000000000002,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 0.53956, stop 0.541, take-profit 0.53, R:R 6.64:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.7780000000000002,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 1,
+          "support": 0.53,
+          "resistance": 0.54,
+          "currentPrice": 0.53956
+        },
+        "riskReward": {
+          "entry": 0.53956,
+          "stopLoss": 0.541,
+          "takeProfit": 0.53,
+          "ratio": 6.64,
+          "riskPct": 0.27,
+          "rewardPct": 1.77
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "amountIn": 4.379536242103642,
+        "amountOut": 2.344341,
+        "txHash": "0x08995c7e082d3b90997c510e915e15b5e5c0bf117e846b5dce99c3943b8528de",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "WMNT",
+            "to": "USDT",
+            "txHash": "0xbef30b3f9e3d59e0d8d388773d324d31708d3fafe285eb9855c8e8e40b82a855",
+            "blockNumber": 97001843,
+            "amountIn": 4.379536242103642,
+            "amountOut": 2.347392
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "USDT0",
+            "txHash": "0x08995c7e082d3b90997c510e915e15b5e5c0bf117e846b5dce99c3943b8528de",
+            "blockNumber": 97001848,
+            "amountIn": 2.3450446080000003,
+            "amountOut": 2.344341
+          }
+        ],
+        "liquidityAdjusted": false,
+        "originalAmountIn": 4.379536242103642
+      },
+      "manifestHash": "0x7d2788f0ac5a176d5aa038331b2e6dbd536f3310f5419fb12faad79c3e80a3c2",
+      "combinedAnchor": "0x09e35475bc9ebf28592e5fcf01cc7169661ee13785655ad3cbfff578fcab8aee",
+      "decisionLogTxHash": "0xa0fb84c03ccd5dda2734c962cf4cc6dbbda5c523a4b6c6f1e565a7fc564e35ad",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "ACCEPTED",
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [
