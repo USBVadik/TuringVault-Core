@@ -2950,6 +2950,103 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782115872820_721",
+      "decisionId": 721,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1744.6,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei0c9168beefc4cf8885ec93467b8d2d201f0efad76eb8dcb79212",
+      "recordedAt": "2026-06-22T08:11:12.820Z",
+      "settleAfter": "2026-06-22T09:11:12.820Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782115872806
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies EXIT_RANGING as an UPWARD breakout (price $1746.5 > resistance $1740.5, regimeHint=TREND_UP). Rejecting the deterministic risk_off candidate is justified — selling into an upward breakout contradicts the grid signal. Portfolio is stable-heavy (73.6%), mETH position is small ($18.09, entry $1743.24), funding neutral, no confirmed down-break or strong outflow. HOLD prese",
+      "validatorFlaggedIssues": [
+        "No explicit R:R provided — acceptable for HOLD action",
+        "Bollinger at 90% band position signals potential overextension",
+        "Extreme Fear F&G=20 warrants caution on breakout sustainability",
+        "Yield spread -1% bearish signal not fully reconciled"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.7,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.7,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 1720.2,
+          "resistance": 1740.5,
+          "currentPrice": 1746.5
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe41cae4e6d338602d4623bc464bde3b1187c64a91542bda1a84ace7bb6f9b2ab",
+      "combinedAnchor": "0x2934ecb15f26fba5461a4182443d428d48760fe92d0dcb3561335a89f7b3b70d",
+      "decisionLogTxHash": "0x2907d1ae462d34ad448f099ea9c5b0f3467a42c166287ceb9b8e5ef613b06b3e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
