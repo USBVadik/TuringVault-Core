@@ -2877,6 +2877,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782111627080_720",
+      "decisionId": 720,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1732.84,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei5d2c94ec1391aca9195276305f292ddbf68cc5dbd2dfde215009",
+      "recordedAt": "2026-06-22T07:00:27.080Z",
+      "settleAfter": "2026-06-22T08:00:27.080Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782111627065
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid EXIT_RANGING with UNKNOWN breakout direction correctly blocks directional action. MNT BUY_mETH signal is legitimately overridden by ALREADY_IN_POSITION rule — no deeper lower-band move confirmed. Funding neutral at 0.30%, smart money flow $0.0M NEUTRAL, F&G=20 extreme fear with RSI 53.5 (not oversold) provides no contrarian trigger. Signal consensus BEARIS",
+      "validatorFlaggedIssues": [
+        "ETH at 87% of channel near resistance — breakout direction unconfirmed",
+        "Yield spread -1% bearish signal not explicitly weighted in analyst reasoning",
+        "F&G=20 extreme fear without RSI oversold confirmation weakens contrarian case"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2e5fc6fa315cf0b1be923522a622ca32c5f0a3a3b62c446de853c5195dd0c280",
+      "combinedAnchor": "0x74f8a623c1dabdf7666c987357bfc8aef88ab45dc4f3149194259fbc2311c9ae",
+      "decisionLogTxHash": "0x5cc67c0a7c0af486cb6e7a5ddfe4ef83b8f2c62626b069588f0470654ed4899d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
