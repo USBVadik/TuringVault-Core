@@ -2584,6 +2584,78 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1782097421619_716",
+      "decisionId": 716,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1729.31,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreid8ac60577b7f965c7fd959ffb0759409208e0f1a622ddda9c570",
+      "recordedAt": "2026-06-22T03:03:41.619Z",
+      "settleAfter": "2026-06-22T04:03:41.619Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782097421606
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction — no directional trade warranted. Portfolio is already 73.7% stable, so no forced risk_off needed per inventory rule. Funding at 0.414% is neutral. Smart money flow flat. Analyst correctly defers action pending breakout confirmation. All raw signals cross-check accurately — no hallucinated d",
+      "validatorFlaggedIssues": [
+        "Expanding vol with unconfirmed breakout direction remains a live risk",
+        "F&G=20 Extreme Fear could extend before any mean-reversion"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x531445de561eceea4bb7359ff039b354511df155bfc4890d441af0c6d07efb06",
+      "combinedAnchor": "0x49827e5ba4925ca057d14299e5bf4535f1771c00cd814daf4ab2ca35a30ad889",
+      "decisionLogTxHash": "0x3b4241af79bfbf8fb818ccaa98b99ee83360384bc0499c6e22928940b755adc6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
