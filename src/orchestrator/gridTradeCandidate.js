@@ -1,6 +1,5 @@
 const MIN_CANDIDATE_CONFIDENCE = 0.55;
 const LOWER_BAND_MAX = 0.2;
-const UPPER_BAND_MIN = 0.8;
 const STABLE_REENTRY_ALLOCATION_PCT = 12;
 const GRID_BUY_ALLOCATION_PCT = 15;
 const GRID_SELL_ALLOCATION_PCT = 20;
@@ -32,13 +31,6 @@ function isConfirmedDownBreak(signal = {}) {
   return (
     upper(signal.breakoutDirection) === "DOWN" ||
     upper(signal.regimeHint) === "TREND_DOWN"
-  );
-}
-
-function isConfirmedUpBreak(signal = {}) {
-  return (
-    upper(signal.breakoutDirection) === "UP" ||
-    upper(signal.regimeHint) === "TREND_UP"
   );
 }
 
@@ -257,13 +249,9 @@ function buildGridTradeCandidate({
         .map(({ asset, signal }) => ({
           asset,
           signal,
-          pos: channelPosition(signal),
           confidence: num(signal.confidence, 0),
         }))
-        .filter(({ signal, pos }) => {
-          if (upper(signal.action) === "SELL_METH") return true;
-          return isConfirmedUpBreak(signal) && pos != null && pos >= UPPER_BAND_MIN;
-        })
+        .filter(({ signal }) => upper(signal.action) === "SELL_METH")
         .sort((a, b) => b.confidence - a.confidence)[0]
     : null;
 

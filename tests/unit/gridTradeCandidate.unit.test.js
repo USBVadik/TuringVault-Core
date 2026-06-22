@@ -193,6 +193,43 @@ describe("gridTradeCandidate", () => {
     expect(candidate.reasoning).toMatch(/existing risk inventory/i);
   });
 
+  test("does not emit a risk-off sell candidate when EXIT_RANGING is an upward breakout", () => {
+    const s = structuredSignals();
+    s.signals.ranging.multiAsset.ethereum = {
+      action: "EXIT_RANGING",
+      confidence: 0.8,
+      breakoutDirection: "UP",
+      regimeHint: "TREND_UP",
+      channel: {
+        support: 1720.2,
+        resistance: 1745.8,
+        currentPrice: 1766.6,
+        channelPosition: 1,
+      },
+    };
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 76,
+        tradableRiskUsd: 31,
+        methUsd: 19,
+        stableShare: 0.73,
+        riskShare: 0.27,
+        stableHeavy: false,
+      }),
+      positionState: {
+        status: "IN_mETH",
+        entryPrice: 1743.24,
+        targetExit: 1769.3886,
+      },
+    });
+
+    expect(candidate.active).toBe(false);
+    expect(candidate.kind).not.toBe("grid-sell");
+    expect(candidate.reason).toMatch(/not stable-heavy FLAT inventory/i);
+  });
+
   test("does not emit a sell candidate when upper-band grid fires but no matching risk inventory exists", () => {
     const s = structuredSignals();
     s.signals.ranging.multiAsset.ethereum = {
