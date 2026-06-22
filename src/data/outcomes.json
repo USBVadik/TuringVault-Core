@@ -3241,6 +3241,102 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782125499079_724",
+      "decisionId": 724,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1746.63,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei201f293c21eb650d8bbdc00603848b39a0b1cbc2eabaccadc7de",
+      "recordedAt": "2026-06-22T10:51:39.079Z",
+      "settleAfter": "2026-06-22T11:51:39.079Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782125499066
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst correctly identifies the ETH grid EXIT_RANGING signal as an upward breakout (price $1748.5 above resistance $1743.1, regimeHint=TREND_UP), making the deterministic risk_off candidate inappropriate. Funding is neutral at 0.394%, smart money flow is neutral ($0.0M), and portfolio is already 73.6% stable — selling into a confirmed upward breakout would be poor execution. HOLD preserves existi",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH conflicts with technical breakout — analyst acknowledges but does not fully reconcile",
+        "Bollinger at 87% band position suggests overbought risk on short timeframe",
+        "F&G=20 Extreme Fear creates fragile sentiment backdrop for breakout sustainability"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.7,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.7,
+          "breakoutDirection": "UP",
+          "regimeHint": "TREND_UP",
+          "channelPosition": 1,
+          "support": 1720.2,
+          "resistance": 1743.1,
+          "currentPrice": 1748.5
+        },
+        "riskReward": null,
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xbdda703fecd983e70bb96a99398b9199d149ecc9b6edbb22eb17ac9cf4510993",
+      "combinedAnchor": "0x542faa95db1770bc733f1f2003bd35a816f1b1d040c0919c6de69a2246bf0ecb",
+      "decisionLogTxHash": "0xd5d349c6de93cab7c9829c24b1b9378b812a74401946cd0a656ebff105aefc5d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
