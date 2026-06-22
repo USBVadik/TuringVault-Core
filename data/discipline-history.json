@@ -1,34 +1,5 @@
 [
   {
-    "at": "2026-06-17T22:44:15.375Z",
-    "decisionId": 626,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_VALIDATOR",
-    "displayTier": "BLOCKED_BY_VALIDATOR",
-    "executedOnChain": false,
-    "action": "swap",
-    "targetAsset": "mUSD",
-    "sourceAsset": "WMNT",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-17T23:55:30.467Z",
     "decisionId": 627,
     "verdict": "ACCEPTED",
@@ -3195,6 +3166,35 @@
         "name": "tx_proof",
         "status": "PASS",
         "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-22T16:49:37.728Z",
+    "decisionId": 729,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+    "displayTier": "BLOCKED_BY_LOW_CONFIDENCE",
+    "executedOnChain": false,
+    "action": "hold",
+    "targetAsset": "mUSD",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
       }
     ],
     "blockReason": null
