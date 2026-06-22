@@ -60,6 +60,11 @@ const walletDisplay = require("./lib/wallet-display.shared.js") as {
     value: string;
   };
 };
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const polling = require("./lib/polling.shared.js") as {
+  shouldRunDashboardPoll: (doc?: Document | null) => boolean;
+};
+const { shouldRunDashboardPoll } = polling;
 
 // ═══ CONTRACTS ═══
 const CONTRACTS = {
@@ -229,6 +234,7 @@ export default function Home() {
   // ═══ ON-CHAIN READS (via server API to avoid client tuple decode issues) ═══
   useEffect(() => {
     async function fetchChainData() {
+      if (!shouldRunDashboardPoll(document)) return;
       try {
         const res = await fetch("/api/decisions");
         if (res.ok) {
@@ -288,8 +294,9 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     async function fetchHealth() {
+      if (!shouldRunDashboardPoll(document)) return;
       try {
-        const res = await fetch("/api/health", { cache: "no-store" });
+        const res = await fetch("/api/health");
         if (!cancelled) setHealth(res.ok ? await res.json() : null);
       } catch {
         if (!cancelled) setHealth(null);
@@ -375,6 +382,7 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchMarket() {
+      if (!shouldRunDashboardPoll(document)) return;
       try {
         const res = await fetch("/api/market");
         if (res.ok) setMarketData(await res.json());

@@ -64,8 +64,7 @@ const healthCache = require("./health-cache.shared.js") as {
 const { canReuseHealthPayload, cloneHealthWithFreshAge } = healthCache;
 
 export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-export const revalidate = 0;
+export const revalidate = 30;
 
 type OutcomeEntry = {
   recordedAt?: string;
@@ -153,22 +152,26 @@ type CycleFailureRaw = {
   error?: string;
 };
 
-const NO_STORE: HeadersInit = {
-  "Cache-Control": "no-store, max-age=0, must-revalidate",
-  "X-Cache-Mode": "no-store",
+/**
+ * Health is the dashboard's live liveness source. This route used to be
+ * deliberately no-store, but the homepage has multiple live widgets and
+ * every hidden/open tab was waking Fluid Compute for the same expensive
+ * GitHub raw + Mantle RPC reads. A 30s SWR window is still honest against
+ * 10m/35m/90m liveness thresholds and keeps Vercel's edge cache in front
+ * of the function during demos.
+ *
+ * Steering rule §1: lastCycleAge may be at most one short SWR window old;
+ * consumers also receive lastCycleTimestamp for exact relative rendering.
+ */
+const HEALTH_CACHE: HeadersInit = {
+  "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+  "X-Cache-Mode": "swr",
 };
 
-/**
- * Health is the dashboard's live liveness source. Vercel edge caching
- * can make the UI show an old cycle as "current", so this endpoint is
- * deliberately no-store. Resilience still comes from the module-scoped
- * in-memory snapshot below when the warm function catches a transient
- * upstream failure.
- *
- * Steering rule §1: lastCycleAge is computed at request time and never
- * served from a shared cache.
- */
-const HEALTH_CACHE: HeadersInit = NO_STORE;
+const DEGRADED_CACHE: HeadersInit = {
+  "Cache-Control": "public, s-maxage=10, stale-while-revalidate=30",
+  "X-Cache-Mode": "swr-degraded",
+};
 
 /**
  * Module-scoped snapshot of the last fully-successful response.
@@ -318,8 +321,8 @@ async function getGasRunway(): Promise<GasRunway> {
 // Fetch JSON from GitHub raw (works on Vercel where local files aren't available)
 async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
   try {
-    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}?t=${Date.now()}`;
-    const res = await fetch(url, { cache: "no-store" });
+    const url = `https://raw.githubusercontent.com/USBVadik/TuringVault-Core/main/${filePath}`;
+    const res = await fetch(url, { next: { revalidate: 30 } });
     if (!res.ok) return null;
     return await res.json() as T;
   } catch {
@@ -335,7 +338,7 @@ export async function GET(): Promise<NextResponse> {
         return NextResponse.json(cachedBody, {
           headers: {
             ...HEALTH_CACHE,
-            "X-Cache-Mode": "no-store-memory-ttl",
+            "X-Cache-Mode": "swr-memory-ttl",
           },
         });
       }
@@ -568,7 +571,7 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json(fallbackBody, {
         headers: {
           ...HEALTH_CACHE,
-          "X-Cache-Mode": "no-store-snapshot",
+          "X-Cache-Mode": "swr-snapshot",
         },
       });
     }
@@ -585,6 +588,6 @@ export async function GET(): Promise<NextResponse> {
       gasRunway: null,
       error: errorMessage,
     };
-    return NextResponse.json(body, { headers: NO_STORE });
+    return NextResponse.json(body, { headers: DEGRADED_CACHE });
   }
 }

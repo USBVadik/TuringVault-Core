@@ -8,18 +8,18 @@ describe("frontend /api/health cache policy", () => {
     "utf8"
   );
 
-  test("does not allow Vercel edge cache to serve stale liveness", () => {
-    expect(source).toContain('export const fetchCache = "force-no-store";');
-    expect(source).toContain("export const revalidate = 0;");
-    expect(source).toContain('"Cache-Control": "no-store, max-age=0, must-revalidate"');
-    expect(source).not.toMatch(/s-maxage|stale-while-revalidate/);
+  test("uses short SWR instead of forcing every health request through Fluid CPU", () => {
+    expect(source).not.toContain('export const fetchCache = "force-no-store";');
+    expect(source).not.toContain("export const revalidate = 0;");
+    expect(source).toContain("export const revalidate = 30;");
+    expect(source).toContain('"Cache-Control": "public, s-maxage=30, stale-while-revalidate=60"');
+    expect(source).toContain('"X-Cache-Mode": "swr"');
   });
 
-  test("bypasses GitHub raw CDN cache for live agent files", () => {
-    expect(source).toContain("cache: \"no-store\"");
-    expect(source).toContain("Date.now()");
-    expect(source).toMatch(/\?t=\$\{Date\.now\(\)\}/);
-    expect(source).not.toContain("next: { revalidate: 30 }");
+  test("does not bust GitHub raw CDN cache for every dashboard liveness poll", () => {
+    expect(source).not.toMatch(/\?t=\$\{Date\.now\(\)\}/);
+    expect(source).not.toContain("cache: \"no-store\"");
+    expect(source).toContain("next: { revalidate: 30 }");
   });
 });
 
@@ -71,5 +71,29 @@ describe("frontend polling budget", () => {
     expect(home).not.toContain("setInterval(fetchMarket, 30000)");
     expect(terminal).not.toContain("setInterval(fetchAll, 30_000)");
     expect(badge).not.toContain("setInterval(poll, 30_000)");
+  });
+
+  test("dashboard live widgets do not force cache bypass on health or decisions", () => {
+    const repoRoot = path.resolve(__dirname, "../..");
+    const files = [
+      "frontend/app/page.tsx",
+      "frontend/app/components/LiveTerminal.tsx",
+      "frontend/app/components/LiveStatusBadge.tsx",
+      "frontend/app/components/RiskMascot.tsx",
+    ];
+
+    for (const file of files) {
+      const source = fs.readFileSync(path.join(repoRoot, file), "utf8");
+      expect(source).not.toContain('cache: "no-store"');
+      expect(source).not.toContain("cache: 'no-store'");
+    }
+  });
+
+  test("dashboard polling skips network work while the tab is hidden", () => {
+    const { shouldRunDashboardPoll } = require("../../frontend/app/lib/polling.shared.js");
+
+    expect(shouldRunDashboardPoll({ visibilityState: "hidden" })).toBe(false);
+    expect(shouldRunDashboardPoll({ visibilityState: "visible" })).toBe(true);
+    expect(shouldRunDashboardPoll(undefined)).toBe(true);
   });
 });

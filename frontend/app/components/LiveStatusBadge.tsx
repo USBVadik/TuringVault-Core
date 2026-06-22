@@ -18,6 +18,11 @@ import {
   deriveLiveStatusDisplay,
   type HealthForLiveness,
 } from "../lib/live-status";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const polling = require("../lib/polling.shared.js") as {
+  shouldRunDashboardPoll: (doc?: Document | null) => boolean;
+};
+const { shouldRunDashboardPoll } = polling;
 
 type Variant = "compact" | "full";
 const LIVE_STATUS_REFRESH_MS = 120_000;
@@ -46,8 +51,9 @@ export function LiveStatusBadge({
   useEffect(() => {
     let cancelled = false;
     async function poll() {
+      if (!shouldRunDashboardPoll(document)) return;
       try {
-        const r = await fetch("/api/health", { cache: "no-store" });
+        const r = await fetch("/api/health");
         if (!r.ok) return;
         const data = (await r.json()) as HealthForLiveness;
         if (!cancelled) setHealth(data);

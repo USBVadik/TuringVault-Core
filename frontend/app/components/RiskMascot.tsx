@@ -20,6 +20,11 @@
 
 import { useEffect, useState } from "react";
 import { RelativeTime } from "../lib/time";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const polling = require("../lib/polling.shared.js") as {
+  shouldRunDashboardPoll: (doc?: Document | null) => boolean;
+};
+const { shouldRunDashboardPoll } = polling;
 
 type Health = {
   status?: "ok" | "degraded";
@@ -65,8 +70,9 @@ export function RiskMascot() {
     let cancelled = false;
 
     async function fetchOnce() {
+      if (!shouldRunDashboardPoll(document)) return;
       try {
-        const res = await fetch("/api/health", { cache: "no-store" });
+        const res = await fetch("/api/health");
         if (!res.ok) {
           if (!cancelled) setHealth(null);
           return;

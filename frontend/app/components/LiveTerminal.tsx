@@ -29,6 +29,11 @@
 import { useState, useEffect, useRef } from "react";
 import { RelativeTime } from "../lib/time";
 import { deriveLiveStatus, type HealthForLiveness } from "../lib/live-status";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const polling = require("../lib/polling.shared.js") as {
+  shouldRunDashboardPoll: (doc?: Document | null) => boolean;
+};
+const { shouldRunDashboardPoll } = polling;
 
 type Decision = {
   id: number;
@@ -113,6 +118,7 @@ export function LiveTerminal() {
   useEffect(() => {
     let cancelled = false;
     async function fetchAll() {
+      if (!shouldRunDashboardPoll(document)) return;
       try {
         const [dRes, hRes] = await Promise.all([
           fetch("/api/decisions"),
