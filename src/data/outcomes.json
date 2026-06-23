@@ -1246,6 +1246,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782189985732_740",
+      "decisionId": 740,
+      "action": "swap",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 0.530912,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreiab2caf6fd5fc30a5d99e5d6399ee52b56ba74151afdde8e52d74",
+      "recordedAt": "2026-06-23T04:46:25.732Z",
+      "settleAfter": "2026-06-23T05:46:25.732Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782189985719
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "OVERRIDE: STOP_LOSS is active on the mETH position entered at $1729.83 — current price $1721.61 is below entry, confirming the stop trigger. Scaling into WMNT while a stop-loss override is active contradicts capital protection rules. Additionally, the MNT grid signal is labeled BUY_mETH (not BUY_MNT), making the WMNT swap target misaligned with the actual grid signal. Signal consensus is BEARISH, ",
+      "validatorFlaggedIssues": [
+        "STOP_LOSS override active — scaling into risk assets while stop triggered violates capital protection",
+        "MNT grid signal is BUY_mETH not BUY_MNT — swap target WMNT misaligned with grid action",
+        "Signal consensus BEARISH + yield spread BEARISH contradict the proposed risk-on entry",
+        "Smart money flow NEUTRAL — no institutional confirmation, fails multi-signal confirmation requirement",
+        "Analyst confidence 68% not backed by 2+ confirming signals; only grid supports entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x9560b70c0b28131fb14bf3e54184a1d07f04d06f035e2a89df91c47459373e61",
+      "combinedAnchor": "0x1807dd06c757eac33b1b79d604dc340b281aa0844a5911e504f5398d7e6e3b15",
+      "decisionLogTxHash": "0x722347f5f9c347eaaeebcaecd9366314e42ef0bb36b2b47c0f7f2325dfbb26a0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
