@@ -307,6 +307,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782213137179_745",
+      "decisionId": 745,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1652.4,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreidd8478512bc33fd54c0011d22f7f0135cdd8d3cc1bdbd0060217",
+      "recordedAt": "2026-06-23T11:12:17.179Z",
+      "settleAfter": "2026-06-23T12:12:17.179Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782213137164
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already 70% stable, TREND_DOWN confirmed at 60% confidence with BEARISH consensus and negative yield spread. Inventory rule explicitly blocks repeated risk_off when stable-heavy and FLAT. RSI 21.6 is extreme oversold but smart money flow is NEUTRAL with no accumulation signal, and price proximity to $1536 liquidation zone elevates downside risk. No directional tra",
+      "validatorFlaggedIssues": [
+        "Funding rate signal label shows n/a in raw signals — minor data gap but not material to HOLD decision",
+        "Yield spread -1% bearish not explicitly weighted in reasoning but conclusion remains valid"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf65b1c87c01391d71d827029ff10fa6919852403ab018ebe569c22290bb1fd19",
+      "combinedAnchor": "0xe32c77716e59a6653a3caa45bebab5671a065d9a2340c8f0d3ea9da98ead05ed",
+      "decisionLogTxHash": "0xb25536dd45b79ac15a08ca40044c401fbcfeffbb3e41985452c5d27643ed0af9",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
