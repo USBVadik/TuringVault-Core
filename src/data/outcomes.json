@@ -383,6 +383,85 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782215762097_746",
+      "decisionId": 746,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1657.57,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei755b681b9e6b2a4f0be699cebe1d69bd34623005afcf12f2b63a",
+      "recordedAt": "2026-06-23T11:56:02.097Z",
+      "settleAfter": "2026-06-23T12:56:02.097Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782215762082
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Regime is TREND_DOWN (60% confidence) with BEARISH signal consensus. A directional SWAP into mETH requires grid confirmation per rules — none provided. R:R not supplied; with EMA bearish, MACD SELL, yield spread -1% BEARISH, and liq zone at $1542 (~$115 below current), R:R cannot reach 1.5:1 without a defined stop. RSI oversold is ONE signal; EMA and MACD both SELL, yield spread bearish — contradi",
+      "validatorFlaggedIssues": [
+        "R:R not provided — mandatory rejection trigger",
+        "Directional SWAP in TREND_DOWN regime without grid confirmation",
+        "Only 1 bullish signal (RSI) vs 3 bearish (EMA, MACD, yield spread -1%)",
+        "Liquidation cascade risk at $1542 undermines stop-loss viability",
+        "Portfolio already 30% risk-on; adding mETH increases concentration in confirmed downtrend"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x150ca1065a74f4e9d5ae0c83978c927963bb7d06caa751483f886be3d79fb3f3",
+      "combinedAnchor": "0x12c32e57b27c54b2bd02d6d7e80b1f9930b95e905596be9ecad1160fb81bd217",
+      "decisionLogTxHash": "0xd3fb5f5505759137d10b5668844e2f931014ea743a2e12a12102b2c63c68d85c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
