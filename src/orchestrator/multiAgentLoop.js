@@ -459,14 +459,14 @@ function calculateDirectionalSwapSizing({
   sourceBalance,
   allocationPct = 30,
   market = {},
-  cycleCapUsd = 5,
-  minTradeUsd = 0.3,
+  cycleCapUsd = 15,
+  minTradeUsd = 10,
 } = {}) {
   const normalizedBalance = Math.max(0, Number(sourceBalance) || 0);
   const normalizedAllocation = positiveNumberOr(allocationPct, 30);
   const sourceUsdPrice = sourceUsdPriceForToken(sourceToken, market);
-  const normalizedCapUsd = positiveNumberOr(cycleCapUsd, 5);
-  const normalizedMinTradeUsd = positiveNumberOr(minTradeUsd, 0.3);
+  const normalizedCapUsd = positiveNumberOr(cycleCapUsd, 15);
+  const normalizedMinTradeUsd = positiveNumberOr(minTradeUsd, 10);
   const minSourceAmount =
     sourceUsdPrice > 0 ? normalizedMinTradeUsd / sourceUsdPrice : 0;
 
@@ -1303,9 +1303,10 @@ async function runMultiAgentCycle(opts = {}) {
           const sourceBalance = route.sourceBalance;
 
         // Sizing: analyst's allocationPct of source balance, capped
-        // by RWA_MAX_PER_CYCLE_USD ($5 default) so a confident agent
-        // can't drain the wallet in a single cycle. Floor 1.5 source
-        // units (~$1) so gas isn't dominant.
+        // by RWA_MAX_PER_CYCLE_USD ($15 default) so a confident agent
+        // can't drain the wallet in a single cycle. The default floor
+        // is now $10: below that, Mantle gas + multi-hop spread dominates
+        // the edge and the bot slowly bleeds via proof-sized trades.
         //
         // On thin wallets, allocPct can produce a swap below the
         // floor even though the wallet *could* support a swap above

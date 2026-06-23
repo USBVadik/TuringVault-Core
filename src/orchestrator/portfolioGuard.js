@@ -10,6 +10,7 @@ const SCALE_IN_LOWER_BAND_MAX = 0.12;
 const SCALE_IN_ALLOCATION_PCT = 10;
 const MAX_SCALE_INS_PER_POSITION = 2;
 const MIN_PROFIT_EXIT_PCT = 0.003;
+const STRONG_OUTFLOW_USD = -1_000_000;
 
 function num(v, fallback = 0) {
   const n = Number(v);
@@ -105,6 +106,53 @@ function isConfirmedDownBreak(signal = {}, regimeLabel = "") {
   );
 }
 
+function hasStrongSmartMoneyOutflow(structuredSignals = {}) {
+  const flow = structuredSignals.signals?.onChainFlow || {};
+  return (
+    String(flow.signal || "").toUpperCase() === "BEARISH" &&
+    num(flow.netUsd, 0) <= STRONG_OUTFLOW_USD
+  );
+}
+
+function gridCandidateChannelPosition({
+  gridTradeCandidate = {},
+  structuredSignals = {},
+  sourceAsset,
+} = {}) {
+  const signalPos = channelPosition(
+    selectRiskSignal(
+      structuredSignals,
+      gridTradeCandidate?.sourceAsset || sourceAsset
+    )
+  );
+  if (signalPos != null) return signalPos;
+
+  const candidatePos = Number(gridTradeCandidate?.gridSignal?.channelPosition);
+  return Number.isFinite(candidatePos) ? candidatePos : null;
+}
+
+function isUpperBandGridSellCandidate({
+  gridTradeCandidate = {},
+  structuredSignals = {},
+  sourceAsset,
+} = {}) {
+  if (gridTradeCandidate?.active === false) return false;
+  if (gridTradeCandidate?.kind !== "grid-sell") return false;
+  const sourceRisk = normalizeRiskAsset(sourceAsset);
+  const candidateRisk = normalizeRiskAsset(
+    gridTradeCandidate?.sourceAsset || sourceAsset
+  );
+  if (sourceRisk && candidateRisk && sourceRisk !== candidateRisk) {
+    return false;
+  }
+  const pos = gridCandidateChannelPosition({
+    gridTradeCandidate,
+    structuredSignals,
+    sourceAsset,
+  });
+  return pos != null && pos >= 0.8;
+}
+
 function assessScaleIn({
   targetAsset,
   summary,
@@ -185,6 +233,7 @@ function assessScaleIn({
 
 function assessRiskOffExit({
   sourceAsset,
+  summary = {},
   positionState = {},
   prices = {},
   regimeLabel = "",
@@ -216,8 +265,23 @@ function assessRiskOffExit({
     };
   }
 
+  const emergencyRegime =
+    regimeLabel === "CRISIS" || regimeLabel === "TREND_DOWN";
+  const highRiskExposure =
+    num(summary.riskShare, 0) >= MAX_RISK_SHARE_FOR_SCALE_IN;
+  const strongOutflow = hasStrongSmartMoneyOutflow(structuredSignals);
   const stopLoss = num(positionState.stopLoss, 0);
   if (stopLoss && currentPrice <= stopLoss) {
+    if (!emergencyRegime && !highRiskExposure && !strongOutflow) {
+      return {
+        allowed: false,
+        reason:
+          `risk-off blocked: stop-loss touched for ${positionState.status} ` +
+          `inside ${regimeLabel || "UNKNOWN"} regime (current ${currentPrice}, ` +
+          `stop ${stopLoss}, entry ${entryPrice}); no top-level crisis, ` +
+          "high-risk exposure, or strong smart-money outflow confirmed",
+      };
+    }
     return {
       allowed: true,
       reason:
@@ -226,8 +290,6 @@ function assessRiskOffExit({
     };
   }
 
-  const emergencyRegime =
-    regimeLabel === "CRISIS" || regimeLabel === "TREND_DOWN";
   if (emergencyRegime) {
     return {
       allowed: true,
@@ -417,6 +479,7 @@ function assessTradeInventory({
     if (openRiskPosition) {
       const exitGuard = assessRiskOffExit({
         sourceAsset,
+        summary,
         positionState,
         prices,
         regimeLabel,
@@ -450,6 +513,36 @@ function assessTradeInventory({
           `stable-heavy wallet (${(summary.stableShare * 100).toFixed(1)}% stables, ` +
           `$${summary.stableUsd.toFixed(2)} stable vs $${summary.tradableRiskUsd.toFixed(2)} tradable risk); ` +
           "refusing repeated risk-off while FLAT",
+      };
+    }
+
+    if (
+      isUpperBandGridSellCandidate({
+        gridTradeCandidate,
+        structuredSignals,
+        sourceAsset,
+      })
+    ) {
+      return {
+        allowed: true,
+        direction: inferred,
+        summary,
+        reason:
+          `risk-off allowed: untracked upper-band grid trim with ` +
+          `$${summary.tradableRiskUsd.toFixed(2)} tradable risk and ` +
+          `regime=${regimeLabel || "UNKNOWN"}`,
+      };
+    }
+
+    if (!emergencyRegime) {
+      return {
+        allowed: false,
+        direction: inferred,
+        summary,
+        reason:
+          `risk-off blocked: untracked ${sourceRisk || "risk"} inventory ` +
+          "inside non-emergency regime; require an upper-band grid trim, " +
+          "tracked position exit, CRISIS, or TREND_DOWN",
       };
     }
 

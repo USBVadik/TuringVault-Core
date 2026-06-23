@@ -43,7 +43,7 @@ describe("rwaLimits", () => {
 
   test("defaults match spec", () => {
     const limits = require("../../src/config/rwaLimits");
-    expect(limits.MAX_PER_CYCLE_USD).toBe(5);
+    expect(limits.MAX_PER_CYCLE_USD).toBe(15);
     expect(limits.MAX_PER_DAY_USD).toBe(25);
     expect(limits.MIN_BALANCE_USD).toBe(2);
     expect(limits.MAX_PRICE_IMPACT_BPS).toBe(100);
@@ -65,7 +65,7 @@ describe("rwaLimits", () => {
     process.env.RWA_MAX_PER_CYCLE_USD = "NaN-please";
     process.env.RWA_IDLE_PARKING_FRACTION = "";
     const limits = require("../../src/config/rwaLimits");
-    expect(limits.MAX_PER_CYCLE_USD).toBe(5);
+    expect(limits.MAX_PER_CYCLE_USD).toBe(15);
     expect(limits.IDLE_PARKING_FRACTION).toBe(0.2);
   });
 

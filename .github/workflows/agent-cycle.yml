@@ -35,9 +35,12 @@ jobs:
     env:
       AGENT_RUN_MODE: cron-github-actions
       RWA_EXECUTE_ENABLED: "true"
+      RWA_MAX_PER_CYCLE_USD: "15"
+      RWA_MIN_PER_CYCLE_USD: "10"
       # Submission-window heartbeat liveness (Path C). Default OFF.
       # See .kiro/audits/17-heartbeat-mode.md for safety gates.
       HEARTBEAT_MODE_ENABLED: ${{ secrets.HEARTBEAT_MODE_ENABLED }}
+      HEARTBEAT_EXECUTE_SWAPS: "false"
       # Hackathon: reduce idle-parking wait from 24h to 4h
       RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
       # Scheduled runs skip the expensive LLM/on-chain cycle while the

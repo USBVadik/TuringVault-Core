@@ -76,7 +76,7 @@ describe("rwaAllocator", () => {
       expect(out.source).toBe("llm");
       expect(out.from).toBe("USDT");
       expect(out.to).toBe("USDT0");
-      expect(out.amountInUsd).toBeLessThanOrEqual(5); // CP2: per-cycle cap
+      expect(out.amountInUsd).toBeLessThanOrEqual(15); // CP2: per-cycle cap
       expect(typeof out.amountInWei).toBe("bigint");
       expect(typeof out.amountOutMinWei).toBe("bigint");
     });
@@ -92,7 +92,7 @@ describe("rwaAllocator", () => {
         posState: inMethPosState(),
         now: NOW,
       });
-      expect(out.amountInUsd).toBe(5);
+      expect(out.amountInUsd).toBe(15);
     });
   });
 
@@ -111,7 +111,7 @@ describe("rwaAllocator", () => {
       expect(out.source).toBe("llm");
       expect(out.from).toBe("USDT0");
       expect(out.to).toBe("USDT");
-      expect(out.amountInUsd).toBeLessThanOrEqual(5);
+      expect(out.amountInUsd).toBeLessThanOrEqual(15);
     });
 
     test("skips with no-rwa-position when USDT0 below floor", () => {

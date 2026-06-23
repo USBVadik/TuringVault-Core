@@ -53,4 +53,32 @@ describe("multi-leg swap sizing", () => {
     expect(sizing.finalSourceAmount).toBeCloseTo(0.0025, 8);
     expect(sizing.canExecute).toBe(true);
   });
+
+  test("default live sizing blocks old $5 micro-swaps", () => {
+    const sizing = calculateDirectionalSwapSizing({
+      sourceToken: "USDT0",
+      sourceBalance: 5,
+      allocationPct: 100,
+      market: { ethPrice: 1700, mntPrice: 0.52 },
+    });
+
+    expect(sizing.minTradeUsd).toBe(10);
+    expect(sizing.cycleCapUsd).toBe(15);
+    expect(sizing.finalSourceAmount).toBe(5);
+    expect(sizing.canExecute).toBe(false);
+  });
+
+  test("default live sizing rescues valid signals to the economic floor", () => {
+    const sizing = calculateDirectionalSwapSizing({
+      sourceToken: "USDT0",
+      sourceBalance: 72,
+      allocationPct: 10,
+      market: { ethPrice: 1700, mntPrice: 0.52 },
+    });
+
+    expect(sizing.rescued).toBe(true);
+    expect(sizing.finalSourceAmount).toBeGreaterThanOrEqual(10);
+    expect(sizing.finalSourceAmount).toBeLessThanOrEqual(15);
+    expect(sizing.canExecute).toBe(true);
+  });
 });

@@ -11,7 +11,7 @@
  * for real signal — it's a deliberate liveness signal that:
  *   - is explicit and honest (own tier `HEARTBEAT_SWAP`)
  *   - is rate-limited (≥6 hours between heartbeats, ≤4 per day)
- *   - is bounded (capped at RWA_MAX_PER_CYCLE_USD = $1 default)
+ *   - is bounded (capped at HEARTBEAT_MAX_USD = $1 default)
  *   - refuses to fire in adversarial regimes (TREND_DOWN, CRISIS)
  *   - alternates direction so wallet doesn't drift
  *   - is gated behind HEARTBEAT_MODE_ENABLED env flag (default OFF)

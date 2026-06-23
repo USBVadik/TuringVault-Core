@@ -18,8 +18,9 @@ function num(key, fallback) {
 
 module.exports = {
   // Per-cycle ceiling — single swap can't move more than this in USD.
-  // Default $5 sized for current ~$40 NAV demo wallet.
-  MAX_PER_CYCLE_USD: num("RWA_MAX_PER_CYCLE_USD", 5),
+  // Default $15 keeps trades economically meaningful without letting
+  // a confident agent drain the demo wallet in one cycle.
+  MAX_PER_CYCLE_USD: num("RWA_MAX_PER_CYCLE_USD", 15),
 
   // Per-day rolling 24 h ceiling across all RWA swaps.
   MAX_PER_DAY_USD: num("RWA_MAX_PER_DAY_USD", 25),

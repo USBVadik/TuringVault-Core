@@ -29,7 +29,10 @@ jobs:
     env:
       AGENT_RUN_MODE: cron-github-actions
       RWA_EXECUTE_ENABLED: "true"
+      RWA_MAX_PER_CYCLE_USD: "15"
+      RWA_MIN_PER_CYCLE_USD: "10"
       HEARTBEAT_MODE_ENABLED: ${{ secrets.HEARTBEAT_MODE_ENABLED }}
+      HEARTBEAT_EXECUTE_SWAPS: "false"
       RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
       STALE_THRESHOLD_S: "3000"
       HEALTH_URL: "https://frontend-seven-beta-46.vercel.app/api/health"

@@ -375,7 +375,103 @@ describe("portfolioGuard", () => {
     expect(result.reason).not.toMatch(/below profitable exit/i);
   });
 
-  test("allows risk-off below entry when the position stop-loss is hit", () => {
+  test("blocks untracked ranging risk-off inventory sells without an upper-band grid trim", () => {
+    const result = assessTradeInventory({
+      direction: "risk-off",
+      targetAsset: "mUSD",
+      sourceAsset: "mETH",
+      balances: {
+        MNT: 20,
+        WMNT: 23,
+        mETH: 0.007,
+        USDT0: 78,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: {
+        ...PRICES,
+        MNT: 0.534,
+        WMNT: 0.534,
+        mETH: 1835,
+      },
+      regime: "RANGING",
+      positionState: { status: "FLAT" },
+      structuredSignals: {
+        signals: {
+          ranging: {
+            multiAsset: {
+              ethereum: {
+                channel: {
+                  currentPrice: 1835,
+                  channelPosition: 0.42,
+                },
+              },
+            },
+          },
+        },
+      },
+      gridTradeCandidate: {
+        active: false,
+        reason: "not stable-heavy FLAT inventory",
+      },
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/untracked/i);
+    expect(result.reason).toMatch(/upper-band/i);
+  });
+
+  test("blocks a small tracked stop-loss exit while top-level regime is still ranging", () => {
+    const result = assessTradeInventory({
+      direction: "risk-off",
+      targetAsset: "mUSD",
+      sourceAsset: "mETH",
+      balances: {
+        MNT: 24,
+        WMNT: 36,
+        mETH: 0.0118,
+        USDT0: 72,
+        USDT: 0,
+        mUSD: 0,
+      },
+      prices: {
+        ...PRICES,
+        MNT: 0.52,
+        WMNT: 0.52,
+        mETH: 1692.3,
+      },
+      regime: "RANGING",
+      positionState: {
+        status: "IN_mETH",
+        entryPrice: 1729.83,
+        targetExit: 1769.38,
+        stopLoss: 1722.8,
+      },
+      structuredSignals: {
+        signals: {
+          onChainFlow: { signal: "NEUTRAL", netUsd: 0 },
+          ranging: {
+            multiAsset: {
+              ethereum: {
+                breakoutDirection: "DOWN",
+                regimeHint: "TREND_DOWN",
+                channel: {
+                  currentPrice: 1692.3,
+                  channelPosition: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/stop-loss/i);
+    expect(result.reason).toMatch(/ranging/i);
+  });
+
+  test("allows risk-off below entry when top-level trend-down confirms the stop-loss", () => {
     const result = assessTradeInventory({
       direction: "risk-off",
       targetAsset: "mUSD",
@@ -392,7 +488,7 @@ describe("portfolioGuard", () => {
         MNT: 0.615,
         WMNT: 0.615,
       },
-      regime: "RANGING",
+      regime: "TREND_DOWN",
       positionState: {
         status: "IN_MNT",
         entryPrice: 0.67,
