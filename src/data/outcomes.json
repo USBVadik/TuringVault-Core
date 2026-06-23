@@ -1173,6 +1173,79 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1782188513684_739",
+      "decisionId": 739,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1725.5,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei278664702e2959ee1ec30124d3ede8248d51989539f635b641ae",
+      "recordedAt": "2026-06-23T04:21:53.684Z",
+      "settleAfter": "2026-06-23T05:21:53.684Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782188513670
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-reasoned and conservative. ALREADY_IN_POSITION override correctly blocks new entry. Current price $1725.50 is only $4.33 (0.25%) below entry $1729.83 — insufficient deeper lower-band move to justify scale-in per inventory rules. Grid BUY_mETH at 77% confidence is acknowledged but correctly deferred. Bearish technicals (EMA cross, MACD sell), negative yield spread (-1%), and F",
+      "validatorFlaggedIssues": [
+        "Target listed as mUSD but action is HOLD — minor inconsistency, no capital movement implied",
+        "R:R not provided but irrelevant for HOLD action",
+        "Bearish consensus with RANGING regime warrants continued caution on any future scale-in"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x205a46ab73abfaea714dac395512f1a48e01b995846c02ad86e1d326dc1c9c56",
+      "combinedAnchor": "0xcb0bc27e735d01f3ba0e839880ae1b928f0ab3c896653a0870dc12107125ed75",
+      "decisionLogTxHash": "0x31997a2d95b4d004db54f1236653abe59572726f64ac9faf2a84d8f445430c85",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
