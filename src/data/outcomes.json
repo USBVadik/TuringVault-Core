@@ -230,6 +230,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782208514535_744",
+      "decisionId": 744,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1649.35,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreib321f3943b7d10a00035d37d500ab7005f6c4c9631f8b8db6f25",
+      "recordedAt": "2026-06-23T09:55:14.535Z",
+      "settleAfter": "2026-06-23T10:55:14.535Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782208514521
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. Portfolio is already 70.1% stable-heavy with only $33.29 risk exposure. TREND_DOWN at 60% confidence is mild, not crisis-level. RSI 19.4 is extreme oversold with rising momentum, funding -0.375% is contrarian bullish, and smart money flow is NEUTRAL — not confirming institutional exit. Analyst correctly avoids repeated risk_off per inventory rule. No directio",
+      "validatorFlaggedIssues": [
+        "Funding rate annualization (-137%) is analyst extrapolation not in raw data — minor overstatement",
+        "TREND_DOWN 60% confidence is borderline; regime could shift quickly given RSI extremes",
+        "Yield spread -1% bearish signal slightly underweighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd7032915105dde44e7e50b4239e048e8b3f3a84c55f571ad561cea3d4c4fe245",
+      "combinedAnchor": "0x6c3db61a66e08dbf1ca76eed21b5109ed24382f4a788257d0272acb501c3afbc",
+      "decisionLogTxHash": "0xe4783bfd0732d0d1860222a330af344f7e39db5de04f489c933f40b2ded15ab5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
