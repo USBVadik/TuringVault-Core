@@ -769,6 +769,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782232277081_751",
+      "decisionId": 751,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1660.55,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei30d6ebd0dc2b333d88b706b450f6844143658bf511493e37882f",
+      "recordedAt": "2026-06-23T16:31:17.081Z",
+      "settleAfter": "2026-06-23T17:31:17.081Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782232277057
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already 70% stable, inventory rule explicitly blocks repeated risk_off in this state, and TREND_DOWN at 60% confidence does not override that rule without CRISIS confirmation. Funding neutral at 0.005%, smart money flow $0.0M neutral, yield spread -1% bearish but insufficient alone to force further de-risking. RSI 32.4 rising and MACD improving argue against aggre",
+      "validatorFlaggedIssues": [
+        "TREND_DOWN regime warrants monitoring for acceleration below $1578 liq level",
+        "Yield spread -1% adds mild bearish pressure not fully weighted"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xdf2fdc6329e224f974cb5c3ee343a970eff14a66526ddbd4343e54282a74fc7a",
+      "combinedAnchor": "0xe2360df58e2cdbb62927cb7fd0b2f9ad523199f65f6be11f1f75bfbfe2f08b64",
+      "decisionLogTxHash": "0xedecb70aee436e3451872742488e0d4da611fa0410f341567158e7bfde5c9f33",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
