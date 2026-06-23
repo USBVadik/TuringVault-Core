@@ -615,6 +615,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782227773172_749",
+      "decisionId": 749,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1654.96,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei677fdf274163f6d82a7366ef27a79fa842807476ac8d0598ba30",
+      "recordedAt": "2026-06-23T15:16:13.172Z",
+      "settleAfter": "2026-06-23T16:16:13.172Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782227773156
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is 70% stable, TREND_DOWN at 60% confidence does not constitute CRISIS, and inventory rule explicitly blocks repeated risk_off in stable-heavy FLAT posture. RSI at 28.3 is oversold but EMA/MACD remain bearish — mixed signals preclude directional entry. Funding -0.33% is not extreme enough to confirm risk_on. No R:R calculation needed for HOLD. Analyst correctly cites",
+      "validatorFlaggedIssues": [
+        "Analyst references 'rising volume' for 7-day low block but volume data not confirmed in raw signals — minor overreach",
+        "Yield spread -1% BEARISH signal not explicitly weighted in reasoning",
+        "58% confidence is modest but acceptable for a HOLD with mixed signals"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa23f8dac2049b733d9bd9351402feb7ec9f903cdf59537302e2df15aaba857a7",
+      "combinedAnchor": "0xed9775ce35034324acb270d94c205e210aea7afdbcfb43e87e56cd9261032a7a",
+      "decisionLogTxHash": "0x82f06e737b0d21e1dfca807c524f086078c89bb9605bf12902248f0565c4e681",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
