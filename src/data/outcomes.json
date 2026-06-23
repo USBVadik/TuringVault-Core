@@ -1321,6 +1321,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1782192962689_741",
+      "decisionId": 741,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1711.65,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreia58b9a7d11ae7375d1fff0d6f77dd5817b61e08e7c86bdd3531e",
+      "recordedAt": "2026-06-23T05:36:02.689Z",
+      "settleAfter": "2026-06-23T06:36:02.689Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782192962676
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is low-risk and defensible. STOP_LOSS override on IN_mETH from $1729.83 with current price $1712.5 (~1% below entry) is a legitimate hard block. Grid BUY signals at 80%/79% are real but correctly subordinated to active stop-loss protocol. BEARISH consensus + EMA bearish cross + MACD negative histogram support caution. Extreme Fear at 23 adds downside risk. No capital is being deploye",
+      "validatorFlaggedIssues": [
+        "STOP_LOSS override correctly blocks grid BUY re-entry — analyst logic sound",
+        "Target listed as mUSD but action is HOLD — minor inconsistency, no capital movement implied",
+        "Grid R:R 2.5:1 is valid but irrelevant while stop-loss block is active"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x20a75096d1d9a6f3e2ae70a80f6886126380bfb1b17eb332ecfeab995f244cfd",
+      "combinedAnchor": "0xd9d14bbe85dbc40e866cc700259d0c2a0e1313e193508699d97cf8479b6e631d",
+      "decisionLogTxHash": "0xf058457f6088c29e71605d8b655e6e1dfe6bed2c192ff022b6a13474d659ae98",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
