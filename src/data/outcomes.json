@@ -1607,6 +1607,94 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782307963800_772",
+      "decisionId": 772,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 0.507663,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkrei85c8d03813b04b9c038c9d9ea441e4760e9fea0ae3f53b3ae227",
+      "recordedAt": "2026-06-24T13:32:43.800Z",
+      "settleAfter": "2026-06-24T14:32:43.800Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782307963786
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Both ETH and MNT grids show confirmed EXIT_RANGING with downward breakouts (ETH $1648.1 < $1653.4 support; MNT $0.5074 < $0.51 support), 70% confidence each. Regime hint explicitly TREND_DOWN. F&G=17 extreme fear, yield spread -1% BEARISH, signal consensus BEARISH. Multiple confirming signals (3+) justify de-risking. Swap to mUSD (stable) is defensive, not directional speculation. Portfolio is 27.",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly quantified by Analyst — validator infers asymmetric downside justifies exit",
+        "Neutral funding (0.188%) weakly contradicts breakdown narrative",
+        "RSI oversold on MNT (32.4) raises false-breakout risk",
+        "Low intraday vol (0.26%) could mean thin liquidity amplifying move"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "risk-off blocked: untracked WMNT inventory inside non-emergency regime; require an upper-band grid trim, tracked position exit, CRISIS, or TREND_DOWN",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 80.236397,
+          "tradableRiskUsd": 30.845078283929325,
+          "nativeMnt": 21.769746579438582,
+          "stableShare": 0.7223202320180939,
+          "riskShare": 0.277679767981906,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf6d52037660007efb593b8fb7fb85cea48f0f9ab351256eef6c4cbc98ae48b7b",
+      "combinedAnchor": "0xa21d7ae8fd5dc89eda5bb0257966a7033742138b09769a034677f6af3b147c22",
+      "decisionLogTxHash": "0xf86ea72269e8122e79f2d7a6a4a5a60997906f4b145fcb5f28c509ee6d3f0172",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
