@@ -459,6 +459,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782274163020_762",
+      "decisionId": 762,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1663.01,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei3f0b53cbdc3209b05312ed877850515ba368c5fec62aabb3bfb9",
+      "recordedAt": "2026-06-24T04:09:23.020Z",
+      "settleAfter": "2026-06-24T05:09:23.020Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782274163006
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-grounded. Portfolio is 71.2% stable-heavy and FLAT — inventory rule explicitly blocks repeated risk_off unless CRISIS/TREND_DOWN is confirmed beyond 60% confidence. TREND_DOWN at 60% is mild, not crisis-grade. Smart money flow NEUTRAL ($0.0M outflow), funding 0.17% annualized is balanced, no extreme crowding. Analyst correctly cites inventory rule. Risk factors acknowledged. ",
+      "validatorFlaggedIssues": [
+        "TREND_DOWN 60% confidence is borderline — not strong enough to override inventory rule",
+        "Yield spread -1% is bearish but insufficient alone to force risk_off",
+        "RSI 40 falling warrants monitoring for oversold cascade near $1580"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xce813c33ebec043cdff27a7250c4ff109384a7bff962b4392bbebc3045815f25",
+      "combinedAnchor": "0xae89429b2827e8b9a57fe73447ded99cc372b4f5817df3ee62595b2135e5b5f5",
+      "decisionLogTxHash": "0xe83aae7b682e7aaf840540bc43aff303897a93279819fdac9d8011a7d5cbc133",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
