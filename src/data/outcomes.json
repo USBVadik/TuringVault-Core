@@ -1872,6 +1872,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1782324123065_776",
+      "decisionId": 776,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1558.64,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreic99660ec713cbc5c3662d183f634fcfcd1505980b74562ae0ba3",
+      "recordedAt": "2026-06-24T18:02:03.065Z",
+      "settleAfter": "2026-06-24T19:02:03.065Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782324123047
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with portfolio already 73% stable. No new capital deployment proposed, so R:R gate is not applicable. Regime explicitly confirms CRISIS/TREND_DOWN, satisfying the inventory rule exception for hold-over-risk_off. RSI 15.6 oversold but no reversal confirmation; EMA bearish, MACD negative, yield spread -1% bearish. Analyst correctly identifies contraria",
+      "validatorFlaggedIssues": [
+        "Funding rate annualization math appears overstated (-0.564% per 8h ≠ -206% annualized in standard terms — minor but worth noting",
+        "No explicit stop-loss level defined for existing mETH/WMNT residual positions",
+        "Smart money volume $58k is very thin — liquidity risk if exit needed quickly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xde6a18db675a7062dab7eb57ce3e90a173dae6d89500b865924aae45c8b15dda",
+      "combinedAnchor": "0x5df37e515f4db1c9ce4f2868104b48a8edd783b19036e3616301b57fdd4d9b2c",
+      "decisionLogTxHash": "0x6fea2a5c4d18dcf40fc62c575919a113bf499f9a5c676762e371489a25ac32c7",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
