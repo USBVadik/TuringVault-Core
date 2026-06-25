@@ -3810,6 +3810,79 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782403996636_800",
+      "decisionId": 800,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 0.455126,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkreie73975d9be2cb12bb1f7a578444f3e56f92235722fd023af5149",
+      "recordedAt": "2026-06-25T16:13:16.636Z",
+      "settleAfter": "2026-06-25T17:13:16.636Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782403996622
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is a low-risk action requiring minimal burden of proof. Portfolio is already 75.7% stable-heavy with only $26.53 risk exposure. MNT breakdown confirmed (price $0.4549 below $0.49 support, TREND_DOWN hint) but selling now locks in losses on tiny residual. ETH grid EXIT_RANGING with UNKNOWN breakout direction — no directional edge. Funding neutral at -0.183%. Smart money flow neutral. Inventory",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD action",
+        "MNT confirmed down-break warrants monitoring for CRISIS escalation",
+        "ETH vol expanding without breakout direction adds uncertainty"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8cd6e174c3718ed937291cbbaf0262187e1cbe9f656ba02bc3852c2117c5a753",
+      "combinedAnchor": "0xb9435ae99a86f4d2fa56e585ca0e8e1dffb3992d5cc81df89e35cd7aeff4bb7f",
+      "decisionLogTxHash": "0xff42bc8fde80bdf445fd465320b64039daadf561f622b1c269206868d4f2e3ee",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
