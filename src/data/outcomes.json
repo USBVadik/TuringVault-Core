@@ -2853,6 +2853,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782362257975_789",
+      "decisionId": 789,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1615.64,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei757d089c8a508ef7bd9b1f186cf4db797409f5c849ca4bca1c80",
+      "recordedAt": "2026-06-25T04:37:37.975Z",
+      "settleAfter": "2026-06-25T05:37:37.975Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782362257963
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction and regimeHint=HOLD. Portfolio is already 70.2% stable — no inventory rule violation. Signal consensus is BEARISH but funding is NEUTRAL, smart money flow is NEUTRAL, and no confirmed down-break exists. Repeated risk_off would violate the inventory rule given stable-heavy FLAT posture. HOLD ",
+      "validatorFlaggedIssues": [
+        "No R:R provided — acceptable for HOLD as no capital is deployed",
+        "BEARISH consensus vs NEUTRAL funding creates mild contradiction — acknowledged in risk factors",
+        "F&G=12 extreme fear warrants monitoring for oversold bounce"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x63e9470849a61f88d5216eb2f8d65c8b9036cc1e3f100e3d56e124940891e5eb",
+      "combinedAnchor": "0xd601acfb8a0d949f0d9227282c8bd5754f17485cfdc17c4af4b37e78ce357a75",
+      "decisionLogTxHash": "0xf64b11b308048df47365c5702b7bd08ba4f9757b4244cf80d7e81fb0da7e0ee2",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
