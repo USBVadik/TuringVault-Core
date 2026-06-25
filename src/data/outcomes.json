@@ -3971,6 +3971,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1782412192955_802",
+      "decisionId": 802,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1569.86,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei6496088f270306faffc4ab9f25d7b7e3af9e864d019e9b10ca45",
+      "recordedAt": "2026-06-25T18:29:52.955Z",
+      "settleAfter": "2026-06-25T19:29:52.955Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782412192940
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. MNT grid shows confirmed DOWN breakout below $0.47 with TREND_DOWN hint (80% confidence) — no buy signal. ETH grid EXIT_RANGING with UNKNOWN direction and HOLD regime hint. Portfolio is already 75.8% stable, so HOLD preserves capital appropriately. Funding neutral at -0.236%, smart money flow flat, F&G=12 extreme fear. No directional edge justifies deployment. Anal",
+      "validatorFlaggedIssues": [
+        "MNT confirmed down-break below $0.47 — existing WMNT $12.31 position carries downside risk",
+        "ETH breakout direction unconfirmed — deploying stables premature",
+        "Yield spread -1% bearish adds further caution against mETH entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6cb7b5083e9125e146bec2da012f19874ff901a5b0fa2e1129dbc4520e6cd296",
+      "combinedAnchor": "0xa2da55a687ec19d6d0237a35fcadcb20a03b5f181f80837171d450a2a72cdc40",
+      "decisionLogTxHash": "0xc5fb9a617152d0d66f6ad7483110c6f6ddc2b8accd025668648926eedcbe35f0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
