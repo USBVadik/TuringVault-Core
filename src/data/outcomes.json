@@ -2926,6 +2926,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782367706080_790",
+      "decisionId": 790,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.5,
+      "priceAtDecision": 1643.64,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei70f641293af9729294a3bab0d2f8e86423a8c2128b1c2c8eb01e",
+      "recordedAt": "2026-06-25T06:08:26.080Z",
+      "settleAfter": "2026-06-25T07:08:26.080Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782367706065
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids confirm HOLD at 55%/53% channel position — no edge near support or resistance. RANGING regime (55% confidence) explicitly supports grid-based patience. Funding at 0.334% is neutral, smart money flow is $0.0M neutral. Portfolio is already balanced (69.9% stable, 30.1% risk). No directional swap proposed, so RANGING/no-grid-confirmation rejecti",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "F&G=12 extreme fear warrants monitoring for volatility spike"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x20beb6d5eae021a78a1d0c9d19697da152d11cb61749b1ee1d72392e62e0d819",
+      "combinedAnchor": "0x207c22063f1fabafaec5e8c554f6c5df64942ae65c3215de668cc0b968579cc1",
+      "decisionLogTxHash": "0x426a0776b48b7b22c2c4760fb3e10ae8da6c98193da80ef3113c186ff1518f99",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
