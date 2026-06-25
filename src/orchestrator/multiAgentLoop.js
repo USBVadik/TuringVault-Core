@@ -1381,15 +1381,48 @@ async function runMultiAgentCycle(opts = {}) {
             console.log(
               `   ⚠️  Route preflight blocked before broadcast: ${preflight.reason}`
             );
-            directionalSwapResult = {
-              executed: false,
-              direction: swapDirection,
-              from: path[0],
-              to: path[path.length - 1],
-              amountIn: finalSourceAmount,
-              reason: `preflight-failed: ${preflight.reason}`,
-              preflight: preflight.legs,
-            };
+            // Aggregator fallback (audit 2026-06-24): the hand-rolled
+            // Merchant Moe LB multi-hop fails at the thin USDT->WMNT hop,
+            // stranding consensus=true risk-on buys as INTENT_SWAP_NO_EXEC.
+            // OpenOcean aggregates Mantle liquidity and can fill the direct
+            // path[0]->path[last] swap. Gated behind
+            // RWA_AGGREGATOR_FALLBACK_ENABLED (default OFF): when disabled,
+            // attemptAggregatorSwap returns null and behavior is unchanged.
+            const { attemptAggregatorSwap } = require("../dex/aggregatorFallback");
+            const aggResult = await attemptAggregatorSwap({
+              enabled: process.env.RWA_AGGREGATOR_FALLBACK_ENABLED === "true",
+              provider: wallet.provider,
+              wallet,
+              fromToken: path[0],
+              toToken: path[path.length - 1],
+              sourceAmount: finalSourceAmount,
+            });
+            if (aggResult && aggResult.executed) {
+              console.log(
+                `   ✅ Aggregator fallback executed via OpenOcean: ${aggResult.txHash?.slice(
+                  0,
+                  18
+                )}...`
+              );
+              directionalSwapResult = {
+                ...aggResult,
+                direction: swapDirection,
+                preflight: preflight.legs,
+                fallbackFrom: `merchant-moe-preflight: ${preflight.reason}`,
+              };
+            } else {
+              directionalSwapResult = {
+                executed: false,
+                direction: swapDirection,
+                from: path[0],
+                to: path[path.length - 1],
+                amountIn: finalSourceAmount,
+                reason: aggResult
+                  ? `preflight-failed: ${preflight.reason}; ${aggResult.reason}`
+                  : `preflight-failed: ${preflight.reason}`,
+                preflight: preflight.legs,
+              };
+            }
           } else {
           const executableSourceAmount =
             Number(preflight.initialAmount) || finalSourceAmount;
