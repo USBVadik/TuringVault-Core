@@ -9,8 +9,22 @@ const ADDRESSES = {
   WMNT: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8",
   mETH: "0xcDA86A272531e8640cD7F1a92c01839911B90bb0",
   USDT: "0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE",
+  // USDT0 (LayerZero Tether) is our primary stable hub. It was missing
+  // here, so getQuote("USDT0", ...) sent the literal "USDT0" string as the
+  // token address and the aggregator returned code=400 "No intoken
+  // information obtained". Verified on-chain: with the address present,
+  // USDT0->WMNT/mETH route cleanly where the Merchant Moe multi-hop can't.
+  USDT0: "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
   USDY: "0x5bE26527e817998A7206475496fDE1E68957c5A6",
 };
+
+// Token decimals on Mantle. USDT and USDT0 are 6-decimal; everything else
+// we route (WMNT, mETH, WETH, mUSD) is 18. Centralised so quote-output
+// parsing and balance reads stay correct as tokens are added.
+const DECIMALS = { USDT: 6, USDT0: 6 };
+function decimalsOf(symbol) {
+  return DECIMALS[symbol] ?? 18;
+}
 
 class OpenOceanDEX {
   constructor(provider, wallet, options = {}) {
@@ -45,7 +59,7 @@ class OpenOceanDEX {
     }
 
     const outAmount =
-      parseFloat(data.data.outAmount) / (tokenOut === "USDT" ? 1e6 : 1e18);
+      parseFloat(data.data.outAmount) / 10 ** decimalsOf(tokenOut);
     const inAmount = parseFloat(amountStr);
 
     return {
@@ -153,7 +167,7 @@ class OpenOceanDEX {
     balances.MNT = parseFloat(ethers.formatEther(nativeBalance));
 
     for (const [symbol, tokenAddr] of Object.entries(ADDRESSES)) {
-      const decimals = symbol === "USDT" ? 6 : 18;
+      const decimals = decimalsOf(symbol);
       const contract = new ethers.Contract(
         tokenAddr,
         ["function balanceOf(address) view returns (uint256)"],
@@ -166,4 +180,4 @@ class OpenOceanDEX {
   }
 }
 
-module.exports = { OpenOceanDEX, ADDRESSES };
+module.exports = { OpenOceanDEX, ADDRESSES, DECIMALS, decimalsOf };

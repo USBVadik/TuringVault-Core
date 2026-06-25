@@ -119,6 +119,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Full history so the PR state-file guard can diff against the
+          # base commit (github.event.pull_request.base.sha). The default
+          # shallow checkout omits it -> "Invalid revision range" (exit 128).
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
