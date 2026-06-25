@@ -1,24 +1,36 @@
 {
-  "cycleStartedAt": "2026-06-25T13:29:26.250Z",
-  "cycleEndedAt": "2026-06-25T13:30:35.487Z",
-  "durationSeconds": 69.24,
+  "cycleStartedAt": "2026-06-25T15:04:26.640Z",
+  "cycleEndedAt": "2026-06-25T15:05:49.974Z",
+  "durationSeconds": 83.33,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 11835,
-    "validatorMs": 9110,
+    "analystMs": 14751,
+    "validatorMs": 6964,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 798,
-  "decisionTier": "INTENT_SWAP_NO_EXEC",
-  "consensus": true,
-  "txHashes": [],
+  "decisionId": 799,
+  "decisionTier": "BLOCKED_BY_REGIME",
+  "consensus": false,
+  "txHashes": [
+    "0x97bd5870be0822cbfd47efa4419da7ef7e846644236c53b50136266d0bd9ede5"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28173659627",
-  "errors": [],
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28179733177",
+  "errors": [
+    "outcome-not-persisted: cycle 799 missing from src/data/outcomes.json after Step 6"
+  ],
+  "rwa": {
+    "source": "conservative",
+    "executed": true,
+    "amountInUsd": 2.19045975,
+    "from": "USDT",
+    "to": "USDT0",
+    "blockedReason": null
+  },
   "gridTradeCandidate": {
     "active": false,
     "kind": null,
@@ -28,19 +40,8 @@
     "sourceAsset": null,
     "allocationPct": null,
     "confidence": null,
-    "reason": "not stable-heavy FLAT inventory",
+    "reason": "inventory-aware grid requires stable-heavy FLAT posture",
     "routeHint": null
   },
-  "directionalSwap": {
-    "executed": false,
-    "direction": "risk-on",
-    "from": "USDT0",
-    "to": "WMNT",
-    "amountIn": 11.056414349999999,
-    "amountOut": null,
-    "reason": "preflight-failed: leg2 USDT->WMNT not viable",
-    "error": null,
-    "legs": null
-  },
-  "executionStatus": "INTENT_ONLY"
+  "executionStatus": "EXECUTED"
 }
