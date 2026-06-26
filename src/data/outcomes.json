@@ -4803,6 +4803,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782450000196_813",
+      "decisionId": 813,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1546.33,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei53c553c5ba37242e94b104ed8fd5d98250f5835764a4ab77afa3",
+      "recordedAt": "2026-06-26T05:00:00.196Z",
+      "settleAfter": "2026-06-26T06:00:00.196Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782450000182
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is a low-risk action requiring minimal burden of proof. CRISIS regime (85%) is confirmed, justifying capital preservation. Portfolio is already 76.5% stable-heavy — repeated risk_off would violate inventory rules. Analyst correctly identifies contrarian signals: funding at -0.301% (extreme short crowding), MNT RSI 16.3 and ETH RSI 39.8 near oversold, MACD histogram improving. No directional s",
+      "validatorFlaggedIssues": [
+        "Analyst cites RSI(4h) but data label is RSI(14) — minor framing imprecision",
+        "Yield spread -1% bearish signal not explicitly addressed in reasoning",
+        "Smart money flow NEUTRAL but labeled as outflow $0.0M — ambiguous"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd67399d0534462e4efda81b64aed95f1f1c0e85ec25329581d7e5e35f1585e17",
+      "combinedAnchor": "0xb9554c04f1edcd6b87ddba08941344b9515aa34edb8aacc2aefdcb26a30cfc2e",
+      "decisionLogTxHash": "0xa38b343d88fe3b1ef1f58c6a4801f85aedc33552dcc641d26febb8baea8ae0a3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
