@@ -30,6 +30,15 @@ const disciplineSummary = require("../../lib/discipline-summary.shared.js") as {
   KNOWN_GATES: string[];
 };
 
+// Execution Guard = counterfactual capital-preservation view of
+// consensus-approved swaps that never executed (route preflight failed).
+// Display-only, derived from the settled outcome ledger. Numbers are
+// "would-be" outcome-score bps, NOT realized PnL (no-lying-about-state §3).
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { computeExecutionGuard } = require("../../lib/executionGuard.shared.js") as {
+  computeExecutionGuard: (rows: OutcomeRow[]) => ExecutionGuard;
+};
+
 export const dynamic = "force-dynamic";
 // Audit Section 3 weakness #3 — was 0. The route reads from
 // outcomes.json + discipline-history.json (small files via GitHub
@@ -76,6 +85,20 @@ type OutcomeRow = {
   recordedAt?: string;
   settledAt?: string;
   disciplineDetail?: DisciplineDetail;
+  // Settled-outcome scoring fields — needed for the Execution Guard metric.
+  outcome?: string;
+  pnlBps?: number;
+};
+
+// Counterfactual capital-preservation metric (no-lying-about-state §3:
+// would-be outcome-score bps, not realized PnL). Shape mirrors
+// frontend/app/lib/executionGuard.shared.js.
+type ExecutionGuard = {
+  intentNotExecuted: number;
+  wouldBeLossAvoided: { count: number; scoreBps: number };
+  wouldBeGainMissed: { count: number; scoreBps: number };
+  netScoreBpsAvoided: number;
+  basis: string;
 };
 
 type CycleRow = {
@@ -209,6 +232,9 @@ export async function GET() {
   history = history ?? [];
   const outcomeRows = await readOutcomeRows();
   const cycleRows = await readCycleRows();
+  // Pending rows lack `outcome`, so the predicate naturally ignores them;
+  // only settled non-executed consensus swaps contribute.
+  const executionGuard = computeExecutionGuard(outcomeRows);
   history = disciplineSummary.enrichHistoryWithOutcomes(
     history,
     outcomeRows,
@@ -241,6 +267,7 @@ export async function GET() {
       latestEntry: latestFromHistory,
       history: last30,
       summary,
+      executionGuard,
       gatesKnown: KNOWN_GATES,
       dataScope: "agent-lifetime",
     },
