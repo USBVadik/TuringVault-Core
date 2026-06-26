@@ -116,7 +116,19 @@ type ApiResponse = {
   latestEntry: HistoryEntry | null;
   history: HistoryEntry[];
   summary: Summary;
+  executionGuard?: ExecutionGuard | null;
   gatesKnown: string[];
+};
+
+// Counterfactual capital-preservation metric. Numbers are "would-be"
+// outcome-score bps for consensus swaps that never executed — NOT realized
+// PnL and NOT dollars. Must always render with a counterfactual label.
+type ExecutionGuard = {
+  intentNotExecuted: number;
+  wouldBeLossAvoided: { count: number; scoreBps: number };
+  wouldBeGainMissed: { count: number; scoreBps: number };
+  netScoreBpsAvoided: number;
+  basis: string;
 };
 
 const KNOWN_GATES = ["tx_proof", "price_freshness", "drift_detection"] as const;
@@ -515,7 +527,7 @@ export default function DisciplinePage() {
         {data && (
           <>
             {/* Summary */}
-            <SummaryCard summary={data.summary} />
+            <SummaryCard summary={data.summary} executionGuard={data.executionGuard} />
 
             {/* Latest with full detail */}
             {data.latest && (
@@ -698,7 +710,13 @@ export default function DisciplinePage() {
   );
 }
 
-function SummaryCard({ summary }: { summary: Summary }) {
+function SummaryCard({
+  summary,
+  executionGuard,
+}: {
+  summary: Summary;
+  executionGuard?: ExecutionGuard | null;
+}) {
   return (
     <div className={styles.summaryGrid}>
       <Tile label="Cycles tracked" value={String(summary.totalEntries)} />
@@ -714,6 +732,20 @@ function SummaryCard({ summary }: { summary: Summary }) {
         tone={summary.executedSwapCount > 0 ? "emerald" : "muted"}
         tooltip="Cycles with EXECUTED_SWAP or HEARTBEAT_SWAP tier, enriched from outcomes.json."
       />
+      {executionGuard && executionGuard.intentNotExecuted > 0 && (
+        <Tile
+          label="Would-be losses avoided"
+          value={`${executionGuard.wouldBeLossAvoided.count} / ${executionGuard.intentNotExecuted}`}
+          tone={executionGuard.netScoreBpsAvoided > 0 ? "emerald" : "muted"}
+          tooltip={
+            `Counterfactual · execution-layer (would-be outcome-score bps, NOT realized PnL / not dollars). ` +
+            `${executionGuard.intentNotExecuted} consensus-approved swaps failed the route preflight and never took a position. ` +
+            `${executionGuard.wouldBeLossAvoided.count} would have moved against us (~+${executionGuard.wouldBeLossAvoided.scoreBps} would-be bps avoided); ` +
+            `${executionGuard.wouldBeGainMissed.count} would have moved in our favour (~${executionGuard.wouldBeGainMissed.scoreBps} would-be bps missed). ` +
+            `Net ~+${executionGuard.netScoreBpsAvoided} would-be score-bps preserved. This did NOT change the realized Outcome Score or win rate.`
+          }
+        />
+      )}
       <Tile
         label="Post-check passed"
         value={String(summary.acceptedCount)}
