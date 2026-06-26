@@ -620,6 +620,79 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782489761447_824",
+      "decisionId": 824,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1584.64,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreiefc41099d3baa17a3090e333db51057a0564df191587abe883e6",
+      "recordedAt": "2026-06-26T16:02:41.447Z",
+      "settleAfter": "2026-06-26T17:02:41.447Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782489761429
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 39% of channel (HOLD zone 30-70%), grid confidence 50%, no edge at current price. Portfolio already 76.2% stable — no risk-off needed per inventory rule. Funding neutral at 0.075%, smart money flow NEUTRAL $0.0M, yield spread bearish but no actionable directional signal. RANGING regime at 55% confidence correctly precludes directional swaps. Analyst rea",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD/no-action proposals",
+        "MNT -6.14% 24h with no valid grid channel warrants monitoring",
+        "Bollinger at 87% band position suggests price near upper band — mild caution"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2d29b08a6620cfa0d6f281ea59872be231b73945855dd815d1f08d187d6d0970",
+      "combinedAnchor": "0xe75b37a289f6a824febe11cb90833a3bc379c28d0ff8c7aefa8ce30d8b3d1152",
+      "decisionLogTxHash": "0xed5114439c8d2198e8016c730d60b9689630dfa63c70ead66ba30a2fc076a91f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
