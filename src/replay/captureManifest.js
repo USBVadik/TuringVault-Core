@@ -34,6 +34,20 @@ const MANIFEST_DIR = path.resolve(
   "../../.kiro/audits/raw/replay-manifests"
 );
 
+/**
+ * Build the manifest filename from a decision id, hardened against path
+ * traversal (CWE-23): non-negative integers pass through; anything else
+ * is stripped to digits (empty -> "x"). Result is always a bare
+ * `cycle-NNNN.json` with no separators.
+ */
+function safeCycleFilename(decisionId) {
+  const safeId =
+    Number.isInteger(decisionId) && decisionId >= 0
+      ? String(decisionId)
+      : String(decisionId ?? "x").replace(/\D/g, "") || "x";
+  return `cycle-${safeId.padStart(4, "0")}.json`;
+}
+
 // Module-level capture buffer. Cleared by resetCapture() at the start
 // of every cycle. Populated by callAgent() each time it talks to a
 // model. Drained by writeManifest() at the end of the cycle.
@@ -182,8 +196,15 @@ function writeManifest(args) {
           "captures array — useful as an on-chain anchor.",
       ],
     };
-    const fname = `cycle-${String(args.decisionId ?? "x").padStart(4, "0")}.json`;
+    // Filename derives from a sanitised id and the resolved path is
+    // asserted to stay within MANIFEST_DIR — a non-integer / attacker-
+    // influenced decisionId can never traverse out (path traversal,
+    // CWE-23). See safeCycleFilename + the guard below.
+    const fname = safeCycleFilename(args.decisionId);
     const fpath = path.join(MANIFEST_DIR, fname);
+    if (fpath !== MANIFEST_DIR && !fpath.startsWith(MANIFEST_DIR + path.sep)) {
+      throw new Error("manifest path escapes MANIFEST_DIR");
+    }
     const json = JSON.stringify(manifest, null, 2);
     fs.writeFileSync(fpath, json);
     return {
@@ -208,6 +229,7 @@ module.exports = {
   peekCapture,
   manifestHash,
   writeManifest,
+  safeCycleFilename,
   // Exposed for unit tests — no other consumer should touch.
   _MANIFEST_DIR: MANIFEST_DIR,
 };
