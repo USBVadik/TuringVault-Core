@@ -229,6 +229,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782473887555_820",
+      "decisionId": 820,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1546.02,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreibff8bfa7b38f9af63f3c86689b994fd1c2a864a336a19a121705",
+      "recordedAt": "2026-06-26T11:38:07.555Z",
+      "settleAfter": "2026-06-26T12:38:07.555Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782473887540
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in CRISIS regime (85% confidence) with portfolio already 76.6% stable is well-supported. No directional trade proposed, so R:R gate does not apply. Analyst correctly notes neutral funding (-0.032%), neutral smart money flow ($0.0M), RSI 41.6 not oversold, and existing defensive posture. Yield spread -1% bearish acknowledged via risk factors. No hallucinated data detected. CRISIS expl",
+      "validatorFlaggedIssues": [
+        "MNT RSI 20.9 oversold but no inflow confirmation — correctly flagged, no action taken",
+        "Yield spread -1% bearish signal not prominently weighted in reasoning but acknowledged in risk factors"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x5170829b06d39dc5e7d80995cae2965b129ac31b0747158c6b4fa2ee66726989",
+      "combinedAnchor": "0x06845580cd84100dd26d66ee314e2c895f75458596de90b3926d57649a6926be",
+      "decisionLogTxHash": "0x0e212d3b5730181c2840cbfc7b233f13cb99660197fd3c2976b110d79fa200c5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
