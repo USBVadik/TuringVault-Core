@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-06-22T01:52:05.756Z",
-    "decisionId": 715,
-    "verdict": "ACCEPTED",
-    "decisionTier": "EXECUTED_SWAP",
-    "displayTier": "EXECUTED_SWAP",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "mETH",
-    "sourceAsset": "USDT0",
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 96981404"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "2 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-22T03:03:41.607Z",
     "decisionId": 716,
     "verdict": "ACCEPTED",
@@ -3093,6 +3044,35 @@
   {
     "at": "2026-06-26T05:50:13.195Z",
     "decisionId": 814,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_REGIME",
+    "displayTier": "BLOCKED_BY_REGIME",
+    "executedOnChain": false,
+    "action": "hold",
+    "targetAsset": "mUSD",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-06-26T07:15:34.637Z",
+    "decisionId": 815,
     "verdict": "ACCEPTED",
     "decisionTier": "BLOCKED_BY_REGIME",
     "displayTier": "BLOCKED_BY_REGIME",
