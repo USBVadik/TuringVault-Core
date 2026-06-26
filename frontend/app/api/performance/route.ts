@@ -11,6 +11,13 @@
  * src/data/outcomes.json (already migrated to schemaVersion 2 with
  * decisionTier). These are model outcome scores, not realized wallet PnL.
  *
+ * Phantom-PnL guard (no-lying-about-state §3): consensus swaps scored
+ * GOOD_CALL/BAD_CALL that never executed on-chain (executedOnChain !== true)
+ * took no position. They are excluded from cumulativePnlBps, the good/bad
+ * call tallies, and the win-rate denominator, and counted in
+ * intentNotExecutedExcluded. Without this, ~52 never-executed route-blocked
+ * intents dragged the lifetime score to a phantom -11742 bps / -117%.
+ *
  * What this endpoint NEVER returns:
  *   - Hardcoded Sharpe, maxDrawdown, recoveryHours, hoursTracked.
  *   - totalReturn computed from a mocked initialNav.
@@ -73,6 +80,11 @@ type SettledOutcome = {
   pnlBps?: number;
   settledAt?: string;
   recordedAt?: string;
+  // Ground truth: did a DEX TX actually complete the intended action.
+  // A consensus swap scored GOOD_CALL/BAD_CALL with executedOnChain !== true
+  // took no position, so its pnlBps is phantom and must not count toward the
+  // lifetime outcome score. Workspace rule: no-lying-about-state §3.
+  executedOnChain?: boolean;
 };
 
 type Outcomes = {
@@ -107,6 +119,9 @@ type PerformanceResponse = {
   outcomeScoreBps: number;
   realizedTradingPnlBps: null;
   pnlMethodology: "outcome-score-not-realized-wallet-pnl";
+  // Count of settled rows excluded from the score/call-counts because they
+  // were consensus swaps that never executed on-chain (no realized position).
+  intentNotExecutedExcluded: number;
   lastSettlementAt: string | null;
 
   dataScope: "agent-lifetime";
@@ -265,8 +280,27 @@ export async function GET(): Promise<NextResponse> {
   let badCallCount = 0;
   let missedAlphaCount = 0;
   let cumulativePnlBps = 0;
+  let intentNotExecutedExcluded = 0;
+
+  // A consensus swap scored GOOD_CALL/BAD_CALL that never executed on-chain
+  // took no position — its pnlBps is phantom. Exclude such rows from the
+  // lifetime score and the good/bad call tallies so the homepage shows the
+  // realized outcome score, not a loss for a trade that never happened.
+  // Holds (CORRECT_BLOCK / MISSED_ALPHA) also have executedOnChain=false but
+  // are NOT phantom — they represent a real "decided to hold" outcome — so
+  // they are intentionally not matched here. Mirrors /api/backtest and
+  // outcomeTracker.computePriceMoveOutcome. Rule: no-lying-about-state §3.
+  const isPhantomCall = (o: SettledOutcome): boolean =>
+    o.executedOnChain !== true &&
+    (o.outcome === "GOOD_CALL" ||
+      o.outcome === "BAD_CALL" ||
+      o.outcome === "INTENT_NOT_EXECUTED");
 
   for (const o of settled) {
+    if (isPhantomCall(o)) {
+      intentNotExecutedExcluded++;
+      continue; // no realized position → no score, no call tally
+    }
     switch (o.outcome) {
       case "GOOD_CALL":
         goodCallCount++;
@@ -286,17 +320,24 @@ export async function GET(): Promise<NextResponse> {
     cumulativePnlBps += typeof o.pnlBps === "number" ? o.pnlBps : 0;
   }
 
+  // Realized denominator excludes non-executed intents (counted above).
+  const realizedCount = settledCount - intentNotExecutedExcluded;
+
   // Win Rate methodology (unified with /api/reputation denominator docs):
-  // Numerator = GOOD_CALL + CORRECT_BLOCK (favourable outcomes)
-  // Denominator = all settled outcomes (total sample)
+  // Numerator = GOOD_CALL + CORRECT_BLOCK (favourable realized outcomes)
+  // Denominator = realized settled outcomes = settled.length minus
+  //   non-executed swap intents (which took no position, so they are not a
+  //   favourable OR unfavourable realized outcome — counting them either way
+  //   would misrepresent decision quality). The excluded count is surfaced
+  //   via `intentNotExecutedExcluded`.
   // This differs from /api/reputation which uses on-chain positiveCount/totalFeedback
   // from ReputationRegistry. That contract only counts explicit feedback submissions,
-  // whereas this counts all settled outcomes including those never submitted on-chain.
+  // whereas this counts realized settled outcomes including those never submitted on-chain.
   // Both methods are documented via `winRateDenominator` field.
   const winRate =
-    settledCount > 0
+    realizedCount > 0
       ? Math.round(
-          ((goodCallCount + correctBlockCount) / settledCount) * 1000
+          ((goodCallCount + correctBlockCount) / realizedCount) * 1000
         ) / 10
       : null;
 
@@ -342,13 +383,15 @@ export async function GET(): Promise<NextResponse> {
     outcomeScoreBps: cumulativePnlBps,
     realizedTradingPnlBps: null,
     pnlMethodology: "outcome-score-not-realized-wallet-pnl",
+    intentNotExecutedExcluded,
     lastSettlementAt,
     dataScope: "agent-lifetime",
     source: {
       onchain: "mantle-mainnet",
       aggregates: "src/data/outcomes.json",
     },
-    winRateDenominator: "(GOOD_CALL + CORRECT_BLOCK) / settled.length from outcomes.json",
+    winRateDenominator:
+      "(GOOD_CALL + CORRECT_BLOCK) / realized settled outcomes (settled.length − intentNotExecutedExcluded) from outcomes.json",
     ...(outcomes
       ? {}
       : { error: "outcomes.json unreachable in this deployment" }),

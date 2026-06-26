@@ -1250,7 +1250,7 @@ export default function Home() {
             </div>
             <div
               className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-4"
-              title="Sum of outcomeTracker pnlBps across settled[]; model-quality score, not realized wallet PnL"
+              title="Sum of outcomeTracker pnlBps over REALIZED settled outcomes (executed swaps + holds/blocks); consensus swaps that never executed on-chain are excluded. Model-quality score, not realized wallet PnL"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
@@ -1274,7 +1274,7 @@ export default function Home() {
             </div>
             <div
               className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-5"
-              title="Good Calls / Bad Calls — see outcomes.json scoring"
+              title="Good Calls / Bad Calls over executed swaps only; consensus swaps that never executed on-chain are excluded. See outcomes.json scoring"
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
