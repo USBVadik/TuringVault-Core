@@ -57,9 +57,10 @@ const REPUTATION_ABI = [
 const SCORE = {
   CORRECT_BLOCK: +40, // HOLD, price fell — firewall worked
   MISSED_ALPHA: -20, // HOLD, price rose — too conservative
-  GOOD_CALL: +60, // SWAP approved, price moved in our favour
-  BAD_CALL: -80, // SWAP approved, price moved against us — serious
+  GOOD_CALL: +60, // SWAP approved + executed, price moved in our favour
+  BAD_CALL: -80, // SWAP approved + executed, price moved against us — serious
   NEUTRAL: 0, // sub-threshold move — no signal
+  INTENT_NOT_EXECUTED: 0, // SWAP proposed but never landed on-chain — no realized outcome
 };
 
 // ─── DB helpers ────────────────────────────────────────────────────
@@ -171,6 +172,7 @@ function computePriceMoveOutcome({
   confidence,
   priceAtDecision,
   currentPrice,
+  executedOnChain = true,
 }) {
   const pricePct = ((currentPrice - priceAtDecision) / priceAtDecision) * 100;
   const absPct = Math.abs(pricePct);
@@ -213,6 +215,21 @@ function computePriceMoveOutcome({
       pricePct,
       outcome: "NEUTRAL",
       scoreDelta: SCORE.NEUTRAL,
+      pnlBps: 0,
+    };
+  }
+
+  // A proposed swap that never landed on-chain took NO position, so it has
+  // no realized outcome — score it as intent-not-executed (0) instead of a
+  // phantom GOOD/BAD call. Without this, INTENT_SWAP_NO_EXEC cycles (route
+  // blocked) were penalized as real losing trades, tanking the outcome
+  // score for trades that never happened.
+  // Workspace rule: .kiro/steering/no-lying-about-state.md §3 (no phantom PnL).
+  if (executedOnChain !== true) {
+    return {
+      pricePct,
+      outcome: "INTENT_NOT_EXECUTED",
+      scoreDelta: SCORE.INTENT_NOT_EXECUTED,
       pnlBps: 0,
     };
   }
@@ -565,6 +582,7 @@ async function settle(opts = {}) {
       confidence: entry.confidence,
       priceAtDecision,
       currentPrice,
+      executedOnChain: entry.executedOnChain === true,
     });
 
     const settled = {

@@ -42,12 +42,27 @@ export async function GET() {
     date?: string;
   }[] = [];
 
+  // A consensus swap that never executed on-chain took no position, so its
+  // GOOD_CALL/BAD_CALL pnlBps is phantom (the wallet never realized it).
+  // Count only realized outcomes — executed swaps + genuine holds/blocks.
+  // Mirrors outcomeTracker's INTENT_NOT_EXECUTED handling for new rows and
+  // neutralizes historical rows that pre-date that fix (we do not rewrite
+  // the committed ledger; we just score it honestly here).
+  // Workspace rule: .kiro/steering/no-lying-about-state.md §3 (no phantom PnL).
+  const isPhantomCall = (s: any) =>
+    s.executedOnChain !== true &&
+    (s.outcome === "GOOD_CALL" ||
+      s.outcome === "BAD_CALL" ||
+      s.outcome === "INTENT_NOT_EXECUTED");
+  const effectiveBps = (s: any): number => (isPhantomCall(s) ? 0 : s.pnlBps || 0);
+  const intentNotExecutedCount = settled.filter(isPhantomCall).length;
+
   let cumulativeBps = 0;
   equityCurve.push({ idx: 0, nav: initialNav, bps: 0 });
 
   for (let i = 0; i < settled.length; i++) {
     const s = settled[i];
-    cumulativeBps += s.pnlBps || 0;
+    cumulativeBps += effectiveBps(s);
     const nav = initialNav * (1 + cumulativeBps / 10000);
     equityCurve.push({
       idx: i + 1,
@@ -71,9 +86,9 @@ export async function GET() {
   }
 
   // Categorize trades
-  const positive = settled.filter((s: any) => (s.pnlBps || 0) > 0).length;
-  const negative = settled.filter((s: any) => (s.pnlBps || 0) < 0).length;
-  const neutral = settled.filter((s: any) => (s.pnlBps || 0) === 0).length;
+  const positive = settled.filter((s: any) => effectiveBps(s) > 0).length;
+  const negative = settled.filter((s: any) => effectiveBps(s) < 0).length;
+  const neutral = settled.filter((s: any) => effectiveBps(s) === 0).length;
 
   // Count pending
   const pendingCount = (outcomes.pending || []).filter((e: any) => !e.settled).length;
@@ -83,7 +98,9 @@ export async function GET() {
     idx: i + 1,
     action: s.action,
     asset: s.targetAsset || "mUSD",
-    pnlBps: s.pnlBps || 0,
+    pnlBps: effectiveBps(s),
+    executed: s.executedOnChain === true,
+    intentOnly: isPhantomCall(s),
     date: s.recordedAt?.split("T")[0],
     price: s.priceAtDecision,
   }));
@@ -102,11 +119,12 @@ export async function GET() {
         settled.length > 0 ? Math.round(cumulativeBps / settled.length) : 0,
       period: `${settled.length} settled decisions`,
       pendingCount,
+      intentNotExecutedExcluded: intentNotExecutedCount,
       dataSource: "src/data/outcomes.json settled outcome scores",
       note:
         "Decision outcome score, not realized wallet PnL or a backtested trading equity curve",
       scoreMethodology:
-        "cumulativeBps = sum(outcomes.settled[].pnlBps); includes GOOD_CALL/CORRECT_BLOCK/BAD_CALL/MISSED_ALPHA scoring even when no DEX swap executed",
+        "cumulativeBps = sum of pnlBps over REALIZED outcomes only (executed swaps + holds/blocks). Proposed swaps that never executed on-chain score 0 (intent-not-executed) and are excluded — they took no position.",
     },
     equityCurve,
     trades: trades.slice(-20), // most recent 20

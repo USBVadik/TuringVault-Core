@@ -136,13 +136,13 @@ export default function BacktestPage() {
         <div className="performance-stat-grid">
           <StatCard
             label="Outcome Score"
-            value={`+${summary.cumulativeBps} bps`}
-            color="green"
+            value={`${summary.cumulativeBps > 0 ? "+" : ""}${summary.cumulativeBps} bps`}
+            color={summary.cumulativeBps >= 0 ? "green" : "red"}
           />
           <StatCard
             label="Score Return"
-            value={`+${summary.totalReturn}%`}
-            color="green"
+            value={`${summary.totalReturn > 0 ? "+" : ""}${summary.totalReturn}%`}
+            color={summary.totalReturn >= 0 ? "green" : "red"}
           />
           <StatCard
             label="Max Drawdown"
@@ -182,8 +182,8 @@ export default function BacktestPage() {
         <div className="performance-panel performance-chart-panel">
           <div className="performance-panel-header">
             <div>
-              <span>Score curve</span>
-              <strong>Normalized $100 start</strong>
+              <span>Cumulative decision-score</span>
+              <strong>100 = flat · not wallet equity</strong>
             </div>
             <div className="performance-panel-badge">
               <TrendingUp className="w-3.5 h-3.5" />
