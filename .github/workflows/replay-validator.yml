@@ -63,12 +63,19 @@ jobs:
 
       - name: Pick a cycle to validate
         id: pick
+        env:
+          INPUT_CYCLE_ID: ${{ inputs.cycle_id }}
         run: |
           set -e
           MANIFEST_DIR=".kiro/audits/raw/replay-manifests"
           # If user supplied a specific id via workflow_dispatch, use it.
-          if [ -n "${{ inputs.cycle_id }}" ]; then
-            CYCLE="${{ inputs.cycle_id }}"
+          # Read via env and strip to digits so a dispatch input can never
+          # inject shell (or downstream JS) through the cycle value.
+          if [ -n "${INPUT_CYCLE_ID}" ]; then
+            CYCLE="$(printf '%s' "${INPUT_CYCLE_ID}" | tr -cd '0-9')"
+            if [ -z "${CYCLE}" ]; then
+              echo "::error::cycle_id must be numeric"; exit 1
+            fi
             echo "Using operator-supplied cycle: ${CYCLE}"
           else
             # Pick a random manifest from the most recent 30. We bias
@@ -110,14 +117,18 @@ jobs:
 
       - name: Probe credentials for provider round-trip (informational)
         id: creds
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
         run: |
           # We deliberately don't fail the workflow if credentials are
           # missing — the on-chain anchor check above is the load-bearing
           # half of Reproducible AI. Provider round-trip is a bonus.
+          # The GCP secret is read from env (masked by Actions), never
+          # interpolated into the command line.
           MISSING=""
           [ -z "${AWS_ACCESS_KEY_ID}" ] && MISSING="${MISSING} AWS_ACCESS_KEY_ID"
           [ -z "${AWS_SECRET_ACCESS_KEY}" ] && MISSING="${MISSING} AWS_SECRET_ACCESS_KEY"
-          [ -z "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" ] && MISSING="${MISSING} GOOGLE_APPLICATION_CREDENTIALS_JSON"
+          [ -z "${GOOGLE_APPLICATION_CREDENTIALS_JSON}" ] && MISSING="${MISSING} GOOGLE_APPLICATION_CREDENTIALS_JSON"
           if [ -n "${MISSING}" ]; then
             echo "skip_replay=true" >> "${GITHUB_OUTPUT}"
             echo "::notice::Skipping LLM round-trip — missing secrets:${MISSING}. On-chain anchor check above is sufficient."

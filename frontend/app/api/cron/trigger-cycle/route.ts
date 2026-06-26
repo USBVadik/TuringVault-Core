@@ -32,10 +32,20 @@ const REPO = "USBVadik/TuringVault-Core";
 const WORKFLOW_ID = "agent-cycle.yml";
 const { shouldDispatchAgentCycle } = cronPolicy;
 
+// Resolve a TRUSTED same-origin base for the server-side health probe.
+// Deriving it from `request.url` lets a spoofed Host header redirect this
+// fetch to an attacker origin (SSRF, CWE-918). Prefer a server-configured
+// origin; fall back to the request origin only for local dev.
+function resolveSelfBase(request: Request): string {
+  if (process.env.PUBLIC_BASE_URL) return process.env.PUBLIC_BASE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return new URL(request.url).origin;
+}
+
 async function fetchHealthSnapshot(request: Request) {
-  const origin = new URL(request.url).origin;
+  const base = resolveSelfBase(request);
   try {
-    const res = await fetch(`${origin}/api/health`, { cache: "no-store" });
+    const res = await fetch(`${base}/api/health`, { cache: "no-store" });
     if (!res.ok) return null;
     return await res.json();
   } catch {
