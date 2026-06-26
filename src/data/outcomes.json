@@ -5111,6 +5111,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782465827088_817",
+      "decisionId": 817,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1559.39,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreidc8eca8e6fbfef8218ae0267da2897736d84e2bbf4d66f9bac94",
+      "recordedAt": "2026-06-26T09:23:47.088Z",
+      "settleAfter": "2026-06-26T10:23:47.088Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782465827073
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. CRISIS regime (85% confidence) confirmed with BEARISH consensus. Portfolio already 76.3% stable — no repeated risk_off needed, and HOLD is appropriate per inventory rule. ETH -5.27%, MNT -15.82%, Fear & Greed 13, yield spread -1% all align bearish. Funding neutral (0.049%) correctly noted — no squeeze setup. No hallucinated data. Risk factors accurately cited. HOLD",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD as no capital is deployed",
+        "MNT RSI 24.1 falling could signal further downside on residual WMNT position",
+        "MACD histogram positive (3.44) is a mild contradictory signal — Analyst did not acknowledge it explicitly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8c2627ba28e71ee02db14c3f60c1adc0cf88a05b9d225a225d1192f056d5ad27",
+      "combinedAnchor": "0x117aa9b699d780b882b6767a517b4c014a0e2e8ce3e51ba591d10fe56d8b9464",
+      "decisionLogTxHash": "0x72732811fff7ae2154c2f5dae7acd6ef1fa4168a42676e7b3044785a05045f69",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
