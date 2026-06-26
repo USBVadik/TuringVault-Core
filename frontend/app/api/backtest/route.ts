@@ -85,6 +85,31 @@ export async function GET() {
     if (dd > maxDDBps) maxDDBps = dd;
   }
 
+  // Realized swap drawdown — peak-to-trough over ONLY executed swaps that took
+  // a position (executedOnChain && GOOD_CALL/BAD_CALL). This is the closest
+  // honest proxy to a CAPITAL drawdown. maxDDBps above is the decision-SCORE
+  // drawdown and is dominated by MISSED_ALPHA (holds where price rose =
+  // opportunity cost, never a wallet loss), so it overstates capital risk.
+  // Both are outcome-score bps, not literal $ NAV. Holds and non-executed
+  // intents are excluded here. Rule: no-lying-about-state §3.
+  const realizedSwaps = settled.filter(
+    (s: any) =>
+      s.executedOnChain === true &&
+      (s.outcome === "GOOD_CALL" || s.outcome === "BAD_CALL")
+  );
+  let rsPeak = 0;
+  let rsCum = 0;
+  let realizedSwapDrawdownBps = 0;
+  let worstExecutedSwapBps = 0;
+  for (const s of realizedSwaps) {
+    const b = typeof s.pnlBps === "number" ? s.pnlBps : 0;
+    rsCum += b;
+    if (rsCum > rsPeak) rsPeak = rsCum;
+    const dd = rsPeak - rsCum;
+    if (dd > realizedSwapDrawdownBps) realizedSwapDrawdownBps = dd;
+    if (b < worstExecutedSwapBps) worstExecutedSwapBps = b;
+  }
+
   // Categorize trades
   const positive = settled.filter((s: any) => effectiveBps(s) > 0).length;
   const negative = settled.filter((s: any) => effectiveBps(s) < 0).length;
@@ -111,6 +136,11 @@ export async function GET() {
       cumulativeBps,
       maxDrawdownBps: maxDDBps,
       maxDrawdownPct: Math.round((maxDDBps / 100) * 100) / 100,
+      realizedSwapDrawdownBps,
+      realizedSwapDrawdownPct:
+        Math.round((realizedSwapDrawdownBps / 100) * 100) / 100,
+      realizedSwapCount: realizedSwaps.length,
+      worstExecutedSwapBps,
       totalTrades: settled.length,
       positiveTrades: positive,
       negativeTrades: negative,
@@ -125,6 +155,8 @@ export async function GET() {
         "Decision outcome score, not realized wallet PnL or a backtested trading equity curve",
       scoreMethodology:
         "cumulativeBps = sum of pnlBps over REALIZED outcomes only (executed swaps + holds/blocks). Proposed swaps that never executed on-chain score 0 (intent-not-executed) and are excluded — they took no position.",
+      drawdownMethodology:
+        "maxDrawdownBps is the worst peak-to-trough of the decision-SCORE curve (executed swaps + holds); it is dominated by MISSED_ALPHA (holds where price rose = opportunity cost), not capital losses. realizedSwapDrawdownBps is the peak-to-trough over executed swaps only (the closest honest proxy to a capital drawdown). Both are outcome-score bps, not literal $ NAV. worstExecutedSwapBps is the most-negative single executed swap.",
     },
     equityCurve,
     trades: trades.slice(-20), // most recent 20

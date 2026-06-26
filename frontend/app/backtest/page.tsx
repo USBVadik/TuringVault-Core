@@ -145,10 +145,23 @@ export default function BacktestPage() {
             color={summary.totalReturn >= 0 ? "green" : "red"}
           />
           <StatCard
-            label="Max Drawdown"
+            label="Max score drawdown"
             value={`-${summary.maxDrawdownBps} bps`}
             color="red"
+            hint="Worst peak-to-trough of the decision-SCORE curve, dominated by MISSED_ALPHA (held while price rose = opportunity cost), NOT realized capital. Outcome-score bps, not $. Biggest single executed swap loss was only -271 bps; see Realized swap drawdown for the capital-impacting figure."
           />
+          {typeof summary.realizedSwapDrawdownBps === "number" && (
+            <StatCard
+              label="Realized swap drawdown"
+              value={`-${summary.realizedSwapDrawdownBps} bps`}
+              color="red"
+              hint={`Executed swaps only (${
+                summary.realizedSwapCount ?? 0
+              } took a real position): worst peak-to-trough of their outcome scores — the closest honest proxy to a capital drawdown. Outcome-score bps, not literal $ NAV. Worst single executed swap: ${
+                summary.worstExecutedSwapBps ?? 0
+              } bps.`}
+            />
+          )}
           <StatCard
             label="Avg Trade"
             value={`${summary.avgTradeBps > 0 ? "+" : ""}${
@@ -424,10 +437,12 @@ function StatCard({
   label,
   value,
   color,
+  hint,
 }: {
   label: string;
   value: string | number;
   color: string;
+  hint?: string;
 }) {
   const colors: Record<string, string> = {
     green: "positive",
@@ -437,7 +452,7 @@ function StatCard({
     white: "neutral",
   };
   return (
-    <div className={`performance-stat-card ${colors[color]}`}>
+    <div className={`performance-stat-card ${colors[color]}`} title={hint}>
       <div>{value}</div>
       <span>{label}</span>
     </div>
