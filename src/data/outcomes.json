@@ -766,6 +766,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1782495696894_826",
+      "decisionId": 826,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.52,
+      "priceAtDecision": 1578.48,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreia82c00cfec497538d3d7ad3067b637f63f29e6b76591effe49ac",
+      "recordedAt": "2026-06-26T17:41:36.894Z",
+      "settleAfter": "2026-06-26T18:41:36.894Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782495696880
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH price at 33% of intact channel ($1547-$1645), grid signal explicitly HOLD at 50% confidence. No directional swap proposed in RANGING regime. Funding neutral (0.244%), smart money flow flat, F&G=13 contrarian bias noted but RSI=53 correctly identified as insufficient for counter-trend entry. Portfolio is stable-heavy (76.2%) and FLAT — HOLD aligns with inventory",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% mildly bearish but not actionable at current channel position",
+        "MNT -5.29% weakness noted but no grid channel to trade against",
+        "F&G=13 extreme fear could accelerate downside if $1547 support breaks"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x35e91f5f50d1e8a4b6e16232ad148eaec7f139723316c647b015782a783d00e3",
+      "combinedAnchor": "0xbe96c89a7d25674b2b5f08a6ce0f452fdbca8579a06a67d3243b64d10447bf27",
+      "decisionLogTxHash": "0x403b6b757dde360be332eed7296a7856841670f688f39215f7d27600e90d17cd",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
