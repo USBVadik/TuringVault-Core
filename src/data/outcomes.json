@@ -4575,6 +4575,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782437341767_810",
+      "decisionId": 810,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1557.26,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreif16b105a20fdf78b40534b348f6729048c5f5ea357de57d8b705",
+      "recordedAt": "2026-06-26T01:29:01.767Z",
+      "settleAfter": "2026-06-26T02:29:01.767Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782437341753
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Portfolio is 76.2% stable — inventory rule correctly blocks further risk_off. TREND_DOWN (60% confidence) with BEARISH consensus, yield spread -1% bearish, ETH -3.68%/MNT -13.25%, RSI 37.7 (not yet extreme oversold), and neutral funding/flow all align with waiting. No directional swap proposed. R:R gate not applicable to HOLD. Reasoning matches raw signals accurate",
+      "validatorFlaggedIssues": [
+        "MNT RSI at 15.0 is extreme oversold — worth monitoring for bounce signal next cycle",
+        "Funding -0.045% is near-neutral but Binance showing -0.230% suggesting mild short bias"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x78fde97b252cfc06a1b8d580f72546e5b517ecae077c940fc9282dc1b91d836c",
+      "combinedAnchor": "0x69af85ba5152b732dec33cca387280c16be4472615619187f04b1e70990cd641",
+      "decisionLogTxHash": "0x0eefe15040c1ede2a4a57b788e4b02e0060dea47e4d655a990b2e887e2535ca4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
