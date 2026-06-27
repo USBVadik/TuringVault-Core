@@ -2916,6 +2916,82 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782566557804_846",
+      "decisionId": 846,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1584.37,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei7057ccc6f5f1be268f54d9f386976571f1d3ae0d1c3c7d8a1e2d",
+      "recordedAt": "2026-06-27T13:22:37.804Z",
+      "settleAfter": "2026-06-27T14:22:37.804Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782566557787
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence only 35% with no confirmed direction. Signal consensus BEARISH but technicals show BUY (EMA cross, MACD improving, RSI 56 rising) — contradictory signals correctly acknowledged. Portfolio already 75.9% stable, so no de-risking needed. Inventory rule explicitly supports HOLD over repeated risk_off in stable-heavy FLAT state. No R:R gate applies to ",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH conflicts with technical BUY — analyst acknowledged mixed signals but could have been more explicit about this contradiction",
+        "Bollinger at 89% band position with only 1.0% width suggests potential breakout imminent — warrants monitoring"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x85ba2784c8690e7c7111a7fc638de8d9cb833c260ad09815277b01aaec85ba4f",
+      "combinedAnchor": "0x54739fe1fd967d431ea7e6eeec4e48f419980a73576bd79c980679a8eb27402f",
+      "decisionLogTxHash": "0xd2c0eb6965f84515834b0912ab6d255922ea824e1feec354c58876dce315edec",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
