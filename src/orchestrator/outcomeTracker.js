@@ -614,7 +614,11 @@ async function settle(opts = {}) {
           ethers.toUtf8Bytes(`${entry.id}_${outcome}_${pnlBps}`)
         );
         const tx = await reputation.recordPnL(
-          1, // agentId (NFT #1)
+          // KNOWN ISSUE (docs/known-issues.md #2): writes to agentId 1, but the
+          // canonical agent is Identity token 0 (token 1 is unminted). PnL
+          // reputation lands on an orphan id the UI (getReputation(0)) does not
+          // read. Not repointed during judging (live signing loop). Future: 0.
+          1, // agentId (NFT #1) — see docs/known-issues.md #2
           pnlBps,
           reasoningHash
         );
