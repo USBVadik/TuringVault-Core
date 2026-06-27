@@ -1206,21 +1206,23 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div
               className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-1"
-              title="On-chain reputation NFT score (ReputationRegistry.getReputation)"
+              title="Win rate over EXECUTED directional swaps only — GOOD / (executed GOOD + BAD). Excludes holds and consensus swaps that never executed on-chain. The agent is selective: it commits capital only on full 3-agent consensus."
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
-                Lifetime
+                Executed swaps
               </div>
               <div className="text-xl font-bold text-green-400 stat-value">
-                {reputationData?.normalizedScore ?? "—"}
+                {perfData?.executedTradeWinRate != null
+                  ? `${perfData.executedTradeWinRate.toFixed(1)}%`
+                  : "—"}
               </div>
               <div className="text-[9px] text-white/30 mt-1 uppercase">
-                Reputation Score
+                Trade Win Rate
               </div>
             </div>
             <div
               className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-2"
-              title="(GOOD_CALL + CORRECT_BLOCK) / Settled — derived from outcomes.json"
+              title="Decision quality: (GOOD_CALL + CORRECT_BLOCK) / realized outcomes — credits correct risk-off holds (declining a trade that would have lost) as wins. Source: outcomes.json."
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
                 Lifetime
@@ -1231,7 +1233,7 @@ export default function Home() {
                   : "—"}
               </div>
               <div className="text-[9px] text-white/30 mt-1 uppercase">
-                Win Rate
+                Decision Quality
               </div>
             </div>
             <div
@@ -1361,6 +1363,79 @@ export default function Home() {
               </div>
             </div>
           </div>
+          )}
+          {perfData?.pipelineFunnel && (
+            <div className="mt-4 pt-4 border-t border-white/[0.04]">
+              <div className="text-[10px] text-white/40 uppercase tracking-[0.2em] mb-2">
+                Agent pipeline · lifetime{" "}
+                <span className="text-white/20 normal-case tracking-normal">
+                  (stage counts — not per-model accuracy)
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-mono">
+                <span className="text-white/70">
+                  {perfData.pipelineFunnel.totalDecisions} decisions
+                </span>
+                <span className="text-white/20">→</span>
+                <span className="text-white/70">
+                  {perfData.pipelineFunnel.consensusApproved} consensus-approved
+                  <span className="text-white/30">
+                    {" "}
+                    (
+                    {Math.round(
+                      (perfData.pipelineFunnel.consensusApproved /
+                        Math.max(1, perfData.pipelineFunnel.totalDecisions)) *
+                        100
+                    )}
+                    %)
+                  </span>
+                </span>
+                <span className="text-white/20">→</span>
+                <span className="text-white/70">
+                  {perfData.pipelineFunnel.executed} executed
+                </span>
+                <span className="text-white/20">→</span>
+                <span className="text-green-400 font-bold">
+                  {perfData.pipelineFunnel.executedWon} won
+                  {perfData.executedTradeWinRate != null && (
+                    <span className="text-green-300/70">
+                      {" "}
+                      ({perfData.executedTradeWinRate.toFixed(1)}%)
+                    </span>
+                  )}
+                </span>
+              </div>
+              <div className="mt-1.5 text-[10px] text-white/35 font-mono">
+                <span className="text-yellow-400/70">
+                  {perfData.pipelineFunnel.blockedTotal} blocked
+                </span>
+                {" · "}
+                {perfData.pipelineFunnel.blockedDeterministic} deterministic risk
+                gates {" · "}
+                {perfData.pipelineFunnel.blockedValidator} adversarial validator
+                {" · "}
+                {perfData.pipelineFunnel.blockedOther} other
+              </div>
+              <div className="mt-1.5 text-[10px] text-white/30 leading-relaxed">
+                Selective by design: capital is committed only on full 3-agent
+                consensus; most cycles are risk-gated holds (capital
+                preservation in a down market).
+              </div>
+              {reputationData?.totalFeedback != null && (
+                <div className="mt-2 text-[9px] text-white/25 leading-relaxed">
+                  On-chain ERC-8004 reputation (agentId 0):{" "}
+                  {reputationData.totalFeedback} feedback entries, cumulative
+                  score{" "}
+                  {Number(reputationData.cumulativeScore) >= 0 ? "+" : ""}
+                  {reputationData.cumulativeScore}. The registry&apos;s raw
+                  winRate field reads {reputationData.winRate}% because the
+                  current feedback rule records risk-off holds as score 0
+                  (counted non-positive) — it does not credit correct holds.
+                  Trade Win Rate and Decision Quality above are the
+                  decision-quality measures.
+                </div>
+              )}
+            </div>
           )}
           <div className="mt-4 pt-4 border-t border-white/[0.04]">
             <div className="flex flex-wrap items-center gap-2 text-[10px] text-white/30">

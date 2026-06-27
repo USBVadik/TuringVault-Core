@@ -85,6 +85,35 @@ type SettledOutcome = {
   // took no position, so its pnlBps is phantom and must not count toward the
   // lifetime outcome score. Workspace rule: no-lying-about-state §3.
   executedOnChain?: boolean;
+  // Pipeline-stage fields for the honest funnel + executed-trade win rate.
+  consensus?: boolean;
+  decisionTier?: string;
+};
+
+// Honest agent-pipeline funnel — COUNTS only, no fabricated per-agent
+// accuracy. executed-trade win rate = GOOD / (executed directional swaps).
+type PipelineFunnel = {
+  totalDecisions: number;
+  consensusApproved: number;
+  executed: number;
+  executedWon: number;
+  blockedTotal: number;
+  blockedDeterministic: number;
+  blockedValidator: number;
+  blockedOther: number;
+};
+type FunnelResult = {
+  executedTradeWinRate: number | null;
+  executedTradeWins: number;
+  executedTradeLosses: number;
+  executedTradeTotal: number;
+  pipelineFunnel: PipelineFunnel;
+};
+
+// Shared, unit-tested helper (mirrors executionGuard.shared.js). Display-only.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { computePipelineFunnel } = require("../../lib/pipelineFunnel.shared.js") as {
+  computePipelineFunnel: (rows: SettledOutcome[]) => FunnelResult;
 };
 
 type Outcomes = {
@@ -122,6 +151,13 @@ type PerformanceResponse = {
   // Count of settled rows excluded from the score/call-counts because they
   // were consensus swaps that never executed on-chain (no realized position).
   intentNotExecutedExcluded: number;
+  // Honest executed-trade win rate (executed directional swaps only) +
+  // agent pipeline funnel (stage counts). See pipelineFunnel.shared.js.
+  executedTradeWinRate: number | null;
+  executedTradeWins: number;
+  executedTradeLosses: number;
+  executedTradeTotal: number;
+  pipelineFunnel: PipelineFunnel;
   lastSettlementAt: string | null;
 
   dataScope: "agent-lifetime";
@@ -343,6 +379,10 @@ export async function GET(): Promise<NextResponse> {
 
   const lastSettlementAt = newestSettlementIso(settled);
 
+  // Honest pipeline funnel + executed-trade win rate (counts + executed-only
+  // win rate). Additive, display-only; does not affect any realized aggregate.
+  const funnel = computePipelineFunnel(settled);
+
   // Round holdings for display (preserves ≥ 6 sig figs for stables, 4 for MNT-class)
   const roundedHoldings: Holdings = {};
   for (const [sym, bal] of Object.entries(balances)) {
@@ -384,6 +424,11 @@ export async function GET(): Promise<NextResponse> {
     realizedTradingPnlBps: null,
     pnlMethodology: "outcome-score-not-realized-wallet-pnl",
     intentNotExecutedExcluded,
+    executedTradeWinRate: funnel.executedTradeWinRate,
+    executedTradeWins: funnel.executedTradeWins,
+    executedTradeLosses: funnel.executedTradeLosses,
+    executedTradeTotal: funnel.executedTradeTotal,
+    pipelineFunnel: funnel.pipelineFunnel,
     lastSettlementAt,
     dataScope: "agent-lifetime",
     source: {
