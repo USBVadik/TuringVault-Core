@@ -1629,6 +1629,83 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782527158374_834",
+      "decisionId": 834,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1582.77,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei03814a988f23bad0948e8852405f7f00839fe14a00342710695c",
+      "recordedAt": "2026-06-27T02:25:58.374Z",
+      "settleAfter": "2026-06-27T03:25:58.374Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782527158359
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but technicals show BUY (RSI 54.9 rising, bullish EMA cross, MACD improving) — contradiction acknowledged by Analyst. Portfolio is already 76% stable/FLAT, so inventory rules correctly block repeated risk_off. No CRISIS/TREND_DOWN confirmed. Funding neutral at 0.083%. Smart money",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not fully weighted against bullish technicals",
+        "Extreme Fear index 15 warrants caution despite oversold framing",
+        "35% regime confidence is very low — directional action would be unjustified"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xbec735c3fa17a26fb2df17fd215f6d08b848c3003a685b89429d3331b69c88a2",
+      "combinedAnchor": "0x924e89dbb4e8cf98bef69fa6bfab365738a2cf606b96a78f3dc0acc512d2516c",
+      "decisionLogTxHash": "0xa5fcd7ae603a2dd4a06031c5935d0d65ae62c20f3543063edf2019a036613efc",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
