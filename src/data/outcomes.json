@@ -2001,6 +2001,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782541800650_839",
+      "decisionId": 839,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.52,
+      "priceAtDecision": 1576.8,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreid537ded210a31ad095a56c71598b30b7b4715e4399238edee2f0",
+      "recordedAt": "2026-06-27T06:30:00.650Z",
+      "settleAfter": "2026-06-27T07:30:00.650Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782541800633
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 35% channel position (HOLD zone 30-70%) with 50% confidence. RANGING regime (55%) correctly precludes directional swaps. RSI 51.9 is not oversold — analyst correctly blocks counter-trend long. Funding neutral (0.092%), smart money flow neutral ($0.0M). Portfolio is already stable-heavy (76.1%) and FLAT — HOLD is the inventory-rule-compliant action. No h",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD/no-trade proposals",
+        "Yield spread -1% bearish but insufficient alone to trigger risk_off given stable-heavy posture",
+        "MACD histogram weakening — minor caution but not a rejection trigger"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x54e398b5e2d88968ad29c0e2aaa06708bb247c8579bf55ed6b09384d3a4e2455",
+      "combinedAnchor": "0xc3448fffcfb452cb7541d64969fb48a31b2e78b123e86584bf5bd983ab5a623b",
+      "decisionLogTxHash": "0x8b7b7ef14c0d0de1d328d146ed6556461687a5ad08f0133650730779f9507de5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
