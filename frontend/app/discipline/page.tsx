@@ -527,7 +527,14 @@ export default function DisciplinePage() {
         {data && (
           <>
             {/* Summary */}
-            <SummaryCard summary={data.summary} executionGuard={data.executionGuard} />
+            <SummaryCard summary={data.summary} />
+
+            {/* Execution Guard — named, counterfactual capital-preservation
+                panel (caveat visible, not hidden in a tooltip). */}
+            {data.executionGuard &&
+              data.executionGuard.intentNotExecuted > 0 && (
+                <ExecutionGuardPanel guard={data.executionGuard} />
+              )}
 
             {/* Latest with full detail */}
             {data.latest && (
@@ -710,13 +717,56 @@ export default function DisciplinePage() {
   );
 }
 
-function SummaryCard({
-  summary,
-  executionGuard,
-}: {
-  summary: Summary;
-  executionGuard?: ExecutionGuard | null;
-}) {
+function ExecutionGuardPanel({ guard }: { guard: ExecutionGuard }) {
+  return (
+    <div
+      className={styles.explainerNote}
+      style={{ marginBottom: 28, padding: 16 }}
+    >
+      <div className={styles.eyebrow} style={{ marginBottom: 12 }}>
+        <span style={{ color: "rgba(52, 211, 153, 0.92)", fontWeight: 700 }}>
+          Execution Guard
+        </span>
+        <span>counterfactual · execution-layer · not realized PnL</span>
+      </div>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 13,
+          lineHeight: 1.7,
+          color: "rgba(203, 213, 225, 0.78)",
+        }}
+      >
+        <strong
+          style={{
+            color: "rgba(52, 211, 153, 0.92)",
+            fontFamily: "var(--font-jetbrains-mono), monospace",
+          }}
+        >
+          {guard.wouldBeLossAvoided.count} would-be-loss trades avoided
+        </strong>{" "}
+        — of {guard.intentNotExecuted} consensus-approved swaps that failed the
+        route preflight and never took a position,{" "}
+        {guard.wouldBeLossAvoided.count} would have moved against us (~+
+        {guard.wouldBeLossAvoided.scoreBps} would-be bps) and{" "}
+        {guard.wouldBeGainMissed.count} would have moved in our favour (~
+        {guard.wouldBeGainMissed.scoreBps} would-be bps). Net{" "}
+        <strong style={{ color: "rgba(52, 211, 153, 0.92)" }}>
+          ~+{guard.netScoreBpsAvoided} would-be score-bps
+        </strong>{" "}
+        preserved.
+      </p>
+      <p>
+        These are <strong>would-be outcome-score bps</strong> for trades that
+        never executed — NOT realized PnL, not dollars. This is the
+        capital-preservation effect of the execution layer; it did{" "}
+        <strong>not</strong> change the realized Outcome Score or Win Rate.
+      </p>
+    </div>
+  );
+}
+
+function SummaryCard({ summary }: { summary: Summary }) {
   return (
     <div className={styles.summaryGrid}>
       <Tile label="Cycles tracked" value={String(summary.totalEntries)} />
@@ -732,20 +782,6 @@ function SummaryCard({
         tone={summary.executedSwapCount > 0 ? "emerald" : "muted"}
         tooltip="Cycles with EXECUTED_SWAP or HEARTBEAT_SWAP tier, enriched from outcomes.json."
       />
-      {executionGuard && executionGuard.intentNotExecuted > 0 && (
-        <Tile
-          label="Would-be losses avoided"
-          value={`${executionGuard.wouldBeLossAvoided.count} / ${executionGuard.intentNotExecuted}`}
-          tone={executionGuard.netScoreBpsAvoided > 0 ? "emerald" : "muted"}
-          tooltip={
-            `Counterfactual · execution-layer (would-be outcome-score bps, NOT realized PnL / not dollars). ` +
-            `${executionGuard.intentNotExecuted} consensus-approved swaps failed the route preflight and never took a position. ` +
-            `${executionGuard.wouldBeLossAvoided.count} would have moved against us (~+${executionGuard.wouldBeLossAvoided.scoreBps} would-be bps avoided); ` +
-            `${executionGuard.wouldBeGainMissed.count} would have moved in our favour (~${executionGuard.wouldBeGainMissed.scoreBps} would-be bps missed). ` +
-            `Net ~+${executionGuard.netScoreBpsAvoided} would-be score-bps preserved. This did NOT change the realized Outcome Score or win rate.`
-          }
-        />
-      )}
       <Tile
         label="Post-check passed"
         value={String(summary.acceptedCount)}
