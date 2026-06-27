@@ -3659,6 +3659,81 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782586545159_852",
+      "decisionId": 852,
+      "action": "swap",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 0.441111,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei5d74bb5516d4330f8f2539743e0709fcfe52ed20ba4c51d5e1e8",
+      "recordedAt": "2026-06-27T18:55:45.159Z",
+      "settleAfter": "2026-06-27T19:55:45.159Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782586545142
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst correctly identifies EXIT_RANGING/TREND_UP breakout on MNT grid (70% confidence) and contrarian F&G=15 tailwind. However, R:R was not provided — mandatory rejection trigger. Signal consensus remains BEARISH, MACD weakening, yield spread -1% BEARISH, and smart money flow NEUTRAL. Breakout lacks volume confirmation (24h vol only $34.4k on mETH). Multiple bearish signals unresolved. Regime is",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory rejection trigger",
+        "Signal consensus BEARISH contradicts proposed bullish directional swap",
+        "Yield spread -1% BEARISH unacknowledged as contradicting signal",
+        "Breakout volume unconfirmed — MNT 24h volume extremely thin",
+        "RANGING regime at 55% confidence not yet superseded by TREND_UP confirmation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8f71a683f4748dd183568947684fc42715163a1b98d96f35a3dafbccaacd8202",
+      "combinedAnchor": "0x3d17674c4a3e643dc6ee99ce2cc10955b0ba67e63c067800d50b6253344200cc",
+      "decisionLogTxHash": "0xaff30df2c77bcf477202216c3a38c7b647b13eac84ca851ae80695dea3f7bd06",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
