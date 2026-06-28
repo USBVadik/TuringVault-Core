@@ -191,6 +191,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782651615645_869",
+      "decisionId": 869,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 0.425375,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkreib50812dce34031c0925278711bdb6dd39973878e34b100df8467",
+      "recordedAt": "2026-06-28T13:00:15.645Z",
+      "settleAfter": "2026-06-28T14:00:15.645Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782651615628
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-supported. Portfolio is 73.8% stable/FLAT — inventory rule explicitly favors HOLD over repeated risk_off. ETH grid at 59% channel (HOLD zone 30-70%, 50% confidence) gives no entry edge. MNT shows confirmed DOWN breakout (EXIT_RANGING, 80% confidence, TREND_DOWN hint) — no new MNT exposure warranted. Smart money NEUTRAL ($0.0M outflow), funding balanced (0.039%), RSI 54 no",
+      "validatorFlaggedIssues": [
+        "Analyst incorrectly states ETH near lower Bollinger band — price is at 70% band position, not lower band",
+        "MNT TREND_DOWN confirmed but no action proposed — acceptable given stable-heavy posture and no MNT grid buy signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xa986b3f534cca8345a1c86fd7f1769abf31f5f3aef318192c2c442b5178ce6c2",
+      "combinedAnchor": "0xad24f39c443197331140e821112f25aae517226b3bcee654a646ab5e16c0ea1e",
+      "decisionLogTxHash": "0x61031c250b6a19dab0fdd248b8012c1bf04145a2dd97b3c38c5b073fa08cdfa6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
