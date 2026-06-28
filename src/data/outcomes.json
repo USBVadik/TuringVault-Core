@@ -4904,6 +4904,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1782638520731_866",
+      "decisionId": 866,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.5,
+      "priceAtDecision": 1580.15,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei5430a78fc776d5f6139de7b67e1f65c70b154494159fcd14839c",
+      "recordedAt": "2026-06-28T09:22:00.731Z",
+      "settleAfter": "2026-06-28T10:22:00.731Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782638520722
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. RANGING regime (55%) with both grids at HOLD mid-channel (ETH 58%, MNT 38%) — no actionable edge. Funding neutral at -0.047%, smart money flow flat, portfolio already 76.1% stable. Inventory rule explicitly supports HOLD over repeated risk_off when stable-heavy and FLAT. Analyst correctly identifies no trigger has fired. All raw signals cross-check accurately — no ",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH but no directional trade proposed — correctly handled as HOLD",
+        "EMA cross bearish on ETH acknowledged but insufficient alone for directional action",
+        "F&G=18 extreme fear noted but no confirming breakout signal to act on"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x7770a81aff34b7bdd92ff8b2fb7696bcc8831a8b363db03c974e127b6242d3d9",
+      "combinedAnchor": "0xbb1f2166a4e259ebfce54f02aaed73cb94b53d2c96df83fe0f7dcf899bc17b9d",
+      "decisionLogTxHash": "0x5f1823900bfa435d328bad9eac65e3e46c575165546c3dda85a1a72e203d3e4b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
