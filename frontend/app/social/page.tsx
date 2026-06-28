@@ -90,9 +90,7 @@ export default function SocialPage() {
       const entries = await Promise.all(
         tickers.map(async (sym) => {
           try {
-            const r = await fetch(`/api/elfa-snapshot?symbol=${sym}`, {
-              cache: "no-store",
-            });
+            const r = await fetch(`/api/elfa-snapshot?symbol=${sym}`);
             if (!r.ok) return [sym, null] as const;
             const j = (await r.json()) as Snapshot;
             return [sym, j] as const;

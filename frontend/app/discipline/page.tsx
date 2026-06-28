@@ -276,7 +276,7 @@ export default function DisciplinePage() {
   const [explainerOpen, setExplainerOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/discipline", { cache: "no-store" })
+    fetch("/api/discipline")
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => setData(j))
       .catch(() => setData(null))

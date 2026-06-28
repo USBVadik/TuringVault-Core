@@ -35,7 +35,7 @@ import { mantle } from "viem/chains";
 
 export const dynamic = "force-dynamic";
 // Audit Section 3 weakness #3 — was 0. Performance reads live RPC
-// for wallet balances + CoinGecko for prices. With s-maxage=30 below,
+// for wallet balances + CoinGecko for prices. With s-maxage=300 below,
 // the edge serves the last good payload during transient 502s.
 export const revalidate = 30;
 
@@ -44,7 +44,7 @@ export const revalidate = 30;
  * Reduces RPC + CoinGecko 502 stress on the user-facing surface.
  */
 const SWR_CACHE: HeadersInit = {
-  "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300",
+  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900",
   "X-Cache-Mode": "swr",
 };
 

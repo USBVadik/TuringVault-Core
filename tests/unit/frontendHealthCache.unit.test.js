@@ -12,7 +12,7 @@ describe("frontend /api/health cache policy", () => {
     expect(source).not.toContain('export const fetchCache = "force-no-store";');
     expect(source).not.toContain("export const revalidate = 0;");
     expect(source).toContain("export const revalidate = 30;");
-    expect(source).toContain('"Cache-Control": "public, s-maxage=30, stale-while-revalidate=60"');
+    expect(source).toContain('"Cache-Control": "public, s-maxage=120, stale-while-revalidate=300"');
     expect(source).toContain('"X-Cache-Mode": "swr"');
   });
 

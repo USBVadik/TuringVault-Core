@@ -116,7 +116,7 @@ export async function GET() {
       tokenURI: tokenURI || "",
       evolutions,
     }, {
-      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900" },
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
