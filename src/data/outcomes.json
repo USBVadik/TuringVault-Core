@@ -808,6 +808,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1782681136552_877",
+      "decisionId": 877,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1569.74,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreiedfb1799ebd6b9bad528034774b316e2bdb07a37745f8d1a75fa",
+      "recordedAt": "2026-06-28T21:12:16.552Z",
+      "settleAfter": "2026-06-28T22:12:16.552Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782681136533
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. Portfolio is 74.6% stable/FLAT — no urgent de-risk needed. ETH grid shows EXIT_RANGING with confirmed DOWN breakout and TREND_DOWN hint, legitimately blocking new mETH risk-on. MNT grid BUY signal (2.5:1 R:R, 80% confidence) is real but offset by BEARISH consensus, -2.58% 24h MNT decline, and yield spread bearish. Analyst correctly acknowledges conflict without ",
+      "validatorFlaggedIssues": [
+        "MNT BUY signal (2.5:1 R:R, 80% conf) is being passed — monitor for next cycle entry if ETH breakdown confirms and MNT holds $0.428 support",
+        "ETH breakdown below $1570.9 is marginal (~$0.70) — could be noise given 0.24% intraday vol; watch for retest"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x58ab0730b88de1580d0b19c0f1e78bef5056716abaabda27268eedb5b5e85f14",
+      "combinedAnchor": "0x52f9def528a8e9dba2d353e8a61a5465246ee758c563e22d9ab615320726da02",
+      "decisionLogTxHash": "0x3deff438849db0e48c8482afb49c108611cfe399021671590447f912eed4bf27",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
