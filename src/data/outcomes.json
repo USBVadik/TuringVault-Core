@@ -952,6 +952,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782686666593_879",
+      "decisionId": 879,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1561.81,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreie464575759f730289dacd75b682088e2e52123fed0d8192b7a4b",
+      "recordedAt": "2026-06-28T22:44:26.593Z",
+      "settleAfter": "2026-06-28T23:44:26.593Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782686666577
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. ETH grid shows confirmed EXIT_RANGING with DOWN breakout and TREND_DOWN regime hint at 70% confidence — this overrides the MNT BUY_mETH grid signal (67% confidence, no confirmed down-break on MNT but ETH correlation risk is real). Signal consensus is BEARISH, yield spread -1% BEARISH, smart money NEUTRAL. Portfolio is already 74.7% stable — deploying into a c",
+      "validatorFlaggedIssues": [
+        "MNT grid BUY_mETH signal (R:R 2.5:1) was dismissed — borderline, but ETH TREND_DOWN correlation risk justifies caution",
+        "Analyst confidence 58% is modest but acceptable for a HOLD in ambiguous regime"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x89e552dfe82cfca736ac135c2dfb0728914f71d646867bbe7e290268dac9934b",
+      "combinedAnchor": "0x3e2b8067e6c7416c21b9667224d2185346919cfcb7a9f2ed240674d24a31aa96",
+      "decisionLogTxHash": "0xec44cb0a7a070edabcc2e0ffd91c90741d27e0c0b4c9476cecba86f95653e6f6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
