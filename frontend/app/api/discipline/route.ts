@@ -134,7 +134,7 @@ type Summary = {
  * 502 doesn't break the dashboard.
  */
 const SWR_CACHE: HeadersInit = {
-  "Cache-Control": "public, s-maxage=30, stale-while-revalidate=300",
+  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900",
   "X-Cache-Mode": "swr",
 };
 const KNOWN_GATES = disciplineSummary.KNOWN_GATES;

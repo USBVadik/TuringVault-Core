@@ -76,7 +76,7 @@ export async function GET() {
       progress,
       intentQueue: intents.slice(-5), // last 5 intents
     }, {
-      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900" },
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

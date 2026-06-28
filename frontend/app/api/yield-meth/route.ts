@@ -214,7 +214,7 @@ export async function GET() {
       {
         headers: {
           "Cache-Control":
-            "public, s-maxage=60, stale-while-revalidate=300",
+            "public, s-maxage=300, stale-while-revalidate=900",
           "X-Cache-Mode": "swr-stale-snapshot",
         },
       }
@@ -269,7 +269,7 @@ export async function GET() {
     {
       headers: {
         "Cache-Control":
-          "public, s-maxage=60, stale-while-revalidate=300",
+          "public, s-maxage=300, stale-while-revalidate=900",
         "X-Cache-Mode":
           latest.degraded || isStale ? "swr-stale-snapshot" : "swr",
       },

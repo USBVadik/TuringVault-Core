@@ -219,7 +219,7 @@ export async function GET() {
   // Return cached if fresh
   if (cachedStrategy && Date.now() - cachedStrategy.ts < STRATEGY_CACHE_TTL_MS) {
     return NextResponse.json(cachedStrategy.body, {
-      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900" },
     });
   }
 
@@ -427,7 +427,7 @@ export async function GET() {
 
     cachedStrategy = { body: responseBody, ts: Date.now() };
     return NextResponse.json(responseBody, {
-      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900" },
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

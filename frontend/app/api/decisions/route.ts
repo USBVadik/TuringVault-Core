@@ -71,7 +71,7 @@ const { deriveOutcomeSourceAsset } = require("./sourceAsset.js") as {
 
 export const dynamic = "force-dynamic";
 // Audit Section 3 weakness #3 — was 0, every request hits Mantle RPC.
-// Now 60s ISR with s-maxage=60, stale-while-revalidate=600 below so
+// Now 300s ISR with s-maxage=300, stale-while-revalidate=900 below so
 // a Mantlescan-side or Cloudflare 502 doesn't break /proof-explorer.
 export const revalidate = 60;
 
@@ -441,7 +441,7 @@ export async function GET() {
         // 502 → judge sees broken page).
         headers: {
           "Cache-Control":
-            "public, s-maxage=60, stale-while-revalidate=600",
+            "public, s-maxage=300, stale-while-revalidate=900",
           "X-Cache-Mode": "swr",
         },
       }

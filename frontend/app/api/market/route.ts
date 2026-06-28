@@ -77,7 +77,7 @@ export async function GET() {
         {
           headers: {
             "Cache-Control":
-              "public, s-maxage=60, stale-while-revalidate=600",
+              "public, s-maxage=300, stale-while-revalidate=900",
             "X-Cache-Mode": "swr-stale-snapshot",
           },
         }
@@ -109,7 +109,7 @@ export async function GET() {
     return NextResponse.json(body, {
       headers: {
         "Cache-Control":
-          "public, s-maxage=60, stale-while-revalidate=600",
+          "public, s-maxage=300, stale-while-revalidate=900",
         "X-Cache-Mode": "swr",
       },
     });
@@ -127,7 +127,7 @@ export async function GET() {
         {
           headers: {
             "Cache-Control":
-              "public, s-maxage=60, stale-while-revalidate=600",
+              "public, s-maxage=300, stale-while-revalidate=900",
             "X-Cache-Mode": "swr-stale-snapshot",
           },
         }

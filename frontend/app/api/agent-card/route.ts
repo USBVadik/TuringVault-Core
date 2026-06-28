@@ -36,7 +36,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const CACHE_HEADERS: HeadersInit = {
-  "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900",
 };
 
 // ── In-memory cache (60s TTL) ──────────────────────────────────
