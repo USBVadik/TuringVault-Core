@@ -2638,6 +2638,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782755052506_898",
+      "decisionId": 898,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1624.32,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreif1c848da19ee355afee94c5ea5b92cc17622dc7c7e4f1b42ea5e",
+      "recordedAt": "2026-06-29T17:44:12.506Z",
+      "settleAfter": "2026-06-29T18:44:12.506Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782755052488
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but contradicted by EMA/MACD bullish crossovers and Fear&Greed extreme fear (contrarian). RSI 73.8 overbought + Bollinger at 145% band extension confirm caution. Portfolio is already 76.3% stable — no risk_off trigger needed per inventory rule. Analyst correctly identifies confli",
+      "validatorFlaggedIssues": [
+        "RSI 73.8 overbought with Bollinger at 145% suggests near-term pullback risk",
+        "Yield spread -1% bearish signal not prominently weighted in reasoning",
+        "Regime confidence 35% is below any actionable threshold — HOLD is correct default"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x5d8e638240934e9a6a61a2e959612c98c54aae5a62016005331fb3e7b98b041c",
+      "combinedAnchor": "0x8b414cbab1b6612ed150ac90c5f08c6b80162a8e3bcd9139473ea36fe061ec9c",
+      "decisionLogTxHash": "0x728e996291355a52b9cbf06bef285b84820b29f0f9d4f75647b64232ee13a577",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
