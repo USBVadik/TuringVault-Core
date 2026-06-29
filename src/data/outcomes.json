@@ -3090,6 +3090,101 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1782776229136_904",
+      "decisionId": 904,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1608.05,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei1deace30f2c87a25335d11021c9f0ddf9f96aa8f9e52468f91f0",
+      "recordedAt": "2026-06-29T23:37:09.136Z",
+      "settleAfter": "2026-06-30T00:37:09.136Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782776229118
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction — no actionable directional edge exists. Portfolio is already 80.1% stable, making further risk-off redundant. Analyst correctly identifies F&G=12 contrarian potential but appropriately withholds action given neutral funding (0.409%), flat smart money flow ($0.0M), and unconfirmed breakout d",
+      "validatorFlaggedIssues": [
+        "Volatility expanding on both grids — false breakout risk elevated",
+        "Yield spread -1% bearish but insufficient alone to trigger risk-off given stable-heavy posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no actionable lower-band or grid edge",
+        "inspectedSignals": [
+          {
+            "asset": "ethereum",
+            "action": "EXIT_RANGING",
+            "confidence": 0.65,
+            "breakoutDirection": "UNKNOWN",
+            "regimeHint": "HOLD",
+            "channelPosition": 0.85,
+            "support": 1567.7,
+            "resistance": 1616.8,
+            "currentPrice": 1609.6
+          },
+          {
+            "asset": "mantle",
+            "action": "EXIT_RANGING",
+            "confidence": 0.65,
+            "breakoutDirection": "UNKNOWN",
+            "regimeHint": "HOLD",
+            "channelPosition": 0.33,
+            "support": 0.42,
+            "resistance": 0.44,
+            "currentPrice": 0.4276
+          }
+        ]
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xfe4a92054e36bebb887fd34451fd423fd635d0eb15de850ef48120864c799aac",
+      "combinedAnchor": "0x40e885e49b969b7b86d4bcb5890ad1bba1e18b8046401935940789bfa3757f1c",
+      "decisionLogTxHash": "0x1bb6fdc9be54d9a9bf24d2ad158510c4571fc0875bdaa75462952c937eadf5a5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
