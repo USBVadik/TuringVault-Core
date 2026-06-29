@@ -2792,6 +2792,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782761778248_900",
+      "decisionId": 900,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1620.65,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei58e0fa34aea0357ffe86aa88d067e4aff2e4a582cb07b7b46d17",
+      "recordedAt": "2026-06-29T19:36:18.248Z",
+      "settleAfter": "2026-06-29T20:36:18.248Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782761778230
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal with 35% confidence regime is appropriate. Portfolio is already 76.3% stable-heavy and FLAT — inventory rule explicitly supports HOLD over repeated risk_off. Analyst correctly identifies mixed signals: RSI 69.6 near overbought conflicts with F&G=12 extreme fear; MACD/EMA bullish but Bollinger overbought. Bearish consensus + negative yield spread (-1%) justify caution. No directional ",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD action exempts this requirement",
+        "Analyst notes funding at 0.437% annualized — raw data shows 0.437% per-period, not annualized; minor misread but immaterial to HOLD conclusion",
+        "Signal consensus BEARISH not explicitly acknowledged as primary driver"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x08dbf4074ccc3ecf95628baa19f8993405e49675a6eb54b6eecee5151d4bedd8",
+      "combinedAnchor": "0x7d508da69705d9110546d613d4a9a48effb7305a14f90063d23240e8f95e533d",
+      "decisionLogTxHash": "0x89cb84c38adca05cea89a34aa7bf0650f6a35aa07f81362df4af3cf225b0d82c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
