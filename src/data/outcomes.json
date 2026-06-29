@@ -2209,6 +2209,125 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1782740270775_894",
+      "decisionId": 894,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": true,
+      "confidence": 0.62,
+      "priceAtDecision": 0.425336,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "bafkrei5561b5171d2b572bb5c4128d6484d2c49c7da1758ccb5376395a",
+      "recordedAt": "2026-06-29T13:37:50.775Z",
+      "settleAfter": "2026-06-29T14:37:50.775Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782740270757
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "MNT grid signal BUY_mETH at 5% channel position with R:R=2.5:1 meets the 1.5:1 threshold. RANGING regime with grid confirmation satisfies the directional swap gate. F&G=12 supports contrarian bias. Analyst correctly cites 2.5:1 R:R, neutral funding, and intact channel. Risk factors acknowledged: falling RSI 44.3, weak MACD, neutral flow. Portfolio is stable-heavy (79.6%) so 15% allocation is withi",
+      "validatorFlaggedIssues": [
+        "MNT RSI 44.3 falling and MACD weakening — bearish technicals partially contradict grid buy",
+        "Signal consensus is BEARISH — grid confirmation present but broader consensus opposes trade",
+        "Smart money flow NEUTRAL with $0.0M — no institutional confirmation",
+        "Analyst did not explicitly state stop-loss level ($0.42) in reasoning block"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($86.02)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 86.023154,
+          "tradableRiskUsd": 22.079732128135852,
+          "nativeMnt": 12.494939441290999,
+          "stableShare": 0.7957526119888748,
+          "riskShare": 0.20424738801112524,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 11.712926099999999,
+        "reason": "preflight-failed: leg2 USDT->WMNT not viable",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "amountIn": 11.712926099999999,
+            "estimatedOut": 11.714096,
+            "priceImpactBps": 0,
+            "pairAddress": "0xfc9D88653E2988B0e6525f1F521c974a25c88566",
+            "binStep": 1,
+            "depthFraction": 0.000004
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "amountIn": 11.714096,
+            "estimatedOut": 22.186676959452,
+            "priceImpactBps": 1842.18,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 1.934465
+          }
+        ]
+      },
+      "manifestHash": "0xb6d206dcd3a05b7fe1e64a5ac051ad8e8b6499184104255f965b525dc542094c",
+      "combinedAnchor": "0x5d36e4d348e6cc46c6f93e219533a455acde6c4f352829692bfdda992a7436da",
+      "decisionLogTxHash": "0xbdd49c548b07a20fa168e464a064acc515b9c2c36c2c84d84b722dc58f64312e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
