@@ -1,24 +1,36 @@
 {
-  "cycleStartedAt": "2026-06-29T21:02:27.307Z",
-  "cycleEndedAt": "2026-06-29T21:03:51.342Z",
-  "durationSeconds": 84.03,
+  "cycleStartedAt": "2026-06-29T21:27:31.003Z",
+  "cycleEndedAt": "2026-06-29T21:28:49.163Z",
+  "durationSeconds": 78.16,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 13044,
-    "validatorMs": 10744,
+    "analystMs": 11010,
+    "validatorMs": 6693,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 901,
-  "decisionTier": "INTENT_SWAP_NO_EXEC",
-  "consensus": true,
-  "txHashes": [],
+  "decisionId": 902,
+  "decisionTier": "BLOCKED_BY_REGIME",
+  "consensus": false,
+  "txHashes": [
+    "0xf12d482b52f3cd6edd39bef391ddf869257745702b1d163819888ee9c1d1c552"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28402448381",
-  "errors": [],
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28403791021",
+  "errors": [
+    "outcome-not-persisted: cycle 902 missing from src/data/outcomes.json after Step 6"
+  ],
+  "rwa": {
+    "source": "conservative",
+    "executed": true,
+    "amountInUsd": 2.1912375,
+    "from": "USDT",
+    "to": "USDT0",
+    "blockedReason": null
+  },
   "gridTradeCandidate": {
     "active": false,
     "kind": null,
@@ -31,16 +43,5 @@
     "reason": "no actionable lower-band or grid edge",
     "routeHint": null
   },
-  "directionalSwap": {
-    "executed": false,
-    "direction": "risk-on",
-    "from": "USDT0",
-    "to": "mETH",
-    "amountIn": 15,
-    "amountOut": null,
-    "reason": "preflight-failed: leg2 USDT->WMNT not viable",
-    "error": null,
-    "legs": null
-  },
-  "executionStatus": "INTENT_ONLY"
+  "executionStatus": "EXECUTED"
 }
