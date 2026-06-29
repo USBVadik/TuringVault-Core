@@ -2869,6 +2869,149 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1782767028334_901",
+      "decisionId": 901,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": true,
+      "confidence": 0.62,
+      "priceAtDecision": 1615.6,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "bafkrei3ea29fa891e141e351621caeec242a3b11163497c3330cf5ba08",
+      "recordedAt": "2026-06-29T21:03:48.334Z",
+      "settleAfter": "2026-06-29T22:03:48.334Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782767028318
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid EXIT_RANGING with UP breakout and TREND_UP regime hint provides directional confirmation, satisfying the grid-confirmation gate for a ranging regime swap. Portfolio is 80% stable/FLAT — inventory rule supports risk_on over repeated risk_off. F&G=12 contrarian tailwind is a secondary confirming signal. EMA bullish (9>21), MACD positive histogram. R:R is marginal but breakout above $1616.8 ",
+      "validatorFlaggedIssues": [
+        "Breakout margin <$1 above resistance — high false-breakout probability",
+        "RSI 65.1 falling + Bollinger at 92% band = SELL signals contradict breakout",
+        "Funding rate neutral — no derivatives confirmation of directional momentum",
+        "Signal consensus BEARISH conflicts with TREND_UP regime hint — unresolved contradiction",
+        "Yield spread -1% bearish on mETH reduces carry justification"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($86.85)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 86.851124,
+          "tradableRiskUsd": 21.691638682371543,
+          "nativeMnt": 32.7246148987174,
+          "stableShare": 0.8001558266408997,
+          "riskShare": 0.19984417335910032,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no actionable lower-band or grid edge",
+        "inspectedSignals": [
+          {
+            "asset": "ethereum",
+            "action": "EXIT_RANGING",
+            "confidence": 0.7,
+            "breakoutDirection": "UP",
+            "regimeHint": "TREND_UP",
+            "channelPosition": 1,
+            "support": 1567.7,
+            "resistance": 1616.8,
+            "currentPrice": 1617.3
+          },
+          {
+            "asset": "mantle",
+            "action": "EXIT_RANGING",
+            "confidence": 0.65,
+            "breakoutDirection": "UNKNOWN",
+            "regimeHint": "HOLD",
+            "channelPosition": 0.39,
+            "support": 0.42,
+            "resistance": 0.44,
+            "currentPrice": 0.42856
+          }
+        ]
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "mETH",
+        "amountIn": 15,
+        "reason": "preflight-failed: leg2 USDT->WMNT not viable",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "amountIn": 15,
+            "estimatedOut": 15.001499,
+            "priceImpactBps": 0,
+            "pairAddress": "0xfc9D88653E2988B0e6525f1F521c974a25c88566",
+            "binStep": 1,
+            "depthFraction": 0.000006
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "amountIn": 15.001499,
+            "estimatedOut": 28.269328604837842,
+            "priceImpactBps": 1882.79,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 2.477346
+          }
+        ]
+      },
+      "manifestHash": "0x62a47b928f17d7ebda8563d2d7e1d08c435ad05d81d8b3ce405152534e266b92",
+      "combinedAnchor": "0xd333dff5e7f9cf339c52a4f3a5844905b9b02d8f13bbfed20f1a17bedcebe8a2",
+      "decisionLogTxHash": "0x9f1c766feb1b9e829dcdbb035300fac7bb253d00bdba99b6711c04673e0f526d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
