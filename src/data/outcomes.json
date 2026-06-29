@@ -3012,6 +3012,84 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782772451748_903",
+      "decisionId": 903,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1614.91,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreiffe4a8e75e867e87cc97655d2ecb0b047f4f9dc4b3efd14b4f47",
+      "recordedAt": "2026-06-29T22:34:11.748Z",
+      "settleAfter": "2026-06-29T23:34:11.748Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782772451730
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus BEARISH but portfolio is already 80% stable — inventory rules explicitly block further risk_off. RSI 63.8 is not oversold (Analyst correctly notes this). Funding neutral at 0.443%. Smart money flow flat. No grid active. HOLD preserves capital appropriately. Analyst reasoning aligns with raw",
+      "validatorFlaggedIssues": [
+        "Regime confidence only 35% — no actionable edge in either direction",
+        "Signal consensus BEARISH but no catalyst to act on",
+        "RSI 63.8 elevated, not oversold — no contrarian long trigger",
+        "Extreme Fear 12 noted but not sufficient alone for contrarian entry without flow/funding confirmation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6b12b454f9527332666be3a204ba91f1e08d85e980dbfd6850d1618886d2a61a",
+      "combinedAnchor": "0xe91a9c962af884d980cb8d390322ab29a99b90e8817d91118d016deb72e5bbd0",
+      "decisionLogTxHash": "0xe5897f8bc4dc2fe6a1f06c7761b576e84aaa408798e6cb5243128520e5b1fad2",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
