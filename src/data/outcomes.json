@@ -1098,6 +1098,106 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782694504535_881",
+      "decisionId": 881,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": true,
+      "confidence": 0.6,
+      "priceAtDecision": 0.425402,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei3accf180d76ed875ae4e8168dd3e4065cf4d3ca5809499cc8cc0",
+      "recordedAt": "2026-06-29T00:55:04.535Z",
+      "settleAfter": "2026-06-29T01:55:04.535Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782694504513
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "MNT grid BUY signal at 5% of channel with explicit R:R=2.5:1 (target $0.44, stop $0.42) meets the 1.5:1 threshold. RANGING regime with grid confirmation satisfies the directional swap gate. 15% allocation on a 74.7% stable-heavy portfolio is conservative and within the 40% cap. Analyst correctly identifies PRIMARY EDGE on MNT. ETH EXIT_RANGING DOWN breakout is a drag risk but MNT grid channel inte",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH conflicts with BUY action — acknowledged but warrants caution",
+        "ETH TREND_DOWN regime hint may drag MNT below $0.42 stop",
+        "MNT 24h -2.68% shows active selling pressure at entry zone",
+        "Analyst confidence 60% is low — only 1 strong confirming signal (grid R:R)"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($80.66)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 80.662912,
+          "tradableRiskUsd": 27.325773732305066,
+          "nativeMnt": 13.403048181915999,
+          "stableShare": 0.7469570673353375,
+          "riskShare": 0.25304293266466243,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-on",
+        "reason": "smart-router-infeasible: risk-on infeasible: USDT0=0.00 USDT=0.00 both below floors",
+        "balancesSnapshot": {
+          "MNT": 13.336306352240134,
+          "WMNT": 0,
+          "USDT0": 0,
+          "USDT": 0,
+          "mETH": 0,
+          "WETH": 0
+        }
+      },
+      "manifestHash": "0x3d93a10ecceaa62a30ea40b06d02130536aa967ac1a48b307c05d6dd09c59991",
+      "combinedAnchor": "0x7ba78d76deae151fff287929d56cd195744559f5b08b790828c60da9cb452f97",
+      "decisionLogTxHash": "0x1d710d5d9082f343b9a68566ce2c1c1af3ca45c60cc4ead4d842beb58556026d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
