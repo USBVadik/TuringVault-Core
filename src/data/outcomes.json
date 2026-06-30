@@ -2143,6 +2143,161 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782862065532_928",
+      "decisionId": 928,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": true,
+      "confidence": 0.64,
+      "priceAtDecision": 0.409848,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "bafkreiea9641019994c55f4da4f62842e04a085f6274df0a3213111b6f",
+      "recordedAt": "2026-06-30T23:27:45.532Z",
+      "settleAfter": "2026-07-01T00:27:45.532Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782862065515
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "MNT price at 0% of channel ($0.41003 vs $0.41 support) with INTACT channel integrity and no confirmed down-break. R:R 9.84:1 far exceeds 1.5 threshold. Portfolio is stable-heavy/FLAT (82.1% stable), so inventory rule supports risk_on over repeated risk_off. 12% allocation is conservative and below 40% cap. BEARISH consensus and EXIT_RANGING grid are acknowledged risk factors. Breakout direction UN",
+      "validatorFlaggedIssues": [
+        "BEARISH signal consensus conflicts with buy direction — acknowledged but not fully resolved",
+        "EXIT_RANGING grid signal means grid logic is suspended; trade relies on lower-band mean-reversion logic only",
+        "MNT 24h down -4.02% with trend_forming=true could indicate nascent breakdown",
+        "Regime confidence only 55% — low conviction environment",
+        "Yield spread -1% bearish adds mild headwind"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($88.55)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 88.547108,
+          "tradableRiskUsd": 19.28227520787135,
+          "nativeMnt": 30.537867805922925,
+          "stableShare": 0.8211779142731498,
+          "riskShare": 0.17882208572685018,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "stable-heavy-lower-band-reentry",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "MNT",
+        "sourceAsset": "USDT0",
+        "allocationPct": 12,
+        "confidence": 0.64,
+        "reasoning": "MANTLE lower-band re-entry: price is at 0% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe. Risk plan: entry 0.41003, stop 0.408, take-profit 0.43, R:R 9.84:1.",
+        "riskFactors": [
+          "Confirmed downward breakout invalidates mean reversion",
+          "Keep size small because consensus may still be bearish"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT"
+        ],
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.65,
+          "breakoutDirection": "UNKNOWN",
+          "regimeHint": "HOLD",
+          "channelPosition": 0,
+          "support": 0.41,
+          "resistance": 0.43,
+          "currentPrice": 0.41003
+        },
+        "riskReward": {
+          "entry": 0.41003,
+          "stopLoss": 0.408,
+          "takeProfit": 0.43,
+          "ratio": 9.84,
+          "riskPct": 0.5,
+          "rewardPct": 4.87
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "WMNT",
+        "amountIn": 10.5,
+        "reason": "preflight-failed: leg2 USDT->WMNT not viable",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "amountIn": 10.5,
+            "estimatedOut": 10.501049,
+            "priceImpactBps": 0,
+            "pairAddress": "0xfc9D88653E2988B0e6525f1F521c974a25c88566",
+            "binStep": 1,
+            "depthFraction": 0.000004
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "amountIn": 10.501049,
+            "estimatedOut": 19.96495431412579,
+            "priceImpactBps": 1920.02,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 1.748918
+          }
+        ]
+      },
+      "manifestHash": "0xe84af474183bacc38752cfeb0108ce3e91dfe46973905708683207a36b959a12",
+      "combinedAnchor": "0x01866cda04d9a8486e36672852e739068e98fdd18b8b29036d3bc3d5908bc459",
+      "decisionLogTxHash": "0x807d50a35bcb5c06ad98460fb107dde3f8434ab982e1425d4f02444133f08656",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
