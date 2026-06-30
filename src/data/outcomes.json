@@ -1555,6 +1555,83 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782842425735_922",
+      "decisionId": 922,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1568.84,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei47bac93b0be09240f61e50fc8a5d299eb9f998195f071c3f6294",
+      "recordedAt": "2026-06-30T18:00:25.735Z",
+      "settleAfter": "2026-06-30T19:00:25.735Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782842425718
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. Portfolio is already 81.7% stable-heavy with only $19.77 risk exposure. TREND_DOWN at 60% confidence is confirmed by bearish EMA cross, MACD sell, falling RSI 42.6, and negative yield spread. Inventory rule explicitly supports HOLD over repeated risk_off when stable-heavy and FLAT without CRISIS confirmation. No hallucinated data detected. Analyst correctly n",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional edge — acceptable",
+        "TREND_DOWN confidence only 60% — not full conviction",
+        "Small residual risk ($19.77) faces continued drawdown risk if ETH breaks $1490"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no inventory-aware lower-band edge",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "no inventory-aware lower-band edge"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xcd430704b658efb95a7de32a9befa4fc93d7b2f3d6865f426445700add9517aa",
+      "combinedAnchor": "0x46ef7a9616b2ce1d819be65dd566fbf94e680811e5417718827c40602af60299",
+      "decisionLogTxHash": "0x0b983cf07e13d0a157f361de4ff97af4d3c75035d1c84aef02a57f4d7c7185b0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
