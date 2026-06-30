@@ -21,12 +21,12 @@ export const metadata: Metadata = {
   title: "TuringVault — Proof-of-Reasoning Trust Firewall",
   description:
     "Autonomous AI agents make verifiable on-chain RWA decisions via Proof-of-Reasoning — three-model adversarial consensus (GLM-5 + Claude 4.6 + Gemini 3.5) on Mantle Mainnet, fully auditable.",
-  metadataBase: new URL("https://frontend-seven-beta-46.vercel.app"),
+  metadataBase: new URL("https://turingvault.dev"),
   openGraph: {
     title: "TuringVault — Proof-of-Reasoning Trust Firewall",
     description:
       "Autonomous AI agents make verifiable on-chain RWA decisions via Proof-of-Reasoning — three-model adversarial consensus on Mantle Mainnet, fully auditable.",
-    url: "https://frontend-seven-beta-46.vercel.app",
+    url: "https://turingvault.dev",
     siteName: "TuringVault",
     type: "website",
     images: [
