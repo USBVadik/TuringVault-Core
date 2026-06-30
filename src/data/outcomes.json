@@ -1241,6 +1241,163 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782835003061_920",
+      "decisionId": 920,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": true,
+      "confidence": 0.64,
+      "priceAtDecision": 1566.94,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "bafkreidfc4752d504451783b24858f429c4653f078f6eac89a7e4a3c0e",
+      "recordedAt": "2026-06-30T15:56:43.061Z",
+      "settleAfter": "2026-06-30T16:56:43.061Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782835003043
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid price at 10% of channel ($1568.8 vs support $1563.7) with no confirmed down-break; breakoutDirection=UNKNOWN and regimeHint=HOLD. R:R 4.61:1 clears the 1.5:1 threshold. Portfolio is stable-heavy/FLAT at 81.7% stable — inventory rule supports risk_on deployment. F&G=15 provides contrarian long bias. 12% allocation is well below 40% cap. MNT breakdown noted but ETH channel integrity is INTA",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH (-0.25) with EMA cross in SELL mode — headwind",
+        "MNT ecosystem breakdown may signal broader Mantle weakness",
+        "Yield spread -1% reduces mETH carry incentive",
+        "ETH grid EXIT_RANGING with trend forming — channel may not hold",
+        "Route USDT0->USDT->WMNT->WETH->mETH is multi-hop; slippage risk elevated given $61.3k mETH 24h volume"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($88.14)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 88.140884,
+          "tradableRiskUsd": 19.795965938433383,
+          "nativeMnt": 31.06776935570711,
+          "stableShare": 0.8165967790451093,
+          "riskShare": 0.18340322095489076,
+          "stableHeavy": true
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "stable-heavy-lower-band-reentry",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_on",
+        "targetAsset": "mETH",
+        "sourceAsset": "USDT0",
+        "allocationPct": 12,
+        "confidence": 0.64,
+        "reasoning": "ETHEREUM lower-band re-entry: price is at 10% of channel while wallet is stable-heavy and FLAT; no confirmed down-break, so validate a small buy-low probe. Risk plan: entry 1568.8, stop 1558.39, take-profit 1616.8, R:R 4.61:1.",
+        "riskFactors": [
+          "Confirmed downward breakout invalidates mean reversion",
+          "Keep size small because consensus may still be bearish"
+        ],
+        "routeHint": [
+          "USDT0",
+          "USDT",
+          "WMNT",
+          "WETH",
+          "mETH"
+        ],
+        "gridSignal": {
+          "action": "EXIT_RANGING",
+          "confidence": 0.65,
+          "breakoutDirection": "UNKNOWN",
+          "regimeHint": "HOLD",
+          "channelPosition": 0.1,
+          "support": 1563.7,
+          "resistance": 1616.8,
+          "currentPrice": 1568.8
+        },
+        "riskReward": {
+          "entry": 1568.8,
+          "stopLoss": 1558.39,
+          "takeProfit": 1616.8,
+          "ratio": 4.61,
+          "riskPct": 0.66,
+          "rewardPct": 3.06
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "mETH",
+        "amountIn": 10.5,
+        "reason": "preflight-failed: leg2 USDT->WMNT not viable",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "USDT",
+            "amountIn": 10.5,
+            "estimatedOut": 10.501049,
+            "priceImpactBps": 0,
+            "pairAddress": "0xfc9D88653E2988B0e6525f1F521c974a25c88566",
+            "binStep": 1,
+            "depthFraction": 0.000004
+          },
+          {
+            "leg": 2,
+            "from": "USDT",
+            "to": "WMNT",
+            "amountIn": 10.501049,
+            "estimatedOut": 19.96495431412579,
+            "priceImpactBps": 1920.02,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 1.748918
+          }
+        ]
+      },
+      "manifestHash": "0x1168cc975e0081eec878a0d1ab7008ce87914dfd2097db2be046ae8ec5c2f96b",
+      "combinedAnchor": "0x99660d65e2f2cfec6d0f196d89efa6a98ea40827436c678d0a9814f91934e92c",
+      "decisionLogTxHash": "0xb98d282c976974ed55f3e9350dbe57ca989d50c5ec787546d2d5bcf66b44dd8f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
