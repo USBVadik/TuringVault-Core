@@ -1,3 +1,17 @@
+/**
+ * @deprecated LEGACY — NOT the production pipeline.
+ *
+ * This is an early single-model decision skeleton. The live multi-agent system
+ * is src/orchestrator/multiAgent.js (entrypoint: scripts/run-cycle.js ->
+ * src/orchestrator/multiAgentLoop.js -> getMultiAgentDecision). The real model
+ * roster is multiAgent.js `MODELS` — Analyst is Z.ai GLM-5 (`zai.glm-5`),
+ * Validator is Claude Sonnet 4.6, Arbiter is Gemini 3.5 Flash.
+ *
+ * The MODEL_ID below applies ONLY to this dead file, which is referenced solely
+ * by the legacy entrypoints fullLoop.js / main.js / test.live.js. Do NOT use it
+ * to reason about which model the agent actually runs. Kept for historical
+ * reference; safe to delete once those entrypoints are removed.
+ */
 require("dotenv").config();
 const {
   BedrockRuntimeClient,

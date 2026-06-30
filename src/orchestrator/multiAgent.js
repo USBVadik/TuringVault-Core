@@ -1,21 +1,35 @@
 /**
  * TuringVault Multi-Agent AI Engine
  *
- * TWO independent AI agents with different roles:
+ * THREE independent AI models with different roles (heterogeneous consensus).
+ * The model IDs live in the `MODELS` map further down and are the single
+ * source of truth — do NOT infer them from comments or from the deprecated
+ * aiEngine.js skeleton:
  *
- * 1. ANALYST AGENT (Claude Sonnet 4.6)
+ * 1. ANALYST AGENT (Z.ai GLM-5 via AWS Bedrock — `zai.glm-5`)
  *    - Analyzes market data
  *    - Proposes trading decisions
  *    - Optimistic by nature (seeks alpha)
  *
- * 2. VALIDATOR AGENT (Claude Sonnet 4.6, different system prompt)
+ * 2. VALIDATOR AGENT (Anthropic Claude Sonnet 4.6 via AWS Bedrock)
  *    - Receives the Analyst's proposal + same market data
  *    - Independently verifies reasoning
  *    - Checks for hallucinations, flawed logic, excessive risk
  *    - Conservative by nature (protects capital)
  *
- * CONSENSUS: Both must agree before execution.
+ * 3. ARBITER AGENT (Google Gemini 3.5 Flash via Vertex AI)
+ *    - Tiebreaker, invoked only on a soft Analyst/Validator disagreement
+ *
+ * Using a DIFFERENT model for the Analyst vs the Validator is deliberate: it
+ * avoids a single-model echo chamber and is what makes the validation
+ * genuinely adversarial.
+ *
+ * CONSENSUS: validator-gated agreement is required before execution.
  * This solves the "single LLM hallucination" problem.
+ *
+ * NOTE: src/orchestrator/aiEngine.js is a DEPRECATED single-model skeleton and
+ * is NOT part of this production pipeline
+ * (scripts/run-cycle.js -> multiAgentLoop.js -> getMultiAgentDecision here).
  */
 require("dotenv").config();
 const fs = require("fs");
@@ -1192,6 +1206,7 @@ Reply with ONLY valid JSON: {"vote": "approve" or "reject", "reasoning": "your 1
 
 module.exports = {
   getMultiAgentDecision,
+  MODELS,
   callAgent,
   normalizeAnalystResponse,
   normalizeValidatorResponse,
