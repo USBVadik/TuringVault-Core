@@ -36,7 +36,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          aria-label="TuringVault.ai proof registry"
+          aria-label="TuringVault.dev proof registry"
           className="vault-brand-lockup flex items-center gap-3 group shrink-0"
         >
           <div className="vault-nav-mark">
@@ -44,7 +44,7 @@ export default function Navbar() {
           </div>
           <span className="vault-wordmark text-sm font-bold">
             <span className="vault-wordline">
-              TuringVault<span className="vault-ai">.ai</span>
+              TuringVault<span className="vault-ai">.dev</span>
             </span>
             <em aria-hidden="true">proof registry</em>
           </span>
