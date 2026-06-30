@@ -1,35 +1,52 @@
 {
-  "cycleStartedAt": "2026-06-30T18:45:40.220Z",
-  "cycleEndedAt": "2026-06-30T18:46:35.390Z",
-  "durationSeconds": 55.17,
+  "cycleStartedAt": "2026-06-30T19:30:50.084Z",
+  "cycleEndedAt": "2026-06-30T19:31:57.903Z",
+  "durationSeconds": 67.82,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 11244,
-    "validatorMs": 5447,
+    "analystMs": 2962,
+    "validatorMs": 9801,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 923,
-  "decisionTier": "BLOCKED_BY_REGIME",
-  "consensus": false,
+  "decisionId": 924,
+  "decisionTier": "INTENT_SWAP_NO_EXEC",
+  "consensus": true,
   "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28467986756",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28470531856",
   "errors": [],
   "gridTradeCandidate": {
-    "active": false,
-    "kind": null,
-    "action": null,
-    "direction": null,
-    "targetAsset": null,
-    "sourceAsset": null,
-    "allocationPct": null,
-    "confidence": null,
-    "reason": "no inventory-aware lower-band edge",
-    "routeHint": null
+    "active": true,
+    "kind": "grid-buy",
+    "action": "swap",
+    "direction": "risk_on",
+    "targetAsset": "mETH",
+    "sourceAsset": "USDT0",
+    "allocationPct": 15,
+    "confidence": 0.6733333333333338,
+    "reason": null,
+    "routeHint": [
+      "USDT0",
+      "USDT",
+      "WMNT",
+      "WETH",
+      "mETH"
+    ]
   },
-  "executionStatus": "BLOCKED_BY_REGIME"
+  "directionalSwap": {
+    "executed": false,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "mETH",
+    "amountIn": 12.04151295,
+    "amountOut": null,
+    "reason": "preflight-failed: leg2 USDT->WMNT not viable",
+    "error": null,
+    "legs": null
+  },
+  "executionStatus": "INTENT_ONLY"
 }
