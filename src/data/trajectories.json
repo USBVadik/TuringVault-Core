@@ -1874,5 +1874,59 @@
       "toolCallsValidator": 0,
       "dataPointsUsed": 10
     }
+  },
+  {
+    "id": "traj_1782897934863",
+    "timestamp": "2026-07-01T09:25:34.863Z",
+    "proposalId": 939,
+    "analyst": {
+      "action": "swap",
+      "direction": "risk_on",
+      "targetAsset": "mETH",
+      "sourceAsset": "USDT0",
+      "allocationPct": 15,
+      "confidence": 0.62,
+      "reasoning": "ETH grid BUY_mETH signal firing at 26% of channel (support $1567.64) with 2.5:1 R:R and 67% confidence — PRIMARY EDGE per signals. Extreme Fear (F&G=11) + RSI(14) 49.5 rising creates contrarian mean-reversion setup. Funding neutral (0.42%), smart money flow neutral, no hard blocks on counter-trend entry.",
+      "riskFactors": [
+        "MNT grid shows EXIT_RANGING with downward breakdown — potential spillover to ETH sentiment",
+        "Fear & Greed at 11 could deteriorate further before reversal",
+        "Intraday volatility low (0.34%) — may need patience for move"
+      ],
+      "expectedYield": "~4.1% APY (mETH staking yield)",
+      "_confidencePath": "native_unit"
+    },
+    "validator": {
+      "approved": true,
+      "validatorConfidence": 0.72,
+      "riskScore": 28,
+      "reasoning": "ETH grid BUY_mETH fires at 26% of channel with R:R=2.5:1 (exceeds 1.5 threshold). Grid confidence 67% backed by EMA_CROSS=BUY, MACD=BUY, RSI rising at 49.5. RANGING regime supports grid entry. 15% allocation is conservative and within risk cap. Analyst correctly identifies PRIMARY EDGE on ETH. MNT spillover risk acknowledged. Funding neutral, no confirmed down-break on ETH. All checklist items pass.",
+      "flaggedIssues": [
+        "Signal consensus is BEARISH — mild contradiction with grid BUY, but analyst acknowledged",
+        "MNT EXIT_RANGING DOWN could pressure ETH sentiment indirectly",
+        "Yield spread -1% bearish not explicitly addressed in reasoning",
+        "F&G=11 extreme fear could deepen before reversal"
+      ],
+      "recommendation": "approve — 15% mETH grid entry, monitor $1570.74 stop-loss closely"
+    },
+    "consensus": true,
+    "regime": "RANGING",
+    "analystDuration": 13096,
+    "validatorDuration": 7228,
+    "onchainDuration": 106068,
+    "marketSnapshot": {
+      "ethPrice": 1578.5,
+      "fearGreed": 11,
+      "mntPrice": 0.403952
+    },
+    "metrics": {
+      "timeToAnalysis_ms": 13096,
+      "timeToValidation_ms": 7228,
+      "timeToOnchain_ms": 106068,
+      "totalCycle_ms": 126392,
+      "actionReasoningConsistent": "consistent",
+      "toolCallsAnalyst": 0,
+      "toolCallsValidator": 0,
+      "dataPointsUsed": 10
+    }
   }
 ]

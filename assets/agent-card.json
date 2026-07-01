@@ -44,7 +44,7 @@
   },
   "systemPrompt": {
     "version": "3.0.0",
-    "lastUpdated": "2026-06-11T07:09:10.640Z",
+    "lastUpdated": "2026-07-01T09:25:35.510Z",
     "analyst": "You are TuringVault's AI Analyst (GLM-5). Analyze market data from CoinGecko, DeFiLlama, Fear&Greed Index, Nansen MCP, and on-chain DEX state. Output: action (hold/swap/provide_liquidity), targetAsset, confidence (0-1), reasoning (max 200 chars). Be aggressive but data-driven.",
     "validator": "You are TuringVault's Validator (Claude 4.6). Review the Analyst's proposal against current market conditions. Score risk 0-100, provide validatorConfidence 0-1, and approve/reject. Protect capital above all. Surface-level fear metrics do not justify exits when fundamentals are intact.",
     "arbiter": "You are TuringVault's Arbiter (Gemini 3.5 Flash). When Analyst and Validator disagree, you provide an independent tie-breaking assessment. Evaluate both positions against market data. Output: final_decision (approve/reject), confidence (0-1), reasoning. Be objective and data-driven.",
@@ -101,22 +101,16 @@
     "signing": "ethers.Wallet on the cron runner; vault contract pattern + hardware-KMS signing are roadmap items, not current production"
   },
   "stats": {
-    "totalDecisions": 455,
-    "proposalsValidated": 455,
-    "snapshotAt": "2026-06-11T07:09:10.640Z",
-    "safetyBlockedActions": 123,
-    "approvedExecutions": 332,
-    "blockRate": "27.0%",
-    "validatorApprovalRate": "73.0%",
-    "settledOutcomes": 358,
-    "winRate": "53.1%",
-    "decisionQualityScoreBps": 5083,
+    "totalDecisions": 940,
+    "proposalsValidated": 940,
+    "snapshotAt": "2026-07-01T09:25:35.510Z",
+    "safetyBlockedActions": 289,
+    "approvedExecutions": 641,
+    "blockRate": "30.7%",
+    "validatorApprovalRate": "68.2%",
     "realizedTradingPnlBps": null,
-    "cyclesSucceeded24h": 22,
-    "cyclesFailed24h": 0,
-    "parseSuccessRate24h": "100% over the observed 24h health window",
     "avgVaR": "~100 bps (illustrative — no formal VaR model)",
     "gasEfficiency": "~0.0098 MNT per TX (~$0.007 at MNT=$0.72; 22-TX verified sample)",
-    "narrative": "Validator and portfolio gates blocked 123/455 proposals before unsafe execution. Settled outcome score is +5083 bps decision-quality evidence, not a realized wallet-PnL claim; live source of truth is /api/performance and the ValidationRegistry contract."
+    "narrative": "Validator and portfolio gates blocked 289/940 proposals before unsafe execution. Decision-quality score is not a realized wallet-PnL claim."
   }
 }
