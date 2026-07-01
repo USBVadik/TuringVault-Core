@@ -151,6 +151,50 @@ describe("discipline summary", () => {
     expect(summary.holdNoSwapCount).toBe(0);
   });
 
+  test("counts an on-chain-executed cycle as executed even when its tier reads blocked (defensive rotation)", () => {
+    const summary = buildSummary([
+      {
+        // genuine risk block, no execution
+        at: "2026-06-04T00:00:00Z",
+        decisionId: 20,
+        verdict: "ACCEPTED",
+        decisionTier: "BLOCKED_BY_REGIME",
+        displayTier: "BLOCKED_BY_REGIME",
+        checks: [
+          { name: "tx_proof", status: "SKIP", detail: "No execution expected" },
+        ],
+      },
+      {
+        // regime block that still executed a defensive rotation on-chain
+        at: "2026-06-04T00:30:00Z",
+        decisionId: 21,
+        verdict: "ACCEPTED",
+        decisionTier: "BLOCKED_BY_REGIME",
+        displayTier: "BLOCKED_BY_REGIME",
+        executedOnChain: true,
+        checks: [{ name: "tx_proof", status: "PASS", detail: "tx confirmed" }],
+      },
+      {
+        // clean risk-on execution
+        at: "2026-06-04T01:00:00Z",
+        decisionId: 22,
+        verdict: "ACCEPTED",
+        decisionTier: "EXECUTED_SWAP",
+        displayTier: "EXECUTED_SWAP",
+        executedOnChain: true,
+        checks: [{ name: "tx_proof", status: "PASS", detail: "tx confirmed" }],
+      },
+    ]);
+
+    // Only the first row is a genuine no-execution block.
+    expect(summary.decisionBlockedCount).toBe(1);
+    // Both on-chain executions count, regardless of display tier.
+    expect(summary.executedSwapCount).toBe(2);
+    expect(summary.cyclesWithTx).toBe(2);
+    expect(summary.txProofPassCount).toBe(2);
+    expect(summary.holdNoSwapCount).toBe(0);
+  });
+
   test("enriches discipline history with decision tier and re-proofed tx checks from outcomes", () => {
     const [entry] = enrichHistoryWithOutcomes(
       [

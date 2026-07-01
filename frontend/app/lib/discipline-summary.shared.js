@@ -187,12 +187,18 @@ function buildSummary(history) {
     const verdict = entry?.verdict ?? "UNKNOWN";
     counts[verdict] = (counts[verdict] ?? 0) + 1;
     const tier = displayTier(entry);
-    const blockedDecision = isBlockedDecisionTier(tier);
+    // On-chain execution is ground truth. A cycle with a verified on-chain
+    // transaction (executedOnChain / passing tx-proof) counts as executed even
+    // if its decision tier still reads as "blocked" — e.g. a regime block that
+    // performed a defensive rotation into a safe asset. Evaluating executed
+    // first keeps executedSwapCount consistent with the tx-proof evidence
+    // instead of undercounting it to only the EXECUTED_SWAP display tier.
     const executedDecision =
       isExecutedDecisionTier(tier) || entry?.executedOnChain === true;
+    const blockedDecision = !executedDecision && isBlockedDecisionTier(tier);
 
-    if (blockedDecision) decisionBlockedCount++;
-    else if (executedDecision) executedSwapCount++;
+    if (executedDecision) executedSwapCount++;
+    else if (blockedDecision) decisionBlockedCount++;
 
     for (const check of entry?.checks ?? []) {
       if (!KNOWN_GATES.includes(check.name)) continue;
