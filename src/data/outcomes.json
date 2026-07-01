@@ -3445,6 +3445,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782912792652_942",
+      "decisionId": 942,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1572.67,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei6d9641dfbecd8048e75a341f23fa7fc8e62d88d7758cf3741b8e",
+      "recordedAt": "2026-07-01T13:33:12.652Z",
+      "settleAfter": "2026-07-01T14:33:12.652Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782912792634
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Both ETH and MNT grids signal EXIT_RANGING with UNKNOWN breakout direction — directional trade correctly avoided. Current IN_mETH position at $1578.5 vs $1577.3 spot shows minimal drawdown (~0.08%). Extreme Fear (F&G=11), bearish consensus, and -1% yield spread justify caution but not forced exit. No hallucinated data. Portfolio is balanced (59.7% stable), so HOLD ",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "Vol expanding on ETH grid increases whipsaw risk near $1567 support",
+        "Breakout direction UNKNOWN — next cycle must reassess if price breaches $1567 or $1616"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd8626c2bacfa31c41b99801d5799062f59b7dd8a90136043c74fe11c85027f2f",
+      "combinedAnchor": "0xe9876b36d222a1d3a121fb6cf717ee7a021d6abcbea5de9d9e7e45589ba69e6c",
+      "decisionLogTxHash": "0x076054aa0225535eaaa03a51a232c196165def28be34c4ac1611cc64097eb3bf",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
