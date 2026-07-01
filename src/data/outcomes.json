@@ -2769,6 +2769,79 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1782879254086_932",
+      "decisionId": 932,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 0.40929,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkreid1b3dfa88344e33fc48b46b42a6a7db38d647f91582fd8ef5fbe",
+      "recordedAt": "2026-07-01T04:14:14.086Z",
+      "settleAfter": "2026-07-01T05:14:14.086Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782879254067
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is low-risk and well-supported. Portfolio is 78.9% stable-heavy/FLAT — inventory rule mandates HOLD over repeated risk_off absent CRISIS confirmation. ETH grid at 51% channel (HOLD zone 30-70%, confidence 50%) and MNT EXIT_RANGING DOWN are both correctly acknowledged. EMA cross BUY + MACD BUY on ETH noted but insufficient to override RANGING regime with BEARISH consensus. No hallucin",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no R:R gate",
+        "MNT TREND_DOWN regime hint not explicitly flagged as potential ETH contagion risk",
+        "Bollinger SELL signal at 100% band position underweighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x754d0b18d50def6f1c92ce841a5b61ae7ee1ef2a89edbc6eca90c16960093cd1",
+      "combinedAnchor": "0x5a5a7772d634933189bec5d47fa118673a3f754e09f8a6a0bd444c55a5875432",
+      "decisionLogTxHash": "0xd315f466211cda581799cc9e57ab110229557d8c8b6f27ac789c7958686fa345",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
