@@ -349,14 +349,22 @@ function pickSource({
 
   if (direction === "risk-on") {
     // Goal: acquire WMNT (or mETH if target=mETH). Try in order:
-    //   1. USDT0 directly (via USDT→WMNT, then optional WETH→mETH)
+    //   1. USDT0 directly (via the deep direct USDT0→WMNT pool)
     //   2. USDT directly (skip first leg)
     //   3. wrap MNT → WMNT to give us source-of-funds for a smaller risk-on
     //      that still moves the needle
     if (balances.USDT0 >= floors.USDT0) {
+      // Route DIRECT USDT0→WMNT (Merchant Moe LB pair 0xC072…9D09,
+      // binStep 25 — deep, ~0.1% impact at demo size). The previous
+      // USDT0→USDT→WMNT path routed the middle hop through the thin
+      // USDT↔WMNT pool (0xf6C9…, binStep 15, ~21% impact on $15),
+      // which failed preflight and stranded every consensus=true
+      // risk-on buy as INTENT_SWAP_NO_EXEC. Legs verified viable
+      // read-only 2026-07-01: USDT0→WMNT 0.12%, WMNT→WETH 0.05%,
+      // WETH→mETH 0%.
       const path = targetIsMeth
-        ? ["USDT0", "USDT", "WMNT", "WETH", "mETH"]
-        : ["USDT0", "USDT", "WMNT"];
+        ? ["USDT0", "WMNT", "WETH", "mETH"]
+        : ["USDT0", "WMNT"];
       return {
         feasible: true,
         source: "USDT0",
@@ -364,7 +372,7 @@ function pickSource({
         wrapAmountMnt: 0,
         path,
         sourceBalance: balances.USDT0,
-        reason: `USDT0 ${balances.USDT0.toFixed(2)} ≥ floor ${floors.USDT0}`,
+        reason: `USDT0 ${balances.USDT0.toFixed(2)} ≥ floor ${floors.USDT0} (direct USDT0→WMNT)`,
       };
     }
     if (balances.USDT >= floors.USDT) {

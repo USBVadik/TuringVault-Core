@@ -181,7 +181,7 @@ describe("walletRouter.pickSource — risk-on", () => {
     });
     expect(r.feasible).toBe(true);
     expect(r.source).toBe("USDT0");
-    expect(r.path).toEqual(["USDT0", "USDT", "WMNT"]);
+    expect(r.path).toEqual(["USDT0", "WMNT"]);
   });
 
   test("USDT0 above floor + targetIsMeth → deep WETH bridge path", () => {
@@ -190,7 +190,7 @@ describe("walletRouter.pickSource — risk-on", () => {
       balances: { WMNT: 0, MNT: 0, USDT0: 100, USDT: 0, mETH: 0 },
       targetIsMeth: true,
     });
-    expect(r.path).toEqual(["USDT0", "USDT", "WMNT", "WETH", "mETH"]);
+    expect(r.path).toEqual(["USDT0", "WMNT", "WETH", "mETH"]);
   });
 
   test("USDT0 below floor + USDT available → fallback to USDT", () => {
