@@ -2915,6 +2915,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1782883676474_934",
+      "decisionId": 934,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1592.49,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei857a1fd9dd97d4c1c97cf014c773733c56f3d094220a0aaf07ad",
+      "recordedAt": "2026-07-01T05:27:56.474Z",
+      "settleAfter": "2026-07-01T06:27:56.474Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1782883676457
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 54% channel position (HOLD zone 30-70%, confidence 50%) — no edge to deploy. MNT EXIT_RANGING with UNKNOWN breakout direction correctly disqualifies directional action. Portfolio is 78.9% stable, posture is balanced — HOLD aligns with inventory rule. Bearish consensus + F&G=11 + yield spread -1% justify caution. No hallucinated data. R:R not applicable ",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided, but HOLD requires no R:R gate",
+        "Funding 0.493% avg is positive but not strong enough to override HOLD grid signal",
+        "MNT trend forming with UNKNOWN breakout — analyst correctly avoids directional bet"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x296c90ddffde3da5262194ef5691785b014546efc87f200246f08f33b960dd81",
+      "combinedAnchor": "0x11785161f588bba7af499308755906d6e0e4715d8d1047e0df9499e4abdd8733",
+      "decisionLogTxHash": "0x5e573c107609a3124629293efa80bc5803d65b9a6a4a385b8803efbcbb938dd3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
