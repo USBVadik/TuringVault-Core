@@ -1,47 +1,46 @@
 {
-  "cycleStartedAt": "2026-07-02T05:37:54.952Z",
-  "cycleEndedAt": "2026-07-02T05:39:01.391Z",
-  "durationSeconds": 66.44,
+  "cycleStartedAt": "2026-07-02T07:56:18.666Z",
+  "cycleEndedAt": "2026-07-02T07:57:10.254Z",
+  "durationSeconds": 51.59,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 9585,
-    "validatorMs": 6678,
+    "analystMs": 5597,
+    "validatorMs": 6474,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 951,
-  "decisionTier": "BLOCKED_BY_REGIME",
-  "consensus": false,
-  "txHashes": [
-    "0x48b64529dd0eb26af28fc6b4d78a516a57c8fe455ab70a9d1ab07cb829f3d19b"
-  ],
+  "decisionId": 952,
+  "decisionTier": "INTENT_SWAP_NO_EXEC",
+  "consensus": true,
+  "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28568028017",
-  "errors": [
-    "outcome-not-persisted: cycle 951 missing from src/data/outcomes.json after Step 6"
-  ],
-  "rwa": {
-    "source": "conservative",
-    "executed": true,
-    "amountInUsd": 2.6903495,
-    "from": "USDT",
-    "to": "USDT0",
-    "blockedReason": null
-  },
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28574545593",
+  "errors": [],
   "gridTradeCandidate": {
-    "active": false,
-    "kind": null,
-    "action": null,
-    "direction": null,
-    "targetAsset": null,
-    "sourceAsset": null,
-    "allocationPct": null,
-    "confidence": null,
-    "reason": "not stable-heavy FLAT inventory",
+    "active": true,
+    "kind": "grid-sell",
+    "action": "swap",
+    "direction": "risk_off",
+    "targetAsset": "mUSD",
+    "sourceAsset": "mETH",
+    "allocationPct": 20,
+    "confidence": 0.7389799635701291,
+    "reason": null,
     "routeHint": null
   },
-  "executionStatus": "EXECUTED"
+  "directionalSwap": {
+    "executed": false,
+    "direction": "risk-off",
+    "from": null,
+    "to": null,
+    "amountIn": null,
+    "amountOut": null,
+    "reason": "smart-router-infeasible: preferred source mETH unavailable: 0.000000 < floor 0.001; refusing to sell a different risk asset",
+    "error": null,
+    "legs": null
+  },
+  "executionStatus": "INTENT_ONLY"
 }
