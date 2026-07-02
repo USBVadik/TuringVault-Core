@@ -231,6 +231,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1783009736449_957",
+      "decisionId": 957,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1691.33,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreia8af3d0741a3064de7aa5318f020217db601ff8a71a653f0530c",
+      "recordedAt": "2026-07-02T16:28:56.449Z",
+      "settleAfter": "2026-07-02T17:28:56.449Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783009736432
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime is HOLD at 35% confidence with no confirmed directional edge. Portfolio is already 65.4% stable — repeated risk_off would violate inventory rule without TREND_DOWN confirmation. Analyst correctly notes RSI 69.9 is NOT oversold despite Extreme Fear sentiment, avoiding a false counter-bias trigger. Funding 0.588% is neutral. Smart money flow neutral. Bearish s",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% is a mild bearish signal worth monitoring",
+        "RSI 69.9 falling from near-overbought — momentum exhaustion risk",
+        "Signal consensus BEARISH vs HOLD regime creates mild tension — acknowledged"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x46fbbc4f8284092e7ab5dc8499fd33c0de2b636f193b7465db97bbb1029b8d07",
+      "combinedAnchor": "0x64cd86c119a942fec2fef854e5477ef78d7572a2bde8de53f3c066e914e5f00b",
+      "decisionLogTxHash": "0xc7550a6cc7beb75ed35072e6457514f01b64ff935b8734018369f66611894e12",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
