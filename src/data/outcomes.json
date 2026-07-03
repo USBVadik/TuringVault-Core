@@ -229,6 +229,82 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1783054618316_964",
+      "decisionId": 964,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1701.91,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreib7b5c284afced20472993a7c41596a59351e92c4c99c29491d55",
+      "recordedAt": "2026-07-03T04:56:58.317Z",
+      "settleAfter": "2026-07-03T05:56:58.317Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783054618299
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence only 35% with mixed technicals (RSI=SELL, EMA=BUY, MACD=SELL, BOLLINGER=HOLD) — no clear directional edge. Portfolio already balanced at 65.9% stable / 34.1% risk, satisfying inventory rule against repeated risk_off. Signal consensus BEARISH but no CRISIS/TREND_DOWN confirmed. Funding 0.639% neutral. Smart money flow neutral. Yield spread -1% bear",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH conflicts with HOLD regime — Analyst correctly acknowledges but could weight it more explicitly",
+        "Yield spread -1% bearish signal not prominently weighted in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x5c138360c189650773acd7d818f7235a2d478902aae243668fa9914ea34c3fd8",
+      "combinedAnchor": "0xfea1c29b1aa92fc17fe018941963a79cd9d9f853202404e3827744aa15fdcbd3",
+      "decisionLogTxHash": "0xd9f0694478009815a56557fa0022b666b293845d851f4e9861121d448ccf5325",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
