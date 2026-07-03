@@ -914,6 +914,83 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1783114334889_972",
+      "decisionId": 972,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1762.05,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei5ec53bd03a773d7d09ad088e9a12aa583e7b6a987b3eb0a9edf8",
+      "recordedAt": "2026-07-03T21:32:14.889Z",
+      "settleAfter": "2026-07-03T22:32:14.889Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783114334871
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. Signal consensus is BEARISH but portfolio is already 65.1% stable — no further de-risking needed per inventory rule. RSI 73.1 (STRONG_SELL) conflicts with bullish EMA/MACD, confirming mixed signals. Yield spread -1% and Extreme Fear (21) support caution. No R:R gate applies to HOLD. Analyst reasoning matche",
+      "validatorFlaggedIssues": [
+        "RSI 73.1 overbought conflicts with bullish EMA — unresolved tension",
+        "Extreme Fear at 21 without confirmed capitulation bottom",
+        "Yield spread -1% disfavors mETH accumulation"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6aab1ee9777a360234243d6029e1232aa5f35f4a0e49bcbac28aa9e7765b5dce",
+      "combinedAnchor": "0x95fc22cad6954c9d466663fbc835e147f9ddbc8541612ffa2a36760a017dd9e1",
+      "decisionLogTxHash": "0x53ff05fd4c9197ddfa1dc925dfaa7eebeba753b747ee41ffc3997b44cb07ade8",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
