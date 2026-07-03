@@ -606,6 +606,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783100922435_969",
+      "decisionId": 969,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1739.32,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreida773bdc559effa672319591a8852744732088fc9e91a4242b07",
+      "recordedAt": "2026-07-03T17:48:42.435Z",
+      "settleAfter": "2026-07-03T18:48:42.435Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783100922417
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. ETH price ($1741.2) has marginally breached resistance ($1737.7) but breakout is unconfirmed with MACD histogram negative (-1.577) and RSI in sell territory (66.2). MNT PRIMARY EDGE fires SELL_mETH at 76% confidence with R:R 2.5:1, but portfolio is already 65.4% stable — acting on SELL_mETH would further concentrate stables without clear re-entry plan. Analys",
+      "validatorFlaggedIssues": [
+        "MNT SELL_mETH signal (76% confidence, R:R 2.5:1) was not acted upon despite PRIMARY EDGE override designation",
+        "R:R not explicitly provided by Analyst — HOLD exempted from mandatory R:R gate",
+        "MACD bearish divergence (-1.577) contradicts ETH breakout narrative but acknowledged implicitly"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": "no tradable WMNT inventory for grid sell"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe853ca430c0e99101cc2dcdbe1ac362480936802ca27be51f2b963a567135baf",
+      "combinedAnchor": "0x924eadea93a532aee760b6b37bd0f913926ba530fed26d1ca85b576509b3f8e0",
+      "decisionLogTxHash": "0xae2ee0866aa07c4d17a711829e3d5d311586d4ac7fbbfdffc1cac65090643c75",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
