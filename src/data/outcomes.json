@@ -152,6 +152,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1783040972375_963",
+      "decisionId": 963,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1701.78,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei5f0eb2e3b0f2f12805663c5d3d2bba7451b946ba5fbc777e3f1b",
+      "recordedAt": "2026-07-03T01:09:32.375Z",
+      "settleAfter": "2026-07-03T02:09:32.375Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783040972358
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. RSI 70.1 is genuinely overbought per raw signals (STRONG_SELL). MACD histogram negative (-0.4482) confirms weakening momentum. Yield spread -1% is bearish. Portfolio is already 65.9% stable — inventory rule supports HOLD over repeated risk_off. No hallucinated data detected. Analyst correctly acknowledges c",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly calculated — acceptable for HOLD action",
+        "Fear & Greed 21 vs +6.09% ETH price divergence unresolved but acknowledged",
+        "Regime confidence 35% is very low — clarity may not arrive soon"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x540222fd2bff655d387887b18ab5699d398b72864229606e403c042c0bc1bdb2",
+      "combinedAnchor": "0xe8e7a95db54adf2b2e6e5750b2d5c83f23dd56ca4b63383efa1edec8a3d2e24e",
+      "decisionLogTxHash": "0xa2102bf1503f065ddbf6b5decbf0d879fa01a0507a3138a0c6718c84ca1099b1",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
