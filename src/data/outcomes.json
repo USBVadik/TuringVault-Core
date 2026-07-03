@@ -459,6 +459,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1783089668001_967",
+      "decisionId": 967,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 0.436065,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkreifc51f48ab5da3c1d0b4fbd32b2dfa63e9ccb228a484462e852fd",
+      "recordedAt": "2026-07-03T14:41:08.001Z",
+      "settleAfter": "2026-07-03T15:41:08.001Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783089667984
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is a low-risk action requiring minimal burden of proof. ETH grid shows EXIT_RANGING with UNKNOWN breakout direction — no directional trade is warranted. MNT SELL_mETH signal exists but ETH price $1730.55 is at channel resistance with vol expanding and no confirmed breakdown; premature exit risks missing upside. Position is profitable (+9.6% from $1578.5). Funding mildly long, smart money NEUT",
+      "validatorFlaggedIssues": [
+        "MNT grid SELL_mETH at 73% confidence is being deferred — monitor closely next cycle",
+        "ETH at 100% channel position with vol expanding increases breakout risk",
+        "F&G=21 Extreme Fear warrants caution on new entries",
+        "Yield spread -1% bearish signal not actioned — acceptable given HOLD posture"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": "no tradable WMNT inventory for grid sell"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x443b36e50a8318918d84c16aa518d73a565d8d0b8d620cdabeb53324bd20ac60",
+      "combinedAnchor": "0x5af5b63580a0e5da40706b51471690d2c3c0902fcdc9b603f127217003d520c5",
+      "decisionLogTxHash": "0x67e0f7f31d8803abaa0641e6dd859654165fcb16c7bea523a75e65e0ec1d98ad",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
