@@ -679,6 +679,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783104827509_970",
+      "decisionId": 970,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1737.1,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei181bee04d4fe187c505b546d20c6e00681d490387bdd843ce410",
+      "recordedAt": "2026-07-03T18:53:47.509Z",
+      "settleAfter": "2026-07-03T19:53:47.509Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783104827499
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes buying mETH (USDT0→mETH swap) but the PRIMARY EDGE block explicitly flags TAKE_PROFIT override with MNT GRID signaling SELL_mETH at 80% confidence and R:R 2.5:1. Portfolio already holds $37.63 mETH. The correct action is to EXIT mETH, not add to it. ETH breakout margin is $0.80 — statistically noise-level. No R:R provided for the proposed swap. Signal consensus is BEARISH, yield s",
+      "validatorFlaggedIssues": [
+        "PRIMARY EDGE override is TAKE_PROFIT/SELL_mETH — analyst ignored this critical signal",
+        "No R:R ratio provided for proposed swap — mandatory rejection trigger",
+        "Signal consensus BEARISH + yield spread BEARISH contradict risk-on entry",
+        "Breakout margin $0.80 above resistance is insufficient confirmation; vol expanding but no volume data",
+        "Portfolio already holds mETH ($37.63); adding more violates scale-in rule without deeper lower-band re-entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": "no tradable WMNT inventory for grid sell"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x56f8cd9b6eeffb580b2fde7339ce85c428c0167d56af55d2aa54052adc699a45",
+      "combinedAnchor": "0xb8e6bb0043165292a7bb68fa5bf9af8790d5188c30648d2c22ab05ffc47e021d",
+      "decisionLogTxHash": "0x6b189a5bd32c6982076a77dfbdcb9059ab348cc2908a6db9805ee218f9cd9a61",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
