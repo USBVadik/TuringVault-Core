@@ -1688,6 +1688,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1783190240810_989",
+      "decisionId": 989,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1793.31,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei90cbdde89557144aff0a30b65ffa28817331002dbe41d1af3576",
+      "recordedAt": "2026-07-04T18:37:20.810Z",
+      "settleAfter": "2026-07-04T19:37:20.810Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783190240792
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence only 35% with BEARISH consensus, RSI 71.4 (STRONG_SELL), Bollinger at 99% upper band, and negative yield spread (-1%) all confirm caution. Portfolio is already 64.7% stable — no rebalancing edge exists. Inventory rule supports HOLD over repeated risk_off given FLAT posture and no CRISIS/TREND_DOWN confirmation. Analyst correctly identified contrad",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided, but HOLD carries no directional exposure so R:R gate is not applicable",
+        "Extreme Fear (22) is contrarian bullish signal — analyst acknowledged but correctly deprioritized given multi-signal bearish consensus",
+        "Bollinger 99% + RSI 71.4 together suggest elevated pullback risk if held into risk-on"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe00e902125763fbd091b68ba429cdc10ab16c2970bbd603a4b43ae9e4c8a8f27",
+      "combinedAnchor": "0xa3dc3f510c2a650ab16097352a6e6429e063363c6e0e904252df2f98ebbf675f",
+      "decisionLogTxHash": "0x78f38ec06674ed000283467026aa83dd4f14cf3578e1a89b4bb31ae388129c6e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
