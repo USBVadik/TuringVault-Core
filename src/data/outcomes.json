@@ -1613,6 +1613,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1783186766424_988",
+      "decisionId": 988,
+      "action": "swap",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 0.454343,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei04184bc29cfc03da3a8cbf50fc6a4d516604218709aaf625e5d8",
+      "recordedAt": "2026-07-04T17:39:26.424Z",
+      "settleAfter": "2026-07-04T18:39:26.424Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783186766405
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst correctly identifies UP breakout on both grids (EXIT_RANGING, regimeHint=TREND_UP) and MNT PRIMARY EDGE. However, R:R is not provided — mandatory rejection trigger. Signal consensus is BEARISH and yield spread is -1% BEARISH, both ignored without acknowledgment. RSI 72.8 is STRONG_SELL per TA block. Bollinger at 104% band = SELL. Multiple contradictory signals unacknowledged. Regime still ",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory rejection trigger",
+        "Signal consensus BEARISH and yield spread -1% BEARISH ignored without acknowledgment",
+        "RSI STRONG_SELL and Bollinger SELL signals unacknowledged — contradictory signals present",
+        "Breakout unconfirmed by volume; vol expanding but no follow-through data",
+        "Regime formally RANGING 55% confidence — TREND_UP hint only, not confirmed"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x7856a6f9853222f056078f2d93002a96798eb0b31431a7c2e18270a4037f67d6",
+      "combinedAnchor": "0xbed1c985d564fd9276c2b90089ca87a8946a71f8c74b8cf88bbbf63c201b42b4",
+      "decisionLogTxHash": "0x6ef1707bdea92ba36cf4f05e39c2f7447e7f7c3d7d0ff67b33fa075396b2eff0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
