@@ -354,6 +354,31 @@ function applyPositionAwareness(rawSignal, currentPrice) {
   return signal;
 }
 
+/**
+ * Decide whether a stuck, past-max-hold position that keeps failing to
+ * exit should be reconciled to FLAT.
+ *
+ * Fires only when ALL hold: the agent tried to exit (risk-off / stable
+ * target), the exit swap did NOT execute, and the position has been held
+ * beyond MAX_CYCLES_IN_POSITION. This stops the "force-exit every cycle
+ * but the router has nothing meaningful to sell" loop that otherwise
+ * surfaces as repeated INTENT_SWAP_NO_EXEC on the dashboard.
+ *
+ * Honesty: the residual holding stays in the wallet and is still shown
+ * truthfully in holdings — we only stop tracking it as an *active grid
+ * position* so the existing "stable-heavy + FLAT" logic can label the
+ * cycle cleanly (BLOCKED_BY_PORTFOLIO / HOLD) instead of a failed swap.
+ */
+function shouldReconcileStalePosition(
+  state = {},
+  { swapExecuted = false, wasExitIntent = false } = {}
+) {
+  if (swapExecuted) return false;
+  if (!state || state.status === "FLAT") return false;
+  if (!wasExitIntent) return false;
+  return num(state.cycleCount, 0) >= MAX_CYCLES_IN_POSITION;
+}
+
 module.exports = {
   getState,
   buildEnteredPositionState,
@@ -362,5 +387,7 @@ module.exports = {
   tickCycle,
   updateHWM,
   applyPositionAwareness,
+  shouldReconcileStalePosition,
+  MAX_CYCLES_IN_POSITION,
   STATE_PATH,
 };
