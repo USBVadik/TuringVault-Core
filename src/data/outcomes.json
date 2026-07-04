@@ -787,6 +787,165 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1783164250335_980",
+      "decisionId": 980,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.79,
+      "priceAtDecision": 1756.67,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei203ea010ce09803b6bc7215d53bb306ff9cdfb48e190c66988f4",
+      "recordedAt": "2026-07-04T11:24:10.335Z",
+      "settleAfter": "2026-07-04T12:24:10.335Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783164250319
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH price at 98% of channel ($1758.6 vs resistance $1759.7) with 79% grid confidence. SELL_mETH signal confirmed. R:R 8.35:1 far exceeds 1.5:1 minimum. Regime is RANGING — grid confirmation present (upper-band sell is canonical grid action). Existing IN_mETH position from $1578.5 makes this a disciplined partial take-profit (+11.4% unrealized). Funding neutral, flow neutral — no contrarian objecti",
+      "validatorFlaggedIssues": [
+        "F&G=22 Extreme Fear could precede mean-reversion bounce — partial trim only mitigates this",
+        "MACD histogram weakening and RSI falling confirm momentum fade at resistance",
+        "Stop loss 1765.94 is tight (0.41% above entry) — slippage risk on low-vol day is manageable but real"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: partial grid trim for IN_mETH (current 1758.6, entry 1578.5, fee-buffered 1583.2355, full target 1605.16)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 71.86157200000001,
+          "tradableRiskUsd": 38.41542723607266,
+          "nativeMnt": 26.518099430820826,
+          "stableShare": 0.6516460594485727,
+          "riskShare": 0.3483539405514274,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.7911858974358964,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 1758.6, stop 1765.94, take-profit 1697.3, R:R 8.35:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.7911858974358964,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.98,
+          "support": 1697.3,
+          "resistance": 1759.7,
+          "currentPrice": 1758.6
+        },
+        "riskReward": {
+          "entry": 1758.6,
+          "stopLoss": 1765.94,
+          "takeProfit": 1697.3,
+          "ratio": 8.35,
+          "riskPct": 0.42,
+          "rewardPct": 3.49
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "mETH",
+        "to": "USDT0",
+        "amountIn": 0.005977218259547895,
+        "reason": "preflight-failed: leg3 WMNT->USDT not viable",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "mETH",
+            "to": "WETH",
+            "amountIn": 0.005977218259547895,
+            "estimatedOut": 0.006539471049366794,
+            "priceImpactBps": 0,
+            "pairAddress": "0x3b6c029E6409f2868769871F9Ed6825b15BDca15",
+            "binStep": 2,
+            "depthFraction": 0.000066
+          },
+          {
+            "leg": 2,
+            "from": "WETH",
+            "to": "WMNT",
+            "amountIn": 0.006539471049366794,
+            "estimatedOut": 25.891160102794842,
+            "priceImpactBps": 0.57,
+            "pairAddress": "0x1606C79bE3EBD70D8d40bAc6287e23005CfBefA2",
+            "binStep": 10,
+            "depthFraction": 0.006155
+          },
+          {
+            "leg": 3,
+            "from": "WMNT",
+            "to": "USDT",
+            "amountIn": 25.891160102794842,
+            "estimatedOut": 5.237605,
+            "priceImpactBps": 5256.88,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 0.002091
+          }
+        ]
+      },
+      "manifestHash": "0x99ab08c9f0ff2cb0cce5d202252d714253085d752c3793071ad9c199cbf93c1b",
+      "combinedAnchor": "0x6c33275bce62e0a16171f37dc8a6b01cb62058707f46ef8ecaf6601727577067",
+      "decisionLogTxHash": "0x9fc528ab7d9bca6fb6e090c625231928dc73bf6104af83f034458246dac8b510",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
