@@ -1228,6 +1228,83 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1783179126297_983",
+      "decisionId": 983,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1792.51,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei714b2cd2dadc90ec84ccdbe78569c9a8382dace22916421041c3",
+      "recordedAt": "2026-07-04T15:32:06.297Z",
+      "settleAfter": "2026-07-04T16:32:06.297Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783179126279
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with genuinely mixed signals: RSI 76.7 overbought conflicts with bullish EMA/MACD. Portfolio is already 64.7% stable-heavy and FLAT — inventory rule mandates HOLD over repeated risk_off. No CRISIS/TREND_DOWN confirmed. Analyst correctly identifies neutral funding (0.318%) and flat smart money flow. Yield spread -1% bearish noted. No di",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH but RSI/EMA/MACD diverge — Analyst correctly acknowledges contradiction",
+        "Bollinger at 139% confirms extension risk, supports caution",
+        "35% regime confidence too low to justify any directional action"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x028ab33c695129bdfe9ab0287c08dbf3eab77f5a2bf945bce6c32e929fb661a3",
+      "combinedAnchor": "0x63b5b25a2b920d6c56f359111cd6be5f30d62e2be1566f7541f8609f4162a828",
+      "decisionLogTxHash": "0xbdbfa54f3d12fff29fb620fdc7031c2e98d1e69a2730e0a8314437569c823c6b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
