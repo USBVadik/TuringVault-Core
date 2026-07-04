@@ -314,6 +314,83 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1783140860933_976",
+      "decisionId": 976,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1760.4,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei833c5059dd1112da3e5905760a17ce448446ee7b457f6a9dda2e",
+      "recordedAt": "2026-07-04T04:54:20.933Z",
+      "settleAfter": "2026-07-04T05:54:20.933Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783140860916
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal on a stable-heavy portfolio (65.1% stables, 34.9% risk) is appropriate. Regime confidence is only 35% with no confirmed direction. Signal consensus BEARISH but contradicted by bullish EMA cross and RSI 67 near overbought — Analyst correctly flags this conflict. Yield spread -1% bearish, smart money neutral. No grid active, no edge to execute. Inventory rule supports HOLD over repeate",
+      "validatorFlaggedIssues": [
+        "RSI 67 approaching overbought while Fear & Greed at 22 — genuine contradiction acknowledged",
+        "Yield spread -1% bearish signal slightly underweighted in reasoning",
+        "MACD histogram improving (-1.89) conflicts with MACD=SELL label — minor ambiguity"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x8124eb7bb71360c811d81b2561b5ab4a44933ec5f75e9521e6096544a1ab1184",
+      "combinedAnchor": "0xfc1ba358882d285862c4b9773dc1348042a531ccfd4c6494aff9804fd0f6b87c",
+      "decisionLogTxHash": "0xa1c414da1c0b86c1d60e509081fe61ad889a229cf4e66660c56d00f654fed440",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
