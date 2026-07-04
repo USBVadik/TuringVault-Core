@@ -1461,6 +1461,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1783182931211_986",
+      "decisionId": 986,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1789.23,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreibd2c5bce2f7658bdc9068bee89f9aad442cb76bd08b8e394a2fd",
+      "recordedAt": "2026-07-04T16:35:31.211Z",
+      "settleAfter": "2026-07-04T17:35:31.211Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783182931191
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with no confirmed direction. RSI 75.7 STRONG_SELL conflicts with bullish EMA/MACD — Analyst correctly acknowledges contradiction. Portfolio is already 64.7% stable so no risk_off trigger applies per inventory rule. Funding 0.509% neutral, smart money NEUTRAL, yield spread -1% bearish. No grid active. HOLD is the appropriate low-risk ac",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no directional R:R gate",
+        "RSI overbought at 75.7 warrants monitoring for momentum reversal",
+        "Yield spread -1% mildly bearish but insufficient alone to trigger risk_off"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd72259f8fb9049f40859a49bccb92b1f969f9a9df0cdd202aeae38e707c629ae",
+      "combinedAnchor": "0xeaa4867c93d5c58ed0577dccb8779945506352458b915f90104b90ae0f8202cf",
+      "decisionLogTxHash": "0x4c4229703e7bf30ad1f7c9e3f5dfc32271c6d8a72c354ff7325cd885edd33eff",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
