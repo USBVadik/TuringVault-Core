@@ -355,27 +355,29 @@ function applyPositionAwareness(rawSignal, currentPrice) {
 }
 
 /**
- * Decide whether a stuck, past-max-hold position that keeps failing to
- * exit should be reconciled to FLAT.
+ * Decide whether a stuck, past-max-hold position should be reconciled to
+ * FLAT.
  *
- * Fires only when ALL hold: the agent tried to exit (risk-off / stable
- * target), the exit swap did NOT execute, and the position has been held
- * beyond MAX_CYCLES_IN_POSITION. This stops the "force-exit every cycle
- * but the router has nothing meaningful to sell" loop that otherwise
- * surfaces as repeated INTENT_SWAP_NO_EXEC on the dashboard.
+ * Fires whenever the position is non-FLAT, has been held for at least
+ * MAX_CYCLES_IN_POSITION cycles, and NO alpha swap executed this cycle —
+ * regardless of *why* it didn't execute (blocked by low-confidence /
+ * regime / validator, or a consensus swap that the router couldn't fill
+ * because the wallet is already stable-heavy / the residual is sub-floor).
+ * Past max-hold the agent is always in forced-exit mode, so a stuck
+ * position that can't exit for that long is released to stop it aging and
+ * eventually resurfacing as repeated INTENT_SWAP_NO_EXEC.
  *
  * Honesty: the residual holding stays in the wallet and is still shown
  * truthfully in holdings — we only stop tracking it as an *active grid
- * position* so the existing "stable-heavy + FLAT" logic can label the
- * cycle cleanly (BLOCKED_BY_PORTFOLIO / HOLD) instead of a failed swap.
+ * position* so the existing "stable-heavy + FLAT" logic can label cycles
+ * cleanly (BLOCKED_BY_PORTFOLIO / HOLD) instead of a failed swap.
  */
 function shouldReconcileStalePosition(
   state = {},
-  { swapExecuted = false, wasExitIntent = false } = {}
+  { alphaSwapExecuted = false } = {}
 ) {
-  if (swapExecuted) return false;
+  if (alphaSwapExecuted) return false;
   if (!state || state.status === "FLAT") return false;
-  if (!wasExitIntent) return false;
   return num(state.cycleCount, 0) >= MAX_CYCLES_IN_POSITION;
 }
 

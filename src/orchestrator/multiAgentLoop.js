@@ -2087,7 +2087,27 @@ async function runMultiAgentCycle(opts = {}) {
       directionalSwapResult?.tier !== "HEARTBEAT_SWAP" &&
       Array.isArray(directionalSwapResult?.legs) &&
       directionalSwapResult.legs.some((l) => l && l.txHash);
-    if (decision.consensus && decision.action === "swap" && alphaSwapExecuted) {
+
+    // Safety net (runs before the normal branches): a position stuck past
+    // max-hold with NO executable exit this cycle — whether blocked by
+    // low-confidence / regime / validator, or a consensus swap the router
+    // couldn't fill (stable-heavy / sub-floor residual) — is released to
+    // FLAT. This stops it aging forever and resurfacing as repeated
+    // INTENT_SWAP_NO_EXEC. The residual holding stays in the wallet (shown
+    // honestly in holdings); only active-grid tracking is cleared.
+    const _stuckState = positionState.getState();
+    if (
+      positionState.shouldReconcileStalePosition(_stuckState, {
+        alphaSwapExecuted,
+      })
+    ) {
+      positionState.exitPosition(
+        "stale-position-reconciled: held past max-hold with no executable exit; residual remains in wallet, no longer tracked as active grid position"
+      );
+      console.log(
+        `   📍 Position reconciled to FLAT: ${_stuckState.status} held ${_stuckState.cycleCount} cycles (>= max ${positionState.MAX_CYCLES_IN_POSITION}) with no executable exit — releasing tracking. Residual holding stays in the wallet.`
+      );
+    } else if (decision.consensus && decision.action === "swap" && alphaSwapExecuted) {
       const currentPositionState = positionState.getState();
       const targetAsset = decision.analyst?.targetAsset;
       const overrideReason = rangingSignal?.overrideReason;
@@ -2137,33 +2157,9 @@ async function runMultiAgentCycle(opts = {}) {
         }
       }
     } else if (decision.consensus && decision.action === "swap") {
-      // Swap reached consensus but no alpha DEX execution happened
-      // (e.g. risk-off while already stable-heavy, or a sub-floor
-      // residual). If we're stuck in a position past max-hold and the
-      // exit keeps failing to execute, reconcile to FLAT so we stop the
-      // repeated INTENT_SWAP_NO_EXEC loop. The residual holding remains
-      // in the wallet (still shown in holdings) — we just stop tracking
-      // it as an active grid position, letting the stable-heavy+FLAT
-      // logic label future cycles cleanly.
-      const stalePos = positionState.getState();
-      const wasExitIntent = isStableTargetAsset(decision.analyst?.targetAsset);
-      if (
-        positionState.shouldReconcileStalePosition(stalePos, {
-          swapExecuted: false,
-          wasExitIntent,
-        })
-      ) {
-        positionState.exitPosition(
-          "stale-position-reconciled: exceeded max-hold and exit could not execute; residual remains in wallet, no longer tracked as active grid position"
-        );
-        console.log(
-          `   📍 Position reconciled to FLAT: ${stalePos.status} held ${stalePos.cycleCount} cycles (> max ${positionState.MAX_CYCLES_IN_POSITION}) and the exit swap could not execute — ending the stuck-exit loop. Residual holding stays in the wallet.`
-        );
-      } else {
-        console.log(
-          `   📍 Position state unchanged: swap intent had no alpha DEX execution`
-        );
-      }
+      console.log(
+        `   📍 Position state unchanged: swap intent had no alpha DEX execution`
+      );
     } else if (!decision.consensus) {
       // No action — still tick the cycle if we're in a position
       const state = positionState.getState();
