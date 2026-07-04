@@ -1538,6 +1538,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1783186652514_987",
+      "decisionId": 987,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1788.41,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreib2f41240e27ae22bdf221582f5158e2b0cec1351b92b6d68c358",
+      "recordedAt": "2026-07-04T17:37:32.514Z",
+      "settleAfter": "2026-07-04T18:37:32.514Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783186652493
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes scale-in swap to mETH citing upward breakout, but critical issues exist: (1) R:R not provided — mandatory rejection trigger. (2) Signal consensus is BEARISH with yield spread -1% BEARISH; analyst does not explicitly acknowledge these contradictions. (3) Scale-in rule requires 'fresh deeper lower-band move' — price is at 100% channel position (above resistance), not a lower-band re",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — mandatory rejection",
+        "Scale-in rule violated: price at 100% channel, no lower-band re-entry",
+        "BEARISH signal consensus and yield spread -1% not acknowledged",
+        "RSI 73 overbought + Bollinger SELL contradict breakout thesis",
+        "Breakout unconfirmed by volume with vol expanding — false breakout risk unaddressed"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc08177c4c1f6719842b8581fd1b9424062eb4dd92e0fcd017157f008b45367ce",
+      "combinedAnchor": "0xc5f4afd101eb4e46487c13628212234c1865f4c64e87bedc2b5f3efdbd090435",
+      "decisionLogTxHash": "0x2c1fd91c4483b0a6d12c322c66cdc02a11e2869783eca3ed4c03122289c9c481",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
