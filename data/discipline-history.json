@@ -1,34 +1,5 @@
 [
   {
-    "at": "2026-06-29T19:36:18.231Z",
-    "decisionId": 900,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
-    "displayTier": "BLOCKED_BY_LOW_CONFIDENCE",
-    "executedOnChain": false,
-    "action": "hold",
-    "targetAsset": "mUSD",
-    "sourceAsset": null,
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-29T21:03:48.319Z",
     "decisionId": 901,
     "verdict": "ACCEPTED",
@@ -3065,6 +3036,55 @@
         "name": "tx_exists",
         "status": "PASS",
         "detail": "Block 97564760"
+      },
+      {
+        "name": "tx_sender",
+        "status": "PASS",
+        "detail": "Matches vault wallet"
+      },
+      {
+        "name": "tx_confirmed",
+        "status": "PASS",
+        "detail": "3 confirmations"
+      },
+      {
+        "name": "tx_success",
+        "status": "PASS",
+        "detail": "TX successful"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      },
+      {
+        "name": "tx_proof",
+        "status": "PASS",
+        "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-07-05T15:21:10.478Z",
+    "decisionId": 1004,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_REGIME",
+    "displayTier": "BLOCKED_BY_REGIME",
+    "executedOnChain": true,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_exists",
+        "status": "PASS",
+        "detail": "Block 97567272"
       },
       {
         "name": "tx_sender",
