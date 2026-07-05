@@ -1,47 +1,46 @@
 {
-  "cycleStartedAt": "2026-07-05T16:29:40.663Z",
-  "cycleEndedAt": "2026-07-05T16:31:37.723Z",
-  "durationSeconds": 117.06,
+  "cycleStartedAt": "2026-07-05T17:38:03.398Z",
+  "cycleEndedAt": "2026-07-05T17:39:38.409Z",
+  "durationSeconds": 95.01,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 25614,
-    "validatorMs": 6993,
+    "analystMs": 6161,
+    "validatorMs": 7177,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 1005,
-  "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
-  "consensus": false,
-  "txHashes": [
-    "0xae97ce2f89cefe82fc199936d3e7cecc12867d0347bf3271fdf2048664d8f084"
-  ],
+  "decisionId": 1006,
+  "decisionTier": "INTENT_SWAP_NO_EXEC",
+  "consensus": true,
+  "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28747365154",
-  "errors": [
-    "outcome-not-persisted: cycle 1005 missing from src/data/outcomes.json after Step 6"
-  ],
-  "rwa": {
-    "source": "conservative",
-    "executed": true,
-    "amountInUsd": 2.00327825,
-    "from": "USDT",
-    "to": "USDT0",
-    "blockedReason": null
-  },
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28749222885",
+  "errors": [],
   "gridTradeCandidate": {
-    "active": false,
-    "kind": null,
-    "action": null,
-    "direction": null,
-    "targetAsset": null,
-    "sourceAsset": null,
-    "allocationPct": null,
-    "confidence": null,
-    "reason": "not stable-heavy FLAT inventory",
+    "active": true,
+    "kind": "grid-sell",
+    "action": "swap",
+    "direction": "risk_off",
+    "targetAsset": "mUSD",
+    "sourceAsset": "mETH",
+    "allocationPct": 20,
+    "confidence": 0.6977272727272723,
+    "reason": null,
     "routeHint": null
   },
-  "executionStatus": "EXECUTED"
+  "directionalSwap": {
+    "executed": false,
+    "direction": "risk-off",
+    "from": "mETH",
+    "to": "USDT0",
+    "amountIn": 0.005900799136797383,
+    "amountOut": null,
+    "reason": "preflight-failed: leg3 WMNT->USDT not viable",
+    "error": null,
+    "legs": null
+  },
+  "executionStatus": "INTENT_ONLY"
 }
