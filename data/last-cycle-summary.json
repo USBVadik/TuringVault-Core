@@ -1,25 +1,23 @@
 {
-  "cycleStartedAt": "2026-07-05T10:30:34.643Z",
-  "cycleEndedAt": "2026-07-05T10:32:47.053Z",
-  "durationSeconds": 132.41,
+  "cycleStartedAt": "2026-07-05T11:57:08.953Z",
+  "cycleEndedAt": "2026-07-05T11:58:36.826Z",
+  "durationSeconds": 87.87,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 18081,
-    "validatorMs": 8530,
+    "analystMs": 8181,
+    "validatorMs": 7070,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 1001,
-  "decisionTier": "EXECUTED_SWAP",
+  "decisionId": 1002,
+  "decisionTier": "INTENT_SWAP_NO_EXEC",
   "consensus": true,
-  "txHashes": [
-    "0x07b3f806841968335fad0b8e7dc0d022b4600bbb8359f81ced2ad36b34c1f0d8"
-  ],
+  "txHashes": [],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28737770202",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28739956441",
   "errors": [],
   "gridTradeCandidate": {
     "active": false,
@@ -34,26 +32,15 @@
     "routeHint": null
   },
   "directionalSwap": {
-    "executed": true,
-    "direction": "risk-on",
-    "from": "USDT0",
-    "to": "WMNT",
-    "amountIn": 10.5,
-    "amountOut": 23.862250997654723,
-    "reason": null,
+    "executed": false,
+    "direction": "risk-off",
+    "from": "WMNT",
+    "to": "USDT0",
+    "amountIn": 23.882851203013335,
+    "amountOut": null,
+    "reason": "preflight-failed: leg1 WMNT->USDT not viable",
     "error": null,
-    "legs": [
-      {
-        "leg": 1,
-        "from": "USDT0",
-        "to": "WMNT",
-        "txHash": "0x07b3f806841968335fad0b8e7dc0d022b4600bbb8359f81ced2ad36b34c1f0d8",
-        "blockNumber": 97558620,
-        "amountIn": 10.5,
-        "amountOut": 23.862250997654723,
-        "reason": null
-      }
-    ]
+    "legs": null
   },
-  "executionStatus": "EXECUTED"
+  "executionStatus": "INTENT_ONLY"
 }
