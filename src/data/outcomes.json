@@ -2706,6 +2706,106 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1783243674549_1000",
+      "decisionId": 1000,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 0.439718,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei55dc5bbd623c73441b5ab79ebecd6ecc98dc7e4ad5f72287cb28",
+      "recordedAt": "2026-07-05T09:27:54.549Z",
+      "settleAfter": "2026-07-05T10:27:54.549Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783243674527
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "MNT grid at 9% channel position (near $0.44 support) with 80% confidence and 2.5:1 R:R meets the mandatory 1.5:1 threshold. PRIMARY EDGE designation confirmed. Portfolio is stable-heavy (62.4% USDT0), 15% allocation is well within 40% cap. Analyst correctly notes BEARISH consensus as counter-trend risk and acknowledges falling RSI. Funding neutral (0.424%) poses no directional headwind. RANGING re",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH — counter-trend entry carries reversal risk",
+        "MNT RSI 35.4 still falling — momentum not yet confirmed",
+        "Yield spread -1% bearish adds mild headwind",
+        "Position already IN_MNT since $0.452119 — scale-in rules apply; confirm no down-break before execution"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "controlled scale-in allowed: WMNT lower-band price 0.43965 is below prior entry 0.452119; size capped at 10%",
+        "scaleIn": true,
+        "suggestedAllocationPct": 10,
+        "summary": {
+          "stableUsd": 68.826904,
+          "tradableRiskUsd": 41.406216777895374,
+          "nativeMnt": 25.145400054318102,
+          "stableShare": 0.6243759000407579,
+          "riskShare": 0.375624099959242,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-on",
+        "reason": "smart-router-infeasible: risk-on infeasible: USDT0=0.00 USDT=0.00 both below floors",
+        "balancesSnapshot": {
+          "MNT": 25.07844745999117,
+          "WMNT": 7.375893750892848,
+          "USDT0": 0,
+          "USDT": 0,
+          "mETH": 0,
+          "WETH": 0
+        }
+      },
+      "manifestHash": "0x6023de8cf9f71a5f9d7548363431829e81690172c82e4c6716e37ff3bd5d0d4d",
+      "combinedAnchor": "0xd7bb123d822eb09dae8891e64e9118dd60882ae307a770ae6a639b8dd09cc4e3",
+      "decisionLogTxHash": "0x1ae07a5d65f91e3a0c6e053a7c5bf330457cb2088a430dfe74f9fd8e3dad71ec",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
