@@ -3770,6 +3770,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783289654994_1012",
+      "decisionId": 1012,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1787.87,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreie3f7d76496e83dd79e4da26ed22fe63e7648260720abeb10c689",
+      "recordedAt": "2026-07-05T22:14:14.994Z",
+      "settleAfter": "2026-07-05T23:14:14.994Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783289654976
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid EXIT_RANGING with UNKNOWN breakout direction correctly blocks directional ETH action. MNT grid BUY_mETH at 76% confidence is valid but scale-in rule legitimately blocks adding to existing IN_MNT position at $0.441 vs entry $0.448 — not a fresh deeper lower-band move. Signal consensus BEARISH + yield spread -1% BEARISH + F&G=23 support caution. No hallucina",
+      "validatorFlaggedIssues": [
+        "MNT position underwater from $0.448 entry — scale-in rule correctly applied",
+        "ETH at 100% channel position with vol expanding — breakout direction genuinely unknown",
+        "Signal consensus BEARISH conflicts with mild long funding — acknowledged contradiction",
+        "No R:R provided but HOLD requires none — zero deployment risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xfc6ac494a672fa52b29b5a9bc5791536a4abd3bcac83f4ad57b55545f637dc4f",
+      "combinedAnchor": "0xcdea63b978f6e03ac447c43d3777a445d8a9788e94594aae4d531152de3743ec",
+      "decisionLogTxHash": "0xac24ec6c595f75d94ef2fb493c09eb5a85e006931eaba0ed7751c80c0a538fb4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
