@@ -2631,6 +2631,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783239649514_999",
+      "decisionId": 999,
+      "action": "swap",
+      "targetAsset": "MNT",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 0.441973,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreibe0cc797416e6f0e93a0defff320d303e3d5c438b2c5f65d1eab",
+      "recordedAt": "2026-07-05T08:20:49.514Z",
+      "settleAfter": "2026-07-05T09:20:49.514Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783239649494
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Scale-in rule requires 'fresh deeper lower-band move' — current MNT entry was $0.452119, present price $0.44194 is lower, but the scale-in rule also requires 'no confirmed down-break.' Signal consensus is BEARISH and yield spread is -1% BEARISH, which together constitute bearish confirmation that undermines the scale-in premise. Additionally, the MNT grid BUY_mETH signal targets mETH, not MNT — th",
+      "validatorFlaggedIssues": [
+        "Grid signal says BUY_mETH but proposal swaps to MNT — asset mismatch",
+        "Scale-in blocked: BEARISH signal consensus constitutes bearish confirmation per scale-in rule",
+        "Stop-loss at $0.44 vs current $0.44194 is only 0.44% away — R:R numerics unreliable",
+        "Yield spread -1% BEARISH ignored as disqualifying factor for risk-on scale-in",
+        "RANGING regime + BEARISH consensus requires grid confirmation free of bearish flow — not met here"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe2481a03c739a85c3c99e93c89f3eaf92563faf7d82eb53c529a009d8836fbed",
+      "combinedAnchor": "0x5e1118da2a82dee30716a3ed7438de08e89cbc3131e90dbc95e3630d1d49aa73",
+      "decisionLogTxHash": "0xab8afa5d8c2b3d8e2ffcf34264be46b3fdc7ad6cd246ae2c92c85861c6b8bfb2",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
