@@ -1,34 +1,5 @@
 [
   {
-    "at": "2026-06-29T21:03:48.319Z",
-    "decisionId": 901,
-    "verdict": "ACCEPTED",
-    "decisionTier": "EXECUTED_SWAP",
-    "displayTier": "INTENT_SWAP_NO_EXEC",
-    "executedOnChain": false,
-    "action": "swap",
-    "targetAsset": "mETH",
-    "sourceAsset": "USDT0",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-06-29T21:28:46.703Z",
     "decisionId": 902,
     "verdict": "ACCEPTED",
@@ -3085,6 +3056,55 @@
         "name": "tx_exists",
         "status": "PASS",
         "detail": "Block 97567272"
+      },
+      {
+        "name": "tx_sender",
+        "status": "PASS",
+        "detail": "Matches vault wallet"
+      },
+      {
+        "name": "tx_confirmed",
+        "status": "PASS",
+        "detail": "3 confirmations"
+      },
+      {
+        "name": "tx_success",
+        "status": "PASS",
+        "detail": "TX successful"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      },
+      {
+        "name": "tx_proof",
+        "status": "PASS",
+        "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-07-05T16:31:35.350Z",
+    "decisionId": 1005,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+    "displayTier": "BLOCKED_BY_LOW_CONFIDENCE",
+    "executedOnChain": true,
+    "action": "swap",
+    "targetAsset": "mETH",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_exists",
+        "status": "PASS",
+        "detail": "Block 97569385"
       },
       {
         "name": "tx_sender",
