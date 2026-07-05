@@ -1,24 +1,36 @@
 {
-  "cycleStartedAt": "2026-07-05T11:57:08.953Z",
-  "cycleEndedAt": "2026-07-05T11:58:36.826Z",
-  "durationSeconds": 87.87,
+  "cycleStartedAt": "2026-07-05T13:55:44.048Z",
+  "cycleEndedAt": "2026-07-05T13:57:28.744Z",
+  "durationSeconds": 104.7,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 8181,
-    "validatorMs": 7070,
+    "analystMs": 20482,
+    "validatorMs": 6498,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 1002,
-  "decisionTier": "INTENT_SWAP_NO_EXEC",
-  "consensus": true,
-  "txHashes": [],
+  "decisionId": 1003,
+  "decisionTier": "BLOCKED_BY_REGIME",
+  "consensus": false,
+  "txHashes": [
+    "0xf17fcd7270cbff54fdf7369460ed6b268c39dcebf8231aafbce1894ea5c1970b"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28739956441",
-  "errors": [],
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28743105965",
+  "errors": [
+    "outcome-not-persisted: cycle 1003 missing from src/data/outcomes.json after Step 6"
+  ],
+  "rwa": {
+    "source": "conservative",
+    "executed": true,
+    "amountInUsd": 3.56138375,
+    "from": "USDT",
+    "to": "USDT0",
+    "blockedReason": null
+  },
   "gridTradeCandidate": {
     "active": false,
     "kind": null,
@@ -31,16 +43,5 @@
     "reason": "not stable-heavy FLAT inventory",
     "routeHint": null
   },
-  "directionalSwap": {
-    "executed": false,
-    "direction": "risk-off",
-    "from": "WMNT",
-    "to": "USDT0",
-    "amountIn": 23.882851203013335,
-    "amountOut": null,
-    "reason": "preflight-failed: leg1 WMNT->USDT not viable",
-    "error": null,
-    "legs": null
-  },
-  "executionStatus": "INTENT_ONLY"
+  "executionStatus": "EXECUTED"
 }
