@@ -4715,6 +4715,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783374923128_1023",
+      "decisionId": 1023,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1816.24,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei517ed606ff94ee2bc5737819c457caf88cc2fa584e1688ec755e",
+      "recordedAt": "2026-07-06T21:55:23.128Z",
+      "settleAfter": "2026-07-06T22:55:23.128Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783374923110
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on existing mETH position is well-reasoned. ETH grid shows EXIT_RANGING with UP breakout and TREND_UP hint — Analyst correctly reads this as bullish, not bearish. Position already IN_mETH since $1798.1; current $1816.24 is only +1% above entry, insufficient cushion for scale-in. RSI 69.4 + Bollinger 108% confirm short-term extension risk. Yield spread -1% bearish acknowledged. No contradictio",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly quantified — acceptable for HOLD action",
+        "Yield spread -1% bearish signal warrants monitoring for exit trigger",
+        "Bollinger 108% above band increases mean-reversion probability short-term"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2d91f39c50475f5ab1f3f5c41ef2aec2e9c6b4cddbf6d6f8d4c7be000dca4a7e",
+      "combinedAnchor": "0x9d057a9511be29d091e3d43289c3063e2d76121c86470d77965f1b5eaeacff89",
+      "decisionLogTxHash": "0x69d805c96189848a34e66de1dce7e3066ca93f3043701eeec36d444089477263",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
