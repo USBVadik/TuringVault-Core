@@ -4348,6 +4348,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783328324966_1018",
+      "decisionId": 1018,
+      "action": "swap",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 0.439147,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei0ba0556707bbbdf925828528a76b700153e4eaa82382e2d48855",
+      "recordedAt": "2026-07-06T08:58:44.966Z",
+      "settleAfter": "2026-07-06T09:58:44.966Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783328324947
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes WMNT swap but PRIMARY EDGE override is STOP_LOSS on IN_mETH from $1798.1 — current ETH at $1764.12 is ~1.9% underwater. STOP_LOSS override must be resolved before new risk-on entries. MNT grid BUY signal targets mETH not WMNT. Signal consensus is BEARISH, yield spread -1% BEARISH, RSI falling. R:R not explicitly provided by analyst. RANGING regime with BEARISH consensus and active",
+      "validatorFlaggedIssues": [
+        "PRIMARY EDGE override is STOP_LOSS — new risk-on blocked until resolved",
+        "MNT grid signal action=BUY_mETH, not BUY_WMNT — target asset mismatch",
+        "Signal consensus BEARISH contradicts contrarian entry without stronger confirmation",
+        "R:R not explicitly provided by analyst — mandatory field missing",
+        "Position already underwater IN_mETH from $1798.1; scale-in into WMNT adds correlated risk"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xb137ab21ac0c03d9b44ff143db99ea5ac42246dd042854b61e747f6b880adcbe",
+      "combinedAnchor": "0xa896bb7c1a301a49fee7541fdbd8d0255890111a511f1acdb0a56e224e5cb02d",
+      "decisionLogTxHash": "0x53490cbe86b1eb4c06b6717213a3e9c45898793f56a3ae27c427f56d1be8e186",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
