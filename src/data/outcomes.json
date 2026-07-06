@@ -4081,6 +4081,80 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1783297163965_1015",
+      "decisionId": 1015,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1786.11,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreic5d766e2b16d7fc7d71ec6cee69e07d2f0905f661afb5b350533",
+      "recordedAt": "2026-07-06T00:19:23.965Z",
+      "settleAfter": "2026-07-06T01:19:23.965Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783297163947
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid EXIT_RANGING with UNKNOWN breakout direction correctly blocks directional action. MNT BUY_mETH signal (72% confidence, R:R 2.5:1) is legitimately blocked by ALREADY_IN_POSITION override. Portfolio at 58.6% risk is balanced — no urgent rebalance trigger. Funding 0.532% mildly bullish but insufficient to override RANGING+BEARISH consensus. Analyst correctly ",
+      "validatorFlaggedIssues": [
+        "mETH position underwater by ~$12 (~0.67%) — monitor for stop discipline",
+        "Bollinger at 91% band position with vol expanding increases breakout risk",
+        "BEARISH signal consensus conflicts with mildly bullish funding — unresolved tension",
+        "F&G=24 Extreme Fear warrants caution on any new risk-on entries"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xfa1af06b4944d237dcf18e5fa73c68e87da751c8072a6b00459bf35de9fac399",
+      "combinedAnchor": "0x859555be64f7d09c9433154d7c652af2e43b64db397a47699d0ec5980a115fa5",
+      "decisionLogTxHash": "0x9c53c21067019235821cb6bccbe413b7b54684f8b5182f8804e7a39b3088492b",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
