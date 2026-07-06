@@ -4423,6 +4423,135 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_VALIDATOR"
+    },
+    {
+      "id": "1783341792885_1019",
+      "decisionId": 1019,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.68,
+      "priceAtDecision": 1747.32,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei70c45f635e5f2c25f452879b851600e6071174725502e3dd0895",
+      "recordedAt": "2026-07-06T12:43:12.885Z",
+      "settleAfter": "2026-07-06T13:43:12.885Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783341792868
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Proposal is a defensive de-risk (swap to mUSD), not a directional speculative SWAP. Both ETH and MNT grids confirm EXIT_RANGING with downward breakout (70-80% confidence). STOP_LOSS override is active on IN_mETH position entered at $1798.1 vs current $1748.5 (-2.8% underwater). TREND_DOWN regime hint is explicitly confirmed by dual grid signals, satisfying the inventory rule exception. RSI 34.8 fa",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly quantified by Analyst — inferred from stop-loss logic only",
+        "Partial de-risk leaves 65% mETH exposure still underwater",
+        "Extreme Fear sentiment could reverse sharply — contrarian risk on remaining position"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: stop-loss hit for IN_mETH (current 1748.5, stop 1765.7341999999999, entry 1798.1)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 47.001514,
+          "tradableRiskUsd": 61.50898544635038,
+          "nativeMnt": 23.78429242316715,
+          "stableShare": 0.4331517617172007,
+          "riskShare": 0.5668482382827993,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "mETH",
+        "to": "USDT0",
+        "amountIn": 0.008584575235217362,
+        "reason": "preflight-failed: leg3 WMNT->USDT not viable",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "mETH",
+            "to": "WETH",
+            "amountIn": 0.008584575235217362,
+            "estimatedOut": 0.00939584878135184,
+            "priceImpactBps": 0,
+            "pairAddress": "0x3b6c029E6409f2868769871F9Ed6825b15BDca15",
+            "binStep": 2,
+            "depthFraction": 0.000118
+          },
+          {
+            "leg": 2,
+            "from": "WETH",
+            "to": "WMNT",
+            "amountIn": 0.00939584878135184,
+            "estimatedOut": 37.786159827918894,
+            "priceImpactBps": 4.1,
+            "pairAddress": "0x1606C79bE3EBD70D8d40bAc6287e23005CfBefA2",
+            "binStep": 10,
+            "depthFraction": 0.010479
+          },
+          {
+            "leg": 3,
+            "from": "WMNT",
+            "to": "USDT",
+            "amountIn": 37.786159827918894,
+            "estimatedOut": 0,
+            "priceImpactBps": 10000,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 0.003052
+          }
+        ]
+      },
+      "manifestHash": "0x6db0bba9b988aa3b2d7b683b760c2dcf0e282fc7823622496262d1e97d7ff8f3",
+      "combinedAnchor": "0x583be625184f0bbce937abf48155922c7759b681d19b32befcf6399ca2cb7027",
+      "decisionLogTxHash": "0x22142f27ba2fe49032c648937ec1bc4916dec4c6b82239c351c3b9aae63832d3",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
