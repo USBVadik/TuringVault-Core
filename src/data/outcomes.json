@@ -4877,6 +4877,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783379014399_1025",
+      "decisionId": 1025,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 1804.97,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreib754e37be841dbe6d4f474f33d4a0c6747dd0523012eda76e6a0",
+      "recordedAt": "2026-07-06T23:03:34.399Z",
+      "settleAfter": "2026-07-07T00:03:34.399Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783379014380
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Scale-in rejected on multiple grounds: (1) R:R not provided — mandatory rejection trigger. (2) Entry at $1807.9 is already 0.8% above resistance $1793.7 with no confirmed follow-through volume; chasing a breakout without R:R definition is speculative. (3) Bollinger at 89% band position signals overbought extension. (4) RSI 62.9 falling = SELL signal. (5) Yield spread -1% bearish. (6) Smart money f",
+      "validatorFlaggedIssues": [
+        "R:R ratio not provided — automatic rejection",
+        "Scale-in rule violated: price at channel top, not lower-band re-entry",
+        "Bollinger at 89% — overbought, not a scale-in entry point",
+        "RSI falling with SELL signal contradicts bullish scale-in thesis",
+        "Breakout unconfirmed by volume; chasing resistance break without stop-loss definition"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0106b1cd3bf2841d3be516b7b62e3fa25d564eadd33cafc826a07956cbb58382",
+      "combinedAnchor": "0x7899b658402e97ab0e8a20beab4a167dda7d2d138a95fe67698561fae2719bf5",
+      "decisionLogTxHash": "0xc311362cb6c5327f4a2291e925296d1a4c7e31441b7f241fb03e26e5f0a4012c",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
