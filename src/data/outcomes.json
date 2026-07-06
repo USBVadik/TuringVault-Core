@@ -4788,6 +4788,95 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783375086863_1024",
+      "decisionId": 1024,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1815.67,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei9477129837b5e32d42d778b336ee11f918a7fca74f3894ddf04a",
+      "recordedAt": "2026-07-06T21:58:06.864Z",
+      "settleAfter": "2026-07-06T22:58:06.864Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783375086845
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid EXIT_RANGING with confirmed UP breakout (price $1817 > resistance $1793.4, 80% confidence, regimeHint=TREND_UP). EMA cross bullish (9=1788>21=1779), MACD histogram positive at 4.84. Contrarian F&G=24 supports risk-on. Position already IN_mETH since $1798.1 — this is a scale-in; sizing 25% is within risk cap. Yield spread -1% bearish noted but overridden by breakout confirmation. R:R estim",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided by Analyst — estimated ~1.6:1 from liq zones, borderline",
+        "RSI 69.1 approaching overbought — pullback risk real",
+        "Scale-in on existing IN_mETH position increases concentration",
+        "Yield spread -1% bearish signal not reconciled in proposal",
+        "Funding 0.617% mild long bias — squeeze risk if breakout fails"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-on",
+        "reason": "scale-in blocked: risk share 56.4% already above 40% scale-in ceiling",
+        "scaleIn": true,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 48.234307,
+          "tradableRiskUsd": 62.370865686767054,
+          "nativeMnt": 23.414180938346444,
+          "stableShare": 0.43609449565798486,
+          "riskShare": 0.5639055043420151,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xcdb3b338760e4ec918af6619c9026481d6841323b2e24b5cda0841e85f8cdd34",
+      "combinedAnchor": "0xed32bfd952d73f016f204a3fbbf8f609fc41b71fe1f29fe16cd3a7afaf77811b",
+      "decisionLogTxHash": "0x158b373a131af24965ad041e92f58e2aed1adb18f501853a1e39ba58a0015ae5",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
