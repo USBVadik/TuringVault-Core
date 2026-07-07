@@ -681,6 +681,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783463046908_1035",
+      "decisionId": 1035,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1775.04,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei0f9ec1f5384505482beec37bc32a6ea8b040d37faee985ae43ad",
+      "recordedAt": "2026-07-07T22:24:06.908Z",
+      "settleAfter": "2026-07-07T23:24:06.908Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783463046888
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid confirms HOLD at 33% channel position (confidence 50%), no edge near support/resistance. Portfolio is balanced 50/50 — no rebalancing urgency. Funding neutral at 0.343%, smart money flow neutral. MNT breakdown (EXIT_RANGING, DOWN, 80% confidence) correctly noted as spillover risk but PRIMARY EDGE correctly defers to ETH. F&G=27 fear without negative fundin",
+      "validatorFlaggedIssues": [
+        "MNT confirmed TREND_DOWN breakdown — monitor for Mantle ecosystem contagion",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning",
+        "ETH RSI 46.5 rising with EMA_CROSS BUY partially contradicts MACD SELL — mixed signals acknowledged"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x17a454751a249430f5e5c495d41e4d7e720661a95e3001cd011838280bb871f9",
+      "combinedAnchor": "0x1c7fb75efa9f332302c3267db8b8cd00004cab128718db98f22f1f1b3cb6ab31",
+      "decisionLogTxHash": "0x5aa85f0d88fe477b17c3429dfbd5d7fedc54eb33fa6fd268b26f2ccb09fc3919",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
