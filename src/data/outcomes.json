@@ -72,6 +72,81 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783397936749_1027",
+      "decisionId": 1027,
+      "action": "swap",
+      "targetAsset": "WMNT",
+      "consensus": false,
+      "confidence": 0.62,
+      "priceAtDecision": 0.437355,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreic491742e63f2a6286e50b490a5ea0083b0d444005cb5be250ca1",
+      "recordedAt": "2026-07-07T04:18:56.749Z",
+      "settleAfter": "2026-07-07T05:18:56.749Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783397936731
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes WMNT swap in RANGING regime. Grid signal fires BUY_mETH (not BUY_MNT), yet Analyst targets WMNT — signal mismatch. MNT technicals score SELL (-0.25). Yield spread -1% bearish. Portfolio already holds $9.26 WMNT (IN_MNT), so scale-in rule requires fresh deeper lower-band move — not confirmed. R:R not explicitly provided by Analyst. Mixed signals without full acknowledgment.",
+      "validatorFlaggedIssues": [
+        "Grid signal is BUY_mETH not BUY_WMNT — target asset mismatch",
+        "MNT technicals SELL (-0.25) contradicts proposed buy direction",
+        "Portfolio already IN_MNT ($9.26 WMNT); scale-in requires deeper lower-band move not confirmed",
+        "Yield spread -1% bearish signal insufficiently weighted",
+        "R:R not explicitly provided by Analyst — mandatory field missing"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x16634eeaaec5ef0ebe3ce65e738efa8c62b6ff66383e643284b58e20bfc6a9a7",
+      "combinedAnchor": "0x4330c20b5cb89d5d68cc89d0b835605f8a6edfc7a253ed763eff857c3240e738",
+      "decisionLogTxHash": "0x1dc20e12ae81068f6b7ba701b20b16e4396cd96fa6c6a7f8ebaae33fb78203d9",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
