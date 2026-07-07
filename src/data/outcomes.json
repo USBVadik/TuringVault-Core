@@ -754,6 +754,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783467006819_1036",
+      "decisionId": 1036,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.52,
+      "priceAtDecision": 1777.29,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei97b6b7cfc7c8138dafb2bd85f682441ea454a701c85a2d791512",
+      "recordedAt": "2026-07-07T23:30:06.819Z",
+      "settleAfter": "2026-07-08T00:30:06.819Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_LOW_CONFIDENCE — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783467006800
+      },
+      "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 44% channel position (mid-zone, no edge signal), MNT grid EXIT_RANGING with UNKNOWN breakout direction — no directional trade justified. Portfolio balanced at 52.4% risk. Funding neutral at 0.311%, smart money flow flat $0.0M, RSI 47.6 not oversold. No hallucinated data. HOLD carries minimal capital risk and correctly defers action pending clearer signa",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD as no capital is deployed",
+        "MNT vol expanding with trend forming warrants close monitoring next cycle",
+        "Yield spread -1% is a mild bearish drag on mETH thesis"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe841d93f8f56369eb9a27dec9a9c3e73e205743dd77c4e1685090f28c2f5faf1",
+      "combinedAnchor": "0xdc9e9c260a34454b7ac88422a5814edf06359a9ef8efe250d395909a0e8cab86",
+      "decisionLogTxHash": "0xd982eecc3b32c41898f48b6282ba3f94c3004c6b495297eed3c3e6bc736d07be",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
     }
   ],
   "settled": [
