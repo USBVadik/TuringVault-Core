@@ -294,6 +294,124 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783439538357_1031",
+      "decisionId": 1031,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1796.77,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkrei5ec3f34ff28e8941f830207e4739b59462a4deaa255040525196",
+      "recordedAt": "2026-07-07T15:52:18.357Z",
+      "settleAfter": "2026-07-07T16:52:18.357Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783439538338
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid at 100% of channel (resistance $1796.77) with SELL_mETH signal at 80% confidence. R:R stated as 10.01:1 (entry 1796.77, stop 1800.08, TP 1763.72) — well above 1.5:1 threshold. RANGING regime supports mean-reversion grid exits. Signal consensus BEARISH, yield spread -1% BEARISH, F&G=27 Fear all align. Partial 20% trim of mETH ($48.45) is conservative. RSI 58.7 rising and improving MACD are",
+      "validatorFlaggedIssues": [
+        "Entry $1796.77 slightly below cost basis $1798.1 — small realized loss on trim",
+        "MACD histogram improving (1.15) — bullish momentum building, resistance could break",
+        "RSI 58.7 rising — not overbought, momentum not confirming reversal",
+        "Stop loss only $3.31 above entry — tight stop in low-vol environment (intraday vol 0.37%)"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "risk-off blocked: current 1796.7741746041156 is below profitable exit 1825.0715 for IN_mETH (entry 1798.1, target 1825.0714999999998); hold grid position unless stop-loss or crisis triggers",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 53.012296,
+          "tradableRiskUsd": 56.81776227119583,
+          "nativeMnt": 22.525914935301444,
+          "stableShare": 0.4826756612392972,
+          "riskShare": 0.5173243387607027,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 20,
+        "confidence": 0.8,
+        "reasoning": "ETHEREUM grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 1796.77, stop 1800.08, take-profit 1763.72, R:R 10.01:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.8,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 1,
+          "support": 1763.72,
+          "resistance": 1796.77,
+          "currentPrice": 1796.7741746041156
+        },
+        "riskReward": {
+          "entry": 1796.77,
+          "stopLoss": 1800.08,
+          "takeProfit": 1763.72,
+          "ratio": 10.01,
+          "riskPct": 0.18,
+          "rewardPct": 1.84
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe8b113c904780684a8e91bd9e76fedfbf370110cec727d7304cfd91602301977",
+      "combinedAnchor": "0x9edb1943fd89c4326851544a744c78300f8216335cfc7005f85908759ce62f38",
+      "decisionLogTxHash": "0x9237867e59fd565afa084dd31d4963b52df2dfd10f783bceb706dc19b02e1305",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
