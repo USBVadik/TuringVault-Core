@@ -574,6 +574,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783529493139_1044",
+      "decisionId": 1044,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1733.46,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreic1ed44c113b36715d65738ad1a60ca2dfa88e3f74c4e6b554db2",
+      "recordedAt": "2026-07-08T16:51:33.139Z",
+      "settleAfter": "2026-07-08T17:51:33.139Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783529493118
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-justified. Portfolio is balanced (42.6% stable / 57.4% risk), not stable-heavy, so inventory rule does not force risk_off. TREND_DOWN at 60% confidence with BEARISH consensus supports caution but not forced de-risking. Funding neutral (0.47%), smart money flow neutral ($0.0M), RSI 40.2 rising — no extreme signal demanding action. No R:R gate applies to HOLD. Analyst corre",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal acknowledged but not weighted heavily — acceptable given neutral funding and flow",
+        "RSI rising from 40.2 could signal short-term relief bounce — worth monitoring",
+        "Liquidation zone at $1609 is -7.2% away, moderate tail risk on mETH position"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xe31555faab6341daba93a05f56869a0df6f6f2788603215805be0eb1ffc0e15e",
+      "combinedAnchor": "0x34dea5ca4a8370c54ff10d05832518bcfdafa472204e466062b3d84a2bdae9fa",
+      "decisionLogTxHash": "0x0c58b63ba0e67e6475c986f421bb11a0d7ac8b30306405cd45fbcc3305402809",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
