@@ -803,6 +803,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783544555482_1047",
+      "decisionId": 1047,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.75,
+      "priceAtDecision": 1735.12,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreibe1ba272ae18de30f7aa4cbbb261335f653940ff503a4ba7e78e",
+      "recordedAt": "2026-07-08T21:02:35.482Z",
+      "settleAfter": "2026-07-08T22:02:35.482Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783544555462
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is appropriate. Portfolio is already IN_mETH since $1747.09; scale-in rule explicitly blocks additional risk_on without a fresh deeper lower-band move. Current price $1735.8 is only ~$11 below entry — insufficient depth for controlled scale-in. Grid BUY_mETH at 80% confidence is acknowledged but correctly overridden by position state. BEARISH consensus + F&G=20 + negative yield spread justify",
+      "validatorFlaggedIssues": [
+        "Entry at $1747.09 vs current $1735.8 — position slightly underwater, monitor stop at $1716.44",
+        "BEARISH signal consensus conflicts with grid BUY — acknowledged but warrants vigilance",
+        "Extreme Fear (F&G=20) increases tail-risk if $1735.6 support fails"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x79d791c762dbc4bbee067376d84802cb28228d10afb95e361b837681c32122ff",
+      "combinedAnchor": "0xb98cca219326d58069ee6f8a8501edf42ed46990393a47fd7f3a2b720443e523",
+      "decisionLogTxHash": "0x671567f84a06fb233e9dac2bf06e326df10ab754602ebd3ad44ff364d8691f28",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
