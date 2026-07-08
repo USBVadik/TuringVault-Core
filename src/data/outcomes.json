@@ -409,6 +409,94 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783515278023_1042",
+      "decisionId": 1042,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.68,
+      "priceAtDecision": 1742.1,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreif4c2b8b740189014fb41d582e56ed2453d1dccd97818faa15064",
+      "recordedAt": "2026-07-08T12:54:38.023Z",
+      "settleAfter": "2026-07-08T13:54:38.023Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783515278005
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid EXIT_RANGING confirmed with DOWN breakout at 70% confidence, price $1743.7 below $1745.3 support, regimeHint=TREND_DOWN. Bearish EMA cross and falling RSI(40.1) corroborate. Entry was $1747.09 so partial exit is capital-protective. 35% allocation is conservative. MACD improving is a noted risk but insufficient to override confirmed breakdown. Defensive swap to mUSD is appropriate given TR",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided by Analyst — inferred as favorable given entry $1747.09 vs current $1743.7 loss-limiting exit",
+        "MACD histogram improving contradicts full bearish conviction — partial exit only is appropriate",
+        "Extreme Fear F&G=20 raises short-squeeze risk if price reclaims $1745.3",
+        "Funding rate positive (0.432%) suggests no strong short crowding yet — not a blocking signal"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "risk-off blocked: current 1743.7 is below profitable exit 1790.05 for IN_mETH (entry 1747.09, target 1790.05); hold grid position unless stop-loss or crisis triggers",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 42.191306,
+          "tradableRiskUsd": 64.88169084230384,
+          "nativeMnt": 21.576130459960524,
+          "stableShare": 0.3940424499571912,
+          "riskShare": 0.6059575500428088,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x7c8774cda8c6e31a83d3c5d92a6bb5d4f277faa990f036db3a3feeb587176762",
+      "combinedAnchor": "0xfcd315e4e9cbd39b01a7bba067e6740b4e3d945242aa1d0a807c537045f7f90c",
+      "decisionLogTxHash": "0x0722f287c10915792bd4b89d20a3667b04d3efab1704b256fe4f41c65ac92a83",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
