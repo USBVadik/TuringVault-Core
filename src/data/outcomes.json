@@ -497,6 +497,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783523759556_1043",
+      "decisionId": 1043,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1719.28,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreic593b8f5ea4cb8d78f6539e721f55b96b4d39e1c21c7868826d5",
+      "recordedAt": "2026-07-08T15:15:59.556Z",
+      "settleAfter": "2026-07-08T16:15:59.556Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783523759537
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal in TREND_DOWN regime is appropriate and low-risk. Portfolio is balanced (39.7% stables, 60.3% risk). RSI 31.9 approaching but not yet at oversold threshold, MACD and EMA bearish confirming caution. Smart money flow NEUTRAL, funding 0.435% balanced — no clear edge to act. Analyst correctly identifies no urgent rebalancing need. Yield spread -1% bearish acknowledged. No hallucinated da",
+      "validatorFlaggedIssues": [
+        "R:R not provided — acceptable for HOLD, not for directional trade",
+        "TREND_DOWN confidence only 60% — mild conviction",
+        "Negative yield spread -1% marginally increases mETH holding cost"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x2b1640508cf7bd0b2ce6c2e0b5b98fa1e6813efd62ce3e2d8ccb8bd04972b83a",
+      "combinedAnchor": "0x687d23bb29847f0a84318eef31b4caab5521f948c08701055108c3c7614d0d79",
+      "decisionLogTxHash": "0xd256acc812e81a9b8343af12cee18079c55bc3ee5e7eef88b282feacfa98ee57",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
