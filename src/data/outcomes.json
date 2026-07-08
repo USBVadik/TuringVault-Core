@@ -948,6 +948,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783553507655_1049",
+      "decisionId": 1049,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1738.69,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei6a6ab924faaaa8cf8233dc526307972d316892ba1712853f77ed",
+      "recordedAt": "2026-07-08T23:31:47.655Z",
+      "settleAfter": "2026-07-09T00:31:47.655Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783553507635
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. Position is already IN_mETH; scale-in rule requires a deeper lower-band move — price at 8% into channel ($1738.69 vs support $1734.29) is not yet at the support edge. Bearish consensus, falling RSI 44.9, negative yield spread (-1%), and Extreme Fear (F&G=20) all support patience. Grid BUY fires at 76% confidence but existing position and scale-in constraints ",
+      "validatorFlaggedIssues": [
+        "Grid BUY_mETH at 76% confidence partially contradicts HOLD but scale-in rule correctly overrides",
+        "Yield spread -1% vs stable alternatives is a mild ongoing drag",
+        "Signal consensus BEARISH while MACD histogram improving — minor contradiction unacknowledged"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xefeeffe8925e9f0b91afc4b34232a90b159d1bd375f47408dd1112418a097b79",
+      "combinedAnchor": "0x23e69c4565a9ecdb1917bd15afbd6b8b75f1777532409aec050cb833da3eaaf6",
+      "decisionLogTxHash": "0xdacae227d30afd94cc6109e3542faee1d453dcc678d295a7bff020d7deb7b274",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
