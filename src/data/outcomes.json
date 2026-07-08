@@ -87,6 +87,153 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783492837040_1039",
+      "decisionId": 1039,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": true,
+      "confidence": 0.62,
+      "priceAtDecision": 1747.09,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "USDT0",
+      "ipfsCid": "bafkreibb0eb0e90dbd4e6e4d9218dd80e5c79e3a3390c9b78321c76017",
+      "recordedAt": "2026-07-08T06:40:37.040Z",
+      "settleAfter": "2026-07-08T07:40:37.040Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_exists",
+            "status": "PASS",
+            "detail": "Block 97681258"
+          },
+          {
+            "name": "tx_sender",
+            "status": "PASS",
+            "detail": "Matches vault wallet"
+          },
+          {
+            "name": "tx_confirmed",
+            "status": "PASS",
+            "detail": "2 confirmations"
+          },
+          {
+            "name": "tx_success",
+            "status": "PASS",
+            "detail": "TX successful"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          },
+          {
+            "name": "tx_proof",
+            "status": "PASS",
+            "detail": "Rolled up from 4 sub-checks"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783492837015
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "ETH grid BUY_mETH fires at 0% channel position (support $1751.8) with 80% confidence and verified 2.5:1 R:R (TP $1790.05, SL $1731.18) — exceeds 1.5:1 mandatory threshold. Portfolio is stable-heavy (51.4% USDT0), making deployment appropriate per inventory rule. F&G=20 contrarian tailwind valid. Funding neutral at 0.165% — no crowding. 15% allocation is conservative and well within 40% cap. MNT br",
+      "validatorFlaggedIssues": [
+        "ETH spot $1748 sits ~$3.80 below grid support $1751.8 — channel integrity should be monitored post-entry",
+        "Signal consensus is BEARISH — grid buy is counter-consensus; contrarian logic must hold",
+        "MNT TREND_DOWN breakdown signals broader Mantle ecosystem weakness that could drag ETH sentiment",
+        "RSI 37.8 falling — momentum not yet confirming reversal; entry may be early"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-on",
+        "reason": "risk-on allowed: stable inventory available ($55.58)",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 55.5824,
+          "tradableRiskUsd": 52.59301227486395,
+          "nativeMnt": 21.82763581919278,
+          "stableShare": 0.5138173160715129,
+          "riskShare": 0.48618268392848696,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": {
+        "executed": true,
+        "direction": "risk-on",
+        "from": "USDT0",
+        "to": "mETH",
+        "amountIn": 10.5,
+        "amountOut": 0.00547397606023078,
+        "txHash": "0x962da91348f2fe9f4665b2622ad39afa23597e95a9d5fe4834923982b7e3567a",
+        "legs": [
+          {
+            "leg": 1,
+            "from": "USDT0",
+            "to": "WMNT",
+            "txHash": "0xba029b9938e3b884e53af2bee7470180dfd41dbd8cc15571dea16e54a3490472",
+            "blockNumber": 97681238,
+            "amountIn": 10.5,
+            "amountOut": 25.115019807403865
+          },
+          {
+            "leg": 2,
+            "from": "WMNT",
+            "to": "WETH",
+            "txHash": "0x54fb73215753c32ecea397e43b6cb98d1e0f44404cb2326736ad27aaa82675c3",
+            "blockNumber": 97681249,
+            "amountIn": 25.08990478759646,
+            "amountOut": 0.005998363624847057
+          },
+          {
+            "leg": 3,
+            "from": "WETH",
+            "to": "mETH",
+            "txHash": "0x962da91348f2fe9f4665b2622ad39afa23597e95a9d5fe4834923982b7e3567a",
+            "blockNumber": 97681258,
+            "amountIn": 0.005992365261222209,
+            "amountOut": 0.00547397606023078
+          }
+        ],
+        "liquidityAdjusted": false,
+        "originalAmountIn": 10.5
+      },
+      "manifestHash": "0x2499aab9ae782076fa5830661fc5a94d322b6332eacbc4c81a6aa160ae99a1eb",
+      "combinedAnchor": "0x222bd2e53a8c3700f35fa4839d3cbbe9e581d9220f5e9ecc1c4dd03c27926641",
+      "decisionLogTxHash": "0x810ef6f9e276004b4e0bccfdb2469f46ca6ba5679925e67ee67ee2e202ec045e",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": true,
+      "executionProofStatus": "ACCEPTED",
+      "_displayTier": "EXECUTED_SWAP"
     }
   ],
   "settled": [

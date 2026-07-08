@@ -1,23 +1,27 @@
 {
-  "cycleStartedAt": "2026-07-08T04:12:42.118Z",
-  "cycleEndedAt": "2026-07-08T04:16:25.712Z",
-  "durationSeconds": 223.59,
+  "cycleStartedAt": "2026-07-08T06:38:07.929Z",
+  "cycleEndedAt": "2026-07-08T06:40:40.202Z",
+  "durationSeconds": 152.27,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 7705,
-    "validatorMs": 8773,
+    "analystMs": 6266,
+    "validatorMs": 9175,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 1038,
-  "decisionTier": "BLOCKED_BY_PORTFOLIO",
-  "consensus": false,
-  "txHashes": [],
+  "decisionId": 1039,
+  "decisionTier": "EXECUTED_SWAP",
+  "consensus": true,
+  "txHashes": [
+    "0xba029b9938e3b884e53af2bee7470180dfd41dbd8cc15571dea16e54a3490472",
+    "0x54fb73215753c32ecea397e43b6cb98d1e0f44404cb2326736ad27aaa82675c3",
+    "0x962da91348f2fe9f4665b2622ad39afa23597e95a9d5fe4834923982b7e3567a"
+  ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28916925504",
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/28922834960",
   "errors": [],
   "gridTradeCandidate": {
     "active": false,
@@ -31,5 +35,47 @@
     "reason": "not stable-heavy FLAT inventory",
     "routeHint": null
   },
-  "executionStatus": "BLOCKED_BY_PORTFOLIO"
+  "directionalSwap": {
+    "executed": true,
+    "direction": "risk-on",
+    "from": "USDT0",
+    "to": "mETH",
+    "amountIn": 10.5,
+    "amountOut": 0.00547397606023078,
+    "reason": null,
+    "error": null,
+    "legs": [
+      {
+        "leg": 1,
+        "from": "USDT0",
+        "to": "WMNT",
+        "txHash": "0xba029b9938e3b884e53af2bee7470180dfd41dbd8cc15571dea16e54a3490472",
+        "blockNumber": 97681238,
+        "amountIn": 10.5,
+        "amountOut": 25.115019807403865,
+        "reason": null
+      },
+      {
+        "leg": 2,
+        "from": "WMNT",
+        "to": "WETH",
+        "txHash": "0x54fb73215753c32ecea397e43b6cb98d1e0f44404cb2326736ad27aaa82675c3",
+        "blockNumber": 97681249,
+        "amountIn": 25.08990478759646,
+        "amountOut": 0.005998363624847057,
+        "reason": null
+      },
+      {
+        "leg": 3,
+        "from": "WETH",
+        "to": "mETH",
+        "txHash": "0x962da91348f2fe9f4665b2622ad39afa23597e95a9d5fe4834923982b7e3567a",
+        "blockNumber": 97681258,
+        "amountIn": 0.005992365261222209,
+        "amountOut": 0.00547397606023078,
+        "reason": null
+      }
+    ]
+  },
+  "executionStatus": "EXECUTED"
 }
