@@ -876,6 +876,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783548759506_1048",
+      "decisionId": 1048,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1737.83,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei5ba47debf2a374c37ae47efa9bfc6a985a054a4ca761cdf2110e",
+      "recordedAt": "2026-07-08T22:12:39.506Z",
+      "settleAfter": "2026-07-08T23:12:39.506Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783548759487
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-justified. ALREADY_IN_POSITION override correctly blocks new entry. Scale-in rule not met — price at 5% channel position, no fresh deeper lower-band move confirmed. R:R 2.5:1 on existing position is favorable. Regime RANGING supports grid logic. Analyst correctly acknowledges bearish consensus, F&G=20, and mild funding crowding. No hallucinated data. All raw signals cross",
+      "validatorFlaggedIssues": [
+        "Yield spread -1% bearish signal not explicitly weighted in hold rationale",
+        "Extreme Fear F&G=20 warrants monitoring for stop cascade below $1651"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x5cda282629046edafdb4cc12a5ddc9b275e3c12e70b3ff62ec43bcf1d7004cbf",
+      "combinedAnchor": "0x2b7f820426404c77d83be9f3c3fe169249319befbc63eaac22f40a5011dd238f",
+      "decisionLogTxHash": "0x5cc05919ba161ea907128161f0e942c97e3cf87fcd7437b1495bdd833e087870",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
