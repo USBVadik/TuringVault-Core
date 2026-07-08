@@ -234,6 +234,94 @@
       "executedOnChain": true,
       "executionProofStatus": "ACCEPTED",
       "_displayTier": "EXECUTED_SWAP"
+    },
+    {
+      "id": "1783502073056_1040",
+      "decisionId": 1040,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.72,
+      "priceAtDecision": 1731.73,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreie3a588c692ffa08667549867a2f661dcafe5cda45385f8e3b305",
+      "recordedAt": "2026-07-08T09:14:33.056Z",
+      "settleAfter": "2026-07-08T10:14:33.056Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783502073037
+      },
+      "decisionTier": "BLOCKED_BY_PORTFOLIO",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Both ETH and MNT grids show confirmed EXIT_RANGING with DOWN breakout at 80% confidence, regime hint TREND_DOWN. Position is IN_mETH entered at $1747.09 vs current $1733.4 — price is below entry, validating defensive exit. Signal consensus BEARISH, yield spread -1% BEARISH, EMA bearish, MACD weakening. Swap to mUSD (defensive stable) is appropriate risk-off action. R:R implicit: protecting ~$13.69",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly quantified by Analyst — inferred from liq levels",
+        "Regime base still RANGING at 55% confidence — grid override is the key justification",
+        "Smart money flow NEUTRAL, not confirming outflow — mild contradiction",
+        "Low vol 0.38% could mean false breakout rather than sustained trend"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": false,
+        "direction": "risk-off",
+        "reason": "risk-off blocked: current 1733.4 is below profitable exit 1790.05 for IN_mETH (entry 1747.09, target 1790.05); hold grid position unless stop-loss or crisis triggers",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 45.0824,
+          "tradableRiskUsd": 61.601821568122,
+          "nativeMnt": 21.71931134505555,
+          "stableShare": 0.4225779533031803,
+          "riskShare": 0.5774220466968197,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x5672ecc5b5a4ed7e9df95ab8b89b69b89ae7efdb6970ea1c03e51f0674570c5e",
+      "combinedAnchor": "0x1af64b8cfd25cfece767f2c898c7ed6fe4625a8afa974be321141cd415652499",
+      "decisionLogTxHash": "0xa760c667f25026f067c6ec6799bf0358db7082df82d9b309bde8af6bfd0979be",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_PORTFOLIO"
     }
   ],
   "settled": [
