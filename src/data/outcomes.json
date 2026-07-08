@@ -651,6 +651,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783534557913_1045",
+      "decisionId": 1045,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1738.08,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreidc3ebd1c88ce87af4cef640c637d3c84215510082a3b53f28f39",
+      "recordedAt": "2026-07-08T18:15:57.913Z",
+      "settleAfter": "2026-07-08T19:15:57.913Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783534557894
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on existing mETH position is appropriate. TREND_DOWN at 60% confidence with BEARISH consensus supports caution, but portfolio is balanced (57.4% risk / 42.6% stable) — not stable-heavy/FLAT, so repeated risk_off trigger does not apply. RSI 43 rising, MACD histogram improving, funding neutral at 0.459%, smart money flow $0.0M neutral. No single rejection trigger fires. Analyst correctly identi",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly provided — acceptable for HOLD but should be documented",
+        "Yield spread -1% bearish signal acknowledged but not weighted heavily enough in confidence calibration",
+        "ETH -3.6% 24h with liquidation zone at $1613 warrants active monitoring, not passive hold"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xce20e75eb3ec280f1039cd93cbeaee33bbd5d558fe0b7ce55ee7bfef49286a15",
+      "combinedAnchor": "0x56f4107a1c00ca8d52654427e0d205eacf06e71c21f3fefc9c7c9cc611e1c431",
+      "decisionLogTxHash": "0xf46f4f0bf29fbd74abc107c52d16819875a2c140b7f480bbd4c5aba0f21c095a",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
