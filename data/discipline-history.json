@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-07-02T18:12:33.160Z",
-    "decisionId": 958,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_REGIME",
-    "displayTier": "BLOCKED_BY_REGIME",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "mUSD",
-    "sourceAsset": null,
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 97442817"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "2 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-07-02T19:51:31.232Z",
     "decisionId": 959,
     "verdict": "ACCEPTED",
@@ -3133,6 +3084,35 @@
   {
     "at": "2026-07-09T16:44:59.536Z",
     "decisionId": 1058,
+    "verdict": "ACCEPTED",
+    "decisionTier": "EXECUTED_SWAP",
+    "displayTier": "INTENT_SWAP_NO_EXEC",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": "WMNT",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-07-09T18:27:08.984Z",
+    "decisionId": 1059,
     "verdict": "ACCEPTED",
     "decisionTier": "EXECUTED_SWAP",
     "displayTier": "INTENT_SWAP_NO_EXEC",
