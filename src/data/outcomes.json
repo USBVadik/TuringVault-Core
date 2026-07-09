@@ -392,6 +392,78 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_REGIME"
+    },
+    {
+      "id": "1783606504854_1055",
+      "decisionId": 1055,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1740.7,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreif1e6993fd70e28363ccd23281e26313a7c993e9563617b0c258e",
+      "recordedAt": "2026-07-09T14:15:04.854Z",
+      "settleAfter": "2026-07-09T15:15:04.854Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783606504838
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and well-reasoned. Portfolio is already IN_mETH at $1747.09; current price $1742.2 is only ~$11 above support — not a fresh deeper lower-band move per scale-in rule. ETH grid BUY_mETH R:R=2.5:1 is valid but override ALREADY_IN_POSITION correctly blocks redundant entry. MNT at 97% channel with UNKNOWN breakout direction correctly warrants no action. Funding neutral, smart money neu",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH vs grid BUY_mETH — acknowledged implicitly but not explicitly reconciled",
+        "Yield spread -1% bearish signal not explicitly mentioned in reasoning"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x185f87b984da95330ba266b32cca35c68dc523af450d25234261ad0fe40e3dcd",
+      "combinedAnchor": "0x8b2b24714a8757a5ce68755298fdb914d53221df34cde4cdfea7df17e67ea74a",
+      "decisionLogTxHash": "0x561a4ec0184bcf8e6ea8df7b3eadf27eff101e0c564e132b1e62985d76e73ced",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
