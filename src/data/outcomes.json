@@ -175,6 +175,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1783586992608_1052",
+      "decisionId": 1052,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 1754.58,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreif6983b72e75eb1e11b9e316147b025ad902673c7996bafb0a778",
+      "recordedAt": "2026-07-09T08:49:52.608Z",
+      "settleAfter": "2026-07-09T09:49:52.608Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783586992589
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid EXIT_RANGING with UNKNOWN breakout direction correctly precludes directional swap. MNT shows UP breakout but scale-in rules require deeper lower-band re-entry not present at 41% channel position. Funding neutral (0.41%), smart money OUTFLOW $0.0M, yield spread -1% BEARISH — no multi-signal edge for new risk-on. Extreme Fear F&G=22 warrants caution. No R:R ",
+      "validatorFlaggedIssues": [
+        "MNT TREND_UP hint noted but scale-in rule correctly blocks action without lower-band re-entry",
+        "Yield spread -1% bearish signal not explicitly weighted in reasoning but HOLD remains correct outcome",
+        "Bollinger SELL signal at 100% band position warrants monitoring for downside break"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x57a33d90749646acba6743ad33ef3c29b969afdc823bbb551de9c58886c80e75",
+      "combinedAnchor": "0x4657e07db7c60ca8fc0aec4fd5560cba1917b7ece7c0c23aa4594d036d896eb4",
+      "decisionLogTxHash": "0xda08ccd40fbaf976b4425ebb8df078fcaf98cd03281032005c5ab204bbdf9e38",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
