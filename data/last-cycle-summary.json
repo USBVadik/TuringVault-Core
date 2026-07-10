@@ -1,81 +1,47 @@
 {
-  "cycleStartedAt": "2026-07-10T03:30:17.855Z",
-  "cycleEndedAt": "2026-07-10T03:33:49.505Z",
-  "durationSeconds": 211.65,
+  "cycleStartedAt": "2026-07-10T04:58:45.038Z",
+  "cycleEndedAt": "2026-07-10T05:00:30.094Z",
+  "durationSeconds": 105.06,
   "stageTiming": {
     "marketDataMs": null,
-    "analystMs": 55155,
-    "validatorMs": 9894,
+    "analystMs": 5844,
+    "validatorMs": 8217,
     "arbiterMs": null,
     "onChainMs": null,
     "ipfsMs": null,
     "rwaMs": null
   },
-  "decisionId": 1066,
-  "decisionTier": "EXECUTED_SWAP",
-  "consensus": true,
+  "decisionId": 1067,
+  "decisionTier": "BLOCKED_BY_REGIME",
+  "consensus": false,
   "txHashes": [
-    "0x994525593132746ee4bcea92eccab5eef22debe0addb5268396d14bef4ae1c47",
-    "0x090377a6badf547edb9598394f2a1e9b3edf87e71eec43cd465188338315a0c5",
-    "0x971b8095bdc49c0644f89b84cf128319c3b5728c5fd753f6be4df4a50d6bcd0a"
+    "0xeccd96958552bdda7613fecf7b16d6ca9a79034209e39cb64595d7034f03e439"
   ],
   "ipfsCid": null,
   "mode": "cron-github-actions",
-  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/29066968724",
-  "errors": [],
-  "gridTradeCandidate": {
-    "active": false,
-    "kind": null,
-    "action": null,
-    "direction": null,
-    "targetAsset": null,
-    "sourceAsset": null,
-    "allocationPct": null,
-    "confidence": null,
-    "reason": "not stable-heavy FLAT inventory",
-    "routeHint": null
-  },
-  "directionalSwap": {
+  "githubRunUrl": "https://github.com/USBVadik/TuringVault-Core/actions/runs/29070259579",
+  "errors": [
+    "outcome-not-persisted: cycle 1067 missing from src/data/outcomes.json after Step 6"
+  ],
+  "rwa": {
+    "source": "conservative",
     "executed": true,
-    "direction": "risk-on",
-    "from": "USDT0",
-    "to": "mETH",
-    "amountIn": 10.499999999999998,
-    "amountOut": 0.005397772829249568,
+    "amountInUsd": 2.47414675,
+    "from": "USDT",
+    "to": "USDT0",
+    "blockedReason": null
+  },
+  "gridTradeCandidate": {
+    "active": true,
+    "kind": "grid-sell",
+    "action": "swap",
+    "direction": "risk_off",
+    "targetAsset": "mUSD",
+    "sourceAsset": "WMNT",
+    "allocationPct": 20,
+    "confidence": 0.8,
     "reason": null,
-    "error": null,
-    "legs": [
-      {
-        "leg": 1,
-        "from": "USDT0",
-        "to": "WMNT",
-        "txHash": "0x994525593132746ee4bcea92eccab5eef22debe0addb5268396d14bef4ae1c47",
-        "blockNumber": 97762029,
-        "amountIn": 10.499999999999998,
-        "amountOut": 24.196899102997584,
-        "reason": null
-      },
-      {
-        "leg": 2,
-        "from": "WMNT",
-        "to": "WETH",
-        "txHash": "0x090377a6badf547edb9598394f2a1e9b3edf87e71eec43cd465188338315a0c5",
-        "blockNumber": 97762040,
-        "amountIn": 24.172702203894588,
-        "amountOut": 0.005913677658065606,
-        "reason": null
-      },
-      {
-        "leg": 3,
-        "from": "WETH",
-        "to": "mETH",
-        "txHash": "0x971b8095bdc49c0644f89b84cf128319c3b5728c5fd753f6be4df4a50d6bcd0a",
-        "blockNumber": 97762051,
-        "amountIn": 0.005907763980407541,
-        "amountOut": 0.005397772829249568,
-        "reason": null
-      }
-    ]
+    "routeHint": null
   },
   "executionStatus": "EXECUTED"
 }
