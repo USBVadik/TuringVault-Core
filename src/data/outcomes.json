@@ -129,6 +129,136 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1783641695889_1064",
+      "decisionId": 1064,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.77,
+      "priceAtDecision": 0.428947,
+      "settlementAsset": "MNT",
+      "priceAssetAtDecision": "MNT",
+      "settlementSourceAsset": "WMNT",
+      "ipfsCid": "bafkrei44ab14c7453fbdadc3f6bfc5be2bc6889aeb02eb13344e665b8b",
+      "recordedAt": "2026-07-10T00:01:35.889Z",
+      "settleAfter": "2026-07-10T01:01:35.889Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783641695869
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "Analyst proposes partial WMNT trim (20% allocation, ~$1.00 of $5.01 WMNT) at 89% of MNT channel near $0.43 resistance. Grid signal SELL_mETH at 77% confidence with R:R 6.1:1 (entry 0.4289, TP 0.41, SL 0.432) far exceeds 1.5:1 threshold. RANGING regime supports grid-based exits at upper band. Signal consensus BEARISH and yield spread -1% BEARISH confirm directional bias. Existing WMNT inventory con",
+      "validatorFlaggedIssues": [
+        "Extreme Fear (F&G=23) raises contrarian bounce risk — monitor SL at $0.432 closely",
+        "WMNT position is small ($5.01); 20% allocation yields ~$1.00 trade — slippage may erode edge",
+        "MNT RSI 53.9 rising slightly contradicts pure bearish thesis but not disqualifying"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: untracked upper-band grid trim with $61.60 tradable risk and regime=RANGING",
+        "scaleIn": false,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 45.744808,
+          "tradableRiskUsd": 61.60177347658184,
+          "nativeMnt": 19.8577616687965,
+          "stableShare": 0.42614126477776515,
+          "riskShare": 0.573858735222235,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "grid-sell",
+        "asset": "mantle",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "WMNT",
+        "allocationPct": 20,
+        "confidence": 0.7725000000000003,
+        "reasoning": "MANTLE grid indicates upper-band/risk-off exit with existing risk inventory; validate sell-high/trim before execution. Risk plan: entry 0.4289, stop 0.432, take-profit 0.41, R:R 6.1:1.",
+        "riskFactors": [
+          "Portfolio guard must block redundant risk-off without sellable inventory"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.7725000000000003,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.89,
+          "support": 0.41,
+          "resistance": 0.43,
+          "currentPrice": 0.4289
+        },
+        "riskReward": {
+          "entry": 0.4289,
+          "stopLoss": 0.432,
+          "takeProfit": 0.41,
+          "ratio": 6.1,
+          "riskPct": 0.72,
+          "rewardPct": 4.41
+        },
+        "inventoryAware": null
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "WMNT",
+        "to": "USDT0",
+        "reason": "insufficient-balance: 11.671430 WMNT",
+        "sizing": {
+          "sourceUsdPrice": 0.428947,
+          "cycleCapUsd": 15,
+          "minTradeUsd": 10,
+          "minSourceAmount": 23.312903458935484,
+          "finalSourceAmount": 11.671429718062573
+        }
+      },
+      "manifestHash": "0x71fd9fcf7a10ce73982ac63788a737ebf05f9f6ac510efe055c8542105a7afc7",
+      "combinedAnchor": "0x65e716ac5b3370f85ad5ec8b8d0a94508ca4701c2fd3383e5fa7de83f2583000",
+      "decisionLogTxHash": "0x7c551c470ba67e7e1819ee437d2317ea95e074fb144fd6498981d71563acb5d6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
