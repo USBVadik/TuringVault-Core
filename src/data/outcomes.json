@@ -76,6 +76,80 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_LOW_CONFIDENCE"
+    },
+    {
+      "id": "1783696837958_1073",
+      "decisionId": 1073,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 1791.03,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei9e73b357a49a9188e4836fbfc4e445d0dc9e8b5d30f99631bc76",
+      "recordedAt": "2026-07-10T15:20:37.958Z",
+      "settleAfter": "2026-07-10T16:20:37.958Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_REGIME — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783696837936
+      },
+      "decisionTier": "BLOCKED_BY_REGIME",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD is low-risk and appropriate here. ETH grid EXIT_RANGING with UNKNOWN breakout direction correctly precludes directional action. MNT SELL_mETH signal targets MNT price channel resistance, not a direct ETH exit trigger — analyst correctly notes the signal conflict with existing mETH position. RSI 62.8 is not oversold, funding neutral at 0.449%, smart money flow neutral. Yield spread -1% bearish",
+      "validatorFlaggedIssues": [
+        "MNT grid SELL_mETH at 75% confidence is non-trivial — monitor for confirmed breakout above $0.43 as exit trigger",
+        "ETH price at 96% of channel ($1790.3 vs resistance $1792.6) — breakout or rejection imminent",
+        "Yield spread -1% persistently bearish on mETH accumulation thesis",
+        "RSI 62.8 falling — momentum weakening despite bullish EMA cross"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": "no tradable WMNT inventory for grid sell"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xf5ed981781f3c4dfff63f4db820d4d35a1647f8cf7fa43c7c98c62b277be43e2",
+      "combinedAnchor": "0x59a7630fb2a22069b7681c241906ba3316bc00b5431ccbd1e894dc890c85e485",
+      "decisionLogTxHash": "0x91bf4b1e2fa92dd9ee66fcdc0ca622d85d23270465743b5450b1d025c799b67d",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_REGIME"
     }
   ],
   "settled": [
