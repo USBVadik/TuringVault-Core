@@ -1361,6 +1361,161 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1783770800692_1083",
+      "decisionId": 1083,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.9,
+      "priceAtDecision": 1798.33,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreibfa851826d6f125637fb5f5599ed3ad44b74cc16fe71362a5970",
+      "recordedAt": "2026-07-11T11:53:20.692Z",
+      "settleAfter": "2026-07-11T12:53:20.692Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_ECONOMICS — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783770800674
+      },
+      "decisionTier": "BLOCKED_BY_ECONOMICS",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "POSITION-EXIT exception applies. mETH position entered at $1769.66 (cycle 14); current price $1798.8 hits the TAKE_PROFIT trigger at channel resistance $1799 (100% of channel). Grid signal independently confirms SELL_mETH at 80% confidence with R:R 2.5:1. Exit is partial (16% allocation, ~$10.9 of $68.04 mETH). Source asset correct, route mETH→mUSD feasible on Mantle. No new-entry R:R required for",
+      "validatorFlaggedIssues": [
+        "R:R not explicitly restated by Analyst but exit trigger is deterministic and grid-confirmed",
+        "Residual mETH inventory remains large at ~84% post-exit — monitor for further TP levels"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: profitable exit for IN_mETH (current 1798.8, entry 1769.66, target 1796.2049)",
+        "scaleIn": false,
+        "trackedExit": true,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 39.893748,
+          "tradableRiskUsd": 68.42934430943457,
+          "nativeMnt": 18.46077031501653,
+          "stableShare": 0.3682847964314013,
+          "riskShare": 0.6317152035685987,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "position-exit",
+        "exitReason": "TAKE_PROFIT",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 16,
+        "confidence": 0.9,
+        "reasoning": "TAKE PROFIT for the tracked mETH position has fired. Prioritize the existing position lifecycle over unrelated grid signals; execute only an economically viable partial exit.",
+        "riskFactors": [
+          "Exit remains capped by the per-cycle USD risk limit",
+          "Residual inventory stays tracked after a partial exit"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.9,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 1,
+          "support": 1742.8,
+          "resistance": 1799,
+          "currentPrice": 1798.8
+        },
+        "riskReward": null,
+        "inventoryAware": null,
+        "residualExit": false
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "mETH",
+        "to": "USDT0",
+        "amountIn": 0.005397772829249567,
+        "reason": "preflight-failed: leg3 WMNT->USDT not viable; net-profit gate blocked: quote $10.5045 < required $10.7362",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "mETH",
+            "to": "WETH",
+            "amountIn": 0.005397772829249567,
+            "estimatedOut": 0.005905519526838585,
+            "priceImpactBps": 0,
+            "pairAddress": "0x3b6c029E6409f2868769871F9Ed6825b15BDca15",
+            "binStep": 2,
+            "depthFraction": 0.000059
+          },
+          {
+            "leg": 2,
+            "from": "WETH",
+            "to": "WMNT",
+            "amountIn": 0.005905519526838585,
+            "estimatedOut": 24.754553971317844,
+            "priceImpactBps": 9.46,
+            "pairAddress": "0x1606C79bE3EBD70D8d40bAc6287e23005CfBefA2",
+            "binStep": 10,
+            "depthFraction": 0.012641
+          },
+          {
+            "leg": 3,
+            "from": "WMNT",
+            "to": "USDT",
+            "amountIn": 24.754553971317844,
+            "estimatedOut": 5.206758,
+            "priceImpactBps": 5235.83,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 0.002
+          }
+        ]
+      },
+      "manifestHash": "0xc5bc061d4d6f9426d0c2fe65750950f79462056e774bb67c6d98c8ed45a06aa4",
+      "combinedAnchor": "0xc9a82e8bd935bd6bb133d55c9ff6af57ea51944da89c1dc2d8cb4ffd7d723300",
+      "decisionLogTxHash": "0x70f12fa64d081e0bedf0d02dd296838fe66963702c715d397dd078e871ad02c7",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_ECONOMICS"
     }
   ],
   "settled": [
