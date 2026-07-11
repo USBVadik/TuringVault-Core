@@ -3,9 +3,8 @@
  *
  * Vercel cron is a Hobby-safe watchdog: vercel.json declares multiple
  * once-daily slots (one per hour) instead of one high-frequency expression.
- * GitHub Actions is still the primary twice-hourly scheduler; this bridge only
- * dispatches the agent-cycle workflow when /api/health says the last cycle is
- * stale.
+ * GitHub Actions remains the primary scheduler; this bridge only dispatches
+ * when /api/health is beyond the shared 3.5-hour rescue threshold.
  *
  * Protected by CRON_SECRET (Vercel cron auth) to prevent abuse.
  *

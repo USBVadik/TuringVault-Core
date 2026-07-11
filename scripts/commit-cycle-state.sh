@@ -18,6 +18,7 @@ for f in \
   src/data/grid_bot_state.json \
   src/data/grid_param_history.json \
   src/data/meth_rate_history.json \
+  src/data/trade_ledger.json \
   data/loop_progress.json \
   data/last-cycle-summary.json \
   data/cycle-history.json \

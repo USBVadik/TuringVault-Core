@@ -66,6 +66,34 @@ describe("attemptAggregatorSwap", () => {
     expect(res.reason).toMatch(/aggregator: No route found/);
   });
 
+  test("does not broadcast when a risk-off quote fails the economic gate", async () => {
+    let executed = false;
+    const factory = () => ({
+      getQuote: async () => ({ viable: true, estimatedOut: 9.95 }),
+      executeSwap: async () => {
+        executed = true;
+        return { executed: true, txHash: "0xshould-not-broadcast" };
+      },
+    });
+
+    const res = await attemptAggregatorSwap({
+      enabled: true,
+      fromToken: "WMNT",
+      toToken: "USDT0",
+      sourceAmount: 20,
+      dexFactory: factory,
+      quoteValidator: ({ amountOut }) => ({
+        allowed: amountOut >= 10.2,
+        reason: "net-profit gate blocked aggregator quote",
+      }),
+    });
+
+    expect(executed).toBe(false);
+    expect(res.executed).toBe(false);
+    expect(res.profitabilityGate.allowed).toBe(false);
+    expect(res.reason).toMatch(/net-profit gate/i);
+  });
+
   test("does not throw when the aggregator execution throws", async () => {
     const res = await attemptAggregatorSwap({
       enabled: true,

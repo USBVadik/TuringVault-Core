@@ -184,8 +184,8 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 │  - R/R ≥ 1.5:1 mandatory to approve         │
 │  - Min confidence threshold (0.6 base,      │
 │    0.7 elevated after consecutive losses)   │
-│  - RWA per-cycle cap ($5) and per-day cap   │
-│    ($25) enforced before any swap broadcast │
+│  - Executable $10 floor / $15 cycle cap     │
+│    enforced before any swap broadcast       │
 │  - 1% max price impact, 0.5% slippage       │
 │                                             │
 │  Layer 3: Post-Execution (Synrail-inspired) │
@@ -220,7 +220,7 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 | Key Mgmt   | ethers.Wallet on cron (vault contract + HSM signing — roadmap)                    | Honest about current state                  |
 | Analytics  | Nansen MCP, Hyperliquid funding, DeFiLlama                                        | Smart Money + derivatives + TVL             |
 | Frontend   | Next.js 16, RainbowKit, wagmi, viem                                               | Modern Web3 UX on Vercel                    |
-| Cron       | GitHub Actions hourly schedule                                                    | Public verifiable workflow log              |
+| Cron       | GitHub Actions repo-state freshness gate (~3h) + offset watchdog                  | Public verifiable workflow log              |
 
 ---
 
@@ -252,8 +252,8 @@ TENCENT_SECRET_KEY=...
 
 ## Performance Metrics
 
-- **Decision Cycle**: ~30 seconds (data fetch + 2 LLM calls + 3 on-chain TXs)
-- **On-Chain Cost**: ~0.01 MNT per cycle (3 transactions)
+- **Decision Cycle**: typically 30–90 seconds (market data + 2–3 LLM calls + proof writes)
+- **On-Chain Cost**: measured from every receipt and charged to `trade_ledger.json`; it varies with proof and route leg count
 - **Consensus Rate**: ~35% approval (conservative by design)
 - **Data Freshness**: 5min price cache, 15min Nansen cache
-- **Uptime**: Orchestrator runs every 5 minutes continuously
+- **Uptime**: 15-minute rescue slots with a repo-state gate; expensive proof cycles target an approximately three-hour cadence

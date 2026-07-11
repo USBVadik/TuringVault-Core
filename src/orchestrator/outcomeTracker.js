@@ -167,6 +167,7 @@ async function fetchEthPrice() {
 }
 
 function computePriceMoveOutcome({
+  action,
   consensus,
   targetAsset,
   confidence,
@@ -176,6 +177,15 @@ function computePriceMoveOutcome({
 }) {
   const pricePct = ((currentPrice - priceAtDecision) / priceAtDecision) * 100;
   const absPct = Math.abs(pricePct);
+
+  if (action === "hold") {
+    return {
+      pricePct,
+      outcome: "NO_ACTION",
+      scoreDelta: 0,
+      pnlBps: 0,
+    };
+  }
   const priceRose = pricePct > MIN_PRICE_MOVE_PCT;
   const priceFell = pricePct < -MIN_PRICE_MOVE_PCT;
 
@@ -577,6 +587,7 @@ async function settle(opts = {}) {
     }
 
     const { pricePct, outcome, scoreDelta, pnlBps } = computePriceMoveOutcome({
+      action: entry.action,
       consensus: entry.consensus,
       targetAsset: entry.targetAsset,
       confidence: entry.confidence,

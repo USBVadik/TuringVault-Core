@@ -28,6 +28,7 @@ const { validateDecision } = require("./validator");
 const { z } = require("zod");
 const { sanitizeExternalText, sanitizeForPrompt } = require("../utils/sanitize");
 const { toAnalystProposal } = require("./gridTradeCandidate");
+const tradeLedger = require("../metrics/tradeLedger");
 const {
   BASE_CONFIDENCE_THRESHOLD,
   ELEVATED_CONFIDENCE_THRESHOLD,
@@ -42,10 +43,6 @@ const {
 // Reads outcome history and raises threshold after consecutive losses.
 // State is persisted to src/data/threshold_state.json so /api/health
 // can surface thresholdMode = 'base' | 'elevated' (T8).
-const OUTCOME_HISTORY_PATH = path.resolve(
-  __dirname,
-  "../../data/outcome_history.json"
-);
 const THRESHOLD_STATE_PATH = path.resolve(
   __dirname,
   "../../src/data/threshold_state.json"
@@ -60,7 +57,7 @@ function persistThresholdState(consecutiveLosses, activeThreshold) {
       activeThreshold,
       mode: elevated ? "elevated" : "base",
       triggeredAt: elevated ? new Date().toISOString() : null,
-      recoveryRule: "1 GOOD_CALL or CORRECT_BLOCK resets to base",
+      recoveryRule: "1 profitable matched FIFO exit resets to base",
       updatedAt: new Date().toISOString(),
     };
     fs.mkdirSync(path.dirname(THRESHOLD_STATE_PATH), { recursive: true });
@@ -72,34 +69,26 @@ function persistThresholdState(consecutiveLosses, activeThreshold) {
   }
 }
 
+function countConsecutiveRealizedLosses(ledger = {}) {
+  const exits = (Array.isArray(ledger.entries) ? ledger.entries : []).filter(
+    (entry) =>
+      entry?.type === "EXIT" &&
+      Number(entry.matchedQty) > 0 &&
+      Number.isFinite(Number(entry.realizedNetPnlUsd))
+  );
+  let consecutiveLosses = 0;
+  for (let i = exits.length - 1; i >= 0; i--) {
+    if (Number(exits[i].realizedNetPnlUsd) < 0) consecutiveLosses++;
+    else break;
+  }
+  return consecutiveLosses;
+}
+
 function getDynamicConfidenceThreshold() {
   try {
-    if (!fs.existsSync(OUTCOME_HISTORY_PATH)) {
-      persistThresholdState(0, BASE_CONFIDENCE_THRESHOLD);
-      return BASE_CONFIDENCE_THRESHOLD;
-    }
-    const raw = fs.readFileSync(OUTCOME_HISTORY_PATH, "utf8");
-    const history = JSON.parse(raw);
-    const outcomes = Array.isArray(history)
-      ? history
-      : history.outcomes || history.decisions || [];
-
-    if (outcomes.length === 0) {
-      persistThresholdState(0, BASE_CONFIDENCE_THRESHOLD);
-      return BASE_CONFIDENCE_THRESHOLD;
-    }
-
-    // Count consecutive losses from most recent
-    let consecutiveLosses = 0;
-    for (let i = outcomes.length - 1; i >= 0; i--) {
-      const pnl =
-        outcomes[i].pnl ?? outcomes[i].profit ?? outcomes[i].realizedPnl ?? 0;
-      if (pnl < 0) {
-        consecutiveLosses++;
-      } else {
-        break; // stop at first non-loss
-      }
-    }
+    const consecutiveLosses = countConsecutiveRealizedLosses(
+      tradeLedger.loadLedger()
+    );
 
     if (consecutiveLosses >= CONSECUTIVE_LOSS_TRIGGER) {
       console.log(
@@ -381,6 +370,13 @@ Reference shape (values illustrative only):
 
 YOUR DEFAULT STATE IS REJECT. You must find explicit evidence to APPROVE. Calculate Risk/Reward ratio — if R:R < 1.5:1, reject. If the Analyst proposes directional SWAP in RANGING regime with no grid signal confirmation, reject.
 
+POSITION LIFECYCLE EXCEPTION:
+If a deterministic candidate is tagged position-exit with TAKE_PROFIT or
+STOP_LOSS, validate that the trigger belongs to the tracked source asset and
+that inventory is executable. Do not require a new-entry R:R calculation for
+an exit whose entry risk plan has already fired. Reject only a stale trigger,
+wrong source asset, or infeasible route.
+
 You are the VALIDATOR AGENT of TuringVault — an independent risk assessor that verifies proposals from the Analyst Agent.
 
 Your role: You are a SKEPTICAL gatekeeper. Your job is to PROTECT CAPITAL first. The burden of proof is on the proposal — it must demonstrate clear edge with favorable risk/reward. Absence of evidence is NOT evidence of safety.
@@ -568,7 +564,16 @@ function isRiskOnTarget(targetAsset) {
 }
 
 function shouldPromoteGridTradeCandidate(candidate, analystDecision = {}) {
-  if (!candidate?.active || candidate.direction !== "risk_on") return false;
+  if (!candidate?.active) return false;
+  if (
+    candidate.kind === "position-exit" &&
+    ["TAKE_PROFIT", "STOP_LOSS", "MAX_CYCLES", "GRID_EXIT"].includes(
+      candidate.exitReason
+    )
+  ) {
+    return true;
+  }
+  if (candidate.direction !== "risk_on") return false;
   const decision =
     analystDecision && typeof analystDecision === "object"
       ? analystDecision
@@ -645,7 +650,7 @@ function formatStructuredSignalsForValidator(structuredSignals) {
     funding.label || funding.signal || "n/a"
   } (strength ${funding.strength || "n/a"})
 - Smart money flow: ${onChainFlow.direction || "n/a"} $${formatNumber(
-    (Number(onChainFlow.netUsd) || 0) / 1e6,
+    (Number(onChainFlow.netUsd ?? onChainFlow.netFlowUsd) || 0) / 1e6,
     1
   )}M → ${onChainFlow.label || onChainFlow.signal || "n/a"}
 - Yield spread: ${formatNumber(yieldSpread.spread)}% → ${
@@ -1199,6 +1204,7 @@ module.exports = {
   compactOriginalAnalystProposal,
   formatStructuredSignalsForValidator,
   getDynamicConfidenceThreshold,
+  countConsecutiveRealizedLosses,
   evaluateConsensus,
   // Reproducible AI capture surface — drain after a cycle to retrieve
   // the per-call replay set. multiAgentLoop wires this into manifest

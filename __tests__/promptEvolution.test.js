@@ -12,11 +12,22 @@ const TEST_PRIVATE_KEY =
   "0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 describe("Prompt Evolution", () => {
-  let evo;
-
-  beforeAll(() => {
-    evo = new PromptEvolution({ privateKey: TEST_PRIVATE_KEY });
+  const outcomes = ({
+    total = 20,
+    correctBlocks = 0,
+    goodCalls = 0,
+    raw = [],
+  } = {}) => ({
+    total,
+    summary: { correctBlocks, goodCalls },
+    raw,
   });
+
+  const makeEvolution = (outcomeData) =>
+    new PromptEvolution({
+      privateKey: TEST_PRIVATE_KEY,
+      getOutcomeHistory: () => outcomeData,
+    });
 
   describe("shouldEvolve", () => {
     const logPath = path.resolve(__dirname, "../src/data/evolution_log.json");
@@ -34,6 +45,7 @@ describe("Prompt Evolution", () => {
     });
 
     test("returns result based on internal state", () => {
+      const evo = makeEvolution(outcomes({ total: 0 }));
       const result = evo.shouldEvolve({
         totalDecisions: 3,
         score: -100,
@@ -44,29 +56,37 @@ describe("Prompt Evolution", () => {
       expect(typeof result.reason).toBe("string");
     });
 
-    test("returns true when enough decisions and seeking optimization", () => {
+    test("returns true when settled-trade win rate is below 40%", () => {
+      const evo = makeEvolution(outcomes());
       const result = evo.shouldEvolve({
         totalDecisions: 15,
         score: 10,
         totalFeedback: 5,
       });
       expect(result.should).toBe(true);
-      // Reason can be "optimization" or "consecutive HOLDs" depending on internal state
-      expect(result.reason).toBeTruthy();
+      expect(result.reason).toContain("Win Rate");
     });
 
-    test("returns true on poor performance", () => {
+    test("returns true when settled-trade drawdown exceeds 5%", () => {
+      const raw = Array.from({ length: 20 }, (_, index) => ({
+        action: "swap",
+        outcome: "GOOD_CALL",
+        pnlBps: index === 0 ? -600 : 100,
+      }));
+      const evo = makeEvolution(
+        outcomes({ total: 20, goodCalls: 20, raw })
+      );
       const result = evo.shouldEvolve({
         totalDecisions: 20,
         score: -100,
         totalFeedback: 10,
       });
       expect(result.should).toBe(true);
-      // Reason can be "Poor performance" or "consecutive HOLDs" depending on internal state
-      expect(result.reason).toBeTruthy();
+      expect(result.reason).toContain("Max Drawdown");
     });
 
     test("respects cooldown period", () => {
+      const evo = makeEvolution(outcomes());
       fs.writeFileSync(
         logPath,
         JSON.stringify({
@@ -85,6 +105,8 @@ describe("Prompt Evolution", () => {
   });
 
   describe("incrementVersion", () => {
+    const evo = makeEvolution(outcomes());
+
     test("increments patch version", () => {
       expect(evo.incrementVersion("2.0.0")).toBe("2.0.1");
       expect(evo.incrementVersion("2.0.8")).toBe("2.0.9");

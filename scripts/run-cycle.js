@@ -44,6 +44,7 @@ const STATE_FILES = [
   "src/data/parse_metrics.json",
   "src/data/threshold_state.json",
   "src/data/position_state.json",
+  "src/data/trade_ledger.json",
   "src/data/grid_bot_state.json",
   "src/data/grid_param_history.json",
   "data/loop_progress.json",
@@ -112,7 +113,11 @@ async function main() {
     const nativeMnt = parseFloat(ethers.formatEther(balanceWei));
     const reserve = 5.0;          // matches walletRouter.GAS_RESERVE_MNT
     const costPerCycle = 0.077;   // worst-case from gas-cost sample
-    const cyclesPerDay = 48;
+    const cadenceSeconds = Math.max(
+      60,
+      Number(process.env.SCHEDULE_FRESHNESS_THRESHOLD_S) || 10800
+    );
+    const cyclesPerDay = Math.ceil(86400 / cadenceSeconds);
     const spendable = Math.max(0, nativeMnt - reserve);
     const cyclesRemaining = Math.floor(spendable / costPerCycle);
     const daysRemaining = +(cyclesRemaining / cyclesPerDay).toFixed(2);

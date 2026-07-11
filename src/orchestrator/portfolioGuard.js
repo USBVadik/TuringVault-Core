@@ -1,10 +1,11 @@
 const { GAS_RESERVE_MNT } = require("../dex/walletRouter");
+const { getMinTradeUsd } = require("../config/tradingEconomics");
 
 const STABLE_HEAVY_SHARE = 0.8;
 const MAX_RISK_SHARE_FOR_BUY = 0.65;
 const MAX_RISK_SHARE_FOR_SCALE_IN = 0.4;
-const MIN_STABLE_USD_FOR_RISK_ON = 0.5;
-const MIN_RISK_USD_FOR_RISK_OFF = 1.0;
+const MIN_STABLE_USD_FOR_RISK_ON = 10;
+const MIN_RISK_USD_FOR_RISK_OFF = 10;
 const MIN_SCALE_IN_DIP_PCT = 0.01;
 const SCALE_IN_LOWER_BAND_MAX = 0.12;
 const SCALE_IN_ALLOCATION_PCT = 10;
@@ -110,7 +111,7 @@ function hasStrongSmartMoneyOutflow(structuredSignals = {}) {
   const flow = structuredSignals.signals?.onChainFlow || {};
   return (
     String(flow.signal || "").toUpperCase() === "BEARISH" &&
-    num(flow.netUsd, 0) <= STRONG_OUTFLOW_USD
+    num(flow.netUsd ?? flow.netFlowUsd, 0) <= STRONG_OUTFLOW_USD
   );
 }
 
@@ -214,7 +215,7 @@ function assessScaleIn({
   const flow = structuredSignals.signals?.onChainFlow || {};
   if (
     String(flow.signal || "").toUpperCase() === "BEARISH" &&
-    num(flow.netUsd, 0) <= -1_000_000
+    num(flow.netUsd ?? flow.netFlowUsd, 0) <= -1_000_000
   ) {
     return {
       allowed: false,
@@ -400,6 +401,7 @@ function assessTradeInventory({
   positionState = {},
   structuredSignals = {},
   gridTradeCandidate = {},
+  minTradeUsd = getMinTradeUsd(),
 } = {}) {
   const inferred = direction || inferTradeDirection(targetAsset);
   const summary = summarizePortfolio({ balances, prices });
@@ -407,12 +409,29 @@ function assessTradeInventory({
   const openRiskPosition = hasOpenRiskPosition(positionState);
 
   if (inferred === "risk-on") {
-    if (summary.stableUsd < MIN_STABLE_USD_FOR_RISK_ON) {
+    const targetRisk = normalizeRiskAsset(targetAsset);
+    const trackedRisk = positionRiskAsset(positionState);
+    if (
+      trackedRisk &&
+      trackedRisk !== "risk" &&
+      targetRisk &&
+      trackedRisk !== targetRisk
+    ) {
       return {
         allowed: false,
         direction: inferred,
         summary,
-        reason: `risk-on blocked: stable inventory $${summary.stableUsd.toFixed(2)} < $${MIN_STABLE_USD_FOR_RISK_ON.toFixed(2)}`,
+        reason: `risk-on blocked: ${trackedRisk} is already the tracked position; close or finish it before opening ${targetRisk}`,
+      };
+    }
+
+    const riskOnFloor = Math.max(MIN_STABLE_USD_FOR_RISK_ON, minTradeUsd);
+    if (summary.stableUsd < riskOnFloor) {
+      return {
+        allowed: false,
+        direction: inferred,
+        summary,
+        reason: `risk-on blocked: stable inventory $${summary.stableUsd.toFixed(2)} < executable $${riskOnFloor.toFixed(2)} floor`,
       };
     }
     if (summary.riskShare >= MAX_RISK_SHARE_FOR_BUY) {
@@ -454,28 +473,11 @@ function assessTradeInventory({
   }
 
   if (inferred === "risk-off") {
-    if (summary.tradableRiskUsd < MIN_RISK_USD_FOR_RISK_OFF) {
-      return {
-        allowed: false,
-        direction: inferred,
-        summary,
-        reason: `risk-off blocked: tradable risk inventory $${summary.tradableRiskUsd.toFixed(2)} < $${MIN_RISK_USD_FOR_RISK_OFF.toFixed(2)}; native MNT is gas/runway, not sell inventory`,
-      };
-    }
+    const riskOffFloor = Math.max(MIN_RISK_USD_FOR_RISK_OFF, minTradeUsd);
 
-    const sourceRisk = normalizeRiskAsset(sourceAsset);
-    if (sourceRisk && riskUsdForAsset(summary, sourceRisk) < MIN_RISK_USD_FOR_RISK_OFF) {
-      return {
-        allowed: false,
-        direction: inferred,
-        summary,
-        reason:
-          `risk-off blocked: requested ${sourceRisk} inventory ` +
-          `$${riskUsdForAsset(summary, sourceRisk).toFixed(2)} < ` +
-          `$${MIN_RISK_USD_FOR_RISK_OFF.toFixed(2)}`,
-      };
-    }
-
+    // A tracked position owns its exit policy. Evaluate TP/SL/crisis before the
+    // normal entry-sized trade floor so a profitable or emergency residual can
+    // be closed instead of becoming permanently stranded dust.
     if (openRiskPosition) {
       const exitGuard = assessRiskOffExit({
         sourceAsset,
@@ -499,6 +501,29 @@ function assessTradeInventory({
         direction: inferred,
         summary,
         reason: exitGuard.reason,
+        trackedExit: true,
+      };
+    }
+
+    if (summary.tradableRiskUsd < riskOffFloor) {
+      return {
+        allowed: false,
+        direction: inferred,
+        summary,
+        reason: `risk-off blocked: tradable risk inventory $${summary.tradableRiskUsd.toFixed(2)} < executable $${riskOffFloor.toFixed(2)} floor; native MNT is gas/runway, not sell inventory`,
+      };
+    }
+
+    const sourceRisk = normalizeRiskAsset(sourceAsset);
+    if (sourceRisk && riskUsdForAsset(summary, sourceRisk) < riskOffFloor) {
+      return {
+        allowed: false,
+        direction: inferred,
+        summary,
+        reason:
+          `risk-off blocked: requested ${sourceRisk} inventory ` +
+          `$${riskUsdForAsset(summary, sourceRisk).toFixed(2)} < ` +
+          `$${riskOffFloor.toFixed(2)}`,
       };
     }
 
@@ -592,6 +617,7 @@ module.exports = {
   MIN_STABLE_USD_FOR_RISK_ON,
   MIN_RISK_USD_FOR_RISK_OFF,
   MIN_SCALE_IN_DIP_PCT,
+  SCALE_IN_LOWER_BAND_MAX,
   SCALE_IN_ALLOCATION_PCT,
   MAX_SCALE_INS_PER_POSITION,
   MIN_PROFIT_EXIT_PCT,

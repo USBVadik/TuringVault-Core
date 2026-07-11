@@ -89,6 +89,7 @@ function tierTone(tier: string | null): string {
   if (tier === "BLOCKED_BY_LOW_CONFIDENCE") return "text-yellow-400/70";
   if (tier === "BLOCKED_BY_REGIME") return "text-blue-400/70";
   if (tier === "BLOCKED_BY_PARSE_FAILURE") return "text-orange-400/70";
+  if (tier === "BLOCKED_BY_ECONOMICS") return "text-emerald-300/70";
   return "text-white/40";
 }
 

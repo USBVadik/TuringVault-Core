@@ -14,6 +14,7 @@ require("dotenv").config({
   path: require("path").resolve(__dirname, "../../.env"),
 });
 const { ethers } = require("ethers");
+const { transactionGasMnt } = require("../metrics/gasCost");
 
 const DEFAULT_MANTLE_RPC =
   process.env.MANTLE_RPC_URL ||
@@ -674,6 +675,8 @@ class MerchantMoeDEX {
       txHash: receipt.hash,
       blockNumber: receipt.blockNumber,
       gasUsed: receipt.gasUsed.toString(),
+      gasPriceWei: String(receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0),
+      gasCostMnt: transactionGasMnt(receipt),
     };
   }
 

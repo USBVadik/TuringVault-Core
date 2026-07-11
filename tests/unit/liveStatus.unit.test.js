@@ -15,6 +15,14 @@ const {
 } = require("../../frontend/app/lib/live-status.shared.js");
 
 describe("deriveLiveStatus tiers", () => {
+  test("thresholds match the canonical three-hour cadence", () => {
+    expect(LIVE_THRESHOLDS).toEqual({
+      liveMaxSec: 10 * 60,
+      idleMaxSec: 3 * 60 * 60 + 15 * 60,
+      staleMaxSec: 4 * 60 * 60,
+    });
+  });
+
   test("null health → OFFLINE (loading window must not claim LIVE)", () => {
     const s = deriveLiveStatus(null);
     expect(s.tier).toBe("offline");

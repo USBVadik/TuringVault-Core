@@ -193,6 +193,142 @@ describe("gridTradeCandidate", () => {
     expect(candidate.reasoning).toMatch(/existing risk inventory/i);
   });
 
+  test("emits a controlled same-asset scale-in after a deeper lower-band move", () => {
+    const s = structuredSignals();
+    s.signals.ranging.multiAsset.ethereum = {
+      action: "BUY_mETH",
+      confidence: 0.72,
+      channel: {
+        support: 1900,
+        resistance: 2100,
+        currentPrice: 1950,
+        channelPosition: 0.08,
+      },
+    };
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 80,
+        tradableRiskUsd: 20,
+        methUsd: 20,
+        stableShare: 0.8,
+        riskShare: 0.2,
+      }),
+      positionState: {
+        status: "IN_mETH",
+        entryPrice: 2000,
+        scaleInCount: 0,
+      },
+    });
+
+    expect(candidate.active).toBe(true);
+    expect(candidate.kind).toBe("position-scale-in");
+    expect(candidate.targetAsset).toBe("mETH");
+    expect(candidate.allocationPct).toBe(10);
+    expect(candidate.reasoning).toMatch(/scale-in/i);
+  });
+
+  test("prioritizes a tracked mETH take-profit over an unrelated MNT sell signal", () => {
+    const s = structuredSignals();
+    s.signals.ranging.overrideReason = "TAKE_PROFIT";
+    s.signals.ranging.action = "SELL_mETH";
+    s.signals.ranging.confidence = 0.9;
+    s.signals.ranging.multiAsset.mantle = {
+      action: "SELL_mETH",
+      confidence: 0.8,
+      channel: {
+        support: 0.42,
+        resistance: 0.43,
+        currentPrice: 0.4312,
+        channelPosition: 0.94,
+      },
+    };
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 39,
+        tradableRiskUsd: 69,
+        methUsd: 68,
+        wmntUsd: 1,
+        stableShare: 0.36,
+        riskShare: 0.64,
+        stableHeavy: false,
+      }),
+      positionState: {
+        status: "IN_mETH",
+        entryPrice: 1769.66,
+        targetExit: 1796.2,
+        executionAmountOut: 0.005397,
+      },
+    });
+
+    expect(candidate.active).toBe(true);
+    expect(candidate.kind).toBe("position-exit");
+    expect(candidate.exitReason).toBe("TAKE_PROFIT");
+    expect(candidate.sourceAsset).toBe("mETH");
+    expect(candidate.targetAsset).toBe("mUSD");
+    expect(candidate.direction).toBe("risk_off");
+    expect(candidate.allocationPct).toBeGreaterThan(0);
+    expect(candidate.allocationPct).toBeLessThanOrEqual(25);
+  });
+
+  test("clears a small tracked take-profit residual without enabling generic micro-swaps", () => {
+    const s = structuredSignals();
+    s.signals.ranging.overrideReason = "TAKE_PROFIT";
+    s.signals.ranging.action = "SELL_mETH";
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 100,
+        tradableRiskUsd: 7.8,
+        methUsd: 0,
+        wmntUsd: 7.8,
+      }),
+      positionState: { status: "IN_MNT", entryPrice: 0.6 },
+    });
+
+    expect(candidate.active).toBe(true);
+    expect(candidate.kind).toBe("position-exit");
+    expect(candidate.sourceAsset).toBe("WMNT");
+    expect(candidate.allocationPct).toBe(100);
+    expect(candidate.residualExit).toBe(true);
+  });
+
+  test("does not emit an upper-band WMNT sell below the executable USD floor", () => {
+    const s = structuredSignals();
+    s.signals.ranging.multiAsset.ethereum = { action: "HOLD", confidence: 0.5 };
+    s.signals.ranging.multiAsset.mantle = {
+      action: "SELL_mETH",
+      confidence: 0.78,
+      channel: {
+        support: 0.41,
+        resistance: 0.43,
+        currentPrice: 0.429,
+        channelPosition: 0.82,
+      },
+    };
+
+    const candidate = buildGridTradeCandidate({
+      structuredSignals: s,
+      portfolioSummary: stableHeavySummary({
+        stableUsd: 39,
+        tradableRiskUsd: 68,
+        methUsd: 66.2,
+        wmntUsd: 1.8,
+        stableShare: 0.36,
+        riskShare: 0.64,
+        stableHeavy: false,
+      }),
+      positionState: { status: "IN_mETH" },
+    });
+
+    expect(candidate.active).toBe(false);
+    expect(candidate.reason).toMatch(/executable|\$10|floor/i);
+  });
+
   test("does not emit a risk-off sell candidate when EXIT_RANGING is an upward breakout", () => {
     const s = structuredSignals();
     s.signals.ranging.multiAsset.ethereum = {
@@ -257,7 +393,7 @@ describe("gridTradeCandidate", () => {
     });
 
     expect(candidate.active).toBe(false);
-    expect(candidate.reason).toMatch(/no tradable mETH inventory/i);
+    expect(candidate.reason).toMatch(/no (tradable|executable) mETH inventory/i);
   });
 
   test("formats an active candidate into a validator-visible prompt block", () => {

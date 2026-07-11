@@ -45,7 +45,7 @@ The Mantle Turing Test 2026 brief calls out three defining features. We built th
 
 **2 · ERC-8004 agent identity reference implementation.** Non-transferable Identity NFT (`0x6f86…28bD`), ValidationRegistry, ReputationRegistry, DecisionLog — all Sourcify-verified on Mantle Mainnet. `tokenURI(0)` exposes the agent's IPFS identity card; during Pinata quota guard mode the public `/api/agent-card` hides stale card counters and points judges to live `/api/decisions` / `/api/performance` stats. Drop-in compatible with the upcoming Mantle-issued Agent Identity standard; we are positioned to interop or migrate the moment that ships.
 
-**3 · Radical transparency.** Public hourly cron. IPFS-pinned reasoning blobs. Live mascot reflecting actual cycle freshness. `/challenge` arena where anyone can inject four canonical attack vectors and watch the real multi-agent pipeline reason through them. `/discipline` page surfacing the post-execution proof history. The honesty rule is enforced as a workspace steering doc (`.kiro/steering/no-lying-about-state.md`); every numeric stat must trace to a contract read or settled outcome.
+**3 · Radical transparency.** Public freshness-gated cron with an offset rescue watchdog. IPFS/GitHub reasoning proofs. Live status reflecting actual cycle freshness. `/challenge` arena where anyone can inject four canonical attack vectors and watch the real multi-agent pipeline reason through them. `/discipline` page surfacing the post-execution proof history. The honesty rule is enforced as a workspace steering doc (`.kiro/steering/no-lying-about-state.md`); every numeric stat must trace to a contract read or settled outcome.
 
 ### Why AI & RWA Path B (Application)
 
@@ -57,7 +57,7 @@ The first customer is not a retail trader. It is a DAO treasury, on-chain fund, 
 
 ### Architecture
 
-A single hourly cron drives the cycle:
+A repo-state freshness-gated cron drives the cycle:
 
 1. Aggregate structured market signals — funding rate (Hyperliquid), smart-money flow (Nansen MCP, JSON-RPC 2.0), mETH yield context, stable/RWA allocation context, liquidation map, and **Elfa social attention** (mindshare + smart-account repost ratio via REST v2).
 2. Run validator-gated adversarial consensus: **Z.ai GLM-5 Analyst** (proposes) → **Anthropic Claude Sonnet 4.6 Validator** (default REJECT, R/R ≥ 1.5:1 to approve, hard veto final) → **Google Gemini 3.5 Flash Arbiter** (soft confidence-dispute tiebreaker).
@@ -81,7 +81,7 @@ A single hourly cron drives the cycle:
 | ERC-8004 contracts       | LIVE  | 5 Sourcify-verified contracts on Mantle                                        |
 | Discipline Layer         | LIVE  | `/discipline` page, 3 gates fire each cycle                                    |
 | RWA execution to USDT0   | LIVE  | TX `0x0af2336…` on Mantlescan                                                  |
-| Hourly cron              | LIVE  | GitHub Actions workflow, public log                                            |
+| Freshness-gated cron     | LIVE  | GitHub Actions workflow + offset watchdog, public logs                         |
 | Elfa social attention    | LIVE  | `/api/elfa-snapshot` returns real V2 data                                      |
 | Bybit Wallet integration | LIVE  | RainbowKit `connectorsForWallets` config                                       |
 | Self-evolving prompts    | GATED | Implemented; default-off behind env flag while parse-rate smoke confirms ≥ 95% |
@@ -89,7 +89,7 @@ A single hourly cron drives the cycle:
 
 ### Compliance posture
 
-TuringVault is an operator-funded demo and verification layer, not a public investment product. It accepts no public deposits, promises no yield, labels USDY as gated/paper-ready, and keeps `realizedTradingPnlBps` null. The AI assists compliance controls through validator suitability review, deterministic portfolio/risk gates, and Discipline Layer proof checks; it does not bypass legal constraints. Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
+TuringVault is an operator-funded demo and verification layer, not a public investment product. It accepts no public deposits, promises no yield, and labels USDY as gated/paper-ready. Realized trading PnL is reported only from matched FIFO entries/exits after recorded swap gas; a separate strategy-net field also charges proof gas from the ledger start date. The AI assists compliance controls through validator suitability review, deterministic portfolio/risk gates, and Discipline Layer proof checks; it does not bypass legal constraints. Before any public vault, the next milestone is policy enforcement: allowlists, KYC/AML, jurisdiction-aware eligibility, and human/governance approval for regulated asset access.
 
 ### Deployment Award checklist
 
@@ -105,7 +105,7 @@ TuringVault is an operator-funded demo and verification layer, not a public inve
 ### Why we will keep our claims after the submission deadline
 
 - The verified production contracts are not going to be redeployed casually; the existing addresses preserve the on-chain decision history. The hash anchors are immutable.
-- The hourly cron's GitHub Actions workflow is public — anyone can fork the repo and reproduce a run.
+- The GitHub Actions workflow and freshness policy are public — anyone can fork the repo and reproduce a run.
 - The honesty rule is enforced as a steering document loaded on every developer turn. Misrepresentation is the project's only way to lose.
 
 ---
@@ -132,7 +132,7 @@ Treat AI agents as accountable economic actors with on-chain identity, reputatio
 | ValidationRegistry      | https://explorer.mantle.xyz/address/0x6841d3DAF81A446C8Bd6934F7516f2Ee1b4d63b6               |
 | ReputationRegistry      | https://explorer.mantle.xyz/address/0xC78119F3274B05046Ac7c38a14298a6cbD946e1a               |
 | First RWA swap TX       | https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de |
-| Hourly cron log         | https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml               |
+| Cron workflow log       | https://github.com/USBVadik/TuringVault-Core/actions/workflows/agent-cycle.yml               |
 | `/discipline` page      | https://frontend-seven-beta-46.vercel.app/discipline                                         |
 | `/challenge` page       | https://frontend-seven-beta-46.vercel.app/challenge                                          |
 | `/proof-explorer` page  | https://frontend-seven-beta-46.vercel.app/proof-explorer                                     |

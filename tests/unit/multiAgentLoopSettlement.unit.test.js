@@ -3,6 +3,7 @@ const {
     buildPositionEntryState,
     getSettlementSnapshot,
     inferSettlementSourceAsset,
+    hasCompletedExecution,
     shouldRefreshAgentCard,
     retagSkippedTxProofChecks,
     resolveCycleDisplayTier,
@@ -146,6 +147,17 @@ describe("multiAgentLoop settlement snapshot", () => {
 });
 
 describe("multiAgentLoop execution display tier", () => {
+  test("a successful first leg followed by failure is not a completed execution", () => {
+    expect(
+      hasCompletedExecution({
+        directionalSwapResult: {
+          executed: false,
+          legs: [{ txHash: `0x${"1".repeat(64)}` }, { reason: "leg2 failed" }],
+        },
+      })
+    ).toBe(false);
+  });
+
   test("demotes non-executed EXECUTED_SWAP cycles before discipline history is written", () => {
     expect(
       resolveCycleDisplayTier({

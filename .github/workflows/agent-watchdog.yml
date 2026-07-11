@@ -34,8 +34,7 @@ jobs:
       HEARTBEAT_MODE_ENABLED: ${{ secrets.HEARTBEAT_MODE_ENABLED }}
       HEARTBEAT_EXECUTE_SWAPS: "false"
       RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
-      STALE_THRESHOLD_S: "3000"
-      HEALTH_URL: "https://frontend-seven-beta-46.vercel.app/api/health"
+      STALE_THRESHOLD_S: "12600"
       MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -52,21 +51,40 @@ jobs:
       GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Sync latest main before freshness check
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull --ff-only origin main
+
       - name: Check freshness gate
         id: freshness
         run: |
           set -euo pipefail
 
-          if ! BODY=$(curl -fsS -m 25 "$HEALTH_URL"); then
-            echo "::warning::watchdog: /api/health unreachable; running rescue cycle."
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          AGE=$(printf '%s' "$BODY" | jq -r '.lastCycleAge // empty')
+          AGE=$(node - <<'NODE'
+          const fs = require("fs");
+          try {
+            const summary = JSON.parse(
+              fs.readFileSync("data/last-cycle-summary.json", "utf8")
+            );
+            const ended = Date.parse(summary.cycleEndedAt || "");
+            if (!Number.isFinite(ended)) process.exit(2);
+            process.stdout.write(String(Math.max(0, Math.floor((Date.now() - ended) / 1000))));
+          } catch {
+            process.exit(2);
+          }
+          NODE
+          ) || AGE=""
 
           if [ -z "${AGE:-}" ] || ! printf '%s' "$AGE" | grep -Eq '^[0-9]+$'; then
-            echo "::warning::watchdog: lastCycleAge missing/non-numeric ('$AGE'); running rescue cycle."
+            echo "::warning::watchdog: repo cycle timestamp missing/non-numeric ('$AGE'); running rescue cycle."
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -80,20 +98,6 @@ jobs:
             echo "should_run=false" >> "$GITHUB_OUTPUT"
             echo "watchdog: feed fresh; no action."
           fi
-
-      - name: Checkout main
-        if: steps.freshness.outputs.should_run == 'true'
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Sync latest main before rescue
-        if: steps.freshness.outputs.should_run == 'true'
-        run: |
-          git fetch origin main
-          git checkout main
-          git pull --ff-only origin main
 
       - name: Setup Node 22
         if: steps.freshness.outputs.should_run == 'true'

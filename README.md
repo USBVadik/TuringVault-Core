@@ -58,9 +58,9 @@ TuringVault introduces **Proof-of-Reasoning (PoR)** — a new primitive where ev
 - **337 approved, 126 rejected** at the registry level — proposals reaching consensus go on-chain; off-chain block reasons (regime, low confidence, portfolio guard, intent-no-exec) shown in tier breakdown on `/proof-explorer`
 - **Real DEX execution path verified end-to-end** on Merchant Moe LB v2.2 — first RWA swap [`0x0af2336…`](https://mantlescan.xyz/tx/0x0af23364c7651b053d33b0f7ed3eb8b30107b5dc489e96a7ad8ac90cad3e09de); first autonomous-cron swap [`0x313c0fc…`](https://mantlescan.xyz/tx/0x313c0fc20541a7662ecfe2f9f5966c7f5e57a06495b6aae9ee30ade140b57c96) (cycle 123, 2026-05-28); first heartbeat-mode liveness swap (`HEARTBEAT_SWAP` tier) cycle 146, 2026-05-29; **post-smart-router execution window cycles 149-157 — every cycle on this window produced real on-chain swap legs after the audit-21 smart wallet router landed** — see [`heartbeatMode.js`](src/orchestrator/heartbeatMode.js), [`walletRouter.js`](src/dex/walletRouter.js), [audit 17](.kiro/audits/17-heartbeat-mode.md), [audit 21](.kiro/audits/21-smart-wallet-router.md)
 - **Latest risk-on proof:** cycle 453 (`HEARTBEAT_SWAP`) executed USDT0 → USDT → WMNT with two Mantle transactions ([leg 1](https://mantlescan.xyz/tx/0xd736dbf6d268112ddbca8fae0067cd3605e8ad70b10d3f5eeeaeda1a91d82602), [leg 2](https://mantlescan.xyz/tx/0xe12b24a14057ad7071b4ab8bf406f7219b88f3f2289145c7669b7e6525776a3e)) — labelled as heartbeat/liveness mode, not blended into outcome PnL
-- **Lifetime Decision-Quality / Outcome Score: +5083 bps across 358 settled outcomes, 53.1% settled win rate.** Methodology: this is an outcome score from settled decisions, not realized wallet PnL; [`/api/performance.realizedTradingPnlBps`](https://frontend-seven-beta-46.vercel.app/api/performance) is intentionally null. Settled in [`outcomes.json`](src/data/outcomes.json), surfaced on [`/backtest`](https://frontend-seven-beta-46.vercel.app/backtest), summary on [`/api/performance`](https://frontend-seven-beta-46.vercel.app/api/performance) (winRate, cumulativePnlBps, dataScope:`agent-lifetime`)
+- **Decision-quality and execution PnL are deliberately separate.** The lifetime outcome score comes from settled decisions in [`outcomes.json`](src/data/outcomes.json); [`/api/performance`](https://frontend-seven-beta-46.vercel.app/api/performance) reports matched FIFO realized PnL and strategy net after recorded swap/proof gas only from `trade_ledger.json`'s explicit start date. No backfilled profit is claimed.
 - **Cron status is live-only** — observed 23 successful / 0 failed cycles in the trailing 24h window; use [`/api/health.cyclesSucceeded24h`](https://frontend-seven-beta-46.vercel.app/api/health), `cyclesFailed24h`, and `lastCycleAge` for the current value. GitHub Actions schedules are best-effort and the count changes every cycle
-- Scheduled cron via GitHub Actions (public log linked below); adaptive regime detection on each tick. Schedule is best-effort hourly — GH Actions skips slots under platform load; the `/api/health` `lastCycleAge` field always reflects ground truth.
+- Scheduled cron via GitHub Actions (public log linked below); adaptive regime detection on each tick. Candidate slots are repo-state freshness gated to roughly three-hour cycles, with an offset rescue watchdog; `/api/health` `lastCycleAge` reflects the latest published cycle.
 - No catastrophic-loss event recorded in the current demo history — operator-funded demo capital, custodial EOA, vault contract pattern in development
 
 ### Hackathon Scorecard Alignment
@@ -377,17 +377,19 @@ them per `.kiro/steering/no-lying-about-state.md`.
 | Storage    | IPFS (Pinata) for Proof-of-Reasoning blobs                                                                                                       |
 | Frontend   | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary)                                                                        |
 | RWA        | USDT0 LayerZero (active), mETH Mantle LST (active risk-on/yield leg), Ondo Finance USDY metadata (paper-ready/gated)                             |
-| Infra      | GitHub Actions cron (best-effort hourly), Vercel (frontend), Pinata (IPFS pinning)                                                              |
+| Infra      | GitHub Actions cron (repo-state freshness gated), Vercel (frontend), Pinata/GitHub proof storage                                                |
 
 ---
 
 ## Running the Agent
 
-### Production: GitHub Actions cron (best-effort hourly)
+### Production: GitHub Actions cron (freshness-gated)
 
 Production runs are driven by [`.github/workflows/agent-cycle.yml`](.github/workflows/agent-cycle.yml),
-which fires twice an hour at `:17` and `:47` UTC (best-effort — GH Actions
-schedules under platform load; see audit notes). Each run:
+which exposes four candidate slots per hour plus an offset watchdog. Both read
+the freshly pulled `data/last-cycle-summary.json`; they run the expensive cycle
+only after the three-hour freshness threshold, so a lagging Vercel cache cannot
+trigger duplicate executions. Each completed run:
 
 1. Executes one `runMultiAgentCycle()` against live market data.
 2. Writes a `data/last-cycle-summary.json` record.
@@ -396,9 +398,8 @@ schedules under platform load; see audit notes). Each run:
 4. Vercel auto-deploys the front-end on the resulting push, so the
    mascot turns 🟢 within ~2 minutes.
 
-Cadence is best-effort hourly, not sub-minute — the mascot's threshold is
-calibrated for that, and `/api/health.lastCycleAge` always reflects ground
-truth (slots can be skipped by GitHub Actions under platform load; see
+Cadence is best-effort and freshness-gated, not sub-minute. `/api/health.lastCycleAge`
+always reflects the most recently published cycle (slots can be skipped by GitHub Actions under platform load; see
 `.kiro/audits/2026-05-28-pipeline-and-bridge-recheck.md` for the
 known-skipped-slot rate). Operator runbook with the secrets list, manual
 trigger, pause/resume, and cost monitoring is at
@@ -422,8 +423,8 @@ node scripts/run-cycle.js
 # Smoke 5 cycles in dry-run mode (no on-chain TX, hits Bedrock)
 npm run smoke:reasoning
 
-# Grid bot (production, 5-min cycles)
-node src/strategies/runGridCycle.sh
+# Retired Odos grid executor (fail-closed; never run beside multiAgentLoop)
+LEGACY_GRID_BOT_EXECUTION_ENABLED=true node src/strategies/liveGridBot.js cycle
 
 # Continuous local orchestrator (only while terminal stays open)
 node src/cron/agentCron.js

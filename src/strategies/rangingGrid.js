@@ -29,11 +29,11 @@ function cached(key, fn, ttlOverride) {
     .catch(() => e?.data || null);
 }
 
-async function fetchJson(url, timeout = 8000) {
+async function fetchJson(url, timeout = 8000, requestOptions = {}) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeout);
   try {
-    const r = await fetch(url, { signal: ctrl.signal });
+    const r = await fetch(url, { ...requestOptions, signal: ctrl.signal });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return await r.json();
   } finally {
@@ -45,26 +45,30 @@ async function fetchJson(url, timeout = 8000) {
  * Get current ETH price from Hyperliquid (fast, <100ms, already used in pipeline)
  * Used as real-time price source to avoid CoinGecko lag
  */
-async function getLiveEthPrice() {
+async function getLivePrice(asset = "ethereum") {
+  const symbol = asset === "mantle" ? "MNT" : "ETH";
   return cached(
-    "live_eth_price",
+    `live_${symbol.toLowerCase()}_price`,
     async () => {
-      const r = await fetchJson("https://api.hyperliquid.xyz/info", 4000);
-      if (!r) throw new Error("No data");
-      // Hyperliquid returns array of market contexts
-      const body = { type: "allMids" };
-      const res = await fetch("https://api.hyperliquid.xyz/info", {
+      const mids = await fetchJson("https://api.hyperliquid.xyz/info", 4000, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ type: "allMids" }),
       });
-      const mids = await res.json();
-      const ethPrice = parseFloat(mids["ETH"] || 0);
-      if (!ethPrice) throw new Error("ETH price not found");
-      return ethPrice;
+      const price = parseFloat(mids?.[symbol] || 0);
+      if (!price) throw new Error(`${symbol} price not found`);
+      return price;
     },
     30 * 1000
   ); // 30s cache for live price
+}
+
+function roundMarketPrice(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  const decimals = Math.abs(n) >= 10 ? 2 : 6;
+  const scale = 10 ** decimals;
+  return Math.round((n + Number.EPSILON) * scale) / scale;
 }
 
 /**
@@ -202,15 +206,15 @@ async function detectChannel(opts = {}, channelPctArg) {
     asset,
     tooNarrow,
     currentPrice,
-    support: Math.round(support * 100) / 100,
-    resistance: Math.round(resistance * 100) / 100,
-    channelMid: Math.round(channelMid * 100) / 100,
+    support: roundMarketPrice(support),
+    resistance: roundMarketPrice(resistance),
+    channelMid: roundMarketPrice(channelMid),
     channelWidthPct: Math.round(channelWidthPct * 10000) / 100, // as %
     channelPosition: Math.round(channelPosition * 100) / 100, // 0..1
     isRanging,
     volatilityExpanding,
     hasTrend,
-    slope: Math.round(slope * 100) / 100,
+    slope: roundMarketPrice(slope),
     lookbackHours: hours,
     candleCount: candles.length,
     // Provenance — set by candleSources.fetchCandlesMultiSource via
@@ -236,7 +240,7 @@ function computeGridLevels(support, resistance, n = 5) {
     const price = support + step * i;
     const pct = i / (n - 1); // 0 = bottom, 1 = top
     levels.push({
-      price: Math.round(price * 100) / 100,
+      price: roundMarketPrice(price),
       pct: Math.round(pct * 100) / 100,
       zone: pct <= 0.25 ? "BUY_ZONE" : pct >= 0.75 ? "SELL_ZONE" : "NEUTRAL",
     });
@@ -296,7 +300,7 @@ async function _getGridSignalImpl(currentPrice, asset) {
   let price = currentPrice;
   if (!price || price <= 0) {
     try {
-      price = await getLiveEthPrice();
+      price = await getLivePrice(asset);
     } catch {}
   }
   price = price || channel.currentPrice;
@@ -352,8 +356,8 @@ async function _getGridSignalImpl(currentPrice, asset) {
       ).toFixed(1)}:1`,
       channel,
       confidence: 0.65 + (0.3 - pos) * 0.5, // stronger closer to support
-      targetExit: Math.round(targetExit * 100) / 100,
-      stopLoss: Math.round(stopLoss * 100) / 100,
+      targetExit: roundMarketPrice(targetExit),
+      stopLoss: roundMarketPrice(stopLoss),
       trailingStopPct: 0.6, // activate trailing stop after +0.6% profit
     };
   }
@@ -384,8 +388,8 @@ async function _getGridSignalImpl(currentPrice, asset) {
       ).toFixed(1)}:1`,
       channel,
       confidence: 0.65 + (pos - 0.7) * 0.5, // stronger closer to resistance
-      targetExit: Math.round(targetExit * 100) / 100,
-      stopLoss: Math.round(stopLoss * 100) / 100,
+      targetExit: roundMarketPrice(targetExit),
+      stopLoss: roundMarketPrice(stopLoss),
       trailingStopPct: 0.6,
     };
   }
@@ -658,6 +662,7 @@ module.exports = {
   fetchEthCandles,
   fetchPriceCandles,
   computeGridLevels,
+  roundMarketPrice,
   classifyChannelExit,
 };
 

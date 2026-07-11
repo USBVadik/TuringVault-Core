@@ -76,6 +76,7 @@ const ERC20_BALANCE_ABI = [
 ] as const;
 
 type SettledOutcome = {
+  action?: string;
   outcome?: string;
   pnlBps?: number;
   settledAt?: string;
@@ -101,6 +102,7 @@ type PipelineFunnel = {
   blockedDeterministic: number;
   blockedValidator: number;
   blockedOther: number;
+  noActionHolds: number;
 };
 type FunnelResult = {
   executedTradeWinRate: number | null;
@@ -119,6 +121,20 @@ const { computePipelineFunnel } = require("../../lib/pipelineFunnel.shared.js") 
 type Outcomes = {
   pending?: unknown[];
   settled?: SettledOutcome[];
+};
+
+type TradeLedger = {
+  startedAt?: string;
+  summary?: {
+    closedTrades?: number;
+    realizedGrossPnlUsd?: number;
+    realizedNetPnlUsd?: number;
+    matchedCostBasisUsd?: number;
+    matchedProceedsUsd?: number;
+    swapGasUsd?: number;
+    proofGasUsd?: number;
+    netStrategyPnlUsd?: number;
+  };
 };
 
 type Holdings = Record<string, number | null>;
@@ -146,8 +162,18 @@ type PerformanceResponse = {
   missedAlphaCount: number;
   cumulativePnlBps: number;
   outcomeScoreBps: number;
-  realizedTradingPnlBps: null;
-  pnlMethodology: "outcome-score-not-realized-wallet-pnl";
+  realizedTradingPnlUsd: number | null;
+  realizedTradingPnlBps: number | null;
+  realizedGrossPnlUsd: number | null;
+  matchedCostBasisUsd: number | null;
+  swapGasUsd: number | null;
+  proofGasUsd: number | null;
+  netStrategyPnlUsd: number | null;
+  closedTrades: number;
+  tradeLedgerStartedAt: string | null;
+  pnlMethodology:
+    | "fifo-realized-net-after-swap-gas"
+    | "fifo-ledger-awaiting-matched-exit";
   // Count of settled rows excluded from the score/call-counts because they
   // were consensus swaps that never executed on-chain (no realized position).
   intentNotExecutedExcluded: number;
@@ -163,7 +189,7 @@ type PerformanceResponse = {
   dataScope: "agent-lifetime";
   source: {
     onchain: "mantle-mainnet";
-    aggregates: "src/data/outcomes.json";
+    aggregates: "src/data/outcomes.json + src/data/trade_ledger.json";
   };
   winRateDenominator: string;
   error?: string;
@@ -309,6 +335,27 @@ export async function GET(): Promise<NextResponse> {
     outcomes = await fetchFromGitHub<Outcomes>("src/data/outcomes.json");
   }
   const settled: SettledOutcome[] = outcomes?.settled ?? [];
+  const tradeLedgerPath = backendPath("src", "data", "trade_ledger.json");
+  let executionLedger = safeReadJson<TradeLedger>(tradeLedgerPath);
+  if (!executionLedger) {
+    executionLedger = await fetchFromGitHub<TradeLedger>(
+      "src/data/trade_ledger.json"
+    );
+  }
+  const executionSummary = executionLedger?.summary;
+  const matchedCostBasisUsd = Number(executionSummary?.matchedCostBasisUsd || 0);
+  const closedTrades = Number(executionSummary?.closedTrades || 0);
+  const realizedTradingPnlUsd = executionLedger
+    ? Number(executionSummary?.realizedNetPnlUsd || 0)
+    : null;
+  const realizedTradingPnlBps =
+    executionLedger && matchedCostBasisUsd > 0
+      ? Math.round(
+          (Number(executionSummary?.realizedNetPnlUsd || 0) /
+            matchedCostBasisUsd) *
+            10000
+        )
+      : null;
 
   const settledCount = settled.length;
   let goodCallCount = 0;
@@ -421,8 +468,27 @@ export async function GET(): Promise<NextResponse> {
     missedAlphaCount,
     cumulativePnlBps,
     outcomeScoreBps: cumulativePnlBps,
-    realizedTradingPnlBps: null,
-    pnlMethodology: "outcome-score-not-realized-wallet-pnl",
+    realizedTradingPnlUsd,
+    realizedTradingPnlBps,
+    realizedGrossPnlUsd: executionLedger
+      ? Number(executionSummary?.realizedGrossPnlUsd || 0)
+      : null,
+    matchedCostBasisUsd: executionLedger ? matchedCostBasisUsd : null,
+    swapGasUsd: executionLedger
+      ? Number(executionSummary?.swapGasUsd || 0)
+      : null,
+    proofGasUsd: executionLedger
+      ? Number(executionSummary?.proofGasUsd || 0)
+      : null,
+    netStrategyPnlUsd: executionLedger
+      ? Number(executionSummary?.netStrategyPnlUsd || 0)
+      : null,
+    closedTrades,
+    tradeLedgerStartedAt: executionLedger?.startedAt || null,
+    pnlMethodology:
+      closedTrades > 0
+        ? "fifo-realized-net-after-swap-gas"
+        : "fifo-ledger-awaiting-matched-exit",
     intentNotExecutedExcluded,
     executedTradeWinRate: funnel.executedTradeWinRate,
     executedTradeWins: funnel.executedTradeWins,
@@ -433,7 +499,7 @@ export async function GET(): Promise<NextResponse> {
     dataScope: "agent-lifetime",
     source: {
       onchain: "mantle-mainnet",
-      aggregates: "src/data/outcomes.json",
+      aggregates: "src/data/outcomes.json + src/data/trade_ledger.json",
     },
     winRateDenominator:
       "(GOOD_CALL + CORRECT_BLOCK) / realized settled outcomes (settled.length − intentNotExecutedExcluded) from outcomes.json",

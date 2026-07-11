@@ -82,6 +82,19 @@ describe("walletRouter.pickSource — risk-off", () => {
     expect(r.reason).toMatch(/wrap.*MNT.*capped/);
   });
 
+  test("does not broadcast a wrap when the post-wrap source is below the USD floor", () => {
+    const r = pickSource({
+      direction: "risk-off",
+      balances: { WMNT: 0.05, MNT: 29, USDT0: 0, USDT: 0, mETH: 0 },
+      minTradeUsd: 10,
+      mntPriceUsd: 0.43,
+    });
+
+    expect(r.feasible).toBe(false);
+    expect(r.wrapMntFirst).toBe(false);
+    expect(r.reason).toMatch(/USD floor|executable/i);
+  });
+
   test("native MNT below gas reserve → refuses to wrap", () => {
     const r = pickSource({
       direction: "risk-off",

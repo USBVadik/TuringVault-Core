@@ -1,4 +1,8 @@
-const CRON_STALE_AFTER_SEC = 75 * 60;
+const {
+  WATCHDOG_STALE_THRESHOLD_S,
+} = require("../../../lib/cadence.shared.js"); // eslint-disable-line @typescript-eslint/no-require-imports
+
+const CRON_STALE_AFTER_SEC = WATCHDOG_STALE_THRESHOLD_S;
 
 function toFiniteNumber(value) {
   const n = Number(value);

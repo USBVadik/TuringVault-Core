@@ -45,6 +45,7 @@ async function attemptAggregatorSwap({
   toToken,
   sourceAmount,
   dexFactory,
+  quoteValidator,
 } = {}) {
   if (!enabled) return null;
 
@@ -89,26 +90,100 @@ async function attemptAggregatorSwap({
   }
 
   try {
-    const res = await dex.executeSwap(fromToken, toToken, amountWei);
+    let validatedQuote = null;
+    if (typeof quoteValidator === "function") {
+      if (typeof dex.getQuote !== "function") {
+        return {
+          executed: false,
+          reason: "aggregator: quote validation unavailable",
+        };
+      }
+      const quote = await dex.getQuote(fromToken, toToken, amountWei);
+      if (!quote?.viable || !Number.isFinite(Number(quote.estimatedOut))) {
+        return {
+          executed: false,
+          reason: `aggregator: quote unavailable ${String(
+            quote?.error || "invalid output"
+          ).slice(0, 60)}`,
+        };
+      }
+      const profitabilityGate = await quoteValidator({
+        amountIn: amount,
+        amountOut: Number(quote.estimatedOut),
+        quote,
+      });
+      if (!profitabilityGate || profitabilityGate.allowed !== true) {
+        return {
+          executed: false,
+          reason:
+            profitabilityGate?.reason ||
+            "aggregator: quote rejected by economic gate",
+          profitabilityGate: profitabilityGate || { allowed: false },
+          quote,
+        };
+      }
+      validatedQuote = quote;
+    }
+
+    let balancesBefore = null;
+    if (typeof dex.getBalances === "function") {
+      try {
+        balancesBefore = await dex.getBalances(wallet?.address);
+      } catch {
+        balancesBefore = null;
+      }
+    }
+    const res = await dex.executeSwap(
+      fromToken,
+      toToken,
+      amountWei,
+      validatedQuote ? { quote: validatedQuote } : undefined
+    );
     if (res && res.executed === true && res.txHash) {
+      let actualAmountIn = amount;
+      let actualAmountOut = res.estimatedOut ?? res.amountOut ?? null;
+      let measuredFromWallet = false;
+      if (balancesBefore && typeof dex.getBalances === "function") {
+        try {
+          const balancesAfter = await dex.getBalances(wallet?.address);
+          const measuredIn =
+            Number(balancesBefore[fromToken]) - Number(balancesAfter[fromToken]);
+          const measuredOut =
+            Number(balancesAfter[toToken]) - Number(balancesBefore[toToken]);
+          if (Number.isFinite(measuredIn) && measuredIn > 0) {
+            actualAmountIn = measuredIn;
+          }
+          if (Number.isFinite(measuredOut) && measuredOut > 0) {
+            actualAmountOut = measuredOut;
+            measuredFromWallet = true;
+          }
+        } catch {
+          // Receipt is final; retain the quote as an explicitly best-effort fallback.
+        }
+      }
       return {
         executed: true,
         via: "openocean-aggregator",
         from: fromToken,
         to: toToken,
-        amountIn: amount,
-        amountOut: res.estimatedOut ?? res.amountOut ?? null,
+        amountIn: actualAmountIn,
+        amountOut: actualAmountOut,
+        amountSource: measuredFromWallet
+          ? "wallet-balance-delta"
+          : "aggregator-quote",
         txHash: res.txHash,
         blockNumber: res.blockNumber ?? null,
+        gasCostMnt: Number(res.gasCostMnt) || 0,
         legs: [
           {
             leg: 1,
             from: fromToken,
             to: toToken,
             txHash: res.txHash,
-            amountIn: amount,
-            amountOut: res.estimatedOut ?? res.amountOut ?? null,
+            amountIn: actualAmountIn,
+            amountOut: actualAmountOut,
             op: "aggregator-swap",
+            gasCostMnt: Number(res.gasCostMnt) || 0,
           },
         ],
       };

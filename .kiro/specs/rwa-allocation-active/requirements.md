@@ -4,6 +4,11 @@
 
 ## Background
 
+> Historical snapshot only. A July 2026 wallet audit found that an old
+> `/root/turingvault` cron copy had continued sending untracked Odos swaps.
+> Current source is fail-closed unless `LEGACY_GRID_BOT_EXECUTION_ENABLED=true`;
+> `multiAgentLoop` is the sole supported production executor.
+
 After `continuous-cron-and-health` shipped, the agent runs hourly and
 records full multi-agent reasoning on chain — but **it does not execute
 swaps**. Live cycles only write 4 attestation TXs (proposal, validation,

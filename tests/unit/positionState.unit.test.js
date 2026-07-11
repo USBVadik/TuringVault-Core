@@ -1,8 +1,46 @@
 const {
+  applyPositionAwarenessToState,
   buildEnteredPositionState,
+  buildStateWithExecutionBasis,
+  buildPositionAfterExit,
 } = require("../../src/strategies/positionState");
 
 describe("positionState", () => {
+  test("applies take-profit lifecycle to an IN_MNT position", () => {
+    const adjusted = applyPositionAwarenessToState(
+      { action: "HOLD", reason: "MNT channel neutral" },
+      0.47,
+      {
+        status: "IN_MNT",
+        entryPrice: 0.43,
+        targetExit: 0.46,
+        stopLoss: 0.41,
+        cycleCount: 2,
+      }
+    );
+
+    expect(adjusted.action).toBe("SELL_mETH");
+    expect(adjusted.overrideReason).toBe("TAKE_PROFIT");
+    expect(adjusted.reason).toMatch(/MNT/);
+  });
+
+  test("hydrates a legacy active position from a receipt-backed open lot", () => {
+    const next = buildStateWithExecutionBasis(
+      { status: "IN_mETH", entryPrice: 1769.66, executionAmountOut: null },
+      {
+        asset: "mETH",
+        quantity: 0.005,
+        costUsd: 10.5,
+        txHash: "0xentry",
+      }
+    );
+
+    expect(next.executionAmountOut).toBe(0.005);
+    expect(next.executionCostUsd).toBe(10.5);
+    expect(next.executionEntryPrice).toBe(2100);
+    expect(next.executionTxHash).toBe("0xentry");
+  });
+
   test("merges same-asset scale-ins into average entry and increments count", () => {
     const next = buildEnteredPositionState(
       {
@@ -86,5 +124,119 @@ describe("positionState", () => {
     expect(next.executionSourceAsset).toBe("USDT0");
     expect(next.executionTargetAsset).toBe("mETH");
     expect(next.executionTxHash).toBe("0xabc");
+  });
+
+  test("keeps a partially exited position tracked with reduced cost basis", () => {
+    const next = buildPositionAfterExit(
+      {
+        status: "IN_mETH",
+        entryPrice: 1800,
+        targetExit: 1830,
+        stopLoss: 1765,
+        allocationPct: 20,
+        executionEntryPrice: 2000,
+        executionCostUsd: 10,
+        executionAmountOut: 0.005,
+        executionSourceAsset: "USDT0",
+        executionTargetAsset: "mETH",
+      },
+      {
+        sourceAsset: "mETH",
+        amountIn: 0.002,
+        remainingSourceUsd: 30,
+        minTradeUsd: 10,
+        reason: "TAKE_PROFIT",
+        nowIso: "2026-07-10T10:00:00.000Z",
+      }
+    );
+
+    expect(next.status).toBe("IN_mETH");
+    expect(next.executionAmountOut).toBeCloseTo(0.003, 12);
+    expect(next.executionCostUsd).toBeCloseTo(6, 12);
+    expect(next.executionEntryPrice).toBeCloseTo(2000, 12);
+    expect(next.lastPartialExitReason).toBe("TAKE_PROFIT");
+    expect(next.cycleCount).toBe(0);
+  });
+
+  test("closes tracking only when the remaining source is sub-floor", () => {
+    const next = buildPositionAfterExit(
+      {
+        status: "IN_MNT",
+        entryPrice: 0.43,
+        executionCostUsd: 10,
+        executionAmountOut: 23,
+      },
+      {
+        sourceAsset: "WMNT",
+        amountIn: 20,
+        remainingSourceUsd: 1.3,
+        minTradeUsd: 10,
+        reason: "TAKE_PROFIT",
+        nowIso: "2026-07-10T11:00:00.000Z",
+      }
+    );
+
+    expect(next.status).toBe("FLAT");
+    expect(next.lastExitReason).toBe("TAKE_PROFIT");
+  });
+
+  test("keeps a residual tracked when it is below entry floor but above exit floor", () => {
+    const next = buildPositionAfterExit(
+      {
+        status: "IN_MNT",
+        entryPrice: 0.43,
+        executionCostUsd: 10,
+        executionAmountOut: 23,
+      },
+      {
+        sourceAsset: "WMNT",
+        amountIn: 20,
+        remainingSourceUsd: 1.3,
+        minTradeUsd: 10,
+        minExitUsd: 1,
+        reason: "TAKE_PROFIT",
+        nowIso: "2026-07-10T11:30:00.000Z",
+      }
+    );
+
+    expect(next.status).toBe("IN_MNT");
+    expect(next.executionAmountOut).toBeCloseTo(3, 12);
+  });
+
+  test("enterPosition persists execution fields instead of dropping them", () => {
+    const fs = require("fs");
+    const os = require("os");
+    const path = require("path");
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "position-state-"));
+    const originalPath = process.env.POSITION_STATE_PATH;
+    process.env.POSITION_STATE_PATH = path.join(tmpDir, "state.json");
+    jest.resetModules();
+    const isolated = require("../../src/strategies/positionState");
+
+    isolated.enterPosition({
+      status: "IN_mETH",
+      entryPrice: 1800,
+      targetExit: 1830,
+      stopLoss: 1765,
+      allocationPct: 15,
+      executionEntryPrice: 1960,
+      executionCostUsd: 10.5,
+      executionAmountOut: 0.005357,
+      executionSourceAsset: "USDT0",
+      executionTargetAsset: "mETH",
+      executionTxHash: "0xfill",
+    });
+
+    expect(isolated.getState()).toMatchObject({
+      executionEntryPrice: 1960,
+      executionCostUsd: 10.5,
+      executionAmountOut: 0.005357,
+      executionTxHash: "0xfill",
+    });
+
+    if (originalPath === undefined) delete process.env.POSITION_STATE_PATH;
+    else process.env.POSITION_STATE_PATH = originalPath;
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    jest.resetModules();
   });
 });

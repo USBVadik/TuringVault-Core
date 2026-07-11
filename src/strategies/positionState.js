@@ -23,7 +23,9 @@
 const path = require("path");
 const fs = require("fs");
 
-const STATE_PATH = path.resolve(__dirname, "../data/position_state.json");
+const STATE_PATH = process.env.POSITION_STATE_PATH
+  ? path.resolve(process.env.POSITION_STATE_PATH)
+  : path.resolve(__dirname, "../data/position_state.json");
 
 const INITIAL_STATE = {
   status: "FLAT", // FLAT | IN_mETH | IN_MNT | IN_mUSD
@@ -49,7 +51,7 @@ const INITIAL_STATE = {
   lastUpdated: null,
 };
 
-const MAX_CYCLES_IN_POSITION = 20; // ~1 hour at 3min cycles — force re-eval if stuck
+const MAX_CYCLES_IN_POSITION = 20; // ~60 hours at the canonical 3h cadence; force re-evaluation if stuck
 
 function load() {
   if (!fs.existsSync(STATE_PATH)) return { ...INITIAL_STATE };
@@ -173,21 +175,113 @@ function getState() {
  * Record that we entered a position
  * Called by multiAgentLoop after successful swap execution
  */
-function enterPosition({
-  status,
-  entryPrice,
-  targetExit,
-  stopLoss,
-  allocationPct,
-}) {
-  const state = buildEnteredPositionState(load(), {
-    status, // 'IN_mETH', 'IN_MNT', or 'IN_mUSD'
-    entryPrice,
-    targetExit,
-    stopLoss,
-    allocationPct,
-  });
+function enterPosition(entry = {}) {
+  const state = buildEnteredPositionState(load(), entry);
   return save(state);
+}
+
+function buildStateWithExecutionBasis(prevState = {}, basis = {}) {
+  if (!prevState || prevState.status === "FLAT") return { ...prevState };
+  if (num(prevState.executionAmountOut, 0) > 0) return { ...prevState };
+  const asset = basis.asset;
+  if (!sourceMatchesPosition(asset, prevState.status)) return { ...prevState };
+  const quantity = Math.max(0, num(basis.quantity, 0));
+  const costUsd = Math.max(0, num(basis.costUsd, 0));
+  if (!quantity || !costUsd) return { ...prevState };
+  return {
+    ...prevState,
+    executionEntryPrice: costUsd / quantity,
+    executionCostUsd: costUsd,
+    executionAmountOut: quantity,
+    executionSourceAsset: basis.sourceAsset || "USDT0",
+    executionTargetAsset: asset,
+    executionTxHash: basis.txHash || null,
+  };
+}
+
+function hydrateExecutionBasis(basis = {}) {
+  const prev = load();
+  const next = buildStateWithExecutionBasis(prev, basis);
+  if (JSON.stringify(next) === JSON.stringify(prev)) return prev;
+  return save(next);
+}
+
+function exitState(prevState = {}, reason, nowIso) {
+  const now = nowIso || new Date().toISOString();
+  return {
+    ...INITIAL_STATE,
+    flatSince: now,
+    lastExitReason: reason || "manual",
+    lastExitTime: now,
+    lastEntryPrice: prevState.entryPrice,
+    lastExitPrice: null,
+  };
+}
+
+function sourceMatchesPosition(sourceAsset, status) {
+  if (status === "IN_mETH") return ["mETH", "WETH"].includes(sourceAsset);
+  if (status === "IN_MNT" || status === "IN_RISK") {
+    return ["MNT", "WMNT"].includes(sourceAsset);
+  }
+  return false;
+}
+
+function buildPositionAfterExit(prevState = {}, exit = {}) {
+  const now = exit.nowIso || new Date().toISOString();
+  const exitTrackingFloorUsd = Math.max(
+    0,
+    num(exit.minExitUsd, num(exit.minTradeUsd, 0))
+  );
+  const remainingSourceUsd = Math.max(0, num(exit.remainingSourceUsd, 0));
+  const amountIn = Math.max(0, num(exit.amountIn, 0));
+  const reason = exit.reason || "GRID_EXIT";
+
+  if (!sourceMatchesPosition(exit.sourceAsset, prevState.status)) {
+    return { ...prevState };
+  }
+
+  const trackedQty = Math.max(0, num(prevState.executionAmountOut, 0));
+  const remainingTrackedQty = trackedQty
+    ? Math.max(0, trackedQty - amountIn)
+    : null;
+  const trackedLotClosed = trackedQty > 0 && remainingTrackedQty <= 1e-12;
+  if (trackedLotClosed || remainingSourceUsd < exitTrackingFloorUsd) {
+    return exitState(prevState, reason, now);
+  }
+
+  let executionCostUsd = prevState.executionCostUsd ?? null;
+  let executionAmountOut = prevState.executionAmountOut ?? null;
+  if (trackedQty > 0 && remainingTrackedQty != null) {
+    const remainingFraction = remainingTrackedQty / trackedQty;
+    executionAmountOut = remainingTrackedQty;
+    executionCostUsd = Math.max(
+      0,
+      num(prevState.executionCostUsd, 0) * remainingFraction
+    );
+  }
+
+  return {
+    ...prevState,
+    executionAmountOut,
+    executionCostUsd,
+    executionEntryPrice:
+      executionAmountOut > 0 && executionCostUsd > 0
+        ? executionCostUsd / executionAmountOut
+        : prevState.executionEntryPrice ?? null,
+    allocationPct:
+      trackedQty > 0 && remainingTrackedQty != null
+        ? num(prevState.allocationPct, 0) * (remainingTrackedQty / trackedQty)
+        : prevState.allocationPct,
+    cycleCount: 0,
+    lastPartialExitAt: now,
+    lastPartialExitReason: reason,
+    lastPartialExitAmount: amountIn,
+    lastUpdated: null,
+  };
+}
+
+function recordExecutedExit(exit = {}) {
+  return save(buildPositionAfterExit(load(), exit));
 }
 
 /**
@@ -196,15 +290,7 @@ function enterPosition({
  */
 function exitPosition(reason) {
   const prev = load();
-  const state = {
-    ...INITIAL_STATE,
-    flatSince: new Date().toISOString(), // start the FLAT clock for rwaAllocator
-    lastExitReason: reason || "manual",
-    lastExitTime: new Date().toISOString(),
-    lastEntryPrice: prev.entryPrice,
-    lastExitPrice: null, // caller can set this
-  };
-  return save(state);
+  return save(exitState(prev, reason));
 }
 
 /**
@@ -241,18 +327,18 @@ function updateHWM(currentPrice) {
  * @param {number} currentPrice - live price
  * @returns {object} adjusted signal with position context
  */
-function applyPositionAwareness(rawSignal, currentPrice) {
-  const state = load();
+function applyPositionAwarenessToState(rawSignal, currentPrice, state = {}) {
   const signal = { ...rawSignal, positionState: state };
 
-  // ── Already IN mETH ─────────────────────────────────────────────
-  if (state.status === "IN_mETH") {
+  // ── Already in a tracked risk position ──────────────────────────
+  if (["IN_mETH", "IN_MNT", "IN_RISK"].includes(state.status)) {
+    const positionLabel = state.status === "IN_mETH" ? "mETH" : "MNT/WMNT";
     // Take-profit check — FIRST (highest priority)
     if (state.targetExit && currentPrice >= state.targetExit) {
       return {
         ...signal,
         action: "SELL_mETH",
-        reason: `TAKE PROFIT: Current $${currentPrice} reached target $${
+        reason: `TAKE PROFIT ${positionLabel}: Current $${currentPrice} reached target $${
           state.targetExit
         }. Entry was $${state.entryPrice}. PnL: +${(
           (currentPrice / state.entryPrice - 1) *
@@ -268,7 +354,7 @@ function applyPositionAwareness(rawSignal, currentPrice) {
       return {
         ...signal,
         action: "SELL_mETH",
-        reason: `STOP LOSS: Current $${currentPrice} hit stop $${
+        reason: `STOP LOSS ${positionLabel}: Current $${currentPrice} hit stop $${
           state.stopLoss
         }. Entry was $${state.entryPrice}. PnL: ${(
           (currentPrice / state.entryPrice - 1) *
@@ -284,7 +370,7 @@ function applyPositionAwareness(rawSignal, currentPrice) {
       return {
         ...signal,
         action: "SELL_mETH",
-        reason: `MAX HOLD TIME: In mETH for ${state.cycleCount} cycles (entry $${state.entryPrice}). Exiting to re-evaluate channel.`,
+        reason: `MAX HOLD TIME: In ${positionLabel} for ${state.cycleCount} cycles (entry $${state.entryPrice}). Exiting to re-evaluate channel.`,
         confidence: 0.7,
         overrideReason: "MAX_CYCLES",
       };
@@ -310,7 +396,7 @@ function applyPositionAwareness(rawSignal, currentPrice) {
       return {
         ...signal,
         action: "HOLD",
-        reason: `Already IN_mETH since $${state.entryPrice} (${state.cycleCount} cycles). Waiting for take-profit at $${state.targetExit} or stop at $${state.stopLoss}.`,
+        reason: `Already in ${positionLabel} since $${state.entryPrice} (${state.cycleCount} cycles). Waiting for take-profit at $${state.targetExit} or stop at $${state.stopLoss}.`,
         overrideReason: "ALREADY_IN_POSITION",
       };
     }
@@ -319,7 +405,7 @@ function applyPositionAwareness(rawSignal, currentPrice) {
     return {
       ...signal,
       action: "HOLD",
-      reason: `Holding mETH (cycle ${state.cycleCount}/${MAX_CYCLES_IN_POSITION}). Entry: $${state.entryPrice}, Target: $${state.targetExit}, Stop: $${state.stopLoss}, Current: $${currentPrice}`,
+      reason: `Holding ${positionLabel} (cycle ${state.cycleCount}/${MAX_CYCLES_IN_POSITION}). Entry: $${state.entryPrice}, Target: $${state.targetExit}, Stop: $${state.stopLoss}, Current: $${currentPrice}`,
       overrideReason: "HOLDING",
     };
   }
@@ -354,6 +440,10 @@ function applyPositionAwareness(rawSignal, currentPrice) {
   return signal;
 }
 
+function applyPositionAwareness(rawSignal, currentPrice) {
+  return applyPositionAwarenessToState(rawSignal, currentPrice, load());
+}
+
 /**
  * Decide whether a stuck, past-max-hold position should be reconciled to
  * FLAT.
@@ -374,21 +464,37 @@ function applyPositionAwareness(rawSignal, currentPrice) {
  */
 function shouldReconcileStalePosition(
   state = {},
-  { alphaSwapExecuted = false } = {}
+  {
+    alphaSwapExecuted = false,
+    sourceInventoryUsd = null,
+    minExitUsd = 1,
+  } = {}
 ) {
   if (alphaSwapExecuted) return false;
   if (!state || state.status === "FLAT") return false;
-  return num(state.cycleCount, 0) >= MAX_CYCLES_IN_POSITION;
+  if (sourceInventoryUsd == null) return false;
+  const inventoryUsd = Number(sourceInventoryUsd);
+  return (
+    num(state.cycleCount, 0) >= MAX_CYCLES_IN_POSITION &&
+    Number.isFinite(inventoryUsd) &&
+    inventoryUsd >= 0 &&
+    inventoryUsd < Math.max(0, num(minExitUsd, 1))
+  );
 }
 
 module.exports = {
   getState,
   buildEnteredPositionState,
+  buildStateWithExecutionBasis,
+  buildPositionAfterExit,
   enterPosition,
+  hydrateExecutionBasis,
+  recordExecutedExit,
   exitPosition,
   tickCycle,
   updateHWM,
   applyPositionAwareness,
+  applyPositionAwarenessToState,
   shouldReconcileStalePosition,
   MAX_CYCLES_IN_POSITION,
   STATE_PATH,

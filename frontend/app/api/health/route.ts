@@ -62,6 +62,10 @@ const healthCache = require("./health-cache.shared.js") as {
   ) => HealthResponse | null;
 };
 const { canReuseHealthPayload, cloneHealthWithFreshAge } = healthCache;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { EXPECTED_CYCLES_PER_DAY } = require("../../lib/cadence.shared.js") as {
+  EXPECTED_CYCLES_PER_DAY: number;
+};
 
 export const dynamic = "force-dynamic";
 export const revalidate = 30;
@@ -267,7 +271,7 @@ async function getMantleBlock(): Promise<number | null> {
 //   cyclesRemaining = floor(spendableMnt / 0.077)
 const AGENT_EOA = "0xDC783CDBfA993f3FC299460627b204E83bf4fb5a";
 const COST_PER_CYCLE_MNT = 0.077;       // worst-case 8-TX cycle
-const CYCLES_PER_DAY = 48;              // best-effort hourly × 2
+const CYCLES_PER_DAY = EXPECTED_CYCLES_PER_DAY;
 const GAS_RESERVE_MNT_FLOOR = 5.0;      // matches walletRouter.GAS_RESERVE_MNT
 
 async function getGasRunway(): Promise<GasRunway> {

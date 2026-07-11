@@ -49,6 +49,25 @@ describe("post-audit report regression fixes", () => {
       dispatch: true,
       reason: "health-unavailable",
     });
+    expect(CRON_STALE_AFTER_SEC).toBe(3.5 * 60 * 60);
+  });
+
+  test("frontend cadence stays aligned with primary and watchdog workflows", () => {
+    const cadence = require("../../frontend/app/lib/cadence.shared.js");
+    const primary = fs.readFileSync(
+      path.join(repoRoot, ".github/workflows/agent-cycle.yml"),
+      "utf8"
+    );
+    const watchdog = fs.readFileSync(
+      path.join(repoRoot, ".github/workflows/agent-watchdog.yml"),
+      "utf8"
+    );
+
+    expect(cadence.SCHEDULE_FRESHNESS_THRESHOLD_S).toBe(10800);
+    expect(cadence.WATCHDOG_STALE_THRESHOLD_S).toBe(12600);
+    expect(cadence.EXPECTED_CYCLES_PER_DAY).toBe(8);
+    expect(primary).toMatch(/SCHEDULE_FRESHNESS_THRESHOLD_S:\s*"10800"/);
+    expect(watchdog).toMatch(/STALE_THRESHOLD_S:\s*"12600"/);
   });
 
   test("agent-cycle workflow gives run-cycle enough time and preserves timeout evidence", () => {
@@ -154,7 +173,9 @@ describe("post-audit report regression fixes", () => {
       "utf8"
     );
 
-    expect(route).toMatch(/FRESH_CAPTURE_MAX_AGE_SEC\s*=\s*90\s*\*\s*60/);
+    expect(route).toMatch(
+      /FRESH_CAPTURE_MAX_AGE_SEC\s*=\s*OFFLINE_THRESHOLD_S/
+    );
     expect(route).toMatch(
       /degraded:\s*snapshotAgeSec\s*>\s*FRESH_CAPTURE_MAX_AGE_SEC/
     );

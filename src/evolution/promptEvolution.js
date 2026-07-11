@@ -87,6 +87,12 @@ class PromptEvolution {
     );
 
     this.config = { ...EVOLUTION_CONFIG, ...options.config };
+    this.getOutcomeHistory =
+      options.getOutcomeHistory ||
+      ((limit) => {
+        const { getOutcomeHistory } = require("../orchestrator/outcomeTracker");
+        return getOutcomeHistory(limit);
+      });
   }
 
   /**
@@ -216,14 +222,13 @@ class PromptEvolution {
     let settledCount = 0;
     let outcomeData = null;
     try {
-      const { getOutcomeHistory } = require("../orchestrator/outcomeTracker");
-      outcomeData = getOutcomeHistory(100); // get up to 100 for drawdown calc
+      outcomeData = this.getOutcomeHistory(100); // get up to 100 for drawdown calc
       settledCount = outcomeData.total;
     } catch (e) {
       console.log("  [EVOLUTION] outcomeTracker not available for guard check");
     }
 
-    const MIN_SETTLED_TRADES = 10;
+    const MIN_SETTLED_TRADES = 20;
     if (settledCount < MIN_SETTLED_TRADES) {
       const msg = `Evolution skipped: only ${settledCount}/20 trades settled`;
       console.log(`  [EVOLUTION] ${msg}`);
@@ -337,8 +342,7 @@ class PromptEvolution {
     // Get REAL outcome history from outcomeTracker (not empty [])
     let outcomeData = { total: 0, summary: {}, forPrompt: [] };
     try {
-      const { getOutcomeHistory } = require("../orchestrator/outcomeTracker");
-      outcomeData = getOutcomeHistory(20);
+      outcomeData = this.getOutcomeHistory(20);
     } catch (e) {
       console.log(
         "  [EVOLUTION] outcomeTracker not available — using on-chain stats only"

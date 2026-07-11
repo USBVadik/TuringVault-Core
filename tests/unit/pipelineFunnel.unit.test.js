@@ -69,4 +69,35 @@ describe("computePipelineFunnel", () => {
     );
     expect(f.blockedOther).toBeGreaterThanOrEqual(0);
   });
+
+  test("an explicit HOLD_NO_ACTION is not presented as a blocked trade", () => {
+    const r = computePipelineFunnel([
+      {
+        consensus: false,
+        executedOnChain: false,
+        action: "hold",
+        outcome: "NO_ACTION",
+        decisionTier: "HOLD_NO_ACTION",
+      },
+    ]);
+
+    expect(r.pipelineFunnel.totalDecisions).toBe(1);
+    expect(r.pipelineFunnel.noActionHolds).toBe(1);
+    expect(r.pipelineFunnel.blockedTotal).toBe(0);
+  });
+
+  test("an economics veto after consensus is still a deterministic block", () => {
+    const r = computePipelineFunnel([
+      {
+        consensus: true,
+        executedOnChain: false,
+        outcome: "INTENT_NOT_EXECUTED",
+        decisionTier: "BLOCKED_BY_ECONOMICS",
+      },
+    ]);
+
+    expect(r.pipelineFunnel.consensusApproved).toBe(1);
+    expect(r.pipelineFunnel.blockedTotal).toBe(1);
+    expect(r.pipelineFunnel.blockedDeterministic).toBe(1);
+  });
 });

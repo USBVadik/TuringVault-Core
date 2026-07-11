@@ -6,6 +6,7 @@
 
 const {
   classifyDecisionTier,
+  preExecutionProofTier,
   TIERS,
 } = require("../../src/orchestrator/decisionTier");
 
@@ -94,13 +95,26 @@ describe("classifyDecisionTier", () => {
     );
   });
 
-  test("consensus true + action hold → BLOCKED_BY_REGIME (fallthrough)", () => {
+  test("analyst HOLD is a no-action decision, not a blocked trade", () => {
     expect(
       classifyDecisionTier(
         decision({ action: "hold", analyst: { ...analyst(), action: "hold" } }),
         market("TREND_UP")
       )
-    ).toBe(TIERS.BLOCKED_BY_REGIME);
+    ).toBe(TIERS.HOLD_NO_ACTION);
+  });
+
+  test("low-confidence analyst HOLD is still a no-action decision", () => {
+    expect(
+      classifyDecisionTier(
+        decision({
+          action: "hold",
+          consensus: false,
+          analyst: { ...analyst(0.35), action: "hold" },
+        }),
+        market("HOLD")
+      )
+    ).toBe(TIERS.HOLD_NO_ACTION);
   });
 
   // ── Validator veto ───────────────────────────────────────────────
@@ -135,6 +149,18 @@ describe("classifyDecisionTier", () => {
     ).toBe(TIERS.BLOCKED_BY_PORTFOLIO);
   });
 
+  test("net-negative approved quote → BLOCKED_BY_ECONOMICS", () => {
+    expect(
+      classifyDecisionTier(
+        decision({
+          _economicGuardBlocked: true,
+          _economicGuardReason: "quote below required net proceeds",
+        }),
+        market("RANGING")
+      )
+    ).toBe(TIERS.BLOCKED_BY_ECONOMICS);
+  });
+
   // ── Executed swap ────────────────────────────────────────────────
   test("all green + consensus + swap → EXECUTED_SWAP", () => {
     expect(classifyDecisionTier(decision(), market("TREND_UP"))).toBe(
@@ -151,6 +177,15 @@ describe("classifyDecisionTier", () => {
   test("RANGING regime still allows EXECUTED_SWAP", () => {
     expect(classifyDecisionTier(decision(), market("RANGING"))).toBe(
       TIERS.EXECUTED_SWAP
+    );
+  });
+
+  test("pre-action proof never claims an approved intent already executed", () => {
+    expect(preExecutionProofTier(TIERS.EXECUTED_SWAP)).toBe(
+      TIERS.EXECUTION_PROOF_PENDING
+    );
+    expect(preExecutionProofTier(TIERS.BLOCKED_BY_VALIDATOR)).toBe(
+      TIERS.BLOCKED_BY_VALIDATOR
     );
   });
 

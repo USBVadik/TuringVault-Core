@@ -12,6 +12,7 @@ const {
   compactOriginalAnalystProposal,
   formatStructuredSignalsForValidator,
   getDynamicConfidenceThreshold,
+  countConsecutiveRealizedLosses,
   evaluateConsensus,
   ANALYST_SYSTEM_PROMPT,
   VALIDATOR_SYSTEM_PROMPT,
@@ -460,6 +461,40 @@ describe("grid candidate promotion", () => {
     expect(shouldPromoteGridTradeCandidate(candidate, null)).toBe(true);
   });
 
+  test("promotes deterministic take-profit exits even when the analyst chose HOLD", () => {
+    const candidate = {
+      active: true,
+      kind: "position-exit",
+      exitReason: "TAKE_PROFIT",
+      direction: "risk_off",
+      targetAsset: "mUSD",
+      sourceAsset: "mETH",
+    };
+
+    expect(
+      shouldPromoteGridTradeCandidate(candidate, {
+        action: "hold",
+        direction: "neutral",
+        targetAsset: "mETH",
+      })
+    ).toBe(true);
+  });
+
+  test("does not force-promote ordinary risk-off grid trims", () => {
+    expect(
+      shouldPromoteGridTradeCandidate(
+        {
+          active: true,
+          kind: "grid-sell",
+          direction: "risk_off",
+          targetAsset: "mUSD",
+          sourceAsset: "WMNT",
+        },
+        { action: "hold", targetAsset: "mETH" }
+      )
+    ).toBe(false);
+  });
+
   test("audit snapshot handles null analyst output", () => {
     expect(compactOriginalAnalystProposal(null)).toBeNull();
   });
@@ -770,6 +805,20 @@ describe("evaluateConsensus", () => {
 });
 
 describe("getDynamicConfidenceThreshold", () => {
+  it("counts only matched realized EXIT losses, not holds or operating costs", () => {
+    expect(
+      countConsecutiveRealizedLosses({
+        entries: [
+          { type: "EXIT", matchedQty: 1, realizedNetPnlUsd: 0.2 },
+          { type: "OPERATING_COST", realizedNetPnlUsd: -9 },
+          { type: "EXIT", matchedQty: 1, realizedNetPnlUsd: -0.1 },
+          { type: "EXIT", matchedQty: 1, realizedNetPnlUsd: -0.2 },
+          { type: "EXIT", matchedQty: 0, realizedNetPnlUsd: -5 },
+        ],
+      })
+    ).toBe(2);
+  });
+
   it("should return a number between 0 and 1", () => {
     const threshold = getDynamicConfidenceThreshold();
     expect(typeof threshold).toBe("number");

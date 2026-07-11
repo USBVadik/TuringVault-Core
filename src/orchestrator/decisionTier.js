@@ -36,6 +36,8 @@ const TIERS = Object.freeze({
   BLOCKED_BY_REGIME: "BLOCKED_BY_REGIME",
   BLOCKED_BY_PARSE_FAILURE: "BLOCKED_BY_PARSE_FAILURE",
   BLOCKED_BY_PORTFOLIO: "BLOCKED_BY_PORTFOLIO",
+  BLOCKED_BY_ECONOMICS: "BLOCKED_BY_ECONOMICS",
+  HOLD_NO_ACTION: "HOLD_NO_ACTION",
   // Submission-window heartbeat: deliberate, micro-sized, alternating
   // swap injected by Path C heartbeat mode after a long passive run.
   // Always honest — never aggregated into "real" alpha metrics.
@@ -72,6 +74,13 @@ function classifyDecisionTier(decision, market) {
     return TIERS.BLOCKED_BY_PARSE_FAILURE;
   }
 
+  // An explicit analyst HOLD is not a rejected swap. Keep it separate from
+  // safety vetoes so block-rate and learning metrics do not treat abstention
+  // as a trade proposal that another component prevented.
+  if (safeDecision.analyst.action === "hold") {
+    return TIERS.HOLD_NO_ACTION;
+  }
+
   // 2. Low confidence — analyst's confidence didn't clear the threshold.
   //    Note: precedes regime check on purpose. See header comment.
   const threshold = safeDecision._activeThreshold ?? DEFAULT_THRESHOLD;
@@ -99,6 +108,10 @@ function classifyDecisionTier(decision, market) {
     return TIERS.BLOCKED_BY_PORTFOLIO;
   }
 
+  if (safeDecision._economicGuardBlocked === true) {
+    return TIERS.BLOCKED_BY_ECONOMICS;
+  }
+
   // 5. Consensus reached and action is a swap → executed.
   if (safeDecision.consensus === true && safeDecision.action === "swap") {
     return TIERS.EXECUTED_SWAP;
@@ -108,4 +121,10 @@ function classifyDecisionTier(decision, market) {
   return TIERS.BLOCKED_BY_REGIME;
 }
 
-module.exports = { classifyDecisionTier, TIERS };
+function preExecutionProofTier(tier) {
+  return tier === TIERS.EXECUTED_SWAP
+    ? TIERS.EXECUTION_PROOF_PENDING
+    : tier;
+}
+
+module.exports = { classifyDecisionTier, preExecutionProofTier, TIERS };

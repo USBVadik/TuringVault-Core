@@ -8,9 +8,12 @@
  * surface — keep the rules in this single file.
  */
 
-const LIVE_THRESHOLD_S = 10 * 60;
-const IDLE_THRESHOLD_S = 35 * 60;
-const STALE_THRESHOLD_S = 90 * 60;
+const {
+  IDLE_THRESHOLD_S,
+  LIVE_THRESHOLD_S,
+  OFFLINE_THRESHOLD_S,
+} = require("./cadence.shared.js"); // eslint-disable-line @typescript-eslint/no-require-imports
+const STALE_THRESHOLD_S = OFFLINE_THRESHOLD_S;
 
 const TONES = {
   live: {

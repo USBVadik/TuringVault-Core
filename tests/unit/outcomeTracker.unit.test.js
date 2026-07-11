@@ -102,6 +102,21 @@ describe("record execution honesty", () => {
 });
 
 describe("computePriceMoveOutcome", () => {
+  test("does not score an analyst HOLD as a blocked trade", () => {
+    const result = computePriceMoveOutcome({
+      action: "hold",
+      consensus: false,
+      targetAsset: "mETH",
+      confidence: 0.65,
+      priceAtDecision: 1800,
+      currentPrice: 1850,
+    });
+
+    expect(result.outcome).toBe("NO_ACTION");
+    expect(result.scoreDelta).toBe(0);
+    expect(result.pnlBps).toBe(0);
+  });
+
   test("scores MNT upside as GOOD_CALL for an approved risk-on swap", () => {
     const result = computePriceMoveOutcome({
       consensus: true,

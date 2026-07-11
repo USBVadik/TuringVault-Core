@@ -20,6 +20,7 @@ const DETERMINISTIC_BLOCK_TIERS = [
   "BLOCKED_BY_PORTFOLIO",
   "BLOCKED_BY_LOW_CONFIDENCE",
   "BLOCKED_BY_PARSE_FAILURE",
+  "BLOCKED_BY_ECONOMICS",
 ];
 
 function round1(n) {
@@ -27,7 +28,7 @@ function round1(n) {
 }
 
 /**
- * @param {Array<{consensus?:boolean, decisionTier?:string, executedOnChain?:boolean, outcome?:string}>} settledRows
+ * @param {Array<{consensus?:boolean, decisionTier?:string, executedOnChain?:boolean, outcome?:string, action?:string}>} settledRows
  */
 function computePipelineFunnel(settledRows) {
   const rows = Array.isArray(settledRows) ? settledRows : [];
@@ -51,14 +52,23 @@ function computePipelineFunnel(settledRows) {
       : null;
 
   const consensusApproved = rows.filter((s) => s.consensus === true).length;
-  const blockedTotal = rows.filter((s) => s.consensus === false).length;
+  const noActionHolds = rows.filter(
+    (s) => s.decisionTier === "HOLD_NO_ACTION" || s.outcome === "NO_ACTION"
+  ).length;
+  const isBlocked = (s) =>
+    s.decisionTier !== "HOLD_NO_ACTION" &&
+    s.outcome !== "NO_ACTION" &&
+    (s.consensus === false ||
+      DETERMINISTIC_BLOCK_TIERS.includes(s.decisionTier) ||
+      s.decisionTier === "BLOCKED_BY_VALIDATOR");
+  const blockedTotal = rows.filter(isBlocked).length;
   const blockedDeterministic = rows.filter(
     (s) =>
-      s.consensus === false &&
+      isBlocked(s) &&
       DETERMINISTIC_BLOCK_TIERS.includes(s.decisionTier)
   ).length;
   const blockedValidator = rows.filter(
-    (s) => s.consensus === false && s.decisionTier === "BLOCKED_BY_VALIDATOR"
+    (s) => isBlocked(s) && s.decisionTier === "BLOCKED_BY_VALIDATOR"
   ).length;
   const blockedOther = blockedTotal - blockedDeterministic - blockedValidator;
 
@@ -72,6 +82,7 @@ function computePipelineFunnel(settledRows) {
       consensusApproved,
       executed: executedTradeTotal,
       executedWon: executedTradeWins,
+      noActionHolds,
       blockedTotal,
       blockedDeterministic,
       blockedValidator,

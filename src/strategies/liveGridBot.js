@@ -28,6 +28,19 @@ const ADDRESSES = {
 const LOG_PATH = path.resolve(__dirname, "../data/grid_trades.json");
 const STATE_PATH = path.resolve(__dirname, "../data/grid_bot_state.json");
 
+function isLegacyExecutionEnabled(env = process.env) {
+  return env.LEGACY_GRID_BOT_EXECUTION_ENABLED === "true";
+}
+
+function assertLegacyExecutionEnabled(env = process.env) {
+  if (!isLegacyExecutionEnabled(env)) {
+    throw new Error(
+      "LEGACY_GRID_BOT_DISABLED: liveGridBot is a retired executor. " +
+        "Use multiAgentLoop; set LEGACY_GRID_BOT_EXECUTION_ENABLED=true only for an explicit forensic run."
+    );
+  }
+}
+
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function decimals() view returns (uint8)",
@@ -133,6 +146,7 @@ class LiveGridBot {
    * @param {number} amount - amount of input token (USDT for BUY, WMNT for SELL)
    */
   async executeSwap(direction, amount) {
+    assertLegacyExecutionEnabled();
     let inputToken, outputToken, amountWei;
 
     if (direction === "BUY_WMNT") {
@@ -231,6 +245,7 @@ class LiveGridBot {
    * Run one grid cycle: check signal and execute if needed
    */
   async runCycle() {
+    assertLegacyExecutionEnabled();
     const { getGridSignal } = require("./rangingGrid");
     const posState = require("./positionState");
 
@@ -358,7 +373,11 @@ class LiveGridBot {
   }
 }
 
-module.exports = { LiveGridBot };
+module.exports = {
+  LiveGridBot,
+  assertLegacyExecutionEnabled,
+  isLegacyExecutionEnabled,
+};
 
 // CLI execution
 if (require.main === module) {

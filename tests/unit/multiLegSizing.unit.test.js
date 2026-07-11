@@ -68,6 +68,21 @@ describe("multi-leg swap sizing", () => {
     expect(sizing.canExecute).toBe(false);
   });
 
+  test("allows a tracked lifecycle exit to clear a residual position", () => {
+    const sizing = calculateDirectionalSwapSizing({
+      sourceToken: "WMNT",
+      sourceBalance: 12,
+      allocationPct: 20,
+      market: { mntPrice: 0.65 },
+      allowResidualExit: true,
+    });
+
+    expect(sizing.residualExit).toBe(true);
+    expect(sizing.finalSourceAmount).toBe(12);
+    expect(sizing.cappedUsd).toBeCloseTo(7.8, 8);
+    expect(sizing.canExecute).toBe(true);
+  });
+
   test("default live sizing rescues valid signals to the economic floor", () => {
     const sizing = calculateDirectionalSwapSizing({
       sourceToken: "USDT0",

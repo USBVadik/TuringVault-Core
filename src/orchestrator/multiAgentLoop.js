@@ -34,6 +34,13 @@ const { getUnifiedMarketContext } = require("./unifiedMarketData");
 const { getStructuredSignals } = require("./signalEngine");
 const outcomeTracker = require("./outcomeTracker");
 const positionState = require("../strategies/positionState");
+const tradeLedger = require("../metrics/tradeLedger");
+const { estimatedGasUsd, transactionGasMnt } = require("../metrics/gasCost");
+const {
+  getMaxTradeUsd,
+  getMinExitUsd,
+  getMinTradeUsd,
+} = require("../config/tradingEconomics");
 const { readAllBalances } = require("../dex/walletRouter");
 const {
   assessTradeInventory,
@@ -94,6 +101,19 @@ function resolveCycleDisplayTier({
     executedOnChain,
     executionProofStatus,
   });
+}
+
+function hasCompletedExecution({
+  directionalSwapResult = null,
+  rwaIntent = null,
+} = {}) {
+  const directionalTx =
+    directionalSwapResult?.txHash ||
+    directionalSwapResult?.legs?.some((leg) => Boolean(leg?.txHash));
+  const directionalComplete =
+    directionalSwapResult?.executed === true && Boolean(directionalTx);
+  const rwaComplete = rwaIntent?.executed === true && Boolean(rwaIntent?.txHash);
+  return directionalComplete || rwaComplete;
 }
 
 function retagSkippedTxProofChecks(checks = [], displayTier = null) {
@@ -344,6 +364,7 @@ function compactPortfolioGuardResult(result) {
     direction: result.direction || null,
     reason: result.reason || null,
     scaleIn: result.scaleIn === true,
+    trackedExit: result.trackedExit === true,
     suggestedAllocationPct: result.suggestedAllocationPct ?? null,
     summary: {
       stableUsd: s.stableUsd ?? null,
@@ -461,14 +482,26 @@ function calculateDirectionalSwapSizing({
   market = {},
   cycleCapUsd = 15,
   minTradeUsd = 10,
+  minExitUsd = 1,
+  allowResidualExit = false,
 } = {}) {
   const normalizedBalance = Math.max(0, Number(sourceBalance) || 0);
   const normalizedAllocation = positiveNumberOr(allocationPct, 30);
   const sourceUsdPrice = sourceUsdPriceForToken(sourceToken, market);
   const normalizedCapUsd = positiveNumberOr(cycleCapUsd, 15);
   const normalizedMinTradeUsd = positiveNumberOr(minTradeUsd, 10);
-  const minSourceAmount =
+  const normalizedMinExitUsd = positiveNumberOr(minExitUsd, 1);
+  const standardMinSourceAmount =
     sourceUsdPrice > 0 ? normalizedMinTradeUsd / sourceUsdPrice : 0;
+  const availableUsd = normalizedBalance * sourceUsdPrice;
+  const residualExit =
+    allowResidualExit &&
+    availableUsd >= normalizedMinExitUsd &&
+    availableUsd < normalizedMinTradeUsd &&
+    availableUsd <= normalizedCapUsd;
+  const minSourceAmount = residualExit
+    ? normalizedMinExitUsd / sourceUsdPrice
+    : standardMinSourceAmount;
 
   let requestedFraction = Math.max(
     0.05,
@@ -477,7 +510,10 @@ function calculateDirectionalSwapSizing({
   let requestedSourceAmount = normalizedBalance * requestedFraction;
   let rescued = false;
 
-  if (requestedSourceAmount < minSourceAmount) {
+  if (residualExit) {
+    requestedFraction = 1;
+    requestedSourceAmount = normalizedBalance;
+  } else if (requestedSourceAmount < minSourceAmount) {
     const rescueFraction = Math.min(
       1,
       (minSourceAmount * 1.05) / Math.max(normalizedBalance, 1e-9)
@@ -507,16 +543,23 @@ function calculateDirectionalSwapSizing({
     requestedUsd,
     cycleCapUsd: normalizedCapUsd,
     minTradeUsd: normalizedMinTradeUsd,
+    effectiveMinTradeUsd: residualExit
+      ? normalizedMinExitUsd
+      : normalizedMinTradeUsd,
     minSourceAmount,
     cappedUsd,
     finalSourceAmount,
     canExecute: finalSourceAmount >= minSourceAmount,
     rescued,
+    residualExit,
   };
 }
 
 async function runMultiAgentCycle(opts = {}) {
   const dryRun = opts.dryRun === true;
+  const minTradeUsd = getMinTradeUsd();
+  const maxTradeUsd = getMaxTradeUsd();
+  const minExitUsd = getMinExitUsd();
   if (dryRun) {
     console.log(
       "  [DRY-RUN] No on-chain TX, no IPFS pin, no reputation feedback."
@@ -672,10 +715,20 @@ async function runMultiAgentCycle(opts = {}) {
     market.portfolioContext = formatPortfolioForPrompt(portfolioSummary);
     market.portfolioSummary = portfolioSummary;
     market.walletBalances = portfolioBalances;
+    const livePositionState = positionState.getState();
+    const livePositionAsset = positionRiskAssetForState(livePositionState);
+    if (livePositionAsset && !livePositionState.executionAmountOut) {
+      const openBasis = tradeLedger.getOpenBasis(
+        tradeLedger.loadLedger(),
+        livePositionAsset
+      );
+      if (openBasis) positionState.hydrateExecutionBasis(openBasis);
+    }
     gridTradeCandidate = buildGridTradeCandidate({
       structuredSignals: market.structuredSignals,
       portfolioSummary,
       positionState: positionState.getState(),
+      minTradeUsd,
     });
     market.gridTradeCandidate = gridTradeCandidate;
     market.gridTradeCandidateContext =
@@ -725,7 +778,10 @@ async function runMultiAgentCycle(opts = {}) {
   // Step 4.8 (Heartbeat Mode) may re-stamp this tier to HEARTBEAT_SWAP
   // by setting decision._heartbeatTier; we re-classify after Step 4.8
   // for the outcomes ledger.
-  const { classifyDecisionTier } = require("./decisionTier");
+  const {
+    classifyDecisionTier,
+    preExecutionProofTier,
+  } = require("./decisionTier");
 
   if (
     decision.consensus &&
@@ -749,6 +805,7 @@ async function runMultiAgentCycle(opts = {}) {
         structuredSignals: market.structuredSignals,
         gridTradeCandidate:
           decision._gridTradeCandidate || gridTradeCandidate || null,
+        minTradeUsd,
       });
       decision._portfolioGuard = compactPortfolioGuardResult(
         portfolioGuardResult
@@ -782,6 +839,7 @@ async function runMultiAgentCycle(opts = {}) {
   }
 
   let decisionTier = classifyDecisionTier(decision, market);
+  const proofDecisionTier = preExecutionProofTier(decisionTier);
   console.log(`   TIER: ${decisionTier}`);
 
   // T9.5: disagreement signal — analyst confident but validator vetoed.
@@ -822,7 +880,7 @@ async function runMultiAgentCycle(opts = {}) {
   const { uploadReasoningProof } = require("../ipfs/storage");
   // Embed tier in IPFS payload so the proof carries tier provenance.
   const ipfsResult = await uploadReasoningProof(
-    { ...decision, decisionTier, disagreementSignal },
+    { ...decision, decisionTier: proofDecisionTier, disagreementSignal },
     market
   );
   console.log(`   ✅ IPFS: ${ipfsResult.uri}`);
@@ -876,6 +934,7 @@ async function runMultiAgentCycle(opts = {}) {
 
   // Step 4: Record on-chain
   console.log("⛓️  [STEP 4] Recording on-chain...");
+  let proofGasMnt = 0;
 
   // Get current nonce to avoid replacement issues
   const currentNonce = await provider.getTransactionCount(
@@ -894,6 +953,7 @@ async function runMultiAgentCycle(opts = {}) {
     { nonce: currentNonce }
   );
   const receipt1 = await tx1.wait();
+  proofGasMnt += transactionGasMnt(receipt1);
   const proposalId = (await registry.totalProposals()) - 1n;
   console.log(
     `   ✅ Proposal #${proposalId} submitted (tx: ${receipt1.hash.substring(
@@ -926,12 +986,13 @@ async function runMultiAgentCycle(opts = {}) {
     { nonce: currentNonce + 1 }
   );
   const receipt2 = await tx2.wait();
+  proofGasMnt += transactionGasMnt(receipt2);
   console.log(
     `   ✅ Validation recorded (tx: ${receipt2.hash.substring(0, 18)}...)`
   );
 
   // Also log to DecisionLog for backward compatibility (tier-prefixed reasoning per T9)
-  const tierTag = `[${decisionTier}]`;
+  const tierTag = `[${proofDecisionTier}]`;
   const reasoningText = `${tierTag} Analyst: ${
     decision.analyst?.reasoning?.substring(0, 60) || ""
   } | Validator: ${
@@ -984,6 +1045,7 @@ async function runMultiAgentCycle(opts = {}) {
     { nonce: currentNonce + 2 }
   );
   const receipt3 = await tx3.wait();
+  proofGasMnt += transactionGasMnt(receipt3);
   const decisionLogTxHash = receipt3?.hash || tx3.hash;
   console.log(`   ✅ Decision logged to DecisionLog`);
 
@@ -1015,7 +1077,8 @@ async function runMultiAgentCycle(opts = {}) {
       context,
       { nonce: currentNonce + 3 }
     );
-    await tx4.wait();
+    const receipt4 = await tx4.wait();
+    proofGasMnt += transactionGasMnt(receipt4);
     console.log(`   ✅ Reputation updated: +${repScore} (${context})`);
   } catch (repErr) {
     console.log(
@@ -1245,6 +1308,8 @@ async function runMultiAgentCycle(opts = {}) {
           floors: { WMNT: 0.5, USDT0: 0.5, mETH: 0.001, USDT: 0.5 },
           targetIsMeth: targetAsset === "mETH" || targetAsset === "WETH",
           preferredSource: decision.analyst?.sourceAsset || null,
+          minTradeUsd,
+          mntPriceUsd: market.mntPrice,
         });
 
         if (!route.feasible) {
@@ -1288,6 +1353,7 @@ async function runMultiAgentCycle(opts = {}) {
                 amountIn: route.wrapAmountMnt,
                 amountOut: wrapResult.amountWmntOut,
                 op: "wrap",
+                gasCostMnt: wrapResult.gasCostMnt || 0,
               };
             } catch (wrapErr) {
               console.log(
@@ -1308,7 +1374,18 @@ async function runMultiAgentCycle(opts = {}) {
           // wrapped, the router already accounted for the new WMNT
           // total in route.sourceBalance.
           const path = route.path;
-          const sourceBalance = route.sourceBalance;
+          const activeGridCandidate =
+            decision._gridTradeCandidate || gridTradeCandidate || null;
+          let sourceBalance = route.sourceBalance;
+          if (swapDirection === "risk-off") {
+            const openBasis = tradeLedger.getOpenBasis(
+              tradeLedger.loadLedger(),
+              route.source
+            );
+            if (openBasis?.quantity > 0) {
+              sourceBalance = Math.min(sourceBalance, openBasis.quantity);
+            }
+          }
 
         // Sizing: analyst's allocationPct of source balance, capped
         // by RWA_MAX_PER_CYCLE_USD ($15 default) so a confident agent
@@ -1328,13 +1405,18 @@ async function runMultiAgentCycle(opts = {}) {
         // be sub-floor, the swap is genuinely infeasible and we fall
         // through to insufficient-balance honestly.
         const allocPct = decision.analyst?.allocationPct ?? 30;
+        const allowResidualExit =
+          activeGridCandidate?.kind === "position-exit" &&
+          portfolioGuardResult?.trackedExit === true;
         const sizing = calculateDirectionalSwapSizing({
           sourceToken: path[0],
           sourceBalance,
           allocationPct: allocPct,
           market,
-          cycleCapUsd: process.env.RWA_MAX_PER_CYCLE_USD,
-          minTradeUsd: process.env.RWA_MIN_PER_CYCLE_USD,
+          cycleCapUsd: maxTradeUsd,
+          minTradeUsd,
+          minExitUsd,
+          allowResidualExit,
         });
         const {
           finalSourceAmount,
@@ -1385,7 +1467,50 @@ async function runMultiAgentCycle(opts = {}) {
             minInitialAmount: minSourceAmount,
           });
 
-          if (!preflight.ok) {
+          const exitReason = String(
+            activeGridCandidate?.exitReason || ""
+          ).toUpperCase();
+          const regimeLabel = String(
+            market.structuredSignals?.regime?.regime || ""
+          ).toUpperCase();
+          const emergencyExit =
+            exitReason === "STOP_LOSS" ||
+            regimeLabel === "CRISIS" ||
+            regimeLabel === "TREND_DOWN";
+          let profitabilityGate = null;
+          if (preflight.ok && swapDirection === "risk-off" && !emergencyExit) {
+            const expectedExitGasUsd = estimatedGasUsd({
+              transactionCount: preflight.legs.length,
+              mntPriceUsd: market.mntPrice,
+            });
+            profitabilityGate = tradeLedger.previewFifoExit(
+              tradeLedger.loadLedger(),
+              {
+                asset: path[0],
+                quantity: Number(preflight.initialAmount),
+                proceedsUsd: Number(preflight.amountOut),
+                exitGasUsd: expectedExitGasUsd,
+                pendingOperatingCostUsd:
+                  proofGasMnt * (Number(market.mntPrice) || 0),
+              }
+            );
+          }
+
+          if (profitabilityGate && !profitabilityGate.allowed) {
+            console.log(`   🛑 ${profitabilityGate.reason}`);
+            decision._economicGuardBlocked = true;
+            decision._economicGuardReason = profitabilityGate.reason;
+            directionalSwapResult = {
+              executed: false,
+              direction: swapDirection,
+              from: path[0],
+              to: path[path.length - 1],
+              amountIn: Number(preflight.initialAmount),
+              reason: profitabilityGate.reason,
+              profitabilityGate,
+              preflight: preflight.legs,
+            };
+          } else if (!preflight.ok) {
             console.log(
               `   ⚠️  Route preflight blocked before broadcast: ${preflight.reason}`
             );
@@ -1404,7 +1529,29 @@ async function runMultiAgentCycle(opts = {}) {
               fromToken: path[0],
               toToken: path[path.length - 1],
               sourceAmount: finalSourceAmount,
+              quoteValidator:
+                swapDirection === "risk-off" && !emergencyExit
+                  ? ({ amountOut }) =>
+                      tradeLedger.previewFifoExit(tradeLedger.loadLedger(), {
+                        asset: path[0],
+                        quantity: finalSourceAmount,
+                        proceedsUsd: amountOut,
+                        // Exact approvals are consumed by transferFrom, so a
+                        // normal aggregator exit costs approve + swap.
+                        exitGasUsd: estimatedGasUsd({
+                          transactionCount: 2,
+                          mntPriceUsd: market.mntPrice,
+                        }),
+                        pendingOperatingCostUsd:
+                          proofGasMnt * (Number(market.mntPrice) || 0),
+                        slippageBufferBps: 125,
+                      })
+                  : null,
             });
+            if (aggResult?.profitabilityGate?.allowed === false) {
+              decision._economicGuardBlocked = true;
+              decision._economicGuardReason = aggResult.profitabilityGate.reason;
+            }
             if (aggResult && aggResult.executed) {
               console.log(
                 `   ✅ Aggregator fallback executed via OpenOcean: ${aggResult.txHash?.slice(
@@ -1417,6 +1564,12 @@ async function runMultiAgentCycle(opts = {}) {
                 direction: swapDirection,
                 preflight: preflight.legs,
                 fallbackFrom: `merchant-moe-preflight: ${preflight.reason}`,
+                swapGasMnt:
+                  Number(aggResult.gasCostMnt) ||
+                  (aggResult.legs || []).reduce(
+                    (sum, leg) => sum + (Number(leg?.gasCostMnt) || 0),
+                    0
+                  ),
               };
             } else {
               directionalSwapResult = {
@@ -1554,6 +1707,7 @@ async function runMultiAgentCycle(opts = {}) {
               blockNumber: legResp.blockNumber,
               amountIn: nextAmountIn,
               amountOut: legResp.estimatedOut,
+              gasCostMnt: legResp.gasCostMnt || 0,
             });
 
             lastLegOut = legResp.estimatedOut;
@@ -1572,11 +1726,36 @@ async function runMultiAgentCycle(opts = {}) {
               from: path[0],
               to: path[path.length - 1],
               legs: legResults,
+              swapGasMnt: legResults.reduce(
+                (sum, leg) => sum + (Number(leg?.gasCostMnt) || 0),
+                0
+              ),
               reason: `leg${lastLegIdx}-failed: ${
                 legResults[legResults.length - 1]?.reason || "unknown"
               }`,
             };
           } else {
+            let amountOutSource = "merchant-moe-quote";
+            try {
+              const finalToken = path[path.length - 1];
+              const balancesAfterSwap = await liveDex.getBalances(wallet.address);
+              const finalBaseline = Number(
+                legOutputBaselines[finalToken]?.beforeBalance
+              );
+              const measuredFinalOut =
+                Number(balancesAfterSwap[finalToken]) - finalBaseline;
+              if (
+                Number.isFinite(finalBaseline) &&
+                Number.isFinite(measuredFinalOut) &&
+                measuredFinalOut > 0
+              ) {
+                lastLegOut = measuredFinalOut;
+                amountOutSource = "wallet-balance-delta";
+              }
+            } catch {
+              // The confirmed receipt remains authoritative; quote is retained
+              // only as a marked fallback when the post-trade read is unavailable.
+            }
             const finalLegTxHash = legResults[legResults.length - 1].txHash;
             directionalSwapResult = {
               executed: true,
@@ -1585,12 +1764,17 @@ async function runMultiAgentCycle(opts = {}) {
               to: path[path.length - 1],
               amountIn: executableSourceAmount,
               amountOut: lastLegOut,
+              amountSource: amountOutSource,
               // Top-level txHash: surface the FINAL leg so dashboards
               // pointing at one TX show the user-visible outcome.
               txHash: finalLegTxHash,
               legs: legResults,
               liquidityAdjusted: preflight.liquidityAdjusted === true,
               originalAmountIn: preflight.originalInitialAmount || null,
+              swapGasMnt: legResults.reduce(
+                (sum, leg) => sum + (Number(leg?.gasCostMnt) || 0),
+                0
+              ),
             };
             // Discipline layer reads decision.executionTxHash for
             // a single proof; we surface the final leg.
@@ -1610,6 +1794,10 @@ async function runMultiAgentCycle(opts = {}) {
         };
       }
     }
+  }
+
+  if (decision._economicGuardBlocked === true) {
+    decisionTier = classifyDecisionTier(decision, market);
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -1889,6 +2077,10 @@ async function runMultiAgentCycle(opts = {}) {
       Boolean(executionTxHash) ||
       directionalSwapResult?.executed === true ||
       rwaIntent?.executed === true;
+    const executionCompleted = hasCompletedExecution({
+      directionalSwapResult,
+      rwaIntent,
+    });
     const action = executionTxHash
       ? "swap"
       : decision.analyst?.action || "hold";
@@ -1904,7 +2096,7 @@ async function runMultiAgentCycle(opts = {}) {
     });
     const cycleDisplayTier = resolveCycleDisplayTier({
       decisionTier,
-      executedOnChain: executionExpected,
+      executedOnChain: executionCompleted,
       disciplineDetail: proofResult,
     });
     const retaggedChecks = retagSkippedTxProofChecks(
@@ -1932,7 +2124,7 @@ async function runMultiAgentCycle(opts = {}) {
         proofResult: proofResultForHistory,
         decisionTier,
         displayTier: cycleDisplayTier,
-        executedOnChain: executionExpected,
+        executedOnChain: executionCompleted,
         action,
         targetAsset: decision.analyst?.targetAsset || null,
         sourceAsset:
@@ -2096,9 +2288,17 @@ async function runMultiAgentCycle(opts = {}) {
     // INTENT_SWAP_NO_EXEC. The residual holding stays in the wallet (shown
     // honestly in holdings); only active-grid tracking is cleared.
     const _stuckState = positionState.getState();
+    const _stuckSourceInventoryUsd =
+      _stuckState.status === "IN_mETH"
+        ? market.portfolioSummary?.methUsd
+        : ["IN_MNT", "IN_RISK"].includes(_stuckState.status)
+        ? market.portfolioSummary?.wmntUsd
+        : null;
     if (
       positionState.shouldReconcileStalePosition(_stuckState, {
         alphaSwapExecuted,
+        sourceInventoryUsd: _stuckSourceInventoryUsd,
+        minExitUsd,
       })
     ) {
       positionState.exitPosition(
@@ -2132,11 +2332,33 @@ async function runMultiAgentCycle(opts = {}) {
         });
 
         if (exitsTrackedPosition) {
-          // Exited the tracked grid position to stable inventory.
-          const reason = overrideReason || "GRID_SELL";
-          positionState.exitPosition(reason);
+          const reason =
+            decision._gridTradeCandidate?.exitReason ||
+            overrideReason ||
+            "GRID_SELL";
+          const sourceAsset = directionalSwapResult?.from;
+          const postSwapBalances = await readAllBalances(
+            wallet.provider,
+            wallet.address
+          );
+          const remainingSourceBalance =
+            sourceAsset === "mETH" || sourceAsset === "WETH"
+              ? Number(postSwapBalances.mETH || 0)
+              : Number(postSwapBalances.WMNT || 0);
+          const remainingSourceUsd =
+            remainingSourceBalance * sourceUsdPriceForToken(sourceAsset, market);
+          const nextPositionState = positionState.recordExecutedExit({
+            sourceAsset,
+            amountIn: directionalSwapResult.amountIn,
+            remainingSourceUsd,
+            minTradeUsd,
+            minExitUsd,
+            reason,
+          });
           console.log(
-            `   📍 Position state: FLAT (exited to stable, reason: ${reason})`
+            nextPositionState.status === "FLAT"
+              ? `   📍 Position state: FLAT (tracked exit complete, reason: ${reason})`
+              : `   📍 Position state: ${nextPositionState.status} (partial ${reason}; $${remainingSourceUsd.toFixed(2)} source remains tracked)`
           );
         } else {
           console.log(
@@ -2172,6 +2394,60 @@ async function runMultiAgentCycle(opts = {}) {
   } catch (posErr) {
     console.log(
       `   ⚠️  Position state update failed: ${posErr.message?.slice(0, 60)}`
+    );
+  }
+
+  // Step 6.6: realized execution economics. This ledger is deliberately
+  // separate from the one-hour outcome score: only matched FIFO exits can
+  // create realized PnL, and both entry/exit gas plus proof gas are charged.
+  try {
+    const recordedAt = new Date().toISOString();
+    const cycleDecisionId = Number(proposalId);
+    const isDirectionalAlphaTrade =
+      directionalSwapResult?.executed === true &&
+      directionalSwapResult?.tier !== "HEARTBEAT_SWAP" &&
+      directionalSwapResult?.from &&
+      directionalSwapResult?.to &&
+      Number(directionalSwapResult?.amountIn) > 0 &&
+      Number(directionalSwapResult?.amountOut) > 0;
+    const swapGasMnt =
+      Number(directionalSwapResult?.swapGasMnt) ||
+      Number(directionalSwapResult?.gasCostMnt) ||
+      0;
+    const ledger = tradeLedger.recordCycleEconomics({
+      trade: isDirectionalAlphaTrade
+        ? {
+            decisionId: cycleDecisionId,
+            recordedAt,
+            txHash: directionalSwapResult.txHash,
+            from: directionalSwapResult.from,
+            to: directionalSwapResult.to,
+            amountIn: directionalSwapResult.amountIn,
+            amountOut: directionalSwapResult.amountOut,
+            gasCostUsd: swapGasMnt * (Number(market.mntPrice) || 0),
+            amountSource: directionalSwapResult.amountSource || null,
+          }
+        : null,
+      operatingCost: {
+        decisionId: cycleDecisionId,
+        recordedAt,
+        proofGasMnt,
+        mntPriceUsd: Number(market.mntPrice) || 0,
+        unmatchedSwapGasUsd: isDirectionalAlphaTrade
+          ? 0
+          : swapGasMnt * (Number(market.mntPrice) || 0),
+      },
+    });
+    console.log(
+      `   💵 Realized net PnL: $${Number(
+        ledger.summary.realizedNetPnlUsd || 0
+      ).toFixed(4)} | strategy net after proof gas: $${Number(
+        ledger.summary.netStrategyPnlUsd || 0
+      ).toFixed(4)}`
+    );
+  } catch (ledgerErr) {
+    console.log(
+      `   ⚠️  Trade ledger update failed: ${ledgerErr.message?.slice(0, 80)}`
     );
   }
 
@@ -2453,6 +2729,7 @@ module.exports = {
     chooseNextLegAmount,
     inferSettlementSourceAsset,
     getSettlementSnapshot,
+    hasCompletedExecution,
     isStableTargetAsset,
     normalizePositionTargetAsset,
     positionEntryPriceForTarget,

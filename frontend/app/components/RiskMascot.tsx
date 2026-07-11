@@ -3,8 +3,8 @@
  *
  * Polls /api/health every 60 seconds and renders one of three states:
  *   🟢 Active   — last cycle within 10 minutes
- *   🟡 Idle     — last cycle within 1 hour
- *   🔴 Offline  — last cycle older than 1 hour OR endpoint unreachable
+ *   🟡 Idle     — between the canonical three-hour cron slots
+ *   🔴 Offline  — beyond the shared offline threshold OR endpoint degraded
  *
  * Replaces the previous inline RiskMascot in page.tsx that was hardcoded
  * to varLevel={95} (always Supervised). Per .kiro/steering/no-lying-about-
@@ -20,6 +20,7 @@
 
 import { useEffect, useState } from "react";
 import { RelativeTime } from "../lib/time";
+import { LIVE_THRESHOLDS } from "../lib/live-status";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const polling = require("../lib/polling.shared.js") as {
   shouldRunDashboardPoll: (doc?: Document | null) => boolean;
@@ -54,10 +55,15 @@ const DISPLAY: Record<State, { emoji: string; label: string; tone: string }> = {
 };
 
 function deriveState(h: Health | null): State {
-  if (!h || h.lastCycleAge === null || h.lastCycleAge === undefined)
+  if (
+    !h ||
+    h.status === "degraded" ||
+    h.lastCycleAge === null ||
+    h.lastCycleAge === undefined
+  )
     return "offline";
-  if (h.lastCycleAge < 600) return "active"; // < 10m
-  if (h.lastCycleAge < 3600) return "idle"; // < 1h
+  if (h.lastCycleAge < LIVE_THRESHOLDS.liveMaxSec) return "active";
+  if (h.lastCycleAge < LIVE_THRESHOLDS.staleMaxSec) return "idle";
   return "offline";
 }
 

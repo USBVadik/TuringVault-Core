@@ -22,6 +22,11 @@
 
 import { NextResponse } from "next/server";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { OFFLINE_THRESHOLD_S } = require("../../lib/cadence.shared.js") as {
+  OFFLINE_THRESHOLD_S: number;
+};
+
 // SWR caching — match the pattern from /api/decisions et al.
 export const revalidate = 60;
 
@@ -53,7 +58,7 @@ type Snapshot = {
   }>;
 };
 
-const FRESH_CAPTURE_MAX_AGE_SEC = 90 * 60;
+const FRESH_CAPTURE_MAX_AGE_SEC = OFFLINE_THRESHOLD_S;
 
 async function fetchFromGitHub<T>(filePath: string): Promise<T | null> {
   try {
@@ -186,7 +191,8 @@ export async function GET() {
 
   // Live read attempt: we re-use the captures-on-disk path because
   // the cron is the canonical writer and we don't want every page
-  // load to call DefiLlama. If the latest capture is fresh (< 90 min)
+  // load to call DefiLlama. If the latest capture is within the canonical
+  // cycle's offline threshold
   // we serve it; otherwise we render `degraded:true`.
   const latest = readLatestCaptureFromSnapshot(snapshot);
   const reference = readReferenceFromSnapshot(snapshot);

@@ -28,7 +28,7 @@ describe("public metric copy honesty", () => {
 
     if (/outcome score|decision-quality|cumulativePnlBps|performance/i.test(text)) {
       expect(text).toMatch(
-        /not (?:reali[sz]ed )?wallet PnL|realizedTradingPnlBps[`'"\s\w/.:()-]*null/i
+        /not (?:reali[sz]ed )?wallet PnL|realizedTradingPnlBps[`'"\s\w/.:()-]*null|matched FIFO[\s\S]{0,240}(?:recorded swap gas|trade_ledger)/i
       );
     }
   });

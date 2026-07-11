@@ -6,15 +6,23 @@ const {
 describe("shouldReconcileStalePosition", () => {
   const stuck = { status: "IN_mETH", cycleCount: MAX_CYCLES_IN_POSITION + 3 };
 
-  test("reconciles a stuck past-max-hold position when no alpha swap executed", () => {
+  test("does not forget a stuck position while executable inventory remains", () => {
     expect(
-      shouldReconcileStalePosition(stuck, { alphaSwapExecuted: false })
-    ).toBe(true);
+      shouldReconcileStalePosition(stuck, {
+        alphaSwapExecuted: false,
+        sourceInventoryUsd: 15,
+        minExitUsd: 1,
+      })
+    ).toBe(false);
   });
 
-  test("fires regardless of block reason (blocked cycles have no execution)", () => {
-    // low-confidence / regime / validator blocks all leave alphaSwapExecuted=false
-    expect(shouldReconcileStalePosition(stuck, {})).toBe(true);
+  test("reconciles only a confirmed sub-dust residual after max hold", () => {
+    expect(
+      shouldReconcileStalePosition(stuck, {
+        sourceInventoryUsd: 0.4,
+        minExitUsd: 1,
+      })
+    ).toBe(true);
   });
 
   test("does NOT reconcile when an alpha swap actually executed", () => {
@@ -41,13 +49,13 @@ describe("shouldReconcileStalePosition", () => {
     ).toBe(false);
   });
 
-  test("fires exactly at the max-hold boundary", () => {
+  test("does not fire at the max-hold boundary without wallet evidence", () => {
     expect(
       shouldReconcileStalePosition(
         { status: "IN_MNT", cycleCount: MAX_CYCLES_IN_POSITION },
         { alphaSwapExecuted: false }
       )
-    ).toBe(true);
+    ).toBe(false);
   });
 
   test("handles missing/empty state safely", () => {

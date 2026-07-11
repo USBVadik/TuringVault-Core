@@ -1,6 +1,20 @@
-const { classifyChannelExit } = require("../../src/strategies/rangingGrid");
+const {
+  classifyChannelExit,
+  computeGridLevels,
+  roundMarketPrice,
+} = require("../../src/strategies/rangingGrid");
 
 describe("rangingGrid.classifyChannelExit", () => {
+  test("preserves sub-cent precision for MNT grid levels", () => {
+    const levels = computeGridLevels(0.421234, 0.438765, 3);
+    expect(levels.map((level) => level.price)).toEqual([
+      0.421234,
+      0.43,
+      0.438765,
+    ]);
+    expect(roundMarketPrice(1835.126)).toBe(1835.13);
+  });
+
   test("labels volatility expansion above resistance as an upward breakout", () => {
     const exit = classifyChannelExit(0.685, {
       support: 0.63,

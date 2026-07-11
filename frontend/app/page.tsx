@@ -1256,26 +1256,26 @@ export default function Home() {
             </div>
             <div
               className="text-center p-3 bg-white/[0.02] rounded-lg border border-white/[0.04] stat-card-interactive anim-fade-up anim-delay-4"
-              title="Sum of outcomeTracker pnlBps over REALIZED settled outcomes (executed swaps + holds/blocks); consensus swaps that never executed on-chain are excluded. Model-quality score, not realized wallet PnL"
+              title="FIFO execution ledger since deployment: matched trading PnL minus recorded swap gas and proof gas. This is not the lifetime outcome score or an estimated wallet return."
             >
               <div className="text-[8px] text-white/25 uppercase tracking-wider mb-1">
-                Lifetime
+                Since ledger start
               </div>
               <div
                 className={`text-xl font-bold stat-value ${
-                  (perfData?.cumulativePnlBps ?? 0) >= 0
+                  (perfData?.netStrategyPnlUsd ?? 0) >= 0
                     ? "text-green-400"
                     : "text-red-400"
                 }`}
               >
-                {perfData?.cumulativePnlBps != null
-                  ? `${perfData.cumulativePnlBps >= 0 ? "+" : ""}${
-                      perfData.cumulativePnlBps
-                    } bps`
+                {perfData?.netStrategyPnlUsd != null
+                  ? `${perfData.netStrategyPnlUsd >= 0 ? "+" : ""}$${
+                      perfData.netStrategyPnlUsd.toFixed(4)
+                    }`
                   : "—"}
               </div>
               <div className="text-[9px] text-white/30 mt-1 uppercase">
-                Outcome Score
+                Net Strategy PnL
               </div>
             </div>
             <div
@@ -2290,7 +2290,7 @@ function ElfaSocialStripRow({ data }: { data: any }) {
   const sym = data.symbol ?? "ETH";
   const win = data.timeWindow ?? "24h";
 
-  // Stale check: any snapshot older than the cycle period (90 min) is stale.
+  // Elfa has its own 90-minute attention-snapshot freshness policy.
   const fetchedAt = data.fetchedAt ? Date.parse(data.fetchedAt) : null;
   const ageMs = fetchedAt ? Date.now() - fetchedAt : null;
   const stale = ageMs != null && ageMs > 90 * 60 * 1000;

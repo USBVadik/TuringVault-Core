@@ -38,6 +38,7 @@
  */
 
 const { ethers } = require("ethers");
+const { transactionGasMnt } = require("../metrics/gasCost");
 
 const ADDRESSES = {
   WMNT: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8",
@@ -149,8 +150,8 @@ async function readAllBalances(provider, walletAddress) {
  *            wrapped ~28 MNT every time WMNT fell below floor.
  *   - 5.0  — current. Target a *7-day* operator-react window if the
  *            agent goes into a sustained risk-off streak. At
- *            0.077 MNT/cycle worst-case × 48 cycles/day × 7 days =
- *            ~26 MNT, but we floor at 5.0 so the operator's
+ *            0.077 MNT/cycle worst-case × 8 cycles/day × 7 days =
+ *            ~4.3 MNT, rounded up to a 5.0 MNT floor so the operator's
  *            UI gas-runway pill turns CRITICAL early enough to act.
  *
  * Audit ref: .kiro/audits/27-invariants-runway-adversarial-mechanics.md
@@ -202,6 +203,8 @@ function pickSource({
   gasReserveMnt = GAS_RESERVE_MNT,
   targetIsMeth = false,
   preferredSource = null,
+  minTradeUsd = 0,
+  mntPriceUsd = null,
 }) {
   if (direction === "risk-off") {
     const preferred = normalizeRiskOffPreferredSource(preferredSource);
@@ -310,6 +313,26 @@ function pickSource({
       MAX_WRAP_PER_CYCLE_MNT
     );
     if (wrappableMnt >= floors.WMNT && wrapAmount >= floors.WMNT) {
+      const sourceAfterWrap = balances.WMNT + wrapAmount;
+      const sourceAfterWrapUsd =
+        Number.isFinite(Number(mntPriceUsd)) && Number(mntPriceUsd) > 0
+          ? sourceAfterWrap * Number(mntPriceUsd)
+          : null;
+      if (
+        Number(minTradeUsd) > 0 &&
+        sourceAfterWrapUsd != null &&
+        sourceAfterWrapUsd < Number(minTradeUsd)
+      ) {
+        return {
+          feasible: false,
+          source: null,
+          wrapMntFirst: false,
+          wrapAmountMnt: 0,
+          path: [],
+          sourceBalance: 0,
+          reason: `risk-off wrap skipped: post-wrap WMNT value $${sourceAfterWrapUsd.toFixed(2)} < executable USD floor $${Number(minTradeUsd).toFixed(2)}`,
+        };
+      }
       // Sanity gate: refuse to leave native MNT below the gas
       // reserve floor under any circumstance. This is the second
       // layer of defence; gasReserveMnt subtraction above is the
@@ -332,7 +355,7 @@ function pickSource({
         wrapMntFirst: true,
         wrapAmountMnt: wrapAmount,
         path: ["WMNT", "USDT", "USDT0"],
-        sourceBalance: balances.WMNT + wrapAmount,
+        sourceBalance: sourceAfterWrap,
         reason: `WMNT ${balances.WMNT.toFixed(4)} < floor — wrap ${wrapAmount.toFixed(4)} MNT (capped at ${MAX_WRAP_PER_CYCLE_MNT} MNT/cycle, gas reserve ${gasReserveMnt})`,
       };
     }
@@ -435,6 +458,7 @@ async function wrapMnt(wallet, amountMnt, opts = {}) {
     blockNumber: receipt?.blockNumber || null,
     amountMnt,
     amountWmntOut: amountMnt, // 1:1 by definition
+    gasCostMnt: transactionGasMnt(receipt),
   };
 }
 

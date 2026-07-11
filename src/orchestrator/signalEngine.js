@@ -93,11 +93,32 @@ function priceForPositionState({
   return finitePositiveNumber(fallbackPrice) || 0;
 }
 
-async function fetchJson(url, timeout = 8000) {
+function gridSignalForPosition({
+  positionState = {},
+  multiAsset = {},
+  primarySignal = null,
+} = {}) {
+  const status = String(positionState?.status || "").toUpperCase();
+  if (status === "IN_METH") return multiAsset.ethereum || primarySignal;
+  if (status === "IN_MNT" || status === "IN_RISK") {
+    return multiAsset.mantle || primarySignal;
+  }
+  return primarySignal;
+}
+
+function shouldEvaluateGridLifecycle(regimeLabel, positionState = {}) {
+  const status = String(positionState?.status || "").toUpperCase();
+  return (
+    regimeLabel === "RANGING" ||
+    ["IN_METH", "IN_MNT", "IN_RISK"].includes(status)
+  );
+}
+
+async function fetchJson(url, timeout = 8000, requestOptions = {}) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeout);
   try {
-    const r = await fetch(url, { signal: ctrl.signal });
+    const r = await fetch(url, { ...requestOptions, signal: ctrl.signal });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return await r.json();
   } finally {
@@ -334,6 +355,7 @@ async function getOnChainFlowSignal() {
       return {
         available: true,
         netFlowUsd: netFlow,
+        netUsd: netFlow,
         inflow,
         outflow,
         signal,
@@ -535,7 +557,8 @@ async function getStructuredSignals(marketCtx = {}) {
   // ── RANGING: enrich with grid/channel data ──────────────────────
   let rangingData = null;
   let rangingContext = "";
-  if (regime.regime === "RANGING") {
+  const currentPositionState = getPositionState();
+  if (shouldEvaluateGridLifecycle(regime.regime, currentPositionState)) {
     try {
       // Compute BOTH MNT and ETH grid channels in parallel.
       // The analyst gets to see both and act on whichever has the
@@ -549,8 +572,12 @@ async function getStructuredSignals(marketCtx = {}) {
       const primarySignal =
         multi.primary === "ethereum" ? multi.ethereum : multi.mantle;
 
-      const rawGridSignal = primarySignal || (await getGridSignal());
-      const currentPositionState = getPositionState();
+      const rawGridSignal =
+        gridSignalForPosition({
+          positionState: currentPositionState,
+          multiAsset: multi,
+          primarySignal,
+        }) || (await getGridSignal());
       const positionCurrentPrice = priceForPositionState({
         positionState: currentPositionState,
         marketCtx,
@@ -715,6 +742,9 @@ module.exports = {
   getLiquidationMap,
   detectRegime,
   _private: {
+    fetchJson,
+    gridSignalForPosition,
     priceForPositionState,
+    shouldEvaluateGridLifecycle,
   },
 };
