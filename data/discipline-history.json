@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-07-04T20:52:20.011Z",
-    "decisionId": 991,
-    "verdict": "ACCEPTED",
-    "decisionTier": "EXECUTED_SWAP",
-    "displayTier": "EXECUTED_SWAP",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "WMNT",
-    "sourceAsset": "USDT0",
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 97534008"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "2 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-07-04T21:55:03.264Z",
     "decisionId": 992,
     "verdict": "ACCEPTED",
@@ -3153,6 +3104,35 @@
   {
     "at": "2026-07-12T14:14:43.212Z",
     "decisionId": 1091,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_ECONOMICS",
+    "displayTier": "BLOCKED_BY_ECONOMICS",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": "mETH",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_ECONOMICS — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-07-12T17:17:48.892Z",
+    "decisionId": 1092,
     "verdict": "ACCEPTED",
     "decisionTier": "BLOCKED_BY_ECONOMICS",
     "displayTier": "BLOCKED_BY_ECONOMICS",
