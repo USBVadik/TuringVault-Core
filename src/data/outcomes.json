@@ -2418,6 +2418,160 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_ECONOMICS"
+    },
+    {
+      "id": "1783852060541_1090",
+      "decisionId": 1090,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.9,
+      "priceAtDecision": 1799.8,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreiab5a53ce1a1d8ef8366922d73d620cdf4d0073e4a415d488120d",
+      "recordedAt": "2026-07-12T10:27:40.541Z",
+      "settleAfter": "2026-07-12T11:27:40.541Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_ECONOMICS — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1783852060523
+      },
+      "decisionTier": "BLOCKED_BY_ECONOMICS",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "This is a POSITION-EXIT tagged TAKE_PROFIT for the tracked mETH position entered at $1769.66. Current ETH ~$1799.80 confirms profit on the position. Per lifecycle exception, no new-entry R:R calculation required. Source asset (mETH) matches tracked position. Inventory is executable ($68.09 mETH available, 16% allocation ~$10.93 is well within limits). Route mETH→mUSD is feasible. Bearish signal co",
+      "validatorFlaggedIssues": [
+        "MNT grid shows BUY_mETH at lower band — residual inventory should remain tracked for potential re-entry"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: profitable exit for IN_mETH (current 1800.6, entry 1769.66, target 1796.2049)",
+        "scaleIn": false,
+        "trackedExit": true,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 39.893748,
+          "tradableRiskUsd": 68.47773007671849,
+          "nativeMnt": 17.999302177535935,
+          "stableShare": 0.36812036439844775,
+          "riskShare": 0.6318796356015522,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "position-exit",
+        "exitReason": "TAKE_PROFIT",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 16,
+        "confidence": 0.9,
+        "reasoning": "TAKE PROFIT for the tracked mETH position has fired. Prioritize the existing position lifecycle over unrelated grid signals; execute only an economically viable partial exit.",
+        "riskFactors": [
+          "Exit remains capped by the per-cycle USD risk limit",
+          "Residual inventory stays tracked after a partial exit"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.9,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.34,
+          "support": 1788.4,
+          "resistance": 1824.1,
+          "currentPrice": 1800.6
+        },
+        "riskReward": null,
+        "inventoryAware": null,
+        "residualExit": false
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "mETH",
+        "to": "USDT0",
+        "amountIn": 0.005397772829249568,
+        "reason": "preflight-failed: leg3 WMNT->USDT not viable; net-profit gate blocked: quote $10.4981 < required $10.5404",
+        "preflight": [
+          {
+            "leg": 1,
+            "from": "mETH",
+            "to": "WETH",
+            "amountIn": 0.005397772829249568,
+            "estimatedOut": 0.005906700630743954,
+            "priceImpactBps": 0,
+            "pairAddress": "0x3b6c029E6409f2868769871F9Ed6825b15BDca15",
+            "binStep": 2,
+            "depthFraction": 0.000063
+          },
+          {
+            "leg": 2,
+            "from": "WETH",
+            "to": "WMNT",
+            "amountIn": 0.005906700630743954,
+            "estimatedOut": 25.267623347292385,
+            "priceImpactBps": 6.24,
+            "pairAddress": "0x1606C79bE3EBD70D8d40bAc6287e23005CfBefA2",
+            "binStep": 10,
+            "depthFraction": 0.018501
+          },
+          {
+            "leg": 3,
+            "from": "WMNT",
+            "to": "USDT",
+            "amountIn": 25.267623347292385,
+            "estimatedOut": 5.265417,
+            "priceImpactBps": 5279.12,
+            "pairAddress": "0xf6C9020c9E915808481757779EDB53DACEaE2415",
+            "binStep": 15,
+            "depthFraction": 0.002041
+          }
+        ]
+      },
+      "manifestHash": "0x0eea54fe12188fe4090a2012d56e4fa0b9446893c61b7f5de49e0a27bf920be4",
+      "combinedAnchor": "0x44500e52b2a97b1db69d34dac85cd47ce4feb49d700ab3b68cd94edafc16c476",
+      "decisionLogTxHash": "0x5311c60fdbe9a27537cbe33f4e381f5587f1a162bb2b1ae7418aaa4016173a13",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_ECONOMICS"
     }
   ],
   "settled": [
