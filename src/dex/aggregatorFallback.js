@@ -46,6 +46,7 @@ async function attemptAggregatorSwap({
   sourceAmount,
   dexFactory,
   quoteValidator,
+  quoteRetryDelayMs = 200,
 } = {}) {
   if (!enabled) return null;
 
@@ -98,7 +99,23 @@ async function attemptAggregatorSwap({
           reason: "aggregator: quote validation unavailable",
         };
       }
-      const quote = await dex.getQuote(fromToken, toToken, amountWei);
+      let quote;
+      let quoteError;
+      for (let attempt = 1; attempt <= 2; attempt += 1) {
+        try {
+          quote = await dex.getQuote(fromToken, toToken, amountWei);
+          quoteError = null;
+          break;
+        } catch (error) {
+          quoteError = error;
+          if (attempt < 2 && quoteRetryDelayMs > 0) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, quoteRetryDelayMs)
+            );
+          }
+        }
+      }
+      if (!quote && quoteError) throw quoteError;
       if (!quote?.viable || !Number.isFinite(Number(quote.estimatedOut))) {
         return {
           executed: false,
@@ -107,9 +124,13 @@ async function attemptAggregatorSwap({
           ).slice(0, 60)}`,
         };
       }
+      const executableAmountOut = Number(
+        quote.minimumOut ?? quote.estimatedOut
+      );
       const profitabilityGate = await quoteValidator({
         amountIn: amount,
-        amountOut: Number(quote.estimatedOut),
+        amountOut: executableAmountOut,
+        quotedAmountOut: Number(quote.estimatedOut),
         quote,
       });
       if (!profitabilityGate || profitabilityGate.allowed !== true) {

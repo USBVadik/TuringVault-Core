@@ -49,7 +49,7 @@ describe("post-audit report regression fixes", () => {
       dispatch: true,
       reason: "health-unavailable",
     });
-    expect(CRON_STALE_AFTER_SEC).toBe(3.5 * 60 * 60);
+    expect(CRON_STALE_AFTER_SEC).toBe(3 * 60 * 60);
   });
 
   test("frontend cadence stays aligned with primary and watchdog workflows", () => {
@@ -63,11 +63,11 @@ describe("post-audit report regression fixes", () => {
       "utf8"
     );
 
-    expect(cadence.SCHEDULE_FRESHNESS_THRESHOLD_S).toBe(10800);
-    expect(cadence.WATCHDOG_STALE_THRESHOLD_S).toBe(12600);
-    expect(cadence.EXPECTED_CYCLES_PER_DAY).toBe(8);
-    expect(primary).toMatch(/SCHEDULE_FRESHNESS_THRESHOLD_S:\s*"10800"/);
-    expect(watchdog).toMatch(/STALE_THRESHOLD_S:\s*"12600"/);
+    expect(cadence.SCHEDULE_FRESHNESS_THRESHOLD_S).toBe(9000);
+    expect(cadence.WATCHDOG_STALE_THRESHOLD_S).toBe(10800);
+    expect(cadence.EXPECTED_CYCLES_PER_DAY).toBe(10);
+    expect(primary).toMatch(/SCHEDULE_FRESHNESS_THRESHOLD_S:\s*"9000"/);
+    expect(watchdog).toMatch(/STALE_THRESHOLD_S:\s*"10800"/);
     expect(primary).toMatch(/RWA_AGGREGATOR_FALLBACK_ENABLED:\s*"true"/);
     expect(watchdog).toMatch(/RWA_AGGREGATOR_FALLBACK_ENABLED:\s*"true"/);
   });

@@ -1,6 +1,9 @@
 const { ethers } = require("ethers");
 
-const DEFAULT_ESTIMATED_TX_GAS_MNT = 0.0125;
+// The first measured OpenOcean entry consumed 0.0341 MNT across approval +
+// swap. Budget 0.018 MNT per transaction so the exit gate does not call a
+// trade profitable by underestimating its broadcast cost.
+const DEFAULT_ESTIMATED_TX_GAS_MNT = 0.018;
 
 function bigintOrZero(value) {
   try {

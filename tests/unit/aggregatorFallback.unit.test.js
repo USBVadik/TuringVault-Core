@@ -94,6 +94,68 @@ describe("attemptAggregatorSwap", () => {
     expect(res.reason).toMatch(/net-profit gate/i);
   });
 
+  test("validates the executable minimum output instead of the optimistic quote", async () => {
+    let validated;
+    const factory = () => ({
+      getQuote: async () => ({
+        viable: true,
+        estimatedOut: 10.6,
+        minimumOut: 10.4,
+      }),
+      executeSwap: async () => ({
+        executed: true,
+        txHash: "0xmin-output",
+        estimatedOut: 10.6,
+      }),
+    });
+
+    const res = await attemptAggregatorSwap({
+      enabled: true,
+      fromToken: "mETH",
+      toToken: "USDT0",
+      sourceAmount: 0.005,
+      dexFactory: factory,
+      quoteValidator: (quote) => {
+        validated = quote;
+        return { allowed: quote.amountOut >= 10.3 };
+      },
+    });
+
+    expect(res.executed).toBe(true);
+    expect(validated.amountOut).toBe(10.4);
+    expect(validated.quotedAmountOut).toBe(10.6);
+  });
+
+  test("retries a transient quote timeout without retrying the broadcast", async () => {
+    let quoteAttempts = 0;
+    let broadcasts = 0;
+    const factory = () => ({
+      getQuote: async () => {
+        quoteAttempts += 1;
+        if (quoteAttempts === 1) throw new Error("quote timeout");
+        return { viable: true, estimatedOut: 10.7, minimumOut: 10.6 };
+      },
+      executeSwap: async () => {
+        broadcasts += 1;
+        return { executed: true, txHash: "0xquote-retry", estimatedOut: 10.7 };
+      },
+    });
+
+    const res = await attemptAggregatorSwap({
+      enabled: true,
+      fromToken: "mETH",
+      toToken: "USDT0",
+      sourceAmount: 0.005,
+      dexFactory: factory,
+      quoteValidator: () => ({ allowed: true }),
+      quoteRetryDelayMs: 0,
+    });
+
+    expect(res.executed).toBe(true);
+    expect(quoteAttempts).toBe(2);
+    expect(broadcasts).toBe(1);
+  });
+
   test("does not throw when the aggregator execution throws", async () => {
     const res = await attemptAggregatorSwap({
       enabled: true,

@@ -15,10 +15,10 @@ const {
 } = require("../../frontend/app/lib/live-status.shared.js");
 
 describe("deriveLiveStatus tiers", () => {
-  test("thresholds match the canonical three-hour cadence", () => {
+  test("thresholds match the canonical 2.5-hour cadence", () => {
     expect(LIVE_THRESHOLDS).toEqual({
       liveMaxSec: 10 * 60,
-      idleMaxSec: 3 * 60 * 60 + 15 * 60,
+      idleMaxSec: 2.5 * 60 * 60 + 15 * 60,
       staleMaxSec: 4 * 60 * 60,
     });
   });

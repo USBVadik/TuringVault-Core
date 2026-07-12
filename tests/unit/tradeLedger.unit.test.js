@@ -79,7 +79,7 @@ describe("tradeLedger", () => {
     expect(preview.expectedNetPnlUsd).toBeGreaterThan(0);
   });
 
-  test("blocks an exit that is trade-profitable but leaves strategy PnL negative", () => {
+  test("allows a profitable exit even when historic operating costs keep strategy PnL negative", () => {
     let ledger = createEmptyLedger();
     ledger = applyDirectionalTrade(ledger, {
       from: "USDT0",
@@ -104,7 +104,55 @@ describe("tradeLedger", () => {
 
     expect(preview.expectedNetPnlUsd).toBeGreaterThan(0);
     expect(preview.projectedStrategyPnlUsd).toBeLessThan(0);
-    expect(preview.allowed).toBe(false);
+    expect(preview.allowed).toBe(true);
+    expect(preview.requiredProceedsUsd).toBe(preview.tradeRequiredProceedsUsd);
+    expect(preview.strategyRequiredProceedsUsd).toBeGreaterThan(
+      preview.requiredProceedsUsd
+    );
+  });
+
+  test("proof-only cycles do not ratchet the exit threshold of an unchanged lot", () => {
+    let ledger = createEmptyLedger();
+    ledger = applyDirectionalTrade(ledger, {
+      from: "USDT0",
+      to: "mETH",
+      amountIn: 10.5,
+      amountOut: 0.005,
+      gasCostUsd: 0.015,
+      txHash: "0xratchet-entry",
+    });
+
+    const before = previewFifoExit(ledger, {
+      asset: "mETH",
+      quantity: 0.005,
+      proceedsUsd: 10.8,
+      exitGasUsd: 0.01,
+    });
+
+    for (let decisionId = 100; decisionId < 105; decisionId += 1) {
+      ledger = applyOperatingCost(ledger, {
+        decisionId,
+        proofGasMnt: 0.05,
+        mntPriceUsd: 0.43,
+      });
+    }
+
+    const after = previewFifoExit(ledger, {
+      asset: "mETH",
+      quantity: 0.005,
+      proceedsUsd: 10.8,
+      exitGasUsd: 0.01,
+    });
+
+    expect(after.requiredProceedsUsd).toBeCloseTo(before.requiredProceedsUsd, 8);
+    expect(after.tradeRequiredProceedsUsd).toBeCloseTo(
+      before.tradeRequiredProceedsUsd,
+      8
+    );
+    expect(after.strategyRequiredProceedsUsd).toBeGreaterThan(
+      before.strategyRequiredProceedsUsd
+    );
+    expect(after.allowed).toBe(true);
   });
 
   test("recognizes profit only after a matched exit and subtracts swap gas", () => {

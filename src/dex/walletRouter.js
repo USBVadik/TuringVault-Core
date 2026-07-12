@@ -68,6 +68,22 @@ const DECIMALS = {
   WETH: 18,
 };
 
+async function retryAsync(operation, { attempts = 3, delayMs = 100 } = {}) {
+  const maxAttempts = Math.max(1, Number(attempts) || 1);
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await operation(attempt);
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts && delayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+      }
+    }
+  }
+  throw lastError;
+}
+
 function normalizeRiskOffPreferredSource(source) {
   const s = String(source || "").trim().toUpperCase();
   if (["METH", "WETH", "ETH"].includes(s)) return "mETH";
@@ -95,13 +111,14 @@ async function readAllBalances(provider, walletAddress) {
     USDT: 0,
     mETH: 0,
     WETH: 0,
+    _unavailable: [],
   };
   // Native MNT.
   try {
-    const native = await provider.getBalance(walletAddress);
+    const native = await retryAsync(() => provider.getBalance(walletAddress));
     out.MNT = parseFloat(ethers.formatEther(native));
   } catch {
-    /* keep 0 */
+    out._unavailable.push("MNT");
   }
   // ERC20s in parallel.
   await Promise.all(
@@ -114,10 +131,10 @@ async function readAllBalances(provider, walletAddress) {
     ].map(async ([sym, addr]) => {
       try {
         const c = new ethers.Contract(addr, ERC20_ABI, provider);
-        const raw = await c.balanceOf(walletAddress);
+        const raw = await retryAsync(() => c.balanceOf(walletAddress));
         out[sym] = parseFloat(ethers.formatUnits(raw, DECIMALS[sym]));
       } catch {
-        /* keep 0 */
+        out._unavailable.push(sym);
       }
     })
   );
@@ -209,6 +226,18 @@ function pickSource({
   if (direction === "risk-off") {
     const preferred = normalizeRiskOffPreferredSource(preferredSource);
     if (preferred === "mETH") {
+      if (balances._unavailable?.includes("mETH")) {
+        return {
+          feasible: false,
+          source: null,
+          wrapMntFirst: false,
+          wrapAmountMnt: 0,
+          path: [],
+          sourceBalance: 0,
+          reason:
+            "preferred source mETH balance unavailable after RPC retries; refusing to treat an unread balance as zero",
+        };
+      }
       if (balances.mETH >= floors.mETH) {
         return {
           feasible: true,
@@ -232,6 +261,18 @@ function pickSource({
     }
 
     if (preferred === "WMNT") {
+      if (balances._unavailable?.includes("WMNT")) {
+        return {
+          feasible: false,
+          source: null,
+          wrapMntFirst: false,
+          wrapAmountMnt: 0,
+          path: [],
+          sourceBalance: 0,
+          reason:
+            "preferred source WMNT balance unavailable after RPC retries; refusing to treat an unread balance as zero",
+        };
+      }
       if (balances.WMNT >= floors.WMNT) {
         return {
           feasible: true,
@@ -464,6 +505,7 @@ async function wrapMnt(wallet, amountMnt, opts = {}) {
 
 module.exports = {
   readAllBalances,
+  retryAsync,
   pickSource,
   wrapMnt,
   ADDRESSES,

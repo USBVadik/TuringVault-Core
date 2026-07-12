@@ -25,6 +25,7 @@ const ADDRESSES = {
 const DECIMALS = { USDT: 6, USDT0: 6 };
 const DEFAULT_ESTIMATED_GAS = 500000n;
 const MAX_SWAP_GAS_LIMIT = 2000000n;
+const OPENOCEAN_SLIPPAGE_BPS = 30;
 function decimalsOf(symbol) {
   return DECIMALS[symbol] ?? 18;
 }
@@ -73,7 +74,7 @@ class OpenOceanDEX {
         outTokenAddress: outAddr,
         amount: amountStr,
         gasPrice: "0.02",
-        slippage: "1",
+        slippage: String(OPENOCEAN_SLIPPAGE_BPS / 100),
         account:
           this.wallet?.address || "0x0000000000000000000000000000000000000000",
       });
@@ -88,8 +89,29 @@ class OpenOceanDEX {
       return { viable: false, error: data.data?.error || "No route found" };
     }
 
-    const outAmount =
-      parseFloat(data.data.outAmount) / 10 ** decimalsOf(tokenOut);
+    let outAmountRaw;
+    let minimumOutRaw;
+    try {
+      outAmountRaw = BigInt(data.data.outAmount);
+      minimumOutRaw = data.data.minOutAmount
+        ? BigInt(data.data.minOutAmount)
+        : (outAmountRaw * BigInt(10000 - OPENOCEAN_SLIPPAGE_BPS)) / 10000n;
+      if (
+        outAmountRaw <= 0n ||
+        minimumOutRaw <= 0n ||
+        minimumOutRaw > outAmountRaw
+      ) {
+        return { viable: false, error: "Aggregator returned invalid output" };
+      }
+    } catch {
+      return { viable: false, error: "Aggregator returned invalid output" };
+    }
+    const outAmount = Number(
+      ethers.formatUnits(outAmountRaw, decimalsOf(tokenOut))
+    );
+    const minimumOut = Number(
+      ethers.formatUnits(minimumOutRaw, decimalsOf(tokenOut))
+    );
     const inAmount = parseFloat(amountStr);
     let txValue;
     try {
@@ -112,8 +134,13 @@ class OpenOceanDEX {
       amountIn: inAmount,
       amountInRaw: rawAmountForToken(amountStr, tokenIn),
       estimatedOut: outAmount,
+      minimumOut,
+      minimumOutRaw,
+      slippageBps: OPENOCEAN_SLIPPAGE_BPS,
       price: outAmount / inAmount,
-      priceImpact: parseFloat(data.data.priceImpact || 0),
+      priceImpact: parseFloat(
+        data.data.priceImpact ?? data.data.price_impact ?? 0
+      ),
       viable: true,
       routerAddress: data.data.to,
       txData: data.data.data,
@@ -242,6 +269,7 @@ module.exports = {
   ADDRESSES,
   DECIMALS,
   MAX_SWAP_GAS_LIMIT,
+  OPENOCEAN_SLIPPAGE_BPS,
   boundedGasLimit,
   decimalsOf,
   rawAmountForToken,

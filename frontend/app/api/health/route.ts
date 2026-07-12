@@ -96,6 +96,9 @@ type HealthResponse = {
   lastCycleSummary?: LastCycleSummary | null;
   runHistory?: RunHistoryEntry[];
   gasRunway?: GasRunway | null;
+  schedulerBridge?: {
+    ready: boolean;
+  };
   error?: string;
 };
 
@@ -543,6 +546,11 @@ export async function GET(): Promise<NextResponse> {
       lastCycleSummary: lastCycleSummary ?? null,
       runHistory,
       gasRunway,
+      schedulerBridge: {
+        ready: Boolean(
+          process.env.CRON_SECRET && process.env.GH_DISPATCH_TOKEN
+        ),
+      },
     };
 
     // Cache the successful payload in module scope so a later transient
@@ -590,6 +598,11 @@ export async function GET(): Promise<NextResponse> {
       chainBlockHeight: null,
       dataScope: "agent-lifetime",
       gasRunway: null,
+      schedulerBridge: {
+        ready: Boolean(
+          process.env.CRON_SECRET && process.env.GH_DISPATCH_TOKEN
+        ),
+      },
       error: errorMessage,
     };
     return NextResponse.json(body, { headers: DEGRADED_CACHE });

@@ -1544,7 +1544,12 @@ async function runMultiAgentCycle(opts = {}) {
                         }),
                         pendingOperatingCostUsd:
                           proofGasMnt * (Number(market.mntPrice) || 0),
-                        slippageBufferBps: 125,
+                        // OpenOcean's quote exposes the exact minOutAmount
+                        // encoded into calldata. aggregatorFallback passes
+                        // that executable floor as amountOut, so applying a
+                        // second percentage buffer here would double-count
+                        // slippage and suppress otherwise profitable exits.
+                        slippageBufferBps: 0,
                       })
                   : null,
             });

@@ -1,7 +1,7 @@
 name: Agent Cycle
 
 # Continuous-cron multi-agent runner. Candidate slots fire every 15 minutes;
-# a repo-state freshness gate permits the expensive cycle roughly every three
+# a repo-state freshness gate permits the expensive cycle roughly every 2.5
 # hours and commits state back to main for the frontend.
 #
 # Spec: .kiro/specs/continuous-cron-and-health
@@ -48,10 +48,11 @@ jobs:
       # Hackathon: reduce idle-parking wait from 24h to 4h
       RWA_IDLE_PARKING_MIN_FLAT_MS: "14400000"
       # Scheduled runs skip the expensive LLM/on-chain cycle while the
-      # feed is fresh. Three-hour cadence keeps the 48h grid responsive while
-      # cutting proof-only gas burn without disabling
-      # manual dispatch or stale-feed rescue.
-      SCHEDULE_FRESHNESS_THRESHOLD_S: "10800"
+      # feed is fresh. A 2.5-hour threshold ensures the next surviving GitHub
+      # schedule event runs even when GitHub drops several nominal 15-minute
+      # slots, while still limiting proof-only gas burn and preserving manual
+      # dispatch plus stale-feed rescue.
+      SCHEDULE_FRESHNESS_THRESHOLD_S: "9000"
       MANTLE_RPC_URL: ${{ secrets.MANTLE_RPC_URL }}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

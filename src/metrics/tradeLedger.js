@@ -345,10 +345,14 @@ function previewFifoExit(inputLedger, exit = {}) {
     slippageBufferUsd +
     minNetProfitUsd -
     currentStrategyPnlUsd;
-  const requiredProceedsUsd = Math.max(
-    tradeRequiredProceedsUsd,
-    strategyRequiredProceedsUsd
-  );
+  // A new exit must be profitable on its own after matched entry gas,
+  // estimated exit gas, slippage and the minimum edge. Historic proof-only
+  // operating costs remain visible in projectedStrategyPnlUsd, but they must
+  // not become debt assigned to the current FIFO lot. Requiring one small
+  // exit to recover the entire strategy deficit creates a ratchet: every
+  // blocked proof cycle raises the next exit threshold and can lock a
+  // position forever even when the trade itself is net-profitable.
+  const requiredProceedsUsd = tradeRequiredProceedsUsd;
   const allowed = proceedsUsd >= requiredProceedsUsd;
   return {
     allowed,

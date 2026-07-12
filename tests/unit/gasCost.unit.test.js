@@ -19,7 +19,7 @@ describe("estimatedGasUsd", () => {
   test("budgets every expected transaction in an aggregator route", () => {
     expect(
       estimatedGasUsd({ transactionCount: 2, mntPriceUsd: 0.4 })
-    ).toBeCloseTo(0.01, 12);
+    ).toBeCloseTo(0.0144, 12);
   });
 
   test("fails closed to zero for invalid estimates", () => {

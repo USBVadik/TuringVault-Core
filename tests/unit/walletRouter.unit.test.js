@@ -17,9 +17,46 @@
  */
 const {
   pickSource,
+  retryAsync,
   GAS_RESERVE_MNT,
   MAX_WRAP_PER_CYCLE_MNT,
 } = require("../../src/dex/walletRouter");
+
+describe("walletRouter RPC resilience", () => {
+  test("retries a transient balance failure before returning zero-like data", async () => {
+    let attempts = 0;
+    const value = await retryAsync(
+      async () => {
+        attempts += 1;
+        if (attempts < 3) throw new Error("temporary RPC error");
+        return 0.037835;
+      },
+      { attempts: 3, delayMs: 0 }
+    );
+
+    expect(value).toBe(0.037835);
+    expect(attempts).toBe(3);
+  });
+
+  test("does not misreport an unread preferred mETH balance as empty", () => {
+    const result = pickSource({
+      direction: "risk-off",
+      preferredSource: "mETH",
+      balances: {
+        MNT: 18,
+        WMNT: 1,
+        USDT0: 30,
+        USDT: 1,
+        mETH: 0,
+        _unavailable: ["mETH"],
+      },
+    });
+
+    expect(result.feasible).toBe(false);
+    expect(result.reason).toMatch(/unavailable after RPC retries/i);
+    expect(result.reason).not.toMatch(/0\.000000 < floor/);
+  });
+});
 
 describe("walletRouter.pickSource — risk-off", () => {
   test("WMNT above floor → use WMNT directly, no wrap", () => {
