@@ -1,6 +1,7 @@
 const {
   _private: {
     buildPositionEntryState,
+    buildReputationContext,
     getSettlementSnapshot,
     inferSettlementSourceAsset,
     hasCompletedExecution,
@@ -189,6 +190,34 @@ describe("multiAgentLoop execution display tier", () => {
       detail: "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle",
     });
     expect(checks[1]).toEqual({ name: "price_freshness", status: "PASS" });
+  });
+
+  test("labels pre-execution swap reputation as pending intent", () => {
+    expect(
+      buildReputationContext({
+        decision: {
+          analyst: {
+            action: "swap",
+            targetAsset: "mUSD",
+          },
+        },
+        proofDecisionTier: "EXECUTION_PROOF_PENDING",
+        confidenceBps: 9000,
+      })
+    ).toBe("intent_pending_mUSD_conf9000");
+
+    expect(
+      buildReputationContext({
+        decision: {
+          analyst: {
+            action: "hold",
+            targetAsset: "mETH",
+          },
+        },
+        proofDecisionTier: "BLOCKED_BY_REGIME",
+        confidenceBps: 6200,
+      })
+    ).toBe("hold_mETH_conf6200");
   });
 });
 

@@ -134,6 +134,18 @@ function retagSkippedTxProofChecks(checks = [], displayTier = null) {
   });
 }
 
+function buildReputationContext({
+  decision = {},
+  proofDecisionTier = null,
+  confidenceBps = 0,
+} = {}) {
+  const targetAsset = decision.analyst?.targetAsset || "mUSD";
+  if (proofDecisionTier === "EXECUTION_PROOF_PENDING") {
+    return `intent_pending_${targetAsset}_conf${confidenceBps}`;
+  }
+  return `${decision.analyst?.action || "hold"}_${targetAsset}_conf${confidenceBps}`;
+}
+
 function buildPortfolioPrices(market = {}) {
   const mntPrice = Number(market.mntPrice) || 0.65;
   const methPrice =
@@ -840,7 +852,11 @@ async function runMultiAgentCycle(opts = {}) {
 
   let decisionTier = classifyDecisionTier(decision, market);
   const proofDecisionTier = preExecutionProofTier(decisionTier);
-  console.log(`   TIER: ${decisionTier}`);
+  console.log(
+    proofDecisionTier === decisionTier
+      ? `   TIER: ${decisionTier}`
+      : `   TIER: ${decisionTier} (pre-execution proof: ${proofDecisionTier})`
+  );
 
   // T9.5: disagreement signal — analyst confident but validator vetoed.
   // This is the data point a Turing Test judge wants: same data, different
@@ -1067,9 +1083,11 @@ async function runMultiAgentCycle(opts = {}) {
     const repScore = decision.consensus
       ? Math.round((decision.analyst?.confidence || 0.5) * 50)
       : 0;
-    const context = `${decision.analyst?.action || "hold"}_${
-      decision.analyst?.targetAsset || "mUSD"
-    }_conf${confidenceBps}`;
+    const context = buildReputationContext({
+      decision,
+      proofDecisionTier,
+      confidenceBps,
+    });
     const tx4 = await reputation.submitFeedback(
       0, // agentId (our NFT token #0)
       repScore,
@@ -2730,6 +2748,7 @@ module.exports = {
   _private: {
     buildPortfolioPrices,
     buildPositionEntryState,
+    buildReputationContext,
     calculateDirectionalSwapSizing,
     chooseNextLegAmount,
     inferSettlementSourceAsset,
