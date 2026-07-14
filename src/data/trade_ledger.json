@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "startedAt": "2026-07-10T03:33:46.674Z",
-  "updatedAt": "2026-07-14T11:53:51.973Z",
+  "updatedAt": "2026-07-14T15:09:45.022Z",
   "entries": [
     {
       "decisionId": 1066,
@@ -257,37 +257,64 @@
       "mntPriceUsd": 0.419918,
       "proofGasUsd": 0.02268939068909062,
       "unmatchedSwapGasUsd": 0
+    },
+    {
+      "decisionId": 1106,
+      "recordedAt": "2026-07-14T15:09:45.022Z",
+      "txHash": "0xfd060ccddaa0c06f7c5d1d6beed4c1b79232c9ff7a08b0d9262566564531dd4a",
+      "from": "mETH",
+      "to": "USDT0",
+      "amountIn": 0.005397772829249567,
+      "amountOut": 10.612921999999998,
+      "gasCostUsd": 0.027298287434265676,
+      "amountSource": "wallet-balance-delta",
+      "type": "EXIT",
+      "asset": "mETH",
+      "matchedQty": 0.005397772829249567,
+      "matchedCostUsd": 10.499999999999998,
+      "matchedProceedsUsd": 10.612921999999998,
+      "realizedGrossPnlUsd": 0.1129219999999993,
+      "realizedNetPnlUsd": 0.07084222466931696,
+      "unknownBasisQty": 0,
+      "unknownBasisExitUsd": 0,
+      "matchedEntries": [
+        {
+          "entryDecisionId": 1066,
+          "entryTxHash": "0x971b8095bdc49c0644f89b84cf128319c3b5728c5fd753f6be4df4a50d6bcd0a",
+          "quantity": 0.005397772829249567,
+          "costUsd": 10.499999999999998
+        }
+      ]
+    },
+    {
+      "key": "proof:1106",
+      "type": "OPERATING_COST",
+      "decisionId": 1106,
+      "recordedAt": "2026-07-14T15:09:45.022Z",
+      "proofGasMnt": 0.054022108044,
+      "mntPriceUsd": 0.427874,
+      "proofGasUsd": 0.023114655457218452,
+      "unmatchedSwapGasUsd": 0
     }
   ],
   "lots": {
     "WMNT": [],
-    "mETH": [
-      {
-        "asset": "mETH",
-        "remainingQty": 0.005397772829249568,
-        "remainingCostUsd": 10.5,
-        "remainingEntryGasUsd": 0.014781487896416668,
-        "entryDecisionId": 1066,
-        "entryTxHash": "0x971b8095bdc49c0644f89b84cf128319c3b5728c5fd753f6be4df4a50d6bcd0a",
-        "openedAt": "2026-07-10T03:33:46.674Z",
-        "basisSource": "public-receipt-reconstruction"
-      }
-    ]
+    "mETH": []
   },
   "summary": {
     "openedTrades": 1,
-    "closedTrades": 0,
-    "profitableClosedTrades": 0,
+    "closedTrades": 1,
+    "profitableClosedTrades": 1,
     "losingClosedTrades": 0,
-    "realizedGrossPnlUsd": 0,
-    "realizedNetPnlUsd": 0,
-    "matchedCostBasisUsd": 0,
-    "matchedProceedsUsd": 0,
-    "swapGasUsd": 0.014781487896416668,
-    "matchedSwapGasUsd": 0,
-    "proofGasUsd": 0.5405503761563902,
+    "realizedGrossPnlUsd": 0.1129219999999993,
+    "realizedNetPnlUsd": 0.07084222466931696,
+    "matchedCostBasisUsd": 10.499999999999998,
+    "matchedProceedsUsd": 10.612921999999998,
+    "swapGasUsd": 0.04207977533068234,
+    "matchedSwapGasUsd": 0.04207977533068234,
+    "proofGasUsd": 0.5636650316136087,
     "unknownBasisExitUsd": 0,
-    "netStrategyPnlUsd": -0.5553318640528069
+    "netStrategyPnlUsd": -0.49282280694429176
   },
   "scopeNote": "Seeded only from the active cycle-1066 mETH lot using public Mantle receipts; proof gas is tracked prospectively from deployment of the ledger."
 }
