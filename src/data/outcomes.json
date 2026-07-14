@@ -4369,6 +4369,82 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_ECONOMICS"
+    },
+    {
+      "id": "1784051285940_1109",
+      "decisionId": 1109,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1867.26,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreid57eefe5f828890001c2cb66e4703671a803dcd946305898bb4d",
+      "recordedAt": "2026-07-14T17:48:05.940Z",
+      "settleAfter": "2026-07-14T18:48:05.940Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1784051285920
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime HOLD at 35% confidence with NEUTRAL consensus correctly justifies inaction. Analyst accurately cites RSI 76.2 (overbought), funding 1.37% annualised (neutral), flat smart money flow, and -1% yield spread (bearish). Portfolio is balanced at 54.7% risk / 45.3% stable — no rebalance trigger. Fear & Greed 22 vs RSI 76.2 contradiction is explicitly acknowledged. ",
+      "validatorFlaggedIssues": [
+        "RSI 76.2 overbought conflicts with Fear & Greed 22 — acknowledged but unresolved tension",
+        "Yield spread -1% mildly bearish for mETH attractiveness — monitor for deterioration"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x100e6227b01430ee52c34880d9565623e8bdb8a74893e8c9005c7b9b87dae44e",
+      "combinedAnchor": "0x3d8ead66f435b6114b8342daf4ce879d2779dcc17fe20390ad2b3ebd3d186a21",
+      "decisionLogTxHash": "0xec08f8270dba880b6f261f6db44c0e68ad13d7fcfe1838eebb710800a53731b6",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION"
     }
   ],
   "settled": [

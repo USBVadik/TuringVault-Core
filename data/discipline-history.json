@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-07-05T16:31:35.350Z",
-    "decisionId": 1005,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_LOW_CONFIDENCE",
-    "displayTier": "BLOCKED_BY_LOW_CONFIDENCE",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "mETH",
-    "sourceAsset": null,
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 97569385"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "3 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-07-05T17:39:27.256Z",
     "decisionId": 1006,
     "verdict": "ACCEPTED",
@@ -3095,6 +3046,35 @@
         "name": "tx_proof",
         "status": "PASS",
         "detail": "Rolled up from 4 sub-checks"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-07-14T17:48:05.921Z",
+    "decisionId": 1109,
+    "verdict": "ACCEPTED",
+    "decisionTier": "HOLD_NO_ACTION",
+    "displayTier": "HOLD_NO_ACTION",
+    "executedOnChain": false,
+    "action": "hold",
+    "targetAsset": "mETH",
+    "sourceAsset": null,
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
       }
     ],
     "blockReason": null
