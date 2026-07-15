@@ -310,6 +310,83 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "HOLD_NO_ACTION"
+    },
+    {
+      "id": "1784126745809_1125",
+      "decisionId": 1125,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.35,
+      "priceAtDecision": 1925.31,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreie0e3b3bc5f07b0687524e6365e21a9bba6c725bff1eac7ddbe29",
+      "recordedAt": "2026-07-15T14:45:45.809Z",
+      "settleAfter": "2026-07-15T15:45:45.809Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1784126745788
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. Regime confidence is only 35% with NEUTRAL consensus — no directional edge confirmed. RSI at 76.3 (STRONG_SELL) directly conflicts with EMA_CROSS=BUY and MACD=BUY; Analyst correctly acknowledges this contradiction. Yield spread at -1% is mildly bearish. Smart money flow flat. Portfolio is balanced (44.3% stable, 55.7% risk), so HOLD preserves posture without unnece",
+      "validatorFlaggedIssues": [
+        "RSI 76.3 overbought conflicts with bullish EMA/MACD — unresolved contradiction noted but acknowledged",
+        "Yield spread -1% bearish signal underweighted in reasoning",
+        "Social attention bullish signal (60% strength) not addressed"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "inventory-aware grid requires stable-heavy FLAT posture",
+        "sellCandidateBlocked": null,
+        "inventoryAwareGrid": {
+          "active": false,
+          "reason": "inventory-aware grid requires stable-heavy FLAT posture"
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x0bbe06a411503cd620e34dbd5df0f43d731a7f20a90b237420da7bdf71c034ab",
+      "combinedAnchor": "0xb2ce01ab7ad91d5e1c86000a84803d343841721bbe912c8a73e3f1092a4a7c06",
+      "decisionLogTxHash": "0xe818869844b33883b659507fe048e3ccf41f07b438bcf60fc0217ed656f85cd4",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION"
     }
   ],
   "settled": [
