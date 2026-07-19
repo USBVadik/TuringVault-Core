@@ -15,6 +15,10 @@ require("dotenv").config({
 });
 const { ethers } = require("ethers");
 const { transactionGasMnt } = require("../metrics/gasCost");
+const {
+  describeTransactionError,
+  preflightTransaction,
+} = require("./transactionPreflight");
 
 const DEFAULT_MANTLE_RPC =
   process.env.MANTLE_RPC_URL ||
@@ -26,6 +30,10 @@ const DEFAULT_READ_RETRY_ATTEMPTS = Number(
 const DEFAULT_READ_RETRY_BASE_MS = Number(
   process.env.MANTLE_READ_RETRY_BASE_MS || 250
 );
+// A known router should never need anywhere near this much gas for the small
+// portfolio trades this agent is allowed to make. Treat an anomalous RPC
+// estimate as a failed preflight instead of funding an unbounded send.
+const MAX_DIRECT_SWAP_GAS_LIMIT = 2_000_000n;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -563,7 +571,10 @@ class MerchantMoeDEX {
       ADDRESSES.LB_ROUTER,
       ethers.MaxUint256
     );
-    await tx.wait();
+    const receipt = await tx.wait();
+    if (Number(receipt?.status) !== 1) {
+      throw new Error("Merchant Moe token approval reverted on-chain");
+    }
     this._allowanceCache.set(tokenInAddr, true);
   }
 
@@ -621,7 +632,12 @@ class MerchantMoeDEX {
     const quote = await this.getQuote(tokenIn, tokenOut, amountIn);
 
     if (!quote.viable) {
-      return { ...quote, executed: false, reason: quote.error || "not-viable" };
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        reason: quote.error || "not-viable",
+      };
     }
     // priceImpact is a fraction (0.005 = 0.5%). Convert to bps (×10_000)
     // for comparison with maxImpactBps.
@@ -630,14 +646,26 @@ class MerchantMoeDEX {
       return {
         ...quote,
         executed: false,
+        executionBlocked: true,
         reason: `impact ${(quote.priceImpact * 100).toFixed(3)}% > ${(
           maxImpactBps / 100
         ).toFixed(3)}%`,
       };
     }
 
-    // CP7: ensure allowance (set once per process per token).
-    await this._ensureAllowance(tokenInAddr);
+    // CP7: ensure allowance (set once per process per token). Treat a failed
+    // approval as an execution block, not as a thrown error that later gets
+    // mislabeled as an unexecuted trading intent.
+    try {
+      await this._ensureAllowance(tokenInAddr);
+    } catch (error) {
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        reason: `Merchant Moe approval failed: ${describeTransactionError(error)}`,
+      };
+    }
 
     // Min-out floor with slippage, using the decimals exposed from getQuote.
     // SECURITY: must use string-based parseUnits — Math.floor on float ×
@@ -659,25 +687,79 @@ class MerchantMoeDEX {
     );
     const deadline = Math.floor(Date.now() / 1000) + 300;
 
-    const tx = await this.router.swapExactTokensForTokens(
+    // A pool quote is not a guarantee that the router can execute at the
+    // next block. Build and simulate this exact calldata before handing it
+    // to the signer so a stale LB quote cannot burn gas on a reverted swap.
+    const transaction = await this.router.swapExactTokensForTokens.populateTransaction(
       amountIn,
       minOut,
       quote.path,
       this.wallet.address,
-      deadline,
-      { nonce }
+      deadline
     );
-    const receipt = await tx.wait();
+    const preflight = await preflightTransaction({
+      provider: this.provider || this.wallet?.provider,
+      walletAddress: this.wallet.address,
+      transaction,
+    });
+    if (!preflight.ok) {
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        reason: `transaction preflight rejected: ${preflight.reason}`,
+      };
+    }
+    const gasLimit = preflight.estimatedGas + preflight.estimatedGas / 5n;
+    if (preflight.estimatedGas <= 0n || gasLimit > MAX_DIRECT_SWAP_GAS_LIMIT) {
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        reason: `transaction preflight returned unsafe gas estimate ${preflight.estimatedGas.toString()}`,
+      };
+    }
 
-    return {
-      ...quote,
-      executed: true,
-      txHash: receipt.hash,
-      blockNumber: receipt.blockNumber,
-      gasUsed: receipt.gasUsed.toString(),
-      gasPriceWei: String(receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0),
-      gasCostMnt: transactionGasMnt(receipt),
-    };
+    try {
+      const tx = await this.wallet.sendTransaction({
+        ...transaction,
+        nonce,
+        // Keep a modest buffer above the read-only estimate while retaining
+        // the exact calldata that just passed simulation.
+        gasLimit,
+      });
+      const receipt = await tx.wait();
+      if (Number(receipt?.status) !== 1) {
+        return {
+          ...quote,
+          executed: false,
+          executionBlocked: true,
+          failedTxHash: receipt?.hash || tx.hash || null,
+          reason: "Merchant Moe swap transaction reverted on-chain",
+          gasCostMnt: transactionGasMnt(receipt),
+        };
+      }
+
+      return {
+        ...quote,
+        executed: true,
+        txHash: receipt.hash,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed.toString(),
+        gasPriceWei: String(receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0),
+        gasCostMnt: transactionGasMnt(receipt),
+      };
+    } catch (error) {
+      const receipt = error?.receipt;
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        failedTxHash: receipt?.hash || null,
+        reason: `Merchant Moe swap broadcast rejected: ${describeTransactionError(error)}`,
+        gasCostMnt: transactionGasMnt(receipt),
+      };
+    }
   }
 
   /**
@@ -721,6 +803,7 @@ module.exports = {
   MerchantMoeDEX,
   ADDRESSES,
   PAIRS,
+  MAX_DIRECT_SWAP_GAS_LIMIT,
   rankPairCandidatesByNormalizedDepth,
   _private: {
     createMantleProvider,

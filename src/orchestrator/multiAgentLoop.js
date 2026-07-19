@@ -1532,52 +1532,91 @@ async function runMultiAgentCycle(opts = {}) {
             console.log(
               `   ⚠️  Route preflight blocked before broadcast: ${preflight.reason}`
             );
-            // Aggregator fallback (audit 2026-06-24): the hand-rolled
-            // Merchant Moe LB multi-hop fails at the thin USDT->WMNT hop,
-            // stranding consensus=true risk-on buys as INTENT_SWAP_NO_EXEC.
-            // OpenOcean aggregates Mantle liquidity and can fill the direct
-            // path[0]->path[last] swap. Gated behind
-            // RWA_AGGREGATOR_FALLBACK_ENABLED (default OFF): when disabled,
-            // attemptAggregatorSwap returns null and behavior is unchanged.
+            // External route fallback: Merchant Moe is still the first choice,
+            // but its thin USDT/WMNT hop regularly fails. LI.FI is tried first
+            // because its exact Mantle route is simulated before broadcast;
+            // OpenOcean remains a guarded second source for pairs LI.FI cannot
+            // quote. Neither path may send calldata that failed preflight.
             const { attemptAggregatorSwap } = require("../dex/aggregatorFallback");
-            const aggResult = await attemptAggregatorSwap({
-              enabled: process.env.RWA_AGGREGATOR_FALLBACK_ENABLED === "true",
-              provider: wallet.provider,
-              wallet,
-              fromToken: path[0],
-              toToken: path[path.length - 1],
-              sourceAmount: finalSourceAmount,
-              quoteValidator:
-                swapDirection === "risk-off" && !emergencyExit
-                  ? ({ amountOut }) =>
-                      tradeLedger.previewFifoExit(tradeLedger.loadLedger(), {
-                        asset: path[0],
-                        quantity: finalSourceAmount,
-                        proceedsUsd: amountOut,
-                        // Exact approvals are consumed by transferFrom, so a
-                        // normal aggregator exit costs approve + swap.
-                        exitGasUsd: estimatedGasUsd({
-                          transactionCount: 2,
-                          mntPriceUsd: market.mntPrice,
-                        }),
-                        pendingOperatingCostUsd:
-                          proofGasMnt * (Number(market.mntPrice) || 0),
-                        // OpenOcean's quote exposes the exact minOutAmount
-                        // encoded into calldata. aggregatorFallback passes
-                        // that executable floor as amountOut, so applying a
-                        // second percentage buffer here would double-count
-                        // slippage and suppress otherwise profitable exits.
-                        slippageBufferBps: 0,
-                      })
-                  : null,
-            });
-            if (aggResult?.profitabilityGate?.allowed === false) {
+            const quoteValidator =
+              swapDirection === "risk-off" && !emergencyExit
+                ? ({ amountOut }) =>
+                    tradeLedger.previewFifoExit(tradeLedger.loadLedger(), {
+                      asset: path[0],
+                      quantity: finalSourceAmount,
+                      proceedsUsd: amountOut,
+                      // Exact approvals are consumed by transferFrom, so a
+                      // normal aggregator exit costs approve + swap.
+                      exitGasUsd: estimatedGasUsd({
+                        transactionCount: 2,
+                        mntPriceUsd: market.mntPrice,
+                      }),
+                      pendingOperatingCostUsd:
+                        proofGasMnt * (Number(market.mntPrice) || 0),
+                      // Both adapters expose the executable min-out in the
+                      // quote passed here, so don't double-count slippage.
+                      slippageBufferBps: 0,
+                    })
+                : null;
+            const fallbackAttempts = [];
+            if (process.env.RWA_LIFI_FALLBACK_ENABLED === "true") {
+              const { LifiDEX } = require("../dex/lifi");
+              const lifiResult = await attemptAggregatorSwap({
+                enabled: true,
+                provider: wallet.provider,
+                wallet,
+                fromToken: path[0],
+                toToken: path[path.length - 1],
+                sourceAmount: finalSourceAmount,
+                quoteValidator,
+                providerName: "lifi",
+                providerVia: "lifi-aggregator",
+                dexFactory: (provider, signer) =>
+                  new LifiDEX(provider, signer, { dryRun: false }),
+              });
+              if (lifiResult) fallbackAttempts.push(lifiResult);
+            }
+
+            const lifiBlockedByEconomics = fallbackAttempts.some(
+              (result) => result?.profitabilityGate?.allowed === false
+            );
+            if (
+              !lifiBlockedByEconomics &&
+              process.env.RWA_AGGREGATOR_FALLBACK_ENABLED === "true"
+            ) {
+              const openOceanResult = await attemptAggregatorSwap({
+                enabled: true,
+                provider: wallet.provider,
+                wallet,
+                fromToken: path[0],
+                toToken: path[path.length - 1],
+                sourceAmount: finalSourceAmount,
+                quoteValidator,
+              });
+              if (openOceanResult) fallbackAttempts.push(openOceanResult);
+            }
+
+            const successfulFallback = fallbackAttempts.find(
+              (result) => result?.executed === true
+            );
+            const aggResult = successfulFallback || fallbackAttempts.at(-1) || null;
+            const fallbackReasons = fallbackAttempts
+              .filter((result) => result && result.executed !== true)
+              .map((result) => result.reason)
+              .filter(Boolean);
+            if (fallbackAttempts.some((result) => result?.profitabilityGate?.allowed === false)) {
               decision._economicGuardBlocked = true;
-              decision._economicGuardReason = aggResult.profitabilityGate.reason;
+              decision._economicGuardReason = fallbackAttempts.find(
+                (result) => result?.profitabilityGate?.allowed === false
+              ).profitabilityGate.reason;
+            }
+            if (!successfulFallback && fallbackAttempts.some((result) => result?.executionBlocked)) {
+              decision._executionGuardBlocked = true;
+              decision._executionGuardReason = fallbackReasons.join(" | ").slice(0, 360);
             }
             if (aggResult && aggResult.executed) {
               console.log(
-                `   ✅ Aggregator fallback executed via OpenOcean: ${aggResult.txHash?.slice(
+                `   ✅ Aggregator fallback executed via ${aggResult.via}: ${aggResult.txHash?.slice(
                   0,
                   18
                 )}...`
@@ -1601,8 +1640,8 @@ async function runMultiAgentCycle(opts = {}) {
                 from: path[0],
                 to: path[path.length - 1],
                 amountIn: finalSourceAmount,
-                reason: aggResult
-                  ? `preflight-failed: ${preflight.reason}; ${aggResult.reason}`
+                reason: fallbackReasons.length
+                  ? `preflight-failed: ${preflight.reason}; ${fallbackReasons.join(" | ")}`
                   : `preflight-failed: ${preflight.reason}`,
                 preflight: preflight.legs,
               };
@@ -1706,6 +1745,20 @@ async function runMultiAgentCycle(opts = {}) {
               console.log(
                 `   ⚠️  Leg ${i + 1} blocked: ${legResp?.reason || "unknown"}`
               );
+              // The route may have looked viable at quote time, while the
+              // exact router calldata failed its last-moment eth_call. Keep
+              // that distinct from an unexecuted intent: it is a concrete
+              // execution refusal, not an analyst decision that happened to
+              // produce no transaction.
+              if (legResp?.executionBlocked === true) {
+                decision._executionGuardBlocked = true;
+                decision._executionGuardReason = `merchant-moe leg ${
+                  i + 1
+                }: ${String(legResp.reason || "transaction preflight rejected").slice(
+                  0,
+                  280
+                )}`;
+              }
               legResults.push({
                 leg: i + 1,
                 from: fromTok,
@@ -1819,7 +1872,10 @@ async function runMultiAgentCycle(opts = {}) {
     }
   }
 
-  if (decision._economicGuardBlocked === true) {
+  if (
+    decision._economicGuardBlocked === true ||
+    decision._executionGuardBlocked === true
+  ) {
     decisionTier = classifyDecisionTier(decision, market);
   }
 

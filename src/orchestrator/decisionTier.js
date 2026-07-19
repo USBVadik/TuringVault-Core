@@ -37,6 +37,9 @@ const TIERS = Object.freeze({
   BLOCKED_BY_PARSE_FAILURE: "BLOCKED_BY_PARSE_FAILURE",
   BLOCKED_BY_PORTFOLIO: "BLOCKED_BY_PORTFOLIO",
   BLOCKED_BY_ECONOMICS: "BLOCKED_BY_ECONOMICS",
+  // Quote passed portfolio/economic gates but its exact calldata failed a
+  // read-only chain simulation. This is not a successful trade intent.
+  BLOCKED_BY_EXECUTION: "BLOCKED_BY_EXECUTION",
   HOLD_NO_ACTION: "HOLD_NO_ACTION",
   // Submission-window heartbeat: deliberate, micro-sized, alternating
   // swap injected by Path C heartbeat mode after a long passive run.
@@ -110,6 +113,10 @@ function classifyDecisionTier(decision, market) {
 
   if (safeDecision._economicGuardBlocked === true) {
     return TIERS.BLOCKED_BY_ECONOMICS;
+  }
+
+  if (safeDecision._executionGuardBlocked === true) {
+    return TIERS.BLOCKED_BY_EXECUTION;
   }
 
   // 5. Consensus reached and action is a swap → executed.

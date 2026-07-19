@@ -63,6 +63,7 @@ describe("attemptAggregatorSwap", () => {
       dexFactory: mockDexFactory({ executed: false, reason: "No route found" }),
     });
     expect(res.executed).toBe(false);
+    expect(res.executionBlocked).toBe(true);
     expect(res.reason).toMatch(/aggregator: No route found/);
   });
 
@@ -168,6 +169,28 @@ describe("attemptAggregatorSwap", () => {
     });
     expect(res.executed).toBe(false);
     expect(res.reason).toMatch(/aggregator: threw rpc timeout/);
+  });
+
+  test("preserves a deterministic preflight failure for the tier classifier", async () => {
+    const res = await attemptAggregatorSwap({
+      enabled: true,
+      fromToken: "mETH",
+      toToken: "USDT0",
+      sourceAmount: 0.005,
+      dexFactory: mockDexFactory({
+        executed: false,
+        executionBlocked: true,
+        reason: "transaction preflight rejected: Return amount is not enough",
+      }),
+      providerName: "lifi",
+      providerVia: "lifi-aggregator",
+    });
+
+    expect(res).toMatchObject({
+      executed: false,
+      executionBlocked: true,
+      reason: expect.stringMatching(/^lifi: transaction preflight rejected/),
+    });
   });
 
   test("rejects a non-positive source amount", async () => {

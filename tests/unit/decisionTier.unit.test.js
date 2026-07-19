@@ -161,6 +161,18 @@ describe("classifyDecisionTier", () => {
     ).toBe(TIERS.BLOCKED_BY_ECONOMICS);
   });
 
+  test("exact calldata preflight failure → BLOCKED_BY_EXECUTION", () => {
+    expect(
+      classifyDecisionTier(
+        {
+          ...decision(),
+          _executionGuardBlocked: true,
+        },
+        market("RANGING")
+      )
+    ).toBe(TIERS.BLOCKED_BY_EXECUTION);
+  });
+
   // ── Executed swap ────────────────────────────────────────────────
   test("all green + consensus + swap → EXECUTED_SWAP", () => {
     expect(classifyDecisionTier(decision(), market("TREND_UP"))).toBe(

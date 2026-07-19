@@ -5,26 +5,21 @@
  * (USDT0 -> USDT -> WMNT [-> WETH -> mETH]) fails preflight at the thin
  * `USDT -> WMNT` hop ("leg2 USDT->WMNT not viable"), which is why
  * consensus=true risk-on cycles landed as INTENT_SWAP_NO_EXEC for the
- * 24-Jun RANGING window. OpenOcean aggregates liquidity across every
- * Mantle venue and can fill the direct from->to swap that the
- * single-venue multi-hop cannot. `openOcean.js` already documents itself
- * as the replacement "(Merchant Moe direct router ... has liquidity
- * issues)" and is the live-execution engine in integratedOrchestrator.
+ * 24-Jun RANGING window. The production fallback uses LI.FI's same-chain
+ * Mantle route, whose fixed Diamond target and exact calldata are both
+ * checked before broadcast. OpenOcean remains an optional diagnostic
+ * adapter and is fail-closed unless a router is explicitly pinned.
  *
- * SAFETY: this is a money path. The fallback is gated behind
- * `RWA_AGGREGATOR_FALLBACK_ENABLED` (default OFF) — when disabled the
- * caller keeps its original preflight-failed result byte-for-byte. The
- * DEX is injectable (`dexFactory`) so the decision/orchestration logic is
+ * SAFETY: this is a money path. Each adapter is independently gated:
+ * LI.FI uses `RWA_LIFI_FALLBACK_ENABLED`; OpenOcean uses
+ * `RWA_AGGREGATOR_FALLBACK_ENABLED` and stays default-OFF. The DEX is
+ * injectable (`dexFactory`) so the decision/orchestration logic is
  * unit-tested with a mock and no network/chain access.
  *
- * NOTE: OpenOceanDEX.getQuote consumes `ethers.formatEther(amountWei)` as
- * the human amount string for the aggregator API, so the source amount is
- * encoded with parseEther regardless of token decimals to match that
- * contract. The real on-chain amount is taken from the API-built calldata.
- * Token symbols must exist in OpenOcean's ADDRESSES map (USDT0 was added in
- * the same change). Verified on-chain via read-only quote: USDT0->WMNT and
- * USDT0->mETH route cleanly through OpenOcean. A single real swap should
- * still be smoke-tested before the flag is relied on in production.
+ * NOTE: adapters receive a parseEther-encoded human amount to preserve the
+ * existing fallback interface. Each adapter then converts to its token's
+ * actual decimals before requesting a route. The on-chain amount is taken
+ * from adapter-validated calldata, never from a float conversion here.
  */
 const { ethers } = require("ethers");
 
@@ -47,15 +42,25 @@ async function attemptAggregatorSwap({
   dexFactory,
   quoteValidator,
   quoteRetryDelayMs = 200,
+  providerName = "aggregator",
+  providerVia = "openocean-aggregator",
 } = {}) {
   if (!enabled) return null;
 
   const amount = Number(sourceAmount);
   if (!Number.isFinite(amount) || amount <= 0) {
-    return { executed: false, reason: "aggregator: non-positive source amount" };
+    return {
+      executed: false,
+      executionBlocked: true,
+      reason: `${providerName}: non-positive source amount`,
+    };
   }
   if (!fromToken || !toToken || fromToken === toToken) {
-    return { executed: false, reason: "aggregator: invalid token pair" };
+    return {
+      executed: false,
+      executionBlocked: true,
+      reason: `${providerName}: invalid token pair`,
+    };
   }
 
   let dex;
@@ -70,12 +75,17 @@ async function attemptAggregatorSwap({
   } catch (err) {
     return {
       executed: false,
-      reason: `aggregator: init failed ${String(err.message || err).slice(0, 60)}`,
+      executionBlocked: true,
+      reason: `${providerName}: init failed ${String(err.message || err).slice(0, 60)}`,
     };
   }
 
   if (!dex || typeof dex.executeSwap !== "function") {
-    return { executed: false, reason: "aggregator: dex has no executeSwap()" };
+    return {
+      executed: false,
+      executionBlocked: true,
+      reason: `${providerName}: dex has no executeSwap()`,
+    };
   }
 
   let amountWei;
@@ -86,7 +96,8 @@ async function attemptAggregatorSwap({
   } catch (err) {
     return {
       executed: false,
-      reason: `aggregator: bad amount ${String(err.message || err).slice(0, 40)}`,
+      executionBlocked: true,
+      reason: `${providerName}: bad amount ${String(err.message || err).slice(0, 40)}`,
     };
   }
 
@@ -96,7 +107,8 @@ async function attemptAggregatorSwap({
       if (typeof dex.getQuote !== "function") {
         return {
           executed: false,
-          reason: "aggregator: quote validation unavailable",
+          executionBlocked: true,
+          reason: `${providerName}: quote validation unavailable`,
         };
       }
       let quote;
@@ -119,7 +131,8 @@ async function attemptAggregatorSwap({
       if (!quote?.viable || !Number.isFinite(Number(quote.estimatedOut))) {
         return {
           executed: false,
-          reason: `aggregator: quote unavailable ${String(
+          executionBlocked: true,
+          reason: `${providerName}: quote unavailable ${String(
             quote?.error || "invalid output"
           ).slice(0, 60)}`,
         };
@@ -138,7 +151,7 @@ async function attemptAggregatorSwap({
           executed: false,
           reason:
             profitabilityGate?.reason ||
-            "aggregator: quote rejected by economic gate",
+            `${providerName}: quote rejected by economic gate`,
           profitabilityGate: profitabilityGate || { allowed: false },
           quote,
         };
@@ -184,7 +197,7 @@ async function attemptAggregatorSwap({
       }
       return {
         executed: true,
-        via: "openocean-aggregator",
+        via: providerVia,
         from: fromToken,
         to: toToken,
         amountIn: actualAmountIn,
@@ -211,12 +224,20 @@ async function attemptAggregatorSwap({
     }
     return {
       executed: false,
-      reason: `aggregator: ${String(res?.reason || "not-executed").slice(0, 80)}`,
+      // At this point a route adapter has been asked to execute and did not
+      // produce a receipt. Surface that deterministic stop to the tier
+      // classifier instead of letting the UI relabel it as an unproven intent.
+      executionBlocked:
+        res?.executionBlocked === true || res?.executed === false,
+      failedTxHash: res?.failedTxHash || null,
+      quote: res?.viable ? res : null,
+      reason: `${providerName}: ${String(res?.reason || "not-executed").slice(0, 120)}`,
     };
   } catch (err) {
     return {
       executed: false,
-      reason: `aggregator: threw ${String(err.message || err).slice(0, 60)}`,
+      executionBlocked: true,
+      reason: `${providerName}: threw ${String(err.message || err).slice(0, 100)}`,
     };
   }
 }

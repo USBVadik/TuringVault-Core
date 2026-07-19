@@ -146,7 +146,7 @@ Every decision creates an immutable record: what data the AI observed, what conc
 │  EXECUTION + DISCIPLINE LAYER (Synrail-inspired)                   │
 │  ┌────────────────────────────────────────────────────────────┐    │
 │  │ RWA Allocator (LLM-driven route · idle-parking route)      │    │
-│  │ → Merchant Moe LB v2.2 → guarded OpenOcean fallback        │    │
+│  │ → Merchant Moe LB v2.2 → LI.FI fallback (exact preflight)  │    │
 │  │ → Discipline Layer 3-gate verification:                    │    │
 │  │     ✓ tx_proof  ✓ price_freshness  ✓ regime_drift          │    │
 │  │ → Outcome scheduled for settlement vs price 4h later       │    │
@@ -372,7 +372,7 @@ them per `.kiro/steering/no-lying-about-state.md`.
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | AI Models  | Z.ai GLM-5 Analyst (via AWS Bedrock) + Anthropic Claude Sonnet 4.6 Validator (via AWS Bedrock) + Google Gemini 3.5 Flash Arbiter (via Vertex AI) |
 | Blockchain | Mantle L2 Mainnet (chain 5000)                                                                                                                   |
-| DEX        | Merchant Moe Liquidity Book v2.2 first route + guarded OpenOcean direct fallback                                                                |
+| DEX        | Merchant Moe Liquidity Book v2.2 first route + LI.FI Mantle fallback; OpenOcean is fail-closed pending a pinned router                             |
 | Data       | CoinGecko, Nansen MCP, Byreal (aggregates Hyperliquid funding/OI), DeFiLlama, Elfa REST v2                                                       |
 | Storage    | IPFS (Pinata) for Proof-of-Reasoning blobs                                                                                                       |
 | Frontend   | Next.js 16 + Tailwind + Framer Motion + RainbowKit (Bybit Wallet primary)                                                                        |
@@ -444,7 +444,7 @@ turingvault/
 │   ├── strategies/         # Ranging grid, position state, backtest
 │   ├── evolution/          # Self-evolving prompts with guard rails
 │   ├── execution/          # On-chain execution engine
-│   ├── dex/                # Merchant Moe + OpenOcean; legacy Odos path is fail-closed
+│   ├── dex/                # Merchant Moe + LI.FI; OpenOcean/Odos paths are fail-closed
 │   ├── rwa/                # USDY module (Ondo Finance)
 │   ├── onchain/            # Contract interactions, IPFS
 │   ├── mcp/                # Nansen MCP client

@@ -35,10 +35,12 @@ jobs:
     env:
       AGENT_RUN_MODE: cron-github-actions
       RWA_EXECUTE_ENABLED: "true"
-      # Merchant Moe remains the deterministic first route. OpenOcean is the
-      # direct fallback when a thin multi-hop leg fails preflight; risk-off
-      # quotes still must pass the FIFO net-profit gate before broadcast.
-      RWA_AGGREGATOR_FALLBACK_ENABLED: "true"
+      # Merchant Moe remains the deterministic first route. LI.FI is the
+      # primary external fallback, preflighted against the exact calldata.
+      # OpenOcean is disabled in production until its quote/execution drift
+      # is resolved; its code remains guarded for diagnostic use only.
+      RWA_LIFI_FALLBACK_ENABLED: "true"
+      RWA_AGGREGATOR_FALLBACK_ENABLED: "false"
       RWA_MAX_PER_CYCLE_USD: "15"
       RWA_MIN_PER_CYCLE_USD: "10"
       # Submission-window heartbeat liveness (Path C). Default OFF.

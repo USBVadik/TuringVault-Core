@@ -68,8 +68,10 @@ describe("post-audit report regression fixes", () => {
     expect(cadence.EXPECTED_CYCLES_PER_DAY).toBe(10);
     expect(primary).toMatch(/SCHEDULE_FRESHNESS_THRESHOLD_S:\s*"9000"/);
     expect(watchdog).toMatch(/STALE_THRESHOLD_S:\s*"10800"/);
-    expect(primary).toMatch(/RWA_AGGREGATOR_FALLBACK_ENABLED:\s*"true"/);
-    expect(watchdog).toMatch(/RWA_AGGREGATOR_FALLBACK_ENABLED:\s*"true"/);
+    expect(primary).toMatch(/RWA_LIFI_FALLBACK_ENABLED:\s*"true"/);
+    expect(watchdog).toMatch(/RWA_LIFI_FALLBACK_ENABLED:\s*"true"/);
+    expect(primary).toMatch(/RWA_AGGREGATOR_FALLBACK_ENABLED:\s*"false"/);
+    expect(watchdog).toMatch(/RWA_AGGREGATOR_FALLBACK_ENABLED:\s*"false"/);
   });
 
   test("agent-cycle workflow gives run-cycle enough time and preserves timeout evidence", () => {

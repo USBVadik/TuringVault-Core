@@ -6,7 +6,7 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 
 1. Informed by institutional-grade data (Nansen MCP + Hyperliquid + CoinGecko + DeFiLlama + Fear&Greed)
 2. Debated by three independent AI agents (Analyst → Validator → Arbiter on soft confidence disputes)
-3. Executed deterministically (Merchant Moe LB first, OpenOcean fallback + RWA allocator)
+3. Executed deterministically (Merchant Moe LB first, LI.FI Mantle fallback + RWA allocator)
 4. Verified post-execution (Synrail-inspired Discipline Layer: tx_proof + price_freshness + drift_detection)
 5. Attested immutably (ERC-8004 on Mantle Mainnet, 4 TXs per cycle)
 
@@ -216,7 +216,7 @@ TuringVault implements a **Trustless Cognitive Trading Loop** — a closed-cycle
 | AI Core    | Z.ai GLM-5 (Analyst) + Claude Sonnet 4.6 (Validator) + Gemini 3.5 Flash (Arbiter) | Validator-gated adversarial consensus       |
 | Inference  | AWS Bedrock + Google Vertex AI                                                    | Provider diversity, hackathon sponsor stack |
 | Validation | Zod schemas                                                                       | Type-safe LLM output parsing                |
-| Execution  | Merchant Moe LB v2.2 + guarded OpenOcean direct fallback                          | On-chain DEX routes with preflight/economic gates |
+| Execution  | Merchant Moe LB v2.2 + LI.FI Mantle fallback                                      | On-chain DEX routes with exact calldata preflight/economic gates |
 | Key Mgmt   | ethers.Wallet on cron (vault contract + HSM signing — roadmap)                    | Honest about current state                  |
 | Analytics  | Nansen MCP, Hyperliquid funding, DeFiLlama                                        | Smart Money + derivatives + TVL             |
 | Frontend   | Next.js 16, RainbowKit, wagmi, viem                                               | Modern Web3 UX on Vercel                    |

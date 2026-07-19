@@ -18,7 +18,7 @@
  *   MANTLE_RPC_URL=... SMOKE_ADDRESS=0x... node scripts/smoke-test-aggregator-swap.js
  *
  *   # real swap (needs PRIVATE_KEY + MANTLE_RPC_URL in env/.env):
- *   CONFIRM=YES node scripts/smoke-test-aggregator-swap.js --broadcast
+ *   OPENOCEAN_MANTLE_ROUTERS=0xVerifiedRouter CONFIRM=YES node scripts/smoke-test-aggregator-swap.js --broadcast
  *
  * Tunables (env): SMOKE_FROM (USDT0), SMOKE_TO (WMNT), SMOKE_AMOUNT (1.5).
  */
@@ -32,6 +32,10 @@ const AMOUNT = Number(process.env.SMOKE_AMOUNT || "1.5");
 const BROADCAST = process.argv.includes("--broadcast");
 const CONFIRMED = process.env.CONFIRM === "YES";
 const EXPLORER = "https://mantlescan.xyz/tx/";
+const ROUTER_ALLOWLIST = String(process.env.OPENOCEAN_MANTLE_ROUTERS || "")
+  .split(",")
+  .map((address) => address.trim())
+  .filter(Boolean);
 
 function fail(msg) {
   console.error(`\n❌ ${msg}`);
@@ -42,6 +46,9 @@ function fail(msg) {
   if (!ADDRESSES[FROM]) fail(`unknown FROM token "${FROM}" (not in OpenOcean ADDRESSES)`);
   if (!ADDRESSES[TO]) fail(`unknown TO token "${TO}" (not in OpenOcean ADDRESSES)`);
   if (!(AMOUNT > 0)) fail(`SMOKE_AMOUNT must be > 0 (got ${AMOUNT})`);
+  if (ROUTER_ALLOWLIST.length === 0) {
+    fail("OPENOCEAN_MANTLE_ROUTERS must pin a verified Mantle router before this diagnostic can quote or approve");
+  }
 
   const rpc = process.env.MANTLE_RPC_URL;
   if (!rpc) fail("MANTLE_RPC_URL not set (export it or copy .env into this worktree)");
@@ -63,7 +70,10 @@ function fail(msg) {
   }
 
   // --- read-only: balances ---
-  const readDex = new OpenOceanDEX(provider, wallet, { dryRun: true });
+  const readDex = new OpenOceanDEX(provider, wallet, {
+    dryRun: true,
+    routerAllowlist: ROUTER_ALLOWLIST,
+  });
   if (addr) {
     const bals = await readDex.getBalances(addr);
     console.log(`Balance : ${FROM}=${bals[FROM] ?? 0}  ${TO}=${bals[TO] ?? 0}  (MNT=${bals.MNT})`);
@@ -97,7 +107,10 @@ function fail(msg) {
   console.log(`\n⚠️  Broadcasting a REAL ${AMOUNT} ${FROM} -> ${TO} swap in 5s. Ctrl-C to abort.`);
   await new Promise((r) => setTimeout(r, 5000));
 
-  const liveDex = new OpenOceanDEX(provider, wallet, { dryRun: false });
+  const liveDex = new OpenOceanDEX(provider, wallet, {
+    dryRun: false,
+    routerAllowlist: ROUTER_ALLOWLIST,
+  });
   const res = await liveDex.executeSwap(FROM, TO, amountWei);
   if (res.executed && res.txHash) {
     console.log(`\n✅ Swap executed: ${EXPLORER}${res.txHash}  (block ${res.blockNumber})`);

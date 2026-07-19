@@ -5,6 +5,10 @@
 /* global URLSearchParams */
 const { ethers } = require("ethers");
 const { transactionGasMnt } = require("../metrics/gasCost");
+const {
+  describeTransactionError,
+  preflightTransaction,
+} = require("./transactionPreflight");
 
 const ADDRESSES = {
   WMNT: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8",
@@ -26,6 +30,23 @@ const DECIMALS = { USDT: 6, USDT0: 6 };
 const DEFAULT_ESTIMATED_GAS = 500000n;
 const MAX_SWAP_GAS_LIMIT = 2000000n;
 const OPENOCEAN_SLIPPAGE_BPS = 30;
+const DEFAULT_ROUTER_ALLOWLIST = String(
+  process.env.OPENOCEAN_MANTLE_ROUTERS || ""
+)
+  .split(",")
+  .map((address) => address.trim())
+  .filter((address) => ethers.isAddress(address))
+  .map((address) => ethers.getAddress(address));
+
+function isAllowedRouter(address, allowlist = []) {
+  try {
+    const normalized = ethers.getAddress(address);
+    return allowlist.some((allowed) => ethers.getAddress(allowed) === normalized);
+  } catch {
+    return false;
+  }
+}
+
 function decimalsOf(symbol) {
   return DECIMALS[symbol] ?? 18;
 }
@@ -57,6 +78,14 @@ class OpenOceanDEX {
     this.wallet = wallet;
     this.dryRun = options.dryRun !== false;
     this.baseUrl = "https://open-api.openocean.finance/v3/mantle";
+    // Do not let an external quote service choose the approval spender. The
+    // production workflow keeps this adapter disabled, but any manual
+    // re-enable must also pin a verified Mantle router address explicitly.
+    this.routerAllowlist = options.routerAllowlist || DEFAULT_ROUTER_ALLOWLIST;
+    this.tokenContractFactory =
+      options.tokenContractFactory ||
+      ((address, abi, signerOrProvider) =>
+        new ethers.Contract(address, abi, signerOrProvider));
   }
 
   async getQuote(tokenIn, tokenOut, amountIn) {
@@ -121,11 +150,12 @@ class OpenOceanDEX {
     }
     if (
       !ethers.isAddress(data.data.to) ||
+      !isAllowedRouter(data.data.to, this.routerAllowlist) ||
       typeof data.data.data !== "string" ||
       !/^0x[0-9a-f]+$/i.test(data.data.data) ||
       txValue !== 0n
     ) {
-      return { viable: false, error: "Aggregator returned invalid transaction" };
+      return { viable: false, error: "Aggregator returned invalid or untrusted transaction" };
     }
 
     return {
@@ -157,7 +187,20 @@ class OpenOceanDEX {
     }
     const quote = options.quote || (await this.getQuote(tokenIn, tokenOut, amountIn));
     if (!quote.viable) {
-      return { ...quote, executed: false, reason: quote.error };
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        reason: quote.error,
+      };
+    }
+    if (!isAllowedRouter(quote.routerAddress, this.routerAllowlist)) {
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        reason: "OpenOcean route target is not an approved Mantle router",
+      };
     }
 
     if (this.dryRun) {
@@ -174,7 +217,7 @@ class OpenOceanDEX {
     // Auto-wrap MNT → WMNT if needed
     const inAddr = ADDRESSES[tokenIn] || tokenIn;
     if (tokenIn === "WMNT") {
-      const wmntContract = new ethers.Contract(
+      const wmntContract = this.tokenContractFactory(
         ADDRESSES.WMNT,
         [
           "function balanceOf(address) view returns (uint256)",
@@ -194,7 +237,7 @@ class OpenOceanDEX {
     }
 
     // Approve
-    const tokenContract = new ethers.Contract(
+    const tokenContract = this.tokenContractFactory(
       inAddr,
       [
         "function approve(address,uint256) returns (bool)",
@@ -218,29 +261,69 @@ class OpenOceanDEX {
       setupGasCostMnt += transactionGasMnt(approvalReceipt);
     }
 
-    // Execute
+    const transaction = {
+      to: quote.routerAddress,
+      data: quote.txData,
+      value: quote.txValue || "0",
+    };
+
+    // The OpenOcean API can return a fresh-looking quote whose minOut is
+    // already impossible. Never learn that by broadcasting a real swap.
+    const preflight = await preflightTransaction({
+      provider: this.provider || this.wallet?.provider,
+      walletAddress: this.wallet?.address,
+      transaction,
+    });
+    if (!preflight.ok) {
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        reason: `transaction preflight rejected: ${preflight.reason}`,
+      };
+    }
+
     console.log(
       `   Sending swap TX: ${
         quote.amountIn
       } ${tokenIn} → ${quote.estimatedOut.toFixed(6)} ${tokenOut}`
     );
-    const tx = await this.wallet.sendTransaction({
-      to: quote.routerAddress,
-      data: quote.txData,
-      value: quote.txValue || "0",
-      gasLimit: boundedGasLimit(quote.estimatedGas),
-    });
-
-    const receipt = await tx.wait();
-    return {
-      ...quote,
-      executed: true,
-      txHash: receipt.hash,
-      blockNumber: receipt.blockNumber,
-      gasUsed: receipt.gasUsed.toString(),
-      gasPriceWei: String(receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0),
-      gasCostMnt: setupGasCostMnt + transactionGasMnt(receipt),
-    };
+    try {
+      const tx = await this.wallet.sendTransaction({
+        ...transaction,
+        gasLimit: boundedGasLimit(preflight.estimatedGas),
+      });
+      const receipt = await tx.wait();
+      if (Number(receipt?.status) !== 1) {
+        return {
+          ...quote,
+          executed: false,
+          executionBlocked: true,
+          failedTxHash: receipt?.hash || tx.hash || null,
+          reason: "swap transaction reverted on-chain",
+          gasCostMnt: setupGasCostMnt + transactionGasMnt(receipt),
+        };
+      }
+      return {
+        ...quote,
+        executed: true,
+        txHash: receipt.hash,
+        blockNumber: receipt.blockNumber,
+        gasUsed: receipt.gasUsed.toString(),
+        gasPriceWei: String(receipt.gasPrice ?? receipt.effectiveGasPrice ?? 0),
+        gasCostMnt: setupGasCostMnt + transactionGasMnt(receipt),
+      };
+    } catch (error) {
+      const receipt = error?.receipt;
+      return {
+        ...quote,
+        executed: false,
+        executionBlocked: true,
+        failedTxHash: receipt?.hash || null,
+        reason: `swap broadcast rejected: ${describeTransactionError(error)}`,
+        gasCostMnt: setupGasCostMnt + transactionGasMnt(receipt),
+      };
+    }
   }
 
   async getBalances(address) {
@@ -270,6 +353,7 @@ module.exports = {
   DECIMALS,
   MAX_SWAP_GAS_LIMIT,
   OPENOCEAN_SLIPPAGE_BPS,
+  isAllowedRouter,
   boundedGasLimit,
   decimalsOf,
   rawAmountForToken,

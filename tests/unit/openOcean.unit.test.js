@@ -9,6 +9,8 @@ const {
   rawAmountForToken,
 } = require("../../src/dex/openOcean");
 
+const TEST_ROUTER = "0x1111111111111111111111111111111111111111";
+
 describe("OpenOceanDEX hardening (USDT0 address + decimals)", () => {
   let origFetch;
   beforeEach(() => {
@@ -46,7 +48,10 @@ describe("OpenOceanDEX hardening (USDT0 address + decimals)", () => {
         }),
       };
     };
-    const dex = new OpenOceanDEX(null, null, { dryRun: true });
+    const dex = new OpenOceanDEX(null, null, {
+      dryRun: true,
+      routerAllowlist: [TEST_ROUTER],
+    });
     const q = await dex.getQuote("USDT0", "WMNT", ethers.parseEther("12"));
     expect(capturedUrl).toContain(ADDRESSES.USDT0);
     expect(capturedUrl).toContain(ADDRESSES.WMNT);
@@ -74,7 +79,10 @@ describe("OpenOceanDEX hardening (USDT0 address + decimals)", () => {
         },
       }),
     });
-    const dex = new OpenOceanDEX(null, null, { dryRun: true });
+    const dex = new OpenOceanDEX(null, null, {
+      dryRun: true,
+      routerAllowlist: [TEST_ROUTER],
+    });
     const q = await dex.getQuote("WMNT", "USDT0", ethers.parseEther("24"));
     expect(q.estimatedOut).toBeCloseTo(12.15, 6);
     expect(q.minimumOut).toBeCloseTo(12.11355, 6);
@@ -87,7 +95,10 @@ describe("OpenOceanDEX hardening (USDT0 address + decimals)", () => {
         errorMsg: "No intoken information obtained",
       }),
     });
-    const dex = new OpenOceanDEX(null, null, { dryRun: true });
+    const dex = new OpenOceanDEX(null, null, {
+      dryRun: true,
+      routerAllowlist: [TEST_ROUTER],
+    });
     const q = await dex.getQuote("USDT0", "WMNT", ethers.parseEther("12"));
     expect(q.viable).toBe(false);
   });
@@ -105,10 +116,13 @@ describe("OpenOceanDEX hardening (USDT0 address + decimals)", () => {
         },
       }),
     });
-    const dex = new OpenOceanDEX(null, null, { dryRun: true });
+    const dex = new OpenOceanDEX(null, null, {
+      dryRun: true,
+      routerAllowlist: [TEST_ROUTER],
+    });
     const q = await dex.getQuote("WMNT", "USDT0", ethers.parseEther("24"));
     expect(q.viable).toBe(false);
-    expect(q.error).toMatch(/invalid transaction/i);
+    expect(q.error).toMatch(/invalid.*transaction/i);
   });
 
   test("rejects an impossible minimum output above the quoted output", async () => {
@@ -125,7 +139,10 @@ describe("OpenOceanDEX hardening (USDT0 address + decimals)", () => {
         },
       }),
     });
-    const dex = new OpenOceanDEX(null, null, { dryRun: true });
+    const dex = new OpenOceanDEX(null, null, {
+      dryRun: true,
+      routerAllowlist: [TEST_ROUTER],
+    });
     const q = await dex.getQuote("WMNT", "USDT0", ethers.parseEther("24"));
     expect(q.viable).toBe(false);
     expect(q.error).toMatch(/invalid output/i);
@@ -135,5 +152,70 @@ describe("OpenOceanDEX hardening (USDT0 address + decimals)", () => {
     expect(boundedGasLimit(300000)).toBe(600000n);
     expect(boundedGasLimit("999999999999")).toBe(MAX_SWAP_GAS_LIMIT);
     expect(boundedGasLimit("not-a-number")).toBe(1000000n);
+  });
+
+  test("never broadcasts OpenOcean calldata that fails exact chain preflight", async () => {
+    const provider = {
+      estimateGas: jest.fn().mockRejectedValue(
+        Object.assign(new Error("revert"), { reason: "Return amount is not enough" })
+      ),
+      call: jest.fn().mockRejectedValue(
+        Object.assign(new Error("revert"), { reason: "Return amount is not enough" })
+      ),
+    };
+    const sendTransaction = jest.fn();
+    const wallet = { address: "0x2222222222222222222222222222222222222222", provider, sendTransaction };
+    const dex = new OpenOceanDEX(provider, wallet, {
+      dryRun: false,
+      routerAllowlist: [TEST_ROUTER],
+      tokenContractFactory: () => ({ allowance: async () => ethers.parseEther("1") }),
+    });
+    const quote = {
+      viable: true,
+      amountInRaw: ethers.parseEther("0.005"),
+      amountIn: 0.005,
+      estimatedOut: 10,
+      routerAddress: "0x1111111111111111111111111111111111111111",
+      txData: "0xdeadbeef",
+      txValue: "0",
+    };
+
+    const result = await dex.executeSwap("mETH", "USDT0", ethers.parseEther("0.005"), {
+      quote,
+    });
+
+    expect(result).toMatchObject({
+      executed: false,
+      executionBlocked: true,
+      reason: expect.stringMatching(/Return amount is not enough/),
+    });
+    expect(sendTransaction).not.toHaveBeenCalled();
+  });
+
+  test("fails closed when a quote asks to approve an unpinned router", async () => {
+    global.fetch = async () => ({
+      ok: true,
+      json: async () => ({
+        code: 200,
+        data: {
+          outAmount: "12150000",
+          minOutAmount: "12113550",
+          to: "0x2222222222222222222222222222222222222222",
+          data: "0xdeadbeef",
+          value: "0",
+        },
+      }),
+    });
+    const dex = new OpenOceanDEX(null, null, {
+      dryRun: true,
+      routerAllowlist: [TEST_ROUTER],
+    });
+
+    await expect(
+      dex.getQuote("WMNT", "USDT0", ethers.parseEther("24"))
+    ).resolves.toMatchObject({
+      viable: false,
+      error: expect.stringMatching(/untrusted/i),
+    });
   });
 });
