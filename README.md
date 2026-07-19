@@ -416,6 +416,9 @@ npm install
 # Configure environment
 cp .env.example .env
 # Set: PRIVATE_KEY, NANSEN_API_KEY, AWS_*, PINATA_*, GOOGLE_APPLICATION_CREDENTIALS
+# Pinata is anchor-only by default. Use PINATA_UPLOAD_MODE=pinata only for
+# a deliberate one-off upload; legacy Agent Card refresh additionally requires
+# AGENT_CARD_AUTO_UPDATE_ENABLED=true.
 
 # Single cycle (one-shot, no loop)
 node scripts/run-cycle.js

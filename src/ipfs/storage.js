@@ -4,9 +4,9 @@
  * Uploads reasoning proofs and Agent Cards to IPFS via Pinata.
  * Returns CID (Content Identifier) for on-chain reference.
  *
- * Two modes:
- *   1. Pinata Cloud (PINATA_JWT in .env) — persistent pinning
- *   2. nft.storage fallback — free for NFT metadata
+ * Uploads fail closed to local anchors by default. Persistent Pinata uploads
+ * require explicit PINATA_UPLOAD_MODE=pinata so a forgotten local runner
+ * cannot exhaust the account's file quota.
  */
 const https = require("https");
 
@@ -18,7 +18,10 @@ function getPinataJwt() {
 }
 
 function getPinataUploadMode() {
-  return String(process.env.PINATA_UPLOAD_MODE || "pinata").toLowerCase();
+  const mode = String(
+    process.env.PINATA_UPLOAD_MODE || "anchor-only"
+  ).toLowerCase();
+  return mode === "pinata" ? "pinata" : "anchor-only";
 }
 
 function isStrictPinataMode() {
@@ -87,6 +90,7 @@ async function pinJSON(jsonData, name = "turingvault-reasoning") {
                 cid: parsed.IpfsHash,
                 uri: `ipfs://${parsed.IpfsHash}`,
                 gateway: `https://${PINATA_GATEWAY}/ipfs/${parsed.IpfsHash}`,
+                storage: "pinata",
               });
             } else {
               const err = new Error(`Pinata error: ${data}`);
@@ -286,4 +290,9 @@ async function uploadAgentCard() {
   return pinJSON(agentCard, "TuringVault-AgentCard-v2");
 }
 
-module.exports = { pinJSON, uploadReasoningProof, uploadAgentCard };
+module.exports = {
+  pinJSON,
+  uploadReasoningProof,
+  uploadAgentCard,
+  getPinataUploadMode,
+};

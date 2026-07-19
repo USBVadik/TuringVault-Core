@@ -13,6 +13,11 @@ require("dotenv").config({
   path: require("path").resolve(__dirname, "../.env"),
 });
 
+// This legacy demo loop must opt in before it can make persistent Pinata
+// uploads or mutate the identity token URI.
+process.env.PINATA_UPLOAD_MODE ||= "anchor-only";
+process.env.AGENT_CARD_AUTO_UPDATE_ENABLED ||= "false";
+
 const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes between cycles
 const MAX_ITERATIONS = parseInt(process.argv[3]) || 15;
 const MODE = process.argv[2] || "autonomous";

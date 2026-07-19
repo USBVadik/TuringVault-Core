@@ -81,6 +81,15 @@ const INTENT_QUEUE_PATH = path.resolve(
   "../../data/intent_queue.json"
 );
 
+function shouldRefreshLegacyAgentCard() {
+  return (
+    String(process.env.PINATA_UPLOAD_MODE || "anchor-only").toLowerCase() ===
+      "pinata" &&
+    String(process.env.AGENT_CARD_AUTO_UPDATE_ENABLED || "").toLowerCase() ===
+      "true"
+  );
+}
+
 class IntentQueue {
   constructor() {
     this.queuePath = INTENT_QUEUE_PATH;
@@ -460,6 +469,10 @@ async function runIntegratedCycle(options = {}) {
   // TX 3: Decision Log
   const { uploadReasoningProof } = require("../ipfs/storage");
   const ipfsResult = await uploadReasoningProof(decision, enrichedMarket);
+  const proofReference =
+    ipfsResult.storage === "pinata"
+      ? `IPFS:${ipfsResult.cid?.slice(0, 12)}`
+      : `LOCAL_ANCHOR:${ipfsResult.cid?.slice(0, 12)}`;
 
   const tx3 = await decisionLog.logDecision(
     decision.action,
@@ -469,7 +482,7 @@ async function runIntegratedCycle(options = {}) {
     confidenceBps,
     `[v2-integrated] VaR:${var_bps} | ${autonomyLevel} | RWA:${
       allocation.action
-    } | IPFS:${ipfsResult.cid?.slice(0, 12)}`,
+    } | ${proofReference}`,
     ethers.keccak256(ethers.toUtf8Bytes(ipfsResult.cid || "none")),
     { nonce: currentNonce + 2 }
   );
@@ -588,17 +601,24 @@ async function runIntegratedCycle(options = {}) {
   }
 
   // ─── Update Agent Card on IPFS ───
-  try {
-    const {
-      uploadAndUpdateAgentCard,
-    } = require("../../scripts/uploadAgentCard");
-    console.log("\n🔄 Updating Agent Card on IPFS...");
-    const cardResult = await uploadAndUpdateAgentCard();
+  // Legacy runners must opt in to this expensive, mutable side effect.
+  if (shouldRefreshLegacyAgentCard()) {
+    try {
+      const {
+        uploadAndUpdateAgentCard,
+      } = require("../../scripts/uploadAgentCard");
+      console.log("\n🔄 Updating Agent Card on IPFS...");
+      const cardResult = await uploadAndUpdateAgentCard();
+      console.log(
+        `   ✅ Agent Card synced — CID: ${cardResult.cid.slice(0, 16)}...`
+      );
+    } catch (e) {
+      console.log(`   ⚠️  Agent Card update failed: ${e.message?.slice(0, 80)}`);
+    }
+  } else {
     console.log(
-      `   ✅ Agent Card synced — CID: ${cardResult.cid.slice(0, 16)}...`
+      "\n⏭️  Agent Card refresh skipped (requires PINATA_UPLOAD_MODE=pinata and AGENT_CARD_AUTO_UPDATE_ENABLED=true)."
     );
-  } catch (e) {
-    console.log(`   ⚠️  Agent Card update failed: ${e.message?.slice(0, 80)}`);
   }
 
   // ─── Summary ───
@@ -663,4 +683,10 @@ if (require.main === module) {
   runIntegratedCycle({ mode }).catch(console.error);
 }
 
-module.exports = { runIntegratedCycle, IntentQueue, calculateVaR, CONFIG };
+module.exports = {
+  runIntegratedCycle,
+  IntentQueue,
+  calculateVaR,
+  CONFIG,
+  shouldRefreshLegacyAgentCard,
+};

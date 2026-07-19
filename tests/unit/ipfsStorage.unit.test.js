@@ -27,9 +27,8 @@ describe("IPFS storage fallback policy", () => {
     expect(a.storage).toBe("local-anchor");
   });
 
-  test("anchor-only mode skips Pinata even when a JWT is configured", async () => {
+  test("default mode skips Pinata even when a JWT is configured", async () => {
     process.env.PINATA_JWT = "test-token";
-    process.env.PINATA_UPLOAD_MODE = "anchor-only";
     jest.doMock("https", () => ({
       request: jest.fn(() => {
         throw new Error("Pinata should not be called");
@@ -37,7 +36,7 @@ describe("IPFS storage fallback policy", () => {
     }));
 
     const { pinJSON } = require("../../src/ipfs/storage");
-    const result = await pinJSON({ ok: true }, "anchor-only-proof");
+    const result = await pinJSON({ ok: true }, "default-anchor-proof");
 
     expect(result.degraded).toBe(true);
     expect(result.storage).toBe("local-anchor");
@@ -46,6 +45,7 @@ describe("IPFS storage fallback policy", () => {
 
   test("Pinata plan-limit errors fall back instead of breaking the cycle", async () => {
     process.env.PINATA_JWT = "test-token";
+    process.env.PINATA_UPLOAD_MODE = "pinata";
     jest.doMock("https", () => ({
       request: jest.fn((_options, cb) => {
         const res = new EventEmitter();
@@ -71,8 +71,38 @@ describe("IPFS storage fallback policy", () => {
     expect(result.reason).toContain("Pinata error");
   });
 
+  test("uploads only when pinata mode is explicitly selected", async () => {
+    process.env.PINATA_JWT = "test-token";
+    process.env.PINATA_UPLOAD_MODE = "pinata";
+    const request = jest.fn((_options, cb) => {
+      const res = new EventEmitter();
+      process.nextTick(() => {
+        cb(res);
+        res.emit("data", JSON.stringify({ IpfsHash: "QmPinnedProof" }));
+        res.emit("end");
+      });
+      return {
+        on: jest.fn(),
+        write: jest.fn(),
+        end: jest.fn(),
+      };
+    });
+    jest.doMock("https", () => ({ request }));
+
+    const { pinJSON } = require("../../src/ipfs/storage");
+    const result = await pinJSON({ ok: true }, "explicit-pinata-proof");
+
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject({
+      cid: "QmPinnedProof",
+      storage: "pinata",
+    });
+    expect(result.degraded).toBeUndefined();
+  });
+
   test("strict mode still rejects Pinata errors", async () => {
     process.env.PINATA_JWT = "test-token";
+    process.env.PINATA_UPLOAD_MODE = "pinata";
     process.env.PINATA_STRICT = "true";
     jest.doMock("https", () => ({
       request: jest.fn((_options, cb) => {

@@ -6,6 +6,7 @@ const {
   calculateVaR,
   IntentQueue,
   CONFIG,
+  shouldRefreshLegacyAgentCard,
 } = require("../src/orchestrator/integratedOrchestrator");
 const fs = require("fs");
 const path = require("path");
@@ -126,5 +127,35 @@ describe("CONFIG thresholds", () => {
   test("min confidence is reasonable", () => {
     expect(CONFIG.minConfidence).toBeGreaterThanOrEqual(0.5);
     expect(CONFIG.minConfidence).toBeLessThanOrEqual(0.9);
+  });
+});
+
+describe("legacy Pinata guard", () => {
+  const originalMode = process.env.PINATA_UPLOAD_MODE;
+  const originalRefresh = process.env.AGENT_CARD_AUTO_UPDATE_ENABLED;
+
+  afterEach(() => {
+    if (originalMode === undefined) delete process.env.PINATA_UPLOAD_MODE;
+    else process.env.PINATA_UPLOAD_MODE = originalMode;
+    if (originalRefresh === undefined) {
+      delete process.env.AGENT_CARD_AUTO_UPDATE_ENABLED;
+    } else {
+      process.env.AGENT_CARD_AUTO_UPDATE_ENABLED = originalRefresh;
+    }
+  });
+
+  test("does not refresh Agent Card by default", () => {
+    delete process.env.PINATA_UPLOAD_MODE;
+    delete process.env.AGENT_CARD_AUTO_UPDATE_ENABLED;
+    expect(shouldRefreshLegacyAgentCard()).toBe(false);
+  });
+
+  test("requires both explicit Pinata mode and refresh opt-in", () => {
+    process.env.PINATA_UPLOAD_MODE = "pinata";
+    process.env.AGENT_CARD_AUTO_UPDATE_ENABLED = "true";
+    expect(shouldRefreshLegacyAgentCard()).toBe(true);
+
+    process.env.AGENT_CARD_AUTO_UPDATE_ENABLED = "false";
+    expect(shouldRefreshLegacyAgentCard()).toBe(false);
   });
 });
