@@ -6694,6 +6694,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "BLOCKED_BY_PORTFOLIO"
+    },
+    {
+      "id": "1784704935353_1248",
+      "decisionId": 1248,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.6,
+      "priceAtDecision": 1913.89,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei299ffb2c351115daffb2700d2f50d94b6000f5dd54c20e074d95",
+      "recordedAt": "2026-07-22T07:22:15.353Z",
+      "settleAfter": "2026-07-22T08:22:15.353Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1784704935331
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on mETH is appropriate. ETH grid at 66% channel position (HOLD zone 30-70%), funding neutral at 1.37% annualised, smart money flow flat $0.0M, RSI 44.7 falling but not oversold. Portfolio is 56.4% risk (mETH $62.72) — not stable-heavy, so inventory rule does not force risk_on. MNT breakdown is MNT-specific; no confirmed ETH down-break. No new entry R:R required for HOLD. Signals cross-check: ",
+      "validatorFlaggedIssues": [
+        "R:R not provided but HOLD requires no new entry calculation",
+        "MNT TREND_DOWN regime hint warrants monitoring for contagion",
+        "RSI falling toward oversold — watch for momentum deterioration"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x3ea380fa4d7ddacd10e5909a26666c7f06a73fd7b973f91149b40a7d4a9296ff",
+      "combinedAnchor": "0xaae4e121692d928dae32700a56f697a8579975e6f79e030b3d2bc61435abb58e",
+      "decisionLogTxHash": "0x3bea3feed7485cd171fd0bdf44ef4c76b9d1d4ee0b97de5bab39ef49f9ca30a0",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "coingecko",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION"
     }
   ],
   "settled": [
