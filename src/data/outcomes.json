@@ -6767,6 +6767,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "HOLD_NO_ACTION"
+    },
+    {
+      "id": "1784714253372_1250",
+      "decisionId": 1250,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 1920.38,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreic48c169358d82b88382d7dab096d960276070eb4f86bdd8dc4c5",
+      "recordedAt": "2026-07-22T09:57:33.372Z",
+      "settleAfter": "2026-07-22T10:57:33.372Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1784714253349
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on existing mETH position is well-supported. ETH grid explicitly signals HOLD at 66% channel position (mid-range, no edge). MNT grid EXIT_RANGING with UNKNOWN breakout direction correctly precludes any MNT action. Funding neutral at 1.37% annualised, smart money flow flat $0.0M, no liquidation pressure at current $1922. Bearish EMA cross and negative MACD histogram acknowledged in risk factor",
+      "validatorFlaggedIssues": [
+        "No R:R provided — acceptable for HOLD/no-new-entry action",
+        "ETH near resistance $1938.4 with bearish EMA cross warrants monitoring",
+        "MNT volatility expanding with UNKNOWN breakout direction — correct to avoid"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x6d09598e608c3905475e37102539f3c1560667f77fb78b2525d79bb26adc357f",
+      "combinedAnchor": "0x0174382252aaabdcf8e7c608b45c17d8a4bfefc061938cb98e8bdf7b79e20a52",
+      "decisionLogTxHash": "0xe3f795d0665d3c92b3a6bd8518e84ef38598cdaa38c1796d95dc778b95ca8aee",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION"
     }
   ],
   "settled": [
