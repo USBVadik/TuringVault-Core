@@ -1,54 +1,5 @@
 [
   {
-    "at": "2026-07-10T03:33:46.652Z",
-    "decisionId": 1066,
-    "verdict": "ACCEPTED",
-    "decisionTier": "EXECUTED_SWAP",
-    "displayTier": "EXECUTED_SWAP",
-    "executedOnChain": true,
-    "action": "swap",
-    "targetAsset": "mETH",
-    "sourceAsset": "USDT0",
-    "checks": [
-      {
-        "name": "tx_exists",
-        "status": "PASS",
-        "detail": "Block 97762051"
-      },
-      {
-        "name": "tx_sender",
-        "status": "PASS",
-        "detail": "Matches vault wallet"
-      },
-      {
-        "name": "tx_confirmed",
-        "status": "PASS",
-        "detail": "2 confirmations"
-      },
-      {
-        "name": "tx_success",
-        "status": "PASS",
-        "detail": "TX successful"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      },
-      {
-        "name": "tx_proof",
-        "status": "PASS",
-        "detail": "Rolled up from 4 sub-checks"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-07-10T05:00:27.642Z",
     "decisionId": 1067,
     "verdict": "ACCEPTED",
@@ -2993,6 +2944,35 @@
   {
     "at": "2026-07-23T07:09:39.013Z",
     "decisionId": 1266,
+    "verdict": "ACCEPTED",
+    "decisionTier": "BLOCKED_BY_PORTFOLIO",
+    "displayTier": "BLOCKED_BY_PORTFOLIO",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": "mETH",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-07-23T10:54:15.399Z",
+    "decisionId": 1269,
     "verdict": "ACCEPTED",
     "decisionTier": "BLOCKED_BY_PORTFOLIO",
     "displayTier": "BLOCKED_BY_PORTFOLIO",
