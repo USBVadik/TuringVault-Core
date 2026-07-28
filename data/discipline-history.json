@@ -1,34 +1,5 @@
 [
   {
-    "at": "2026-07-13T20:35:50.592Z",
-    "decisionId": 1100,
-    "verdict": "ACCEPTED",
-    "decisionTier": "BLOCKED_BY_PORTFOLIO",
-    "displayTier": "BLOCKED_BY_PORTFOLIO",
-    "executedOnChain": false,
-    "action": "swap",
-    "targetAsset": "mUSD",
-    "sourceAsset": "mETH",
-    "checks": [
-      {
-        "name": "tx_proof",
-        "status": "SKIP",
-        "detail": "BLOCKED_BY_PORTFOLIO — No execution transaction expected for this cycle"
-      },
-      {
-        "name": "price_freshness",
-        "status": "PASS",
-        "detail": "Price data was 5s old"
-      },
-      {
-        "name": "drift_detection",
-        "status": "PASS",
-        "detail": "Action aligns with RANGING regime"
-      }
-    ],
-    "blockReason": null
-  },
-  {
     "at": "2026-07-13T23:36:29.873Z",
     "decisionId": 1101,
     "verdict": "ACCEPTED",
@@ -2933,6 +2904,35 @@
   {
     "at": "2026-07-28T07:11:07.904Z",
     "decisionId": 1342,
+    "verdict": "ACCEPTED",
+    "decisionTier": "EXECUTED_SWAP",
+    "displayTier": "INTENT_SWAP_NO_EXEC",
+    "executedOnChain": false,
+    "action": "swap",
+    "targetAsset": "mUSD",
+    "sourceAsset": "mETH",
+    "checks": [
+      {
+        "name": "tx_proof",
+        "status": "SKIP",
+        "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+      },
+      {
+        "name": "price_freshness",
+        "status": "PASS",
+        "detail": "Price data was 5s old"
+      },
+      {
+        "name": "drift_detection",
+        "status": "PASS",
+        "detail": "Action aligns with RANGING regime"
+      }
+    ],
+    "blockReason": null
+  },
+  {
+    "at": "2026-07-28T09:47:51.349Z",
+    "decisionId": 1343,
     "verdict": "ACCEPTED",
     "decisionTier": "EXECUTED_SWAP",
     "displayTier": "INTENT_SWAP_NO_EXEC",
