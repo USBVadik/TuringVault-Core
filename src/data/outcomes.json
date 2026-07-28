@@ -11803,6 +11803,133 @@
       "executedOnChain": false,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "INTENT_SWAP_NO_EXEC"
+    },
+    {
+      "id": "1785244595597_1344",
+      "decisionId": 1344,
+      "action": "swap",
+      "targetAsset": "mUSD",
+      "consensus": true,
+      "confidence": 0.7,
+      "priceAtDecision": 1889.07,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreidcaacc6c6f76270e5910531d6ad4e268f8d1a19a3065d0e4fcc5",
+      "recordedAt": "2026-07-28T13:16:35.597Z",
+      "settleAfter": "2026-07-28T14:16:35.597Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "INTENT_SWAP_NO_EXEC — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1785244595573
+      },
+      "decisionTier": "EXECUTED_SWAP",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "This is a position-exit triggered by MAX_CYCLES on the tracked mETH position entered at $1920.93 — current ETH at $1889.07 represents an unrealized loss, making exit economically sound. POSITION LIFECYCLE EXCEPTION applies: no new-entry R:R required. TREND_DOWN (60%) + BEARISH consensus + yield spread BEARISH + EMA bearish all support de-risking. No confirmed down-break contradicts exit; smart mon",
+      "validatorFlaggedIssues": [
+        "mETH position is underwater vs entry $1920.93 — exit captures realized loss",
+        "MNT BUY_mETH grid signal (80% conf) is unrelated asset — correctly deprioritized",
+        "TREND_DOWN only 60% confidence — mild bearish, not crisis"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": {
+        "allowed": true,
+        "direction": "risk-off",
+        "reason": "risk-off allowed: emergency regime TREND_DOWN can exit IN_mETH at current 1890 vs entry 1920.93",
+        "scaleIn": false,
+        "trackedExit": true,
+        "suggestedAllocationPct": null,
+        "summary": {
+          "stableUsd": 49.31012,
+          "tradableRiskUsd": 62.07510779792776,
+          "nativeMnt": 1.810907725826464,
+          "stableShare": 0.4426989195502402,
+          "riskShare": 0.5573010804497598,
+          "stableHeavy": false
+        }
+      },
+      "gridTradeCandidate": {
+        "active": true,
+        "kind": "position-exit",
+        "exitReason": "MAX_CYCLES",
+        "asset": "ethereum",
+        "action": "swap",
+        "direction": "risk_off",
+        "targetAsset": "mUSD",
+        "sourceAsset": "mETH",
+        "allocationPct": 17,
+        "confidence": 0.7,
+        "reasoning": "MAX CYCLES for the tracked mETH position has fired. Prioritize the existing position lifecycle over unrelated grid signals; execute only an economically viable partial exit.",
+        "riskFactors": [
+          "Exit remains capped by the per-cycle USD risk limit",
+          "Residual inventory stays tracked after a partial exit"
+        ],
+        "routeHint": null,
+        "gridSignal": {
+          "action": "SELL_mETH",
+          "confidence": 0.7,
+          "breakoutDirection": "UNKNOWN",
+          "regimeHint": "HOLD",
+          "channelPosition": 0.14,
+          "support": 1877.7,
+          "resistance": 1964.7,
+          "currentPrice": 1890
+        },
+        "riskReward": null,
+        "inventoryAware": null,
+        "residualExit": false
+      },
+      "directionalSwap": {
+        "executed": false,
+        "direction": "risk-off",
+        "from": "mETH",
+        "to": "USDT0",
+        "reason": "insufficient-balance: 0.000334 mETH",
+        "sizing": {
+          "sourceUsdPrice": 1889.07,
+          "cycleCapUsd": 15,
+          "minTradeUsd": 10,
+          "minSourceAmount": 0.0052936100832684865,
+          "finalSourceAmount": 0.00033409602354317336
+        }
+      },
+      "manifestHash": "0x1b739db578b596c4dab527b42de61deaa848bd3520a992871e77c4473af1b73e",
+      "combinedAnchor": "0x2840107e14afd200f3a814dba2a8ab12aaa6ee1c68da1fe2956ec09321ee6ce8",
+      "decisionLogTxHash": "0xe514686e8df30815d6b82ae6ee1646a5bf8c975710c3b97691dbe3f76cdf5edf",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": false,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "INTENT_SWAP_NO_EXEC"
     }
   ],
   "settled": [
