@@ -72,6 +72,79 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "HOLD_NO_ACTION"
+    },
+    {
+      "id": "1788736249823_1368",
+      "decisionId": 1368,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2509.4,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreifedf556c70c05b7a8c84f03668caf3deee9699bab1564f7d1d61",
+      "recordedAt": "2026-09-06T23:10:49.823Z",
+      "settleAfter": "2026-09-07T00:10:49.823Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1788736249799
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on 100% stable FLAT portfolio is consistent with inventory rule: risk_off should become HOLD unless CRISIS/TREND_DOWN confirmed. Regime is TREND_UP (75%) but signal consensus is BEARISH with yield spread -1% (bearish), smart money flat, and no inflow confirmation. Analyst correctly identifies the divergence. No R:R calculation required for a HOLD with zero deployment. Signals cited match raw ",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH diverges from TREND_UP regime — unresolved tension noted but acknowledged",
+        "Yield spread -1% reduces mETH entry attractiveness",
+        "No smart money inflow confirmation despite bullish regime"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x29a52b5fbf11b0a263e7e60493c103d90e7e8877caa4d1ef645a28756caa1898",
+      "combinedAnchor": "0x439dd9a8a22b0e16f2e46a59f6f7708b33b23d6f86ef99d34083c6959d20b734",
+      "decisionLogTxHash": "0xae3de65ade185ac4339fe8dcf95f5d9473c10908ba3d23e4b1e27a2a4bfbe548",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION"
     }
   ],
   "settled": [
