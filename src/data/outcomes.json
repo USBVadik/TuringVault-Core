@@ -1,5 +1,79 @@
 {
-  "pending": [],
+  "pending": [
+    {
+      "id": "1788709426399_1366",
+      "decisionId": 1366,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 2480.44,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei62aa2b7018f35fdf60fee9969af4485d70e6c2130af4b09e44e9",
+      "recordedAt": "2026-09-06T15:43:46.399Z",
+      "settleAfter": "2026-09-06T16:43:46.399Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1788709426373
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 56% of channel — no edge at current price, grid signal HOLD at 50% confidence. MNT EXIT_RANGING with UNKNOWN breakout direction correctly defers action. Portfolio is stable-heavy/FLAT; inventory rule supports HOLD over repeated risk_off. Funding neutral (1.37% annualised), smart money flow flat, RANGING regime at 55% confidence. No R:R calculation requi",
+      "validatorFlaggedIssues": [
+        "TAKE_PROFIT override present but mETH inventory is $0.00 — no position to exit",
+        "MNT at 86% of channel with vol expanding — breakout risk if resistance breaks",
+        "Yield spread -1% is a mild bearish drag on mETH thesis",
+        "RANGING regime at only 55% confidence limits signal reliability"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "tracked mETH exit is below executable $10.00 floor"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd8a4e1d8492ded025ec787c323bd267255dc137c479c908a76cb8c92fc2db72c",
+      "combinedAnchor": "0x66864b49b9ceba1d3dcafaae6c7595159f87ef15d81acf7468d1121d5017b5b5",
+      "decisionLogTxHash": "0x32818895be52513db4f366f00127e56eb6ea8d03d031d42635098ba916ea6c1f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION"
+    }
+  ],
   "settled": [
     {
       "id": "1779427651480_9999",
