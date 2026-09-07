@@ -145,6 +145,91 @@
       "executedOnChain": null,
       "executionProofStatus": "SKIPPED",
       "_displayTier": "HOLD_NO_ACTION"
+    },
+    {
+      "id": "1788754216956_1369",
+      "decisionId": 1369,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 2496.84,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreic8d8b2d84eefa81c21aa19164be28dee21b353230380f4f1d77d",
+      "recordedAt": "2026-09-07T04:10:16.956Z",
+      "settleAfter": "2026-09-07T05:10:16.956Z",
+      "settled": false,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1788754216931
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes buying mETH based primarily on MNT's TREND_UP breakout — a category error. MNT and mETH are distinct assets; MNT momentum does not confirm ETH directional edge. ETH grid explicitly signals SELL_mETH at 80% channel position with resistance at $2509.5. Signal consensus is BEARISH. No R:R provided for the mETH entry. ETH technical score is 0.00 (HOLD), MACD is SELL, RSI falling at 50",
+      "validatorFlaggedIssues": [
+        "ETH grid signals SELL_mETH — directly contradicts proposed buy",
+        "R:R not provided; ETH near resistance $2509.5 makes entry unfavorable",
+        "MNT breakout used to justify mETH buy — cross-asset logic error",
+        "Signal consensus BEARISH with negative yield spread ignored",
+        "RANGING regime with no ETH grid buy confirmation — directional swap rejected"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no executable mETH inventory for grid sell (need at least $10.00)",
+        "inspectedSignal": {
+          "asset": "ethereum",
+          "action": "SELL_mETH",
+          "confidence": 0.6977477477477486,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.8,
+          "support": 2454,
+          "resistance": 2509.5,
+          "currentPrice": 2498.2
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc09f23e25124414b2efa46502c63673cfb4250fb08bb3a230676a8e2ab286e06",
+      "combinedAnchor": "0x0abe0a8bd60a33c6dc7462c1706cae4c1128e423bd9e071ad0cd9b38ae3014dc",
+      "decisionLogTxHash": "0x9135b7c00c27a7259d0b8baa76c8cb3ee7728a67154a4b9b0c129b359a35cf72",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR"
     }
   ],
   "settled": [
