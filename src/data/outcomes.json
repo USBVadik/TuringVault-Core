@@ -1,237 +1,5 @@
 {
-  "pending": [
-    {
-      "id": "1788709426399_1366",
-      "decisionId": 1366,
-      "action": "hold",
-      "targetAsset": "mETH",
-      "consensus": false,
-      "confidence": 0.55,
-      "priceAtDecision": 2480.44,
-      "settlementAsset": "WETH",
-      "priceAssetAtDecision": "WETH",
-      "settlementSourceAsset": null,
-      "ipfsCid": "bafkrei62aa2b7018f35fdf60fee9969af4485d70e6c2130af4b09e44e9",
-      "recordedAt": "2026-09-06T15:43:46.399Z",
-      "settleAfter": "2026-09-06T16:43:46.399Z",
-      "settled": false,
-      "rwaIntent": null,
-      "disciplineStatus": "ACCEPTED",
-      "disciplineDetail": {
-        "status": "ACCEPTED",
-        "checks": [
-          {
-            "name": "tx_proof",
-            "status": "SKIP",
-            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
-          },
-          {
-            "name": "price_freshness",
-            "status": "PASS",
-            "detail": "Price data was 5s old"
-          },
-          {
-            "name": "drift_detection",
-            "status": "PASS",
-            "detail": "Action aligns with RANGING regime"
-          }
-        ],
-        "blockReason": null,
-        "repairStep": null,
-        "timestamp": 1788709426373
-      },
-      "decisionTier": "HOLD_NO_ACTION",
-      "tierSource": "live",
-      "confidencePath": "native_unit",
-      "promptSource": "static",
-      "disagreementSignal": false,
-      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 56% of channel — no edge at current price, grid signal HOLD at 50% confidence. MNT EXIT_RANGING with UNKNOWN breakout direction correctly defers action. Portfolio is stable-heavy/FLAT; inventory rule supports HOLD over repeated risk_off. Funding neutral (1.37% annualised), smart money flow flat, RANGING regime at 55% confidence. No R:R calculation requi",
-      "validatorFlaggedIssues": [
-        "TAKE_PROFIT override present but mETH inventory is $0.00 — no position to exit",
-        "MNT at 86% of channel with vol expanding — breakout risk if resistance breaks",
-        "Yield spread -1% is a mild bearish drag on mETH thesis",
-        "RANGING regime at only 55% confidence limits signal reliability"
-      ],
-      "arbiterVote": null,
-      "arbiterReasoning": null,
-      "portfolioGuard": null,
-      "gridTradeCandidate": {
-        "active": false,
-        "reason": "tracked mETH exit is below executable $10.00 floor"
-      },
-      "directionalSwap": null,
-      "manifestHash": "0xd8a4e1d8492ded025ec787c323bd267255dc137c479c908a76cb8c92fc2db72c",
-      "combinedAnchor": "0x66864b49b9ceba1d3dcafaae6c7595159f87ef15d81acf7468d1121d5017b5b5",
-      "decisionLogTxHash": "0x32818895be52513db4f366f00127e56eb6ea8d03d031d42635098ba916ea6c1f",
-      "priceSource": "coingecko",
-      "priceFromSnapshot": false,
-      "priceSnapshotAgeSec": null,
-      "candleSource": "hyperliquid",
-      "candleFromSnapshot": false,
-      "candleSnapshotAgeSec": null,
-      "executedOnChain": null,
-      "executionProofStatus": "SKIPPED",
-      "_displayTier": "HOLD_NO_ACTION"
-    },
-    {
-      "id": "1788736249823_1368",
-      "decisionId": 1368,
-      "action": "hold",
-      "targetAsset": "mUSD",
-      "consensus": false,
-      "confidence": 0.58,
-      "priceAtDecision": 2509.4,
-      "settlementAsset": "WETH",
-      "priceAssetAtDecision": "WETH",
-      "settlementSourceAsset": "mETH",
-      "ipfsCid": "bafkreifedf556c70c05b7a8c84f03668caf3deee9699bab1564f7d1d61",
-      "recordedAt": "2026-09-06T23:10:49.823Z",
-      "settleAfter": "2026-09-07T00:10:49.823Z",
-      "settled": false,
-      "rwaIntent": null,
-      "disciplineStatus": "ACCEPTED",
-      "disciplineDetail": {
-        "status": "ACCEPTED",
-        "checks": [
-          {
-            "name": "tx_proof",
-            "status": "SKIP",
-            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
-          },
-          {
-            "name": "price_freshness",
-            "status": "PASS",
-            "detail": "Price data was 5s old"
-          },
-          {
-            "name": "drift_detection",
-            "status": "PASS",
-            "detail": "Action aligns with RANGING regime"
-          }
-        ],
-        "blockReason": null,
-        "repairStep": null,
-        "timestamp": 1788736249799
-      },
-      "decisionTier": "HOLD_NO_ACTION",
-      "tierSource": "live",
-      "confidencePath": "native_unit",
-      "promptSource": "static",
-      "disagreementSignal": false,
-      "validatorReasoning": "HOLD on 100% stable FLAT portfolio is consistent with inventory rule: risk_off should become HOLD unless CRISIS/TREND_DOWN confirmed. Regime is TREND_UP (75%) but signal consensus is BEARISH with yield spread -1% (bearish), smart money flat, and no inflow confirmation. Analyst correctly identifies the divergence. No R:R calculation required for a HOLD with zero deployment. Signals cited match raw ",
-      "validatorFlaggedIssues": [
-        "Signal consensus BEARISH diverges from TREND_UP regime — unresolved tension noted but acknowledged",
-        "Yield spread -1% reduces mETH entry attractiveness",
-        "No smart money inflow confirmation despite bullish regime"
-      ],
-      "arbiterVote": null,
-      "arbiterReasoning": null,
-      "portfolioGuard": null,
-      "gridTradeCandidate": {
-        "active": false,
-        "reason": "not stable-heavy FLAT inventory",
-        "sellCandidateBlocked": null
-      },
-      "directionalSwap": null,
-      "manifestHash": "0x29a52b5fbf11b0a263e7e60493c103d90e7e8877caa4d1ef645a28756caa1898",
-      "combinedAnchor": "0x439dd9a8a22b0e16f2e46a59f6f7708b33b23d6f86ef99d34083c6959d20b734",
-      "decisionLogTxHash": "0xae3de65ade185ac4339fe8dcf95f5d9473c10908ba3d23e4b1e27a2a4bfbe548",
-      "priceSource": "coingecko",
-      "priceFromSnapshot": false,
-      "priceSnapshotAgeSec": null,
-      "candleSource": null,
-      "candleFromSnapshot": false,
-      "candleSnapshotAgeSec": null,
-      "executedOnChain": null,
-      "executionProofStatus": "SKIPPED",
-      "_displayTier": "HOLD_NO_ACTION"
-    },
-    {
-      "id": "1788754216956_1369",
-      "decisionId": 1369,
-      "action": "swap",
-      "targetAsset": "mETH",
-      "consensus": false,
-      "confidence": 0.65,
-      "priceAtDecision": 2496.84,
-      "settlementAsset": "WETH",
-      "priceAssetAtDecision": "WETH",
-      "settlementSourceAsset": null,
-      "ipfsCid": "bafkreic8d8b2d84eefa81c21aa19164be28dee21b353230380f4f1d77d",
-      "recordedAt": "2026-09-07T04:10:16.956Z",
-      "settleAfter": "2026-09-07T05:10:16.956Z",
-      "settled": false,
-      "rwaIntent": null,
-      "disciplineStatus": "ACCEPTED",
-      "disciplineDetail": {
-        "status": "ACCEPTED",
-        "checks": [
-          {
-            "name": "tx_proof",
-            "status": "SKIP",
-            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
-          },
-          {
-            "name": "price_freshness",
-            "status": "PASS",
-            "detail": "Price data was 5s old"
-          },
-          {
-            "name": "drift_detection",
-            "status": "PASS",
-            "detail": "Action aligns with RANGING regime"
-          }
-        ],
-        "blockReason": null,
-        "repairStep": null,
-        "timestamp": 1788754216931
-      },
-      "decisionTier": "BLOCKED_BY_VALIDATOR",
-      "tierSource": "live",
-      "confidencePath": "native_unit",
-      "promptSource": "static",
-      "disagreementSignal": true,
-      "validatorReasoning": "Analyst proposes buying mETH based primarily on MNT's TREND_UP breakout — a category error. MNT and mETH are distinct assets; MNT momentum does not confirm ETH directional edge. ETH grid explicitly signals SELL_mETH at 80% channel position with resistance at $2509.5. Signal consensus is BEARISH. No R:R provided for the mETH entry. ETH technical score is 0.00 (HOLD), MACD is SELL, RSI falling at 50",
-      "validatorFlaggedIssues": [
-        "ETH grid signals SELL_mETH — directly contradicts proposed buy",
-        "R:R not provided; ETH near resistance $2509.5 makes entry unfavorable",
-        "MNT breakout used to justify mETH buy — cross-asset logic error",
-        "Signal consensus BEARISH with negative yield spread ignored",
-        "RANGING regime with no ETH grid buy confirmation — directional swap rejected"
-      ],
-      "arbiterVote": null,
-      "arbiterReasoning": null,
-      "portfolioGuard": null,
-      "gridTradeCandidate": {
-        "active": false,
-        "reason": "no executable mETH inventory for grid sell (need at least $10.00)",
-        "inspectedSignal": {
-          "asset": "ethereum",
-          "action": "SELL_mETH",
-          "confidence": 0.6977477477477486,
-          "breakoutDirection": null,
-          "regimeHint": null,
-          "channelPosition": 0.8,
-          "support": 2454,
-          "resistance": 2509.5,
-          "currentPrice": 2498.2
-        }
-      },
-      "directionalSwap": null,
-      "manifestHash": "0xc09f23e25124414b2efa46502c63673cfb4250fb08bb3a230676a8e2ab286e06",
-      "combinedAnchor": "0x0abe0a8bd60a33c6dc7462c1706cae4c1128e423bd9e071ad0cd9b38ae3014dc",
-      "decisionLogTxHash": "0x9135b7c00c27a7259d0b8baa76c8cb3ee7728a67154a4b9b0c129b359a35cf72",
-      "priceSource": "coingecko",
-      "priceFromSnapshot": false,
-      "priceSnapshotAgeSec": null,
-      "candleSource": "hyperliquid",
-      "candleFromSnapshot": false,
-      "candleSnapshotAgeSec": null,
-      "executedOnChain": null,
-      "executionProofStatus": "SKIPPED",
-      "_displayTier": "BLOCKED_BY_VALIDATOR"
-    }
-  ],
+  "pending": [],
   "settled": [
     {
       "id": "1779427651480_9999",
@@ -112698,6 +112466,256 @@
       "outcome": "INTENT_NOT_EXECUTED",
       "scoreDelta": 0,
       "pnlBps": 0
+    },
+    {
+      "id": "1788709426399_1366",
+      "decisionId": 1366,
+      "action": "hold",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.55,
+      "priceAtDecision": 2480.44,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkrei62aa2b7018f35fdf60fee9969af4485d70e6c2130af4b09e44e9",
+      "recordedAt": "2026-09-06T15:43:46.399Z",
+      "settleAfter": "2026-09-06T16:43:46.399Z",
+      "settled": true,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1788709426373
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD proposal is well-supported. ETH grid at 56% of channel — no edge at current price, grid signal HOLD at 50% confidence. MNT EXIT_RANGING with UNKNOWN breakout direction correctly defers action. Portfolio is stable-heavy/FLAT; inventory rule supports HOLD over repeated risk_off. Funding neutral (1.37% annualised), smart money flow flat, RANGING regime at 55% confidence. No R:R calculation requi",
+      "validatorFlaggedIssues": [
+        "TAKE_PROFIT override present but mETH inventory is $0.00 — no position to exit",
+        "MNT at 86% of channel with vol expanding — breakout risk if resistance breaks",
+        "Yield spread -1% is a mild bearish drag on mETH thesis",
+        "RANGING regime at only 55% confidence limits signal reliability"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "tracked mETH exit is below executable $10.00 floor"
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xd8a4e1d8492ded025ec787c323bd267255dc137c479c908a76cb8c92fc2db72c",
+      "combinedAnchor": "0x66864b49b9ceba1d3dcafaae6c7595159f87ef15d81acf7468d1121d5017b5b5",
+      "decisionLogTxHash": "0x32818895be52513db4f366f00127e56eb6ea8d03d031d42635098ba916ea6c1f",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION",
+      "settledAt": "2026-09-12T02:42:03.165Z",
+      "priceAtSettlement": 2514.52,
+      "pricePct": 1.374,
+      "outcome": "NO_ACTION",
+      "scoreDelta": 0,
+      "pnlBps": 0
+    },
+    {
+      "id": "1788736249823_1368",
+      "decisionId": 1368,
+      "action": "hold",
+      "targetAsset": "mUSD",
+      "consensus": false,
+      "confidence": 0.58,
+      "priceAtDecision": 2509.4,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": "mETH",
+      "ipfsCid": "bafkreifedf556c70c05b7a8c84f03668caf3deee9699bab1564f7d1d61",
+      "recordedAt": "2026-09-06T23:10:49.823Z",
+      "settleAfter": "2026-09-07T00:10:49.823Z",
+      "settled": true,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "HOLD_NO_ACTION — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1788736249799
+      },
+      "decisionTier": "HOLD_NO_ACTION",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": false,
+      "validatorReasoning": "HOLD on 100% stable FLAT portfolio is consistent with inventory rule: risk_off should become HOLD unless CRISIS/TREND_DOWN confirmed. Regime is TREND_UP (75%) but signal consensus is BEARISH with yield spread -1% (bearish), smart money flat, and no inflow confirmation. Analyst correctly identifies the divergence. No R:R calculation required for a HOLD with zero deployment. Signals cited match raw ",
+      "validatorFlaggedIssues": [
+        "Signal consensus BEARISH diverges from TREND_UP regime — unresolved tension noted but acknowledged",
+        "Yield spread -1% reduces mETH entry attractiveness",
+        "No smart money inflow confirmation despite bullish regime"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "not stable-heavy FLAT inventory",
+        "sellCandidateBlocked": null
+      },
+      "directionalSwap": null,
+      "manifestHash": "0x29a52b5fbf11b0a263e7e60493c103d90e7e8877caa4d1ef645a28756caa1898",
+      "combinedAnchor": "0x439dd9a8a22b0e16f2e46a59f6f7708b33b23d6f86ef99d34083c6959d20b734",
+      "decisionLogTxHash": "0xae3de65ade185ac4339fe8dcf95f5d9473c10908ba3d23e4b1e27a2a4bfbe548",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": null,
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "HOLD_NO_ACTION",
+      "settledAt": "2026-09-12T02:42:03.166Z",
+      "priceAtSettlement": 2514.52,
+      "pricePct": 0.204,
+      "outcome": "NO_ACTION",
+      "scoreDelta": 0,
+      "pnlBps": 0
+    },
+    {
+      "id": "1788754216956_1369",
+      "decisionId": 1369,
+      "action": "swap",
+      "targetAsset": "mETH",
+      "consensus": false,
+      "confidence": 0.65,
+      "priceAtDecision": 2496.84,
+      "settlementAsset": "WETH",
+      "priceAssetAtDecision": "WETH",
+      "settlementSourceAsset": null,
+      "ipfsCid": "bafkreic8d8b2d84eefa81c21aa19164be28dee21b353230380f4f1d77d",
+      "recordedAt": "2026-09-07T04:10:16.956Z",
+      "settleAfter": "2026-09-07T05:10:16.956Z",
+      "settled": true,
+      "rwaIntent": null,
+      "disciplineStatus": "ACCEPTED",
+      "disciplineDetail": {
+        "status": "ACCEPTED",
+        "checks": [
+          {
+            "name": "tx_proof",
+            "status": "SKIP",
+            "detail": "BLOCKED_BY_VALIDATOR — No execution transaction expected for this cycle"
+          },
+          {
+            "name": "price_freshness",
+            "status": "PASS",
+            "detail": "Price data was 5s old"
+          },
+          {
+            "name": "drift_detection",
+            "status": "PASS",
+            "detail": "Action aligns with RANGING regime"
+          }
+        ],
+        "blockReason": null,
+        "repairStep": null,
+        "timestamp": 1788754216931
+      },
+      "decisionTier": "BLOCKED_BY_VALIDATOR",
+      "tierSource": "live",
+      "confidencePath": "native_unit",
+      "promptSource": "static",
+      "disagreementSignal": true,
+      "validatorReasoning": "Analyst proposes buying mETH based primarily on MNT's TREND_UP breakout — a category error. MNT and mETH are distinct assets; MNT momentum does not confirm ETH directional edge. ETH grid explicitly signals SELL_mETH at 80% channel position with resistance at $2509.5. Signal consensus is BEARISH. No R:R provided for the mETH entry. ETH technical score is 0.00 (HOLD), MACD is SELL, RSI falling at 50",
+      "validatorFlaggedIssues": [
+        "ETH grid signals SELL_mETH — directly contradicts proposed buy",
+        "R:R not provided; ETH near resistance $2509.5 makes entry unfavorable",
+        "MNT breakout used to justify mETH buy — cross-asset logic error",
+        "Signal consensus BEARISH with negative yield spread ignored",
+        "RANGING regime with no ETH grid buy confirmation — directional swap rejected"
+      ],
+      "arbiterVote": null,
+      "arbiterReasoning": null,
+      "portfolioGuard": null,
+      "gridTradeCandidate": {
+        "active": false,
+        "reason": "no executable mETH inventory for grid sell (need at least $10.00)",
+        "inspectedSignal": {
+          "asset": "ethereum",
+          "action": "SELL_mETH",
+          "confidence": 0.6977477477477486,
+          "breakoutDirection": null,
+          "regimeHint": null,
+          "channelPosition": 0.8,
+          "support": 2454,
+          "resistance": 2509.5,
+          "currentPrice": 2498.2
+        }
+      },
+      "directionalSwap": null,
+      "manifestHash": "0xc09f23e25124414b2efa46502c63673cfb4250fb08bb3a230676a8e2ab286e06",
+      "combinedAnchor": "0x0abe0a8bd60a33c6dc7462c1706cae4c1128e423bd9e071ad0cd9b38ae3014dc",
+      "decisionLogTxHash": "0x9135b7c00c27a7259d0b8baa76c8cb3ee7728a67154a4b9b0c129b359a35cf72",
+      "priceSource": "coingecko",
+      "priceFromSnapshot": false,
+      "priceSnapshotAgeSec": null,
+      "candleSource": "hyperliquid",
+      "candleFromSnapshot": false,
+      "candleSnapshotAgeSec": null,
+      "executedOnChain": null,
+      "executionProofStatus": "SKIPPED",
+      "_displayTier": "BLOCKED_BY_VALIDATOR",
+      "settledAt": "2026-09-12T02:42:03.166Z",
+      "priceAtSettlement": 2514.52,
+      "pricePct": 0.708,
+      "outcome": "MISSED_ALPHA",
+      "scoreDelta": -20,
+      "pnlBps": -21,
+      "onChainTx": "0xb7b1d1af92c0e74c42fe6a4d5f185456b5b6619bd9b7a6854e56d299e6f6e8e2"
     }
   ],
   "schemaVersion": 2
